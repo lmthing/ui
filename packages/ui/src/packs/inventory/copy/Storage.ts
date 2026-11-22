@@ -2,12 +2,27 @@ import { numberLine, pluralForm, screenId, type DeviceData } from "../../../cata
 import { inventoryWordsFor } from "../lang";
 
 type Spot = { name: string; goto: string };
-type StorageInput = {
+type MovingBox = {
+  code?: string | undefined;
+  fragile?: boolean | undefined;
+  status?: "packing" | "sealed" | "in_transit" | "unpacked" | undefined;
+};
+type StorageInput = MovingBox & {
   path: string[];
   spots: Spot[];
   here: string[];
   detail: "full" | "brief";
 };
+
+export function storageBoxCopy({ code, fragile, status }: MovingBox, lang?: string) {
+  const words = inventoryWordsFor(lang).storage;
+  return {
+    code: code && words.code(code),
+    qr: code && words.qr(code),
+    fragile: fragile ? words.fragile : undefined,
+    status: status && words.status[status],
+  };
+}
 
 /** The path wire format carries labels, not links. Ancestor screens use the corresponding slug. */
 export function ancestorDestination(name: string) {
@@ -45,15 +60,17 @@ export function storageCount(data: DeviceData, goto: string, lang?: string) {
 }
 
 export function storageReading(
-  { path, spots, here, detail }: StorageInput,
+  { path, spots, here, detail, ...box }: StorageInput,
   lang?: string,
   data: DeviceData = {},
 ) {
   const words = inventoryWordsFor(lang).storage;
-  if (!path.length && !spots.length && !here.length) return [words.emptyHere];
+  const { code, fragile, status } = storageBoxCopy(box, lang);
+  if (!path.length && !spots.length && !here.length && !code && !fragile && !status) return [words.emptyHere];
   const indexed = (index: number, name: string) => `r${index + 1} ${JSON.stringify(name)}`;
   return [
     ...path.map((name, index) => indexed(index, name)),
+    ...[code, status, fragile].flatMap((line) => line ?? []),
     ...(spots.length ? [words.spots] : []),
     ...spots.map(({ name, goto }, index) => {
       const line = indexed(path.length + index, name);

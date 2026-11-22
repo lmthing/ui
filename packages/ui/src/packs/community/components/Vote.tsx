@@ -5,6 +5,7 @@ import * as kit from "../../../kit";
 import { previewVote, projectVote, validVoteShape, voteBallot, voteCandidate, voteFacts, voteReading, voteRecordKind, voteRule, voteWake, type VoteFacts } from "../copy";
 import { dateTime, ref, seedDate, seedTitle } from "../seeds";
 import * as layout from "./vote-layout";
+import { prompt } from "../../../entry/prompt-Vote.generated";
 
 // Core first: Choice/default collects a preference, not a binding motion with quorum and a passing rule.
 // prettier-ignore
@@ -12,21 +13,15 @@ export const meta = {
   id: "Vote",
   status: "ready",
   group: "input",
-  purpose: "Decide a formal motion with member ballots, quorum and a passing rule.",
-  pick: "A binding group motion with eligible voters, for/against/abstain ballots, quorum and a passing rule. Not a personal choice (Choice), an opinion poll (Poll), a date search (FindDate) or manager approval (Approval).",
-  writeHints: [
-    "Use unique snake_case ids. Opens and closes need ISO datetimes with offsets, opens earlier than closes. Seed at most one ballot per eligible member; never write counts or a decision.",
-    'Choose rule "majority", "two_thirds" or "unanimous". Use style "result" only for a read-only closed result.',
-    "Use voteId for the stored motion reference; the screen instance id is separate.",
-    'Vertical voting choices, one choice on each line: output "arrange":"rows","surface":null,"density":null (unless the person requests a separate finish). Otherwise leave arrange null if unrequested. Do not copy the example detail.',
-    'Keep the usual motion style as "ballot" or null; use "motion" for an explicitly requested motion style. Use "election" to fill named seats. Only for elections, write candidates as {id,name} and seats 1–5 when specified. An election ballot choice is an array of up to seats candidate IDs or the string "abstain". A motion ballot choice is "for", "against" or "abstain".',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath:
     "A shared app snapshots eligible voters at opening, accepts one replaceable ballot per member and freezes the decision at closing.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: [
     "root", "motion", "detail", "opens", "closes", "quorum", "rule", "participation", "status",
     "decision", "own", "for", "for_label", "against", "against_label", "abstain", "abstain_label",
@@ -155,8 +150,8 @@ export const probes = [
 ] satisfies c.Probe[];
 
 export function Vote(input: c.Props<typeof props, typeof meta>) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const live = kit.useLiveControls(meta, input);
   const facts = live.phase ? (live as VoteFacts) : voteFacts(input, c.emptyDeviceData, Date.now());

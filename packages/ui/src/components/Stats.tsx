@@ -7,12 +7,12 @@ import {
   placeholderValue,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
   type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import {
   KitCard,
@@ -24,25 +24,24 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
+import { prompt } from "../entry/prompt-Stats.generated";
 
 export const meta = {
   id: "Stats",
   signature: "count_up",
   group: "data",
-  purpose: "Two to four independent summary numbers, with labels, units and optional change arrows.",
-  pick: "Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).",
-  writeHints: [
-    'Leave density and arrange null unless explicitly requested. For one metric per line with its label on the left and number on the right, set arrange "rows".',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Aggregates over records in the on-device database.",
   items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
   parts: ["root"],
-  variants: { density: ["comfortable", "compact"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   states: ["filled", "empty", "loading"],
 } as const satisfies Meta;
 
@@ -107,7 +106,7 @@ export const examples = [
   },
   { tiles: walkTiles },
   { arrange: "rows", tiles: walkTiles },
-  { density: "compact", tiles: walkTiles },
+  { tiles: walkTiles },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Stats");
@@ -154,9 +153,9 @@ function TileRow({ tile, grid, density, reserveUnit }: { tile: Tile; grid: boole
 }
 
 // prettier-ignore
-export function Stats({ arrange, tiles, density: requested }: Props<typeof props, typeof meta>) {
+export function Stats({ arrange, tiles }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, requested);
+  const density = useKit().density;
   const grid = arrange === "grid";
   const reserveUnit = tiles.some((tile) => tile.unit);
   const columns = tiles.length === 3 ? 3 : 2;

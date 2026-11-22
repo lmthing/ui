@@ -36,7 +36,7 @@ describe("ModQueue contract", () => {
     for (const patch of [
       { rules: [] }, { rules: [...rules, "Extra"] }, { rules: ["Same", " Same "] }, { rules: ["x".repeat(33)] },
       { rules: [" "] }, { items: [...items, join] }, { items: [join, join] }, { style: "compact" },
-      { pending: 3 }, { surface: "red" }, { color: "#fff" },
+      { pending: 3 }, { density: "compact" }, { surface: "outlined" }, { color: "#fff" },
       ...[
         { id: "bad-id" }, { id: "x".repeat(25) }, { author: "x".repeat(25) }, { summary: "x".repeat(121) },
         { detail: "x".repeat(201) }, { reason: "x".repeat(33) }, { submittedAt: "2026-11-21T09:00:00" },

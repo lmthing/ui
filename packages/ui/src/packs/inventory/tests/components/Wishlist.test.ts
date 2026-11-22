@@ -36,7 +36,6 @@ describe("Wishlist schema", () => {
     expect(props.parse({ items: Array(6).fill(item) })).toMatchObject({
       items: Array(6).fill(item),
       detail: "full",
-      surface: "card",
     });
     expect(props.parse({ items: [{ ...lead, name: "  Lead  " }] }).items[0]?.name).toBe("Lead");
     expectTypeOf<Props<typeof props, typeof meta>["items"][number]["id"]>().toEqualTypeOf<string>();
@@ -123,7 +122,7 @@ describe("Wishlist states and parts", () => {
   });
 
   it("hides only target in brief, without changing stored amounts or the other addresses", () => {
-    const input = { ...filled, detail: "brief", density: "compact", surface: "outlined" };
+    const input = { ...filled, detail: "brief" };
     expect(props.parse(input).items).toEqual(filled.items);
     expect([...render(input).keys()]).toEqual(
       [...render(filled).keys()].filter((key) => !key.endsWith("/target")),

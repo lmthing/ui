@@ -23,7 +23,7 @@ const roster = {
 };
 
 it("omits portraits without changing the current person, queue, or actions", () => {
-  expect(props.parse(ledge)).toMatchObject({ lead: "avatar", emphasis: "normal", surface: "card" });
+  expect(props.parse(ledge)).toMatchObject({ lead: "avatar", emphasis: "normal" });
   expect(props.safeParse({ ...ledge, lead: "icon" }).success).toBe(false);
   const html = renderInstance("Turns", { ...ledge, lead: "none" }, "filled", theme);
   expect(html).not.toMatch(/home\/c1\/r[1-3]\/photo/);

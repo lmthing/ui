@@ -5,25 +5,23 @@ import { previewSignUp, projectSignUp, signUpClaim, signUpReading, signUpRecordK
 import { signUpRowCopy, signUpStatus, validSignUpClaims, type SignUpRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-SignUpSheet.generated";
 
 // Core first: Checklist/default ticks jobs, not limited places with claim ownership and release.
 export const meta = {
   id: "SignUpSheet",
   status: "ready" as "ready" | "draft",
   group: "input",
-  purpose: "Let group members claim or release a limited contribution place.",
-  pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
-  writeHints: [
-    "Use unique snake_case slot ids. Claims must name an existing slot and be unique per member per slot; never exceed capacity. Do not write claimed or remaining counts.",
-    'For compact summaries that expand to reveal claimants, write detail "brief" and keep the claims. That is a disclosure request, not a spacing or surface request: write density null and surface null unless those are expressly requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath:
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["claimants"] } },
   parts: ["root", "title", "status"],
   items: {
@@ -176,8 +174,8 @@ function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
 // prettier-ignore
 export function SignUpSheet(input: SheetProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };

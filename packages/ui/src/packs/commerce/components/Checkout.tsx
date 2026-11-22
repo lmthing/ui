@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { checkoutAmount, checkoutChoices, checkoutReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Checkout.generated";
 
 const modes = ["pickup", "delivery", "table"] as const;
 const methods = ["card", "cash", "wallet"] as const;
@@ -12,13 +13,9 @@ export const meta = {
   id: "Checkout",
   status: "ready",
   group: "input",
-  purpose: "Choose fulfillment and payment, then place an order.",
-  pick: "Finish a goods order by choosing pickup or delivery and a payment method, then place it. Not editing one field (Field), reviewing an appointment (Appointment), or editing basket items (Cart).",
-  writeHints: [
-    "Use unique modes and methods, and select a mode and method that appear in their lists. The total comes from the basket, not props.",
-    'Use detail null for a time that should show and "brief" for a time the brief explicitly hides. Always write the supplied time.',
-    'If only the detail changes, use {"detail":"brief","surface":null,"density":null}. Keeping the address or total visible does not request a card. Never emit "card" for the default surface.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -28,7 +25,7 @@ export const meta = {
   },
   partTiersBy: { place: { prop: "method", tiers: { card: "service", wallet: "service" } } },
   realPath: "Cash on pickup works on the device; card and wallet payments need a payment service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   parts: ["root", "mode", "method", "time", "address", "total", "place", "place_label", "success"],
   states: ["filled", "success"],
@@ -159,8 +156,8 @@ function CheckoutDetails({ mode, time, address, density, success }: Pick<Checkou
 
 // prettier-ignore
 export function Checkout(input: CheckoutProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const success = kit.useComponentState() === "success";
   const { basket } = kit.useDeviceData();
   const { lang, words: { checkout: words } } = kit.useWords(commerceWordsFor);

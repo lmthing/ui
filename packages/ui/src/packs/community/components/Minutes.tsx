@@ -5,22 +5,23 @@ import * as kit from "../../../kit";
 import { attendanceSchema, memberDirectoryKind, minutesHeader, minutesProjection, minutesReading, minutesRowCopy, type MinutesRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Minutes.generated";
 
 // Core first: Checklist/default tracks jobs, not approved decisions linked to motions and owned follow-up.
 // prettier-ignore
 export const meta = {
-  id: "Minutes", status: "ready" as "ready" | "draft", group: "content",
-  purpose: "Record agreed decisions and follow-up actions with owners and sign-off.",
-  pick: "Official meeting minutes with agreed decisions, linked motions, owned follow-up and approval. Not a draft note (Composer), personal jobs (Checklist), long prose (Article) or a change audit (ActivityLog).",
-  writeHints: [
-    "Use unique snake_case decision and action ids. Each action decisionId must match a decision in this record. Only link closed, uncancelled votes; do not write their outcomes again.",
-    'Set both approval fields together or neither; approvedAt is an offset ISO datetime. Use style "actions" only for follow-up with decision links, not the official record.',
-    "Write attendance only if taken. Use presentIds and apologiesIds for distinct membership ids; use an empty array when nobody belongs to a list.",
-  ],
-  region: "body", weight: 3, dense: true, tier: "people",
+  id: "Minutes",
+  status: "ready" as "ready" | "draft",
+  group: "content",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
+  region: "body",
+  weight: 3,
+  dense: true,
+  tier: "people",
   realPath:
     "A shared record links stored motions and members; chair approval locks decisions, but actions can still progress.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "title", "date", "chair", "approval", "present", "apologies", "approve", "approve_label", "empty"],
   items: {
     key: "entries",
@@ -51,7 +52,7 @@ const followUp = z.strictObject({
 
 // prettier-ignore
 const schema = z.strictObject({
-  ...c.variantProps(meta.variants), title: c.text(40), date: c.isoDate, chairId: ref,
+  title: c.text(40), date: c.isoDate, chairId: ref,
   decisions: z.array(decision).min(1).max(8), actions: z.array(followUp).min(0).max(12),
   approvedAt: dateTime.optional(), approvedBy: ref.optional(), attendance: attendanceSchema.optional(),
   style: z.enum(["record", "actions"]).default("record"),
@@ -111,7 +112,7 @@ export const examples: z.input<typeof props>[] = [
     approvedBy: "ana",
   },
   {
-    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions", surface: "outlined",
+    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions",
     attendance: { presentIds: ["lee"], apologiesIds: ["ana"] },
     decisions: [{ id: "route", title: "Adopt the winter route", text: "Start at the park gate in winter." }],
     actions: [
@@ -140,7 +141,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function Entry({ row, density }: { row: MinutesRow; density: Density }) {
@@ -164,8 +165,8 @@ function Entry({ row, density }: { row: MinutesRow; density: Density }) {
 // prettier-ignore
 export function Minutes(input: View) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words: { minutes: w } } = kit.useWords(communityWordsFor);
   const { entries, can_approve } = kit.useLiveControls(meta, input) as { entries: MinutesRow[]; can_approve: boolean };
   const { present, apologies, ...header } = minutesHeader(input, lang, kit.useDeviceData());

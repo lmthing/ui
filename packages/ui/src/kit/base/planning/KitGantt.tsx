@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { ChartGantt } from "@tamagui/lucide-icons";
+import { ChartGantt, ChevronsLeftRight } from "@tamagui/lucide-icons";
 import { isWeb, ScrollView, XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 import { GanttDependencies, GanttLane, type Gate, type Link, type Range } from "./gantt-lanes";
-import { laneHeight, timelineWidth } from "./gantt-layout";
-
-import { GanttRail } from "./GanttRail";
+import { laneHeight, railWidth, timelineWidth } from "./gantt-layout";
 
 type Column = { id: string; label: string };
 type GanttProps = {
@@ -19,6 +17,54 @@ type GanttProps = {
   gates: readonly Gate[];
   links: readonly Link[];
 };
+
+function GanttRail({
+  entries,
+  loading,
+  scrollable,
+}: {
+  entries: readonly (Range | Gate)[];
+  loading: boolean;
+  scrollable: boolean;
+}) {
+  return (
+    <YStack width={railWidth} flexShrink={component.base.none} backgroundColor="$raised">
+      <YStack
+        height={laneHeight}
+        borderBottomWidth={component.base.borderWidth}
+        borderColor="$line"
+        justifyContent="center"
+        paddingHorizontal={space.md}
+      >
+        {loading ? (
+          <YStack width={size.icon.md} height={space.sm} backgroundColor="$line" borderRadius={radius.pill} />
+        ) : scrollable ? (
+          <ChevronsLeftRight size={size.icon.md} color="$muted" aria-hidden />
+        ) : (
+          <ChartGantt size={size.icon.md} color="$muted" aria-hidden />
+        )}
+      </YStack>
+      {entries.map((entry) => (
+        <YStack
+          key={entry.id}
+          height={laneHeight}
+          justifyContent="center"
+          paddingHorizontal={space.md}
+          borderBottomWidth={component.base.borderWidth}
+          borderColor="$line"
+        >
+          {loading ? (
+            <YStack width="80%" height={space.sm} backgroundColor="$line" borderRadius={radius.pill} />
+          ) : (
+            <KitText role="label" tone={"at" in entry ? "muted" : "text"} lines={2} part={null}>
+              {entry.label}
+            </KitText>
+          )}
+        </YStack>
+      ))}
+    </YStack>
+  );
+}
 
 function TimelineGrid({
   columns,

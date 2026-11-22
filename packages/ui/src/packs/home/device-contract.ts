@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { screenId, text, variantProps } from "../../catalog";
+import { prompt } from "../../entry/prompt-Devices.generated";
 
-const variants = { group: ["sections", "none"], surface: ["card", "outlined"] } as const;
+const variants = { group: ["sections", "none"] } as const;
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
@@ -169,8 +170,8 @@ const deviceActions = {
 
 export const deviceControls = {
   group: "input",
-  purpose: "Read and control connected household devices and apply saved settings together.",
-  pick: "Only for explicitly connected household hardware: switches, thermostat set points and readings, sensor ranges and multi-device scenes. Local app preferences with a switch at the end of each row are List, never this component. Not a single form value (Field), navigation (Actions), manual summary numbers (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,

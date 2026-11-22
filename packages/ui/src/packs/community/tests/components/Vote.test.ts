@@ -75,7 +75,7 @@ describe("Vote view and reading", () => {
     for (const choice of choices) expect(reading).toContain(`[v1/${choice} select`);
     expect(reading).toContain("[v1/cancel press");
     expect(reading).not.toMatch(/For: \d|Motion passed|ana|lee/);
-    const alternate = draw({ ...input, density: "compact", surface: "outlined", arrange: "rows" });
+    const alternate = draw({ ...input, arrange: "rows" });
     expect([...addressedElements(alternate.html).keys()]).toEqual([...parts.keys()]);
   });
 

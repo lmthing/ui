@@ -43,7 +43,7 @@ the ledger. Opening a member shows their record; ending membership keeps their h
   `ended` date optional, `votingRights` boolean, `photo` optional, `goto` optional, `badge` text(16)
   optional, `committee` text(24) optional, 1–30.
   Active membership follows from dates; dues badges and counts come from the host's ledger, never props.
-- Variants: `density` comfortable/compact; `detail` full (default) or brief (name, primary role,
+- Variants: `detail` full (default) or brief (name, primary role,
   voting rights, badge, committee and computed dues badge).
 - Parts → actions: members `root press` (linked only), members `end press` (secretary only).
   Optional `badge` and `committee` are read-only member parts.

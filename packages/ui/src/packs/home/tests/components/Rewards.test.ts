@@ -10,7 +10,7 @@ const prize = points.prizes[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const screen = { id: "home", components: [{ id: "r1", c: "Rewards", ...points }] };
 it("hides the shortfall in brief view and read without enabling the claim", () => {
-  expect(props.parse(points)).toMatchObject({ detail: "full", surface: "card" });
+  expect(props.parse(points)).toMatchObject({ detail: "full" });
   expect(props.safeParse({ ...points, detail: "none" }).success).toBe(false);
   const input = { ...points, detail: "brief" };
   const html = renderInstance("Rewards", input, "filled", theme);

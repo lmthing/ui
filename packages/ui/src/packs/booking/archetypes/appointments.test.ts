@@ -32,8 +32,8 @@ describe("appointments/upcoming", () => {
       const list = screen.components.find(({ c }) => c === "List")!;
       const { id: _id, c: _c, ...input } = list;
       const parsed = components.List.props.parse(input);
-      expect(list.surface).toBe("card");
-      expect(parsed).toMatchObject({ surface: "card", style: undefined });
+      expect(list).not.toHaveProperty("surface");
+      expect(parsed).toMatchObject({ style: undefined });
       expect(parsed.rows.every((row) => !row.me && !row.photo && !row.body)).toBe(true);
     }
   });

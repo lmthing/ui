@@ -30,8 +30,8 @@ function usePinTarget(pin: Pin, loading: boolean, origin: Point, nearest: (point
   const address = usePart(pin.target?.part, Boolean(target));
   const press = (event?: PinPress) => {
     const detail = event?.nativeEvent;
-    const x = detail?.locationX ?? detail?.offsetX,
-      y = detail?.locationY ?? detail?.offsetY;
+    const x = detail?.locationX ?? detail?.offsetX;
+    const y = detail?.locationY ?? detail?.offsetY;
     const point = x === undefined || y === undefined ? undefined : { x: origin.x + x, y: origin.y + y };
     const hit = point && detail?.detail !== 0 && nearest(point);
     if (!hit || !hit.target || hit === pin) return kit.controller?.press(address.testID);
@@ -88,15 +88,15 @@ function PinGlyph({ pin }: { pin: Pin }) {
 }
 
 function PlacedPin({ pin, width, height, loading, pins, imageSpace }: PlacedProps) {
-  const dot = pin.mark === "dot",
-    price = pin.mark === "price",
-    avatar = pin.mark === "avatar";
-  const targetWidth = targetWidthOf(pin, width),
-    mark = markSizeOf(pin),
-    markWidth = price ? targetWidth : mark,
-    { x, y } = centerOf(pin, width, height, imageSpace);
-  const left = offset(x, width, targetWidth),
-    top = offset(y, height);
+  const dot = pin.mark === "dot";
+  const price = pin.mark === "price";
+  const avatar = pin.mark === "avatar";
+  const targetWidth = targetWidthOf(pin, width);
+  const mark = markSizeOf(pin);
+  const markWidth = price ? targetWidth : mark;
+  const { x, y } = centerOf(pin, width, height, imageSpace);
+  const left = offset(x, width, targetWidth);
+  const top = offset(y, height);
   const target = usePinTarget(pin, loading, { x: left, y: top }, (at) =>
     nearestPin(at, pins, width, height, imageSpace),
   );

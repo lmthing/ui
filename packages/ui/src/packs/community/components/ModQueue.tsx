@@ -6,20 +6,18 @@ import { modQueueApprove, modQueueCount, modQueueDecision, modQueueItems, modQue
   modQueueReason, modQueueRowMeta, modQueueState, type ModQueueRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { dateTime, distinct, ref } from "../seeds";
+import { prompt } from "../../../entry/prompt-ModQueue.generated";
 
 // Core first: List/expand opens notices but cannot record rule-backed moderation decisions.
 // prettier-ignore
 export const meta = {
   id: "ModQueue", status: "ready", group: "action", tier: "people",
-  purpose: "Review join requests and flagged content under community rules.",
-  pick: "Moderate a group's join requests or reported posts and comments: scan evidence, choose a rule reason, and approve, decline or remove. Not expandable notices (List), a member register (Members), repair tickets (RequestTriage) or job candidates (ApplicantPipeline).",
-  writeHints: [
-    "Use distinct snake_case item ids, distinct community rules, and an ISO submission timestamp with Z or a numeric offset. Keep screening answers and any stated eligibility in detail. Do not write the pending count.",
-    'Use style "joins" only for pending membership applications without flagged content on screen. Use detail "brief" to hide the extra screening or report detail while preserving it in the data; leave other variants null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true,
   realPath: "A shared community app synchronizes applications, reports and decisions from authorized moderators.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["detail"] } },
   parts: ["root", "heading", "count", "count_label", "notice"],
   items: {
@@ -173,8 +171,8 @@ function QueueRow({ row, state, density, operation, later }: Finish & { row: Mod
 // prettier-ignore
 export function ModQueue(input: QueueProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const operations = kit.useHostOperations();
   const { lang, words: { modQueue: words } } = kit.useWords(communityWordsFor);
   const live = kit.useLiveControls(meta, input);

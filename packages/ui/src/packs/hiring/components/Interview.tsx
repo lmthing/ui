@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { interviewActions, interviewCopy, interviewReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { seedApplicationId, seedDate, seedGoto, seedRows, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Interview.generated";
 
 const httpsUrl = z.url({ protocol: /^https$/, hostname: /.+/ });
 
@@ -12,15 +13,14 @@ export const meta = {
   id: "Interview",
   status: "ready",
   group: "content",
-  purpose: "View and manage one job interview already arranged for an applicant.",
-  pick: "One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { invite: "service", join: "service" },
   realPath:
     "The phone holds the agreed meeting record, while sending invitations and opening call links need outside services.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"] },
   // prettier-ignore
   parts: ["root", "candidate", "role", "date", "time", "duration", "format", "place", "interviewers",
     "status", "past", "link", "edit", "edit_label", "cancel", "cancel_label", "complete", "complete_label",
@@ -43,13 +43,10 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? interviewReading(input as z.output<typeof props>, lang) : [],
-  writeHints: [
-    "Use the agreed local date and 24-hour time, plus minutes; do not write a calculated end time or past flag. Link is optional and must use HTTPS.",
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   interviewId: c.text(32).meta({ kind: "id" }),
   applicationId: c.text(32).meta({ kind: "id" }),
   candidate: c.text(24),
@@ -96,7 +93,7 @@ export const examples = [
   {
     interviewId: "mara_meeting", applicationId: "mara", candidate: "Mara Kim", role: "Morning baker",
     date: "2027-05-06", time: "15:00", minutes: 45, format: "video", link: "https://meet.example.org/bakery",
-    interviewers: ["Ruth Bell"], status: "proposed", goto: "mara_edit", surface: "plain", density: "compact",
+    interviewers: ["Ruth Bell"], status: "proposed", goto: "mara_edit",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -142,8 +139,8 @@ function MeetingActions({ input, density, loading }: { input: Meeting; density: 
 export function Interview(input: Meeting) {
   const state = kit.useComponentState(), loading = state === "loading";
   const { lang, words: { interview: words } } = kit.useWords(hiringWordsFor);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = "card";
+  const density = kit.useKit().density;
   const copy = interviewCopy(input, lang);
   const line = (part: string, value: string | undefined, role: kit.TextRole, tone: kit.TextTone = "text") => {
     const step = role === "title" ? "comfortable" : density;
@@ -152,7 +149,7 @@ export function Interview(input: Meeting) {
       <kit.KitSkeleton shape="figure" inset="none" content={[numberScale ? [role, value, "start", numberScale] : [role, value]]} density={step} /> :
       <kit.KitText {...{ part, role, tone }} {...(numberScale ? { numberScale } : {})} density={step} tabular={role === "number"}>{value}</kit.KitText>;
   };
-  return <kit.KitCard part="root" padded {...{ density, surface }} {...(surface === "plain" ? { inset: "none" as const } : {})}>
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
     {state === "success" || state === "error" ? <kit.KitEmpty part={state} decorativeIcon
       title={state === "success" ? words.success : words.error} icon={state === "success" ? "check" : "info"} /> : <>
       <kit.KitContent {...{ density }}>

@@ -5,22 +5,23 @@ import * as kit from "../../../kit";
 import { duesCadences, duesGroups, duesMoney, duesProjection, duesReading, duesRowCopy, ledgerTotals, type DuesRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Dues.generated";
 
 // Core first: Amount/default shows a figure, not assessments reconciled against multiple receipts.
 // prettier-ignore
 export const meta = {
-  id: "Dues", status: "ready" as "ready" | "draft", group: "data",
-  purpose: "Reconcile members' subscription assessments and receipts for one period.",
-  pick: "Collect and reconcile one period of membership dues against dated receipts. Not a single figure (Amount), personal bills (Bills), a client invoice (Invoice) or one client's payment status (PaymentStatus).",
-  writeHints: [
-    "Use unique snake_case ids within assessments and receipts. Every receipt assessmentId must match an assessment id in this ledger. Write amounts as numbers, no currency or computed totals.",
-    'Use style "ledger" for the treasurer. Use "member" only for a signed-in member and seed only that member’s assessments and receipts.',
-    "Only set cadence for a stated schedule. Put waived and householdId on assessments, not on receipts. Keep the original assessment amount for a waiver.",
-  ],
-  region: "body", weight: 3, dense: true, tier: "phone",
+  id: "Dues",
+  status: "ready" as "ready" | "draft",
+  group: "data",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
+  region: "body",
+  weight: 3,
+  dense: true,
+  tier: "phone",
   realPath:
     "The treasurer keeps a local ledger; messaging sends reminders and only a payment service's confirmed receipt changes the ledger.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "period", "cadence", "assessed", "collected", "outstanding", "empty"],
   items: {
     key: "entries", visibleWhen: { visible: true },
@@ -56,7 +57,7 @@ const receipt = z.strictObject({
 });
 // prettier-ignore
 const schema = z.strictObject({
-  ...c.variantProps(meta.variants), period: c.text(20),
+  period: c.text(20),
   cadence: z.enum(duesCadences).optional(),
   assessments: z.array(assessment).min(1).max(30), receipts: z.array(receipt).min(0).max(60),
   style: z.enum(["ledger", "member"]).default("ledger"),
@@ -105,8 +106,7 @@ export const examples: z.input<typeof props>[] = [
     ],
   },
   {
-    period: "Trot autumn dues",
-    surface: "outlined", style: "member",
+    period: "Trot autumn dues", style: "member",
     assessments: [{ id: "jo_autumn", memberId: "jo", amount: 30, due: "2026-09-08" }],
     receipts: [{ id: "receipt_3", assessmentId: "jo_autumn", amount: 30, date: "2026-09-06", method: "card" }],
   },
@@ -134,7 +134,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 const totals = ["assessed", "collected", "outstanding"] as const;
 
 // prettier-ignore
@@ -168,8 +168,8 @@ function LedgerRow({ row, density, ledger }: {
 // prettier-ignore
 export function Dues(input: View) {
   const state = kit.useComponentState(), scope = kit.usePartContext();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words: { dues: w } } = kit.useWords(communityWordsFor);
   const { entries, treasurer } = kit.useLiveControls(meta, input) as { entries: DuesRow[]; treasurer: boolean };
   const rows = entries.filter((entry) => entry.visible);

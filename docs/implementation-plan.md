@@ -34,12 +34,12 @@ The scope table is the full requirement, not a claim that each row is complete.
 
 1. **Data first.** Every component is defined once as data. The prompt line, the Zod schema, the default content and the kit prop types all come from that one definition, so they share one source.
 2. **No free values.** Nothing the catalog accepts carries a colour, size, spacing, layout or motion value. Look comes from tokens, presets and fixed tables.
-3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
+3. **One definition per component.** `<Name>.tsx` holds its data (`meta`, `props`, `fallback`, `examples`) and view. Model-facing purpose, pick (including near misses) and Writer guidance live beside it in `<Name>.prompt.md`; the entry builder makes them available as typed metadata without runtime file reads. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
-8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
+8. **Compose shared runtime primitives.** A component declares its needs using the primitives in 4.12 and 5.9. Keep component-specific rules in its definition, not in a new runtime mechanism. Add a primitive only when the existing set cannot express a distinct shared contract. Nothing here depends on THING, takes, trailers or app sessions. Tiers and `realPath` are required; signature metadata is optional.
 9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
 
 ## 3. Repository layout
@@ -68,7 +68,7 @@ packages/ui/
     registry/       create-registry
     migrations/     aliases, day-timeline
     icons.ts, signatures.ts
-  src/components/   45 PascalCase files, each with data and view; adjacent tests
+  src/components/   PascalCase definitions and views; adjacent prompt Markdown and tests
   src/kit/
     provider/       KitProvider, context, useKit, useKitStyle, environment, useEnvironment
     tamagui/        tokens, fonts, animations, themes.generated, theme-name
@@ -269,11 +269,7 @@ Gallery `carousel`, Scale `stars`).
 
 | Kind       | Axis       | Values                                          | Meaning                                         |
 | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
-| Finish     | `density`  | `comfortable`, `compact`                        | Row height, spacing and type step               |
 | Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
-| Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
-| Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
-| Finish     | `bleed`    | `inset`, `edge`                                 | Inside the gutter or edge to edge               |
 | Finish     | `aspect`   | `auto`, `square`, `wide`, `tall`                | Media frame shape                               |
 | Content    | `detail`   | `full`, `brief`                                 | Secondary text (subtitles, meta) shown or not   |
 | Content    | `media`    | `none`, `icon`, `thumb`, `cover`                | Image treatment where images exist              |
@@ -287,18 +283,19 @@ Gallery `carousel`, Scale `stars`).
 | Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
 | Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
 
-The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), the default for every
-component without its own, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
-reduce-motion setting still wins.
+The theme (4.3) supplies `density` (`comfortable`, `compact`) for row height, spacing and type steps,
+and decides the surface treatment. Renderers choose alignment and bleed for their role in the layout.
+`density`, `surface`, `align` and `bleed` are not component props or Writer axes. Theme `motion`
+(`calm`, `lively`) governs entrances and celebrations; the OS reduce-motion setting still wins.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
-sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
-["normal", "hero"] }`. A local default need not be the first value in the shared vocabulary. Item
+sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`.
+A local default need not be the first value in the shared vocabulary. Item
 axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
 the collection trail, and action gating uses the same effective value as the view. Most components
-declare three to six axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
-density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
-strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
+declare only axes that change what they draw. A shared `variantProps(meta.variants)` helper in
+`catalog/props` spreads the axes into the
+strict props object as ordinary flat props (`{"c":"List","detail":"brief"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
 
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
@@ -309,10 +306,10 @@ without modifying the wire props. A hidden item keeps its address and actions; t
 the same prefix and localized "and N more" count as the view. The conformance test renders every
 declared value and checks these rules.
 
-**Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
-(for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
-`elevation.card`), as plain data. Kit bases take axis values through `useVariant()` and the base
-options; views pass the component's values to bases and never branch on numbers.
+**Tokens.** `tokens/variants.ts` maps finish values and internal Kit options to token steps and roles
+per preset kind. For example, `emphasis.hero` changes type step and weight, while a card role uses
+the theme's surface treatment. Kit bases take declared axis values through `useVariant()` and accept
+renderer-owned options separately. Views never branch on raw layout numbers.
 
 **Repairs and screen rules.** An undeclared axis or value is a component repair (4.14) back to the
 default, never a failed line. Screen rules (4.5) cap `emphasis: "hero"` at one per screen, a
@@ -321,8 +318,8 @@ items.
 
 **Prompts and probes.** The write prompt states the axis vocabulary once (budget: at most 160 tokens);
 each component's line lists only its axes and values. Writers set an axis only when the request
-implies one. Shared write probes cover each axis on representative components ("fit more on the
-walks list" → `density: "compact"`); each component adds one write probe for its most distinctive
+implies one. Shared write probes cover each axis on representative components ("show a number at the start of each
+row" → `lead: "number"`); each component adds one write probe for its most distinctive
 non-finish axis.
 
 **Look and gallery.** `look` draws the defaults in every preset and mode as before, plus each declared
@@ -330,18 +327,13 @@ non-default value once (calm, light, 390 wide) on a variants sheet. The gallery 
 per component.
 
 **Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
-strict validation of saved lines; enable each migration with its destination schema. Explicit
-destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
-`tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
-`"thumb"` if an icon was authored instead of a photo). The
-default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
-requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
-single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
-List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
-`trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
-`md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
-`square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
-task lists its own moves and refreshes its recordings against the new schema.
+strict validation of saved lines; enable each migration with its destination schema. Ignore legacy
+component `density`, `surface`, `align` and `bleed` on saved lines, without touching the theme.
+Preserve content and structural choices: Card `style: "media"` becomes `media: "cover"` (or `"thumb"`
+for an icon), and List keeps `style: "cards"` for separate row cards. Ranked rows use `lead: "number"`
+and `trail: "value"`; rows without scores hide their trail. Other moves include Player `compact` to
+`detail: "brief"`, Photo `square|wide|tall` to `aspect`, and component-specific `tone` enums to the
+shared helper. Explicit values on supported axes win.
 
 ### 4.3 Tokens and themes
 
@@ -702,6 +694,26 @@ unknown components. `planAct` validates offered actions and generic values befor
 changes. It returns new values, links and compact changes, or the first failure index. Kit controllers
 add live/runtime checks; callers do not treat the pure planner as a complete dispatcher.
 
+**Shared primitives.** Definitions compose these contracts rather than registering a new
+dispatcher. Addresses, action names, Writer schemas and reader text are unchanged by the
+choice of primitive. The kit side of each contract is in [5.9](#59-reading-and-acting-the-kit-side).
+
+| Primitive | Catalog declaration and contract |
+| --- | --- |
+| Host command with result | `hostCommands.parts` / `.items` bind a declared action to a command, external handoff or cancellation. Requests come from validated props and the addressed subject, not arbitrary `act` payloads. The adapter policy decides offers. Only declared acknowledgement fields and the visible subject's operation status are readable. `goto` remains routing, not a command or URL. |
+| Local state and projection | `live` projects text, checks, toggles, setters and derived flags. `defineLocalState` validates a bounded seed and each addressed event, stages the next state, and projects only public props. `linkedEdits`, selection bindings, draws, rounds and buzz are shared patterns in this family, not new dispatchers. `drives` routes declared same-screen controls, observations and anchors. |
+| Collections and nested items | `items` keeps the legacy positional row contract; `collections` gives independent row sets durable ids and separate selection, toggle and movement state. `items.nested` projects controls into a parent's children, enforcing choice, step and group limits. Date spans, item pickers, derived moves, slot moves and row edits use the addressed row and its live gates; never reinterpret an address after filtering or reordering. |
+| Media | `media`, `items.media` and `sequence` declare addressed playback, attachments and cursor controls. Offers bind the current owner and, for attachment reuse, the source revision. The planner stages intent and cursor values, not I/O or private references. |
+| Secrets and private input | `secret`, `items.readSecrets`, and hidden round fields are not exposed by a reveal. Credential and row reveal toggles bind a memory-only grant to the current content. `actions.reveal`, `authenticatedCopy`, `privateInput`, `privateVerify` and host-only captures retain their local trust boundary; `act` does not accept secret payloads for these controls. Public keypads only edit their declared drafts. |
+| Clocks and journals | `clocks` declares timestamp, timer and playback projections at component, row or nested scope. Clock transitions use one sampled time; stop journals validate a row before appending, and cannot append twice for one session. Local-week checks use calendar boundaries without redefining elapsed time. `deviceData` supplies declared host snapshots; record edits and `recordRuntime` stage and project schema-checked changes by durable target. |
+
+Offer generation uses the parsed wire seed plus staged projection, state gates and current host
+policy. The mounted kit adds eligibility checks; it does not define a separate set of component
+offers. For compatibility, when there is no projected state, the detached planner ignores wire
+state for definitions without a runtime state opt-in; mounted lookup honors it. A component-specific
+rule belongs in its schema, reducer, gate, record builder or public projection. It does not select
+another runtime path by component id.
+
 **Pending reader API:** `readScreen(screen, registry, { depth, address, since, values, marks })`,
 `readApp({ name, sections, screens })`, and deltas (new/changed components whole, removals as `- id`,
 unchanged screen header only). Runtime clipping/offscreen marks and complete state summaries remain
@@ -816,7 +828,7 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
 
 | Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
 | Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
 | `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
 
@@ -982,6 +994,7 @@ filled/loading parity, and last-column reachability separately from gallery fixt
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
 They compose bases; user-facing text comes from props, cast or shared copy helpers.
 Built-in words come from per-language core and pack dictionaries, using the app's BCP-47 `lang` for copy and `Intl` formatting.
+Each English dictionary assembles `lang/en/<Name>.ts` modules for component-owned words and `lang/en/pack.ts` for shared words.
 
 - `part` stamps an address and `testID`; `item` supplies item context. Bases supply roles, labels and
   control state. `usePart` measures on layout and unregisters on unmount.
@@ -1097,6 +1110,19 @@ handle links, actions, sends and photo/media I/O. A standard confirmation expose
 Batches plan each step in order with updated local state. Failed validation commits no values or
 effects; `dryRun` reports changes only. External media/photo effects can complete later, so this is
 validation atomicity, not a transaction over host I/O.
+
+**Primitive ownership in the kit.** Use [4.12](#412-reading-and-acting-the-catalog-side) for the
+declarations. Bases register addressed parts and draw projected props; they do not duplicate
+the rules below.
+
+| Primitive | Kit contract |
+| --- | --- |
+| Host command with result | The host owns admission, execution and acknowledgement. Stage requests with the batch, then run after commit. Keep only the latest operation per subject and abort on cancellation, replacement or teardown; ignore stale completion. External handoffs require a separate mounted human confirmation. Parent admission is a host grant, never a navigation side effect. |
+| Local state and projection | `useLiveControls` draws the same public projection used to make offers. A reducer owns its event exclusively. Same-screen drives recheck the addressed destination; bound focus and jump run on a mounted anchor after commit. An action introduced by an earlier staged step still has to become newly offered before the batch can use it. |
+| Collections and nested items | Use `visibleItems`, `slotMoveOffer` and `useNestedControls` for the same rows, destinations and disabled states the dispatcher checks. A stable collection id survives reorder; an existing positional address is not a substitute for durable host identity. |
+| Media | `MediaAdapter`, playback resolution and the attachment host own sessions and references. Prepare after validation, and release or ignore work if its owner changes. The view attaches the active element to the committed mount without opening a new session when the frame changes. Microphone capture requires a mounted, locally admitted start and releases on physical stop or cancellation. |
+| Secrets and private input | One private-control lifecycle handles local reveal, authenticated copy, keypad verification and revocation. Private drafts and authentication results stay outside interaction snapshots; private capture references are stripped from agent reads. Grant expiration, replacement, unmount and reset must not expose previous content. |
+| Clocks and journals | The controller samples time for a batch and schedules mounted ticking; projections do not mutate the journal. Stopping or confirming an edit stages a validated record for the current owner. Host snapshots, including stale flags, reach only definitions that declare them. |
 
 ```ts
 const agent = createAgentAccess({ defs, store, current, onLink, runtime });

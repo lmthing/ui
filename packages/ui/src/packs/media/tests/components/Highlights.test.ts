@@ -33,7 +33,6 @@ describe("Highlights schema and boundaries", () => {
     };
     const items = [{ ...max, text: ` ${max.text} ` }, ...Array(5).fill(max)];
     expect(props.parse({ items })).toMatchObject({
-      surface: "card",
       detail: "full",
       items: Array(6).fill(max),
     });
@@ -114,7 +113,7 @@ describe("Highlights states and parts", () => {
     const input = { items: [item, { text: "Another passage", from: "Another source", goto: "second" }] };
     for (const [finish, note] of [
       [{}, true],
-      [{ density: "compact", surface: "plain" }, true],
+      [{}, true],
       [{ detail: "brief" }, false],
     ] as const) {
       const parts = addressedElements(renderInstance("Highlights", { ...input, ...finish }, "filled", theme));

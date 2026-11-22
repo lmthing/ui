@@ -44,7 +44,7 @@ describe("Request schema", () => {
         who: "x".repeat(20),
         updates: Array.from({ length: 4 }, () => row),
       }),
-    ).toMatchObject({ title: "x".repeat(32), media: "thumb", surface: "card" });
+    ).toMatchObject({ title: "x".repeat(32), media: "thumb" });
     expect(props.safeParse({ ...repair, updates: [] }).success).toBe(true);
     expectTypeOf<Props<typeof props, typeof meta>["updates"][number]["id"]>().toEqualTypeOf<string>();
   });

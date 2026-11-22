@@ -22,9 +22,9 @@ export {
   type ParentGate,
   type ParentGateProof,
 } from "./host";
-export { createReveal, type AuthenticateReveal } from "./reveal";
 export {
-  createPrivateValues,
+  createPrivateControls,
+  type AuthenticateReveal,
   type PrivateValuesHost,
   type PrivateResult,
   type PrivateStatus,

@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { mapListCopy, mapListPreview, mapListReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MapList.generated";
 
 // Core first: MapPins/default cannot browse six venues in linked map/list views or switch to list only.
 export const meta = {
   id: "MapList",
   status: "ready",
   group: "content",
-  purpose: "Browse nearby places on a map and in a linked list.",
-  pick: "Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).",
-  writeHints: [
-    "Keep up to six places with one short note each and a goto link. Never write distances, pin positions, a total count, or view selection.",
-    'Hiding the notes uses detail "brief", not compact density. Still write each note in meta. Leave density and surface null unless specifically requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A map service draws the map and places.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
@@ -79,7 +75,6 @@ const shops = [
 export const examples = [
   { places: shops },
   {
-    density: "compact",
     places: [
       { name: "Juniper Café", meta: "Water bowl out front", goto: "juniper" },
       { name: "Alder Park", meta: "Off-lead meadow", goto: "alder" },
@@ -138,8 +133,8 @@ function PlaceRows({ places, activePin, density, detail }: {
 // prettier-ignore
 export function MapList(input: MapListProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading";
   const live = kit.useLiveControls(meta, input);

@@ -1,0 +1,26 @@
+export const words = {
+  flightStatus: {
+    status: {
+      scheduled: "Scheduled",
+      on_time: "On time",
+      delayed: "Delayed",
+      boarding: "Boarding",
+      in_air: "In the air",
+      landed: "Landed",
+      cancelled: "Cancelled",
+    },
+    departure: "Departure",
+    arrival: "Arrival",
+    estimated: (time: string) => `Est. ${time}`,
+    scheduledTime: (time: string, delay?: string) => `Sched. ${time}${delay ? ` · +${delay} min` : ""}`,
+    terminal: "Terminal",
+    gate: "Gate",
+    baggage: "Baggage claim",
+    inbound: (flight: string) => `Inbound ${flight}`,
+    route: (from: string, to: string) => `${from} → ${to}`,
+    ofRoute: "of route",
+    refresh: "Refresh status",
+    error: "Flight updates unavailable",
+    detail: (label: string, value: string) => `${label}: ${value}`,
+  },
+};

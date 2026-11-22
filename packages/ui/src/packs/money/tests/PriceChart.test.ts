@@ -33,7 +33,6 @@ describe("PriceChart schema", () => {
       range,
       detail: "full",
       emphasis: "normal",
-      surface: "card",
     });
   });
 

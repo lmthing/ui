@@ -20,9 +20,8 @@ function shape<const D extends Variants, const Inherited extends Axis>(axes: D, 
   ) as unknown as Shape<D, Inherited>;
 }
 
-/** Omitted density stays unset for the kit to inherit from the app. */
 export function variantProps<const D extends Variants>(axes: D) {
-  return shape(axes, ["density"]);
+  return shape<D, never>(axes, []);
 }
 
 /** Item defaults apply unless the collection opts in to inheriting its own trail. */
