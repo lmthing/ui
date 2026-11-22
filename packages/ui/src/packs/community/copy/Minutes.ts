@@ -32,7 +32,8 @@ export const attendanceSchema = z
   .refine(({ presentIds, apologiesIds }) => !apologiesIds.some((id) => presentIds.includes(id)), {
     path: ["apologiesIds"],
   });
-export const memberDirectoryKind = "community_members";
+const memberDirectoryKind = "community_members";
+export { memberDirectoryKind };
 const directoryMember = z.object({ id: ref, name: c.text(24) });
 type Document = Header & {
   approved: boolean;

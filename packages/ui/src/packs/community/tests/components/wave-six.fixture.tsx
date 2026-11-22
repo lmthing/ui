@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { components, type ActStep } from "@lmthing/ui/catalog";
-import { PhoneScreen, renderers } from "@lmthing/ui/kit";
+import { PhoneScreen } from "@lmthing/ui/kit";
 import { config } from "../../../../../test/render";
 import { voteRecordKind } from "../../copy";
 
@@ -33,8 +33,6 @@ function ElectionFixture() {
   };
   return (
     <PhoneScreen
-      defs={{ Vote: components.Vote }}
-      renderers={renderers}
       screen={screen}
       theme={{ preset: "calm", mode: "light", accent: "moss" }}
       onAction={onAction}
