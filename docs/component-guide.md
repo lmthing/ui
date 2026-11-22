@@ -95,6 +95,26 @@ The generated view is only a placeholder, not evidence for the model or visual g
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
+## Choose a runtime primitive
+
+Use the existing declaration for the action's owner. Do not add an action path named for your
+component. The [catalog contracts](implementation-plan.md#412-reading-and-acting-the-catalog-side)
+and [kit contracts](implementation-plan.md#59-reading-and-acting-the-kit-side) describe how the
+reader, planner and mounted controller share them.
+
+- **Host command with result:** use `hostCommands` for authoritative effects and replies. An ordinary
+  `goto` still describes navigation, not a remote mutation.
+- **Local state and projection:** use `live` for direct controls and derived props, or `defineLocalState`
+  for a validated reducer. Put component rules in the definition and keep wire props unchanged.
+- **Collections and nested items:** use `items`, `collections` and `items.nested` to share identity,
+  visibility, selection, movement and limits between the view and dispatcher.
+- **Media:** use addressed `media` or `items.media` with the host's adapters; use `sequence` for a
+  cursor. The view mounts playback but does not acquire a second session.
+- **Secrets and private input:** declare the secret and use the corresponding reveal or private input
+  control. Never put a credential, a verification answer or a capture reference in an agent action.
+- **Clocks and journals:** declare the clock source or record mutation; project the public result.
+  Use a journal for validated history, not an array the view mutates.
+
 ## Host-owned actions
 
 Catalog metadata declares intent; the `PhoneScreen` host owns permission, transport and final settlement.

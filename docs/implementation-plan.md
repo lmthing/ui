@@ -39,7 +39,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
-8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
+8. **Compose shared runtime primitives.** A component declares its needs using the primitives in 4.12 and 5.9. Keep component-specific rules in its definition, not in a new runtime mechanism. Add a primitive only when the existing set cannot express a distinct shared contract. Nothing here depends on THING, takes, trailers or app sessions. Tiers and `realPath` are required; signature metadata is optional.
 9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
 
 ## 3. Repository layout
@@ -702,6 +702,26 @@ unknown components. `planAct` validates offered actions and generic values befor
 changes. It returns new values, links and compact changes, or the first failure index. Kit controllers
 add live/runtime checks; callers do not treat the pure planner as a complete dispatcher.
 
+**Shared primitives.** Definitions compose these contracts rather than registering a new
+dispatcher. Addresses, action names, Writer schemas and reader text are unchanged by the
+choice of primitive. The kit side of each contract is in [5.9](#59-reading-and-acting-the-kit-side).
+
+| Primitive | Catalog declaration and contract |
+| --- | --- |
+| Host command with result | `hostCommands.parts` / `.items` bind a declared action to a command, external handoff or cancellation. Requests come from validated props and the addressed subject, not arbitrary `act` payloads. The adapter policy decides offers. Only declared acknowledgement fields and the visible subject's operation status are readable. `goto` remains routing, not a command or URL. |
+| Local state and projection | `live` projects text, checks, toggles, setters and derived flags. `defineLocalState` validates a bounded seed and each addressed event, stages the next state, and projects only public props. `linkedEdits`, selection bindings, draws, rounds and buzz are shared patterns in this family, not new dispatchers. `drives` routes declared same-screen controls, observations and anchors. |
+| Collections and nested items | `items` keeps the legacy positional row contract; `collections` gives independent row sets durable ids and separate selection, toggle and movement state. `items.nested` projects controls into a parent's children, enforcing choice, step and group limits. Date spans, item pickers, derived moves, slot moves and row edits use the addressed row and its live gates; never reinterpret an address after filtering or reordering. |
+| Media | `media`, `items.media` and `sequence` declare addressed playback, attachments and cursor controls. Offers bind the current owner and, for attachment reuse, the source revision. The planner stages intent and cursor values, not I/O or private references. |
+| Secrets and private input | `secret`, `items.readSecrets`, and hidden round fields are not exposed by a reveal. Credential and row reveal toggles bind a memory-only grant to the current content. `actions.reveal`, `authenticatedCopy`, `privateInput`, `privateVerify` and host-only captures retain their local trust boundary; `act` does not accept secret payloads for these controls. Public keypads only edit their declared drafts. |
+| Clocks and journals | `clocks` declares timestamp, timer and playback projections at component, row or nested scope. Clock transitions use one sampled time; stop journals validate a row before appending, and cannot append twice for one session. Local-week checks use calendar boundaries without redefining elapsed time. `deviceData` supplies declared host snapshots; record edits and `recordRuntime` stage and project schema-checked changes by durable target. |
+
+Offer generation uses the parsed wire seed plus staged projection, state gates and current host
+policy. The mounted kit adds eligibility checks; it does not define a separate set of component
+offers. For compatibility, when there is no projected state, the detached planner ignores wire
+state for definitions without a runtime state opt-in; mounted lookup honors it. A component-specific
+rule belongs in its schema, reducer, gate, record builder or public projection. It does not select
+another runtime path by component id.
+
 **Pending reader API:** `readScreen(screen, registry, { depth, address, since, values, marks })`,
 `readApp({ name, sections, screens })`, and deltas (new/changed components whole, removals as `- id`,
 unchanged screen header only). Runtime clipping/offscreen marks and complete state summaries remain
@@ -1097,6 +1117,19 @@ handle links, actions, sends and photo/media I/O. A standard confirmation expose
 Batches plan each step in order with updated local state. Failed validation commits no values or
 effects; `dryRun` reports changes only. External media/photo effects can complete later, so this is
 validation atomicity, not a transaction over host I/O.
+
+**Primitive ownership in the kit.** Use [4.12](#412-reading-and-acting-the-catalog-side) for the
+declarations. Bases register addressed parts and draw projected props; they do not duplicate
+the rules below.
+
+| Primitive | Kit contract |
+| --- | --- |
+| Host command with result | The host owns admission, execution and acknowledgement. Stage requests with the batch, then run after commit. Keep only the latest operation per subject and abort on cancellation, replacement or teardown; ignore stale completion. External handoffs require a separate mounted human confirmation. Parent admission is a host grant, never a navigation side effect. |
+| Local state and projection | `useLiveControls` draws the same public projection used to make offers. A reducer owns its event exclusively. Same-screen drives recheck the addressed destination; bound focus and jump run on a mounted anchor after commit. An action introduced by an earlier staged step still has to become newly offered before the batch can use it. |
+| Collections and nested items | Use `visibleItems`, `slotMoveOffer` and `useNestedControls` for the same rows, destinations and disabled states the dispatcher checks. A stable collection id survives reorder; an existing positional address is not a substitute for durable host identity. |
+| Media | `MediaAdapter`, playback resolution and the attachment host own sessions and references. Prepare after validation, and release or ignore work if its owner changes. The view attaches the active element to the committed mount without opening a new session when the frame changes. Microphone capture requires a mounted, locally admitted start and releases on physical stop or cancellation. |
+| Secrets and private input | One private-control lifecycle handles local reveal, authenticated copy, keypad verification and revocation. Private drafts and authentication results stay outside interaction snapshots; private capture references are stripped from agent reads. Grant expiration, replacement, unmount and reset must not expose previous content. |
+| Clocks and journals | The controller samples time for a batch and schedules mounted ticking; projections do not mutate the journal. Stopping or confirming an edit stages a validated record for the current owner. Host snapshots, including stale flags, reach only definitions that declare them. |
 
 ```ts
 const agent = createAgentAccess({ defs, store, current, onLink, runtime });

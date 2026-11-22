@@ -181,6 +181,15 @@
       "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"goto\":\"leads\"}],\"filter\":\"low\"}"
     ]
   },
+  "108df223d6d6d07b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Show three profile links as plain rows: Anna, Ben and Cleo. Each row has just the name and opens that profile screen, no photos, contact buttons, stock or quantities.\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
+    ]
+  },
   "257833ad7d0ed8ff": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., goto: id snake_case }], filter?: all|low=\"all\" }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock automatically. Use filter \"all\" unless asked to show only low stock, and always keep all records.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Track two terracotta pots on the Potting shelf. Flag at two remaining, value 8, photo lib:plants, details at pots.",
     "format": {
@@ -363,6 +372,15 @@
       "Things"
     ]
   },
+  "30ead12dcd17aa85": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Track the gear I own with quantities I can adjust, storage bins and a minimum on each item that flags low stock\"\nReply with only the component id, nothing else.",
+    "reply": "Things",
+    "replies": [
+      "Things",
+      "Things",
+      "Things"
+    ]
+  },
   "68694fc44721c8b5": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., goto: id snake_case }], filter?: all|low=\"all\" }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock automatically. Use filter \"all\" unless asked to show only low stock, and always keep all records.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Track two terracotta pots on the Potting shelf. Flag at two remaining, value 8, photo lib:plants, details at pots.",
     "format": {
@@ -376,13 +394,18 @@
             "c": {
               "type": "string",
               "const": "Things",
-              "enum": ["Things"]
+              "enum": [
+                "Things"
+              ]
             },
             "arrange": {
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["grid", "rows"]
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
                 },
                 {
                   "type": "null"
@@ -393,7 +416,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["comfortable", "compact"]
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
                 },
                 {
                   "type": "null"
@@ -404,7 +430,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["card", "outlined"]
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
                 },
                 {
                   "type": "null"
@@ -479,7 +508,15 @@
                     "pattern": "^[a-z][a-z0-9_]*$"
                   }
                 },
-                "required": ["name", "photo", "qty", "min", "where", "value", "goto"],
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "goto"
+                ],
                 "additionalProperties": false
               }
             },
@@ -487,7 +524,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["all", "low"]
+                  "enum": [
+                    "all",
+                    "low"
+                  ]
                 },
                 {
                   "type": "null"
@@ -495,7 +535,14 @@
               ]
             }
           },
-          "required": ["c", "arrange", "density", "surface", "items", "filter"],
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter"
+          ],
           "additionalProperties": false
         }
       }
@@ -729,13 +776,18 @@
             "c": {
               "type": "string",
               "const": "Things",
-              "enum": ["Things"]
+              "enum": [
+                "Things"
+              ]
             },
             "arrange": {
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["grid", "rows"]
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
                 },
                 {
                   "type": "null"
@@ -746,7 +798,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["comfortable", "compact"]
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
                 },
                 {
                   "type": "null"
@@ -757,7 +812,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["card", "outlined"]
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
                 },
                 {
                   "type": "null"
@@ -832,7 +890,15 @@
                     "pattern": "^[a-z][a-z0-9_]*$"
                   }
                 },
-                "required": ["name", "photo", "qty", "min", "where", "value", "goto"],
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "goto"
+                ],
                 "additionalProperties": false
               }
             },
@@ -840,7 +906,10 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "enum": ["all", "low"]
+                  "enum": [
+                    "all",
+                    "low"
+                  ]
                 },
                 {
                   "type": "null"
@@ -848,7 +917,14 @@
               ]
             }
           },
-          "required": ["c", "arrange", "density", "surface", "items", "filter"],
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter"
+          ],
           "additionalProperties": false
         }
       }
@@ -1033,14 +1109,1795 @@
       "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"goto\":\"leads\"}] ,\"filter\":\"all\"}"
     ]
   },
-  "108df223d6d6d07b": {
-    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Show three profile links as plain rows: Anna, Ben and Cleo. Each row has just the name and opens that profile screen, no photos, contact buttons, stock or quantities.\"\nReply with only the component id, nothing else.",
-    "reply": "List",
-    "replies": ["List", "List", "List"]
+  "Things%2Fchoose%2FShow%20three%20profile%20links%20as%20plain%20rows%3A%20Anna%2C%20Ben%20and%20Cleo.%20Each%20row%20has%20just%20the%20name%20and%20opens%20that%20profile%20screen%2C%20no%20photos%2C%20contact%20buttons%2C%20stock%20or%20quantities./53d1dc6e198bf074/3afe6eafcf8b5301": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Show three profile links as plain rows: Anna, Ben and Cleo. Each row has just the name and opens that profile screen, no photos, contact buttons, stock or quantities.\"\nReply with only the component id, nothing else.",
+    "reply": "People",
+    "replies": [
+      "People",
+      "List",
+      "List"
+    ]
   },
-  "30ead12dcd17aa85": {
-    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Track the gear I own with quantities I can adjust, storage bins and a minimum on each item that flags low stock\"\nReply with only the component id, nothing else.",
+  "Things%2Fchoose%2FTrack%20the%20gear%20I%20own%20with%20quantities%20I%20can%20adjust%2C%20storage%20bins%20and%20a%20minimum%20on%20each%20item%20that%20flags%20low%20stock/febd6e5e3ce1b8fb/9892186aa13a1fdf": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Lease: See one rental agreement, when rent is next due and when to renew. Pick: One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).\n- Listing: Review an offer to rent or buy real estate, then save it or contact the advertiser. Pick: A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).\n- Loans: See who has borrowed your things and when to return theirs. Pick: Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).\n- Request: Review one rental repair and share its status and brief updates. Pick: One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).\n- Storage: Find things stored inside rooms, shelves and boxes. Pick: Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).\n- Things: See what you own, where it is kept and what needs restocking. Pick: Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).\n- Warranties: Find proof of purchase and see which warranties are ending. Pick: Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).\n- Wishlist: Prioritize things you want to buy and mark what you acquire. Pick: A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).\n\nNeed, in the person's words: \"Track the gear I own with quantities I can adjust, storage bins and a minimum on each item that flags low stock\"\nReply with only the component id, nothing else.",
     "reply": "Things",
-    "replies": ["Things", "Things", "Things"]
+    "replies": [
+      "Things",
+      "Things",
+      "Things"
+    ]
+  },
+  "Things%2Fread%2FI%20found%20one%20more%20clay%20pot.%20Increase%20its%20quantity%20by%20one./45e9be96d9a7515f/032f6db11e654a36": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Things \"Clay pot\" · Quantity: 2 · Minimum: 2 · \"Potting shelf\" · $8 · Low stock — \"Seed tray\" · Quantity: 8 · Minimum: 2 · \"Greenhouse\" · $12\n  r1 \"Clay pot\" · photo:plants · \"Potting shelf\" [t1/r1 press→pots] [t1/r1/qty increment] [t1/r1/qty decrement]\n  r2 \"Seed tray\" · photo:seed_tray · \"Greenhouse\" [t1/r2 press→trays] [t1/r2/qty increment] [t1/r2/qty decrement]\n\nTask: I found one more clay pot. Increase its quantity by one.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/r1/qty\", \"action\": \"increment\"}",
+    "replies": [
+      "{\"address\": \"t1/r1/qty\", \"action\": \"increment\"}",
+      "{\"address\": \"t1/r1/qty\", \"action\": \"increment\"}",
+      "{\"address\": \"t1/r1/qty\", \"action\": \"increment\"}"
+    ]
+  },
+  "Things%2Fwrite%2FKeep%20a%20record%20for%20one%20spare%20lead%2C%20opens%20lead.%20Add%20a%20button%20to%20scan%20a%20barcode%20or%20QR%20code%20on%20the%20scan_inventory%20screen./e5307b0ca0295e5e/435c82017c4d74f9": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Keep a record for one spare lead, opens lead. Add a button to scan a barcode or QR code on the scan_inventory screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":1,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"spare_lead\"}],\"filter\":\"all\",\"style\":null,\"scan\":{\"goto\":\"scan_inventory\"}}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":1,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"spare_lead\"}],\"filter\":\"all\",\"style\":null,\"scan\":{\"goto\":\"scan_inventory\"}}",
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":1,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"spare_lead\"},{\"name\":\"Barcode scanner\",\"photo\":null,\"qty\":0,\"min\":0,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"scan_inventory\"}],\"filter\":\"all\",\"style\":null,\"scan\":{\"goto\":\"scan_inventory\"}}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"One spare lead\",\"photo\":null,\"qty\":1,\"min\":1,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"spare_lead\"}],\"filter\":\"all\",\"style\":null,\"scan\":{\"goto\":\"scan_inventory\"}}"
+    ]
+  },
+  "Things%2Fwrite%2FList%20all%20my%20stock%20records%3A%20zero%20spare%20leads%20(opens%20lead)%20and%20one%20bowl%20(opens%20bowl).%20Only%20show%20the%20missing%20items%2C%20but%20keep%20both%20records./e64d56d9b5299542/db2c5973695f3cda": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List all my stock records: zero spare leads (opens lead) and one bowl (opens bowl). Only show the missing items, but keep both records.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare leads\",\"photo\":null,\"qty\":0,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"lead\"},{\"name\":\"Bowl\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"bowl\"}],\"filter\":\"missing\",\"style\":null,\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare leads\",\"photo\":null,\"qty\":0,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"lead\"},{\"name\":\"Bowl\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"bowl\"}],\"filter\":\"missing\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Spare leads\",\"photo\":null,\"qty\":0,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"lead\"},{\"name\":\"Bowl\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"bowl\"}],\"filter\":\"missing\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Spare leads\",\"photo\":null,\"qty\":0,\"min\":0,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"lead\"},{\"name\":\"Bowl\",\"photo\":null,\"qty\":1,\"min\":0,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"bowl\"}],\"filter\":\"missing\",\"style\":null,\"scan\":null}"
+    ]
+  },
+  "Things%2Fwrite%2FReconcile%20my%20seed%20trays%20in%20a%20stocktake%3A%20expected%2010%2C%20counted%208.%20Open%20trays%20for%20details./4cc51c768e0726d2/ef88052a87911690": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Reconcile my seed trays in a stocktake: expected 10, counted 8. Open trays for details.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":10,\"where\":\"Greenhouse\",\"value\":12,\"serial\":null,\"condition\":null,\"expected\":10,\"goto\":\"trays\"}],\"filter\":\"low\",\"style\":\"audit\",\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":10,\"where\":\"Greenhouse\",\"value\":12,\"serial\":null,\"condition\":null,\"expected\":10,\"goto\":\"trays\"}],\"filter\":\"low\",\"style\":\"audit\",\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":8,\"min\":null,\"where\":\"Greenhouse\",\"value\":null,\"serial\":null,\"condition\":null,\"expected\":10,\"goto\":\"trays\"}],\"filter\":\"all\",\"style\":\"audit\",\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":8,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":null,\"expected\":10,\"goto\":\"trays\"}],\"filter\":\"all\",\"style\":\"audit\",\"scan\":null}"
+    ]
+  },
+  "Things%2Fwrite%2FShow%20my%20owned%20stock%20one%20row%20per%20item%2C%20not%20as%20photo%20tiles%3A%20one%20spare%20lead%20in%20Van%20bin%2C%20at%20minimum%20two%2C%20details%20at%20leads./a99628603078ac97/7ca5243295b3be50": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my owned stock one row per item, not as photo tiles: one spare lead in Van bin, at minimum two, details at leads.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"leads\"}]  ,\"filter\":\"low\",\"style\":null,\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"leads\"}]  ,\"filter\":\"low\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"leads\"}],\"filter\":\"low\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Spare lead\",\"photo\":null,\"qty\":1,\"min\":2,\"where\":\"Van bin\",\"value\":null,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"leads\"}] ,\"filter\":\"low\",\"style\":null,\"scan\":null}"
+    ]
+  },
+  "Things%2Fwrite%2FTrack%20one%20seed%20tray%2C%20opens%20tray%2C%20with%20the%20exact%20serial%20LEDGE-042./fa8ef05191cdfffe/9800e6933c5a5cba": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Track one seed tray, opens tray, with the exact serial LEDGE-042.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":0,\"where\":null,\"value\":null,\"serial\":\"LEDGE-042\",\"condition\":null,\"expected\":null,\"goto\":\"tray_detail\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":0,\"where\":null,\"value\":null,\"serial\":\"LEDGE-042\",\"condition\":null,\"expected\":null,\"goto\":\"tray_detail\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":0,\"where\":null,\"value\":null,\"serial\":\"LEDGE-042\",\"condition\":null,\"expected\":null,\"goto\":\"tray\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":\"LEDGE-042\",\"condition\":null,\"expected\":null,\"goto\":\"tray_detail\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}"
+    ]
+  },
+  "Things%2Fwrite%2FTrack%20one%20used%20seed%20tray%2C%20opens%20tray.%20Its%20condition%20is%20worn./1e726218b7a9f543/b8b834f39e3ac591": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Track one used seed tray, opens tray. Its condition is worn.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":\"worn\",\"expected\":null,\"goto\":\"tray\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":\"worn\",\"expected\":null,\"goto\":\"tray\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Used seed tray\",\"photo\":null,\"qty\":0,\"min\":0,\"where\":null,\"value\":null,\"serial\":null,\"condition\":\"worn\",\"expected\":null,\"goto\":\"tray\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Seed tray\",\"photo\":null,\"qty\":1,\"min\":null,\"where\":null,\"value\":null,\"serial\":null,\"condition\":\"worn\",\"expected\":null,\"goto\":\"tray\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}"
+    ]
+  },
+  "Things%2Fwrite%2FTrack%20two%20terracotta%20pots%20on%20the%20Potting%20shelf.%20Flag%20at%20two%20remaining%2C%20value%208%2C%20photo%20lib%3Aplants%2C%20details%20at%20pots./66a43d5ae531b30e/c56163a6fe514c95": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nThings: See what you own, where it is kept and what needs restocking.\nprops: { arrange?: grid|rows=\"grid\", density?: comfortable|compact, surface?: card|outlined=\"card\", items: [1..12 { name: text≤28, photo?: photo lib:<tag>|local:<n>, qty: int 0..9007199254740991, min?: int 0..9007199254740991, where?: text≤24, value?: num 0.., serial?: text≤24, condition?: new|good|worn|damaged, expected?: int 0..9007199254740991, goto: id snake_case }], filter?: all|low|missing=\"all\", style?: audit, scan?: { goto: id snake_case } }\nRule: qty and min are nonnegative whole counts. A minimum marks low stock. Filter \"missing\" shows qty zero; use \"low\" only for low stock, otherwise \"all\". Always keep all records, even those hidden by the filter.\nRule: For rows without other styling requests, write arrange \"rows\", density null and surface null. Leave all three axes null when no presentation is requested.\nRule: For stocktake reconciliation use style \"audit\", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.\nRule: To scan codes, set scan: {\"goto\":\"scan_inventory\"} with the requested Camera scan screen id.\nexample: {\"c\":\"Things\",\"items\":[{\"name\":\"Clay pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"goto\":\"pots\"},{\"name\":\"Seed tray\",\"photo\":\"lib:seed_tray\",\"qty\":8,\"min\":2,\"where\":\"Greenhouse\",\"value\":12,\"goto\":\"trays\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Track two terracotta pots on the Potting shelf. Flag at two remaining, value 8, photo lib:plants, details at pots.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Things",
+              "enum": [
+                "Things"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "min": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "serial": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "condition": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "new",
+                          "good",
+                          "worn",
+                          "damaged"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expected": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "qty",
+                  "min",
+                  "where",
+                  "value",
+                  "serial",
+                  "condition",
+                  "expected",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "filter": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "low",
+                    "missing"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audit"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scan": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "goto": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    }
+                  },
+                  "required": [
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "density",
+            "surface",
+            "items",
+            "filter",
+            "style",
+            "scan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"pots\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+    "replies": [
+      "{\"c\":\"Things\",\"arrange\":null,\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"pots\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"grid\",\"density\":null,\"surface\":\"card\",\"items\":[{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"pots\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}",
+      "{\"c\":\"Things\",\"arrange\":\"rows\",\"density\":null,\"surface\":null,\"items\":[{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"pots\"},{\"name\":\"Terracotta pot\",\"photo\":\"lib:plants\",\"qty\":2,\"min\":2,\"where\":\"Potting shelf\",\"value\":8,\"serial\":null,\"condition\":null,\"expected\":null,\"goto\":\"pots\"}],\"filter\":\"all\",\"style\":null,\"scan\":null}"
+    ]
   }
 }

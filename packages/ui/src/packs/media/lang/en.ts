@@ -3,21 +3,41 @@ import type { LDMLPluralRule } from "../../../catalog";
 const progress = "Progress";
 
 export const en = {
+  audioMatch: {
+    title: "Identify music",
+    start: "Start listening",
+    again: "Identify another",
+    stop: "Stop and identify",
+    retry: "Try again",
+    open: "Open track",
+    recent: "Recent matches",
+    artwork: "Cover artwork",
+    empty: "Listen to identify music playing nearby",
+    listening: "Listening for music",
+    requesting: "Preparing to listen",
+    matching: "Finding a match",
+    success: "Track identified",
+    error: "Could not identify the track",
+    track: (title: string, artist: string, album?: string) =>
+      `${title} · ${artist}${album ? ` · ${album}` : ""}`,
+  },
   chapterList: {
     line: (time: string, title: string, current: boolean) =>
       `${time} ${title}${current ? " · Current chapter" : ""}`,
   },
   collection: {
     playAll: "Play all",
+    playBook: "Play audiobook",
     follow: "Follow",
     following: "Following",
-    count: (count: string, form: LDMLPluralRule, episodes: boolean) =>
-      `${count} ${episodes ? (form === "one" ? "episode" : "episodes") : form === "one" ? "track" : "tracks"}`,
-    hours: (hours: string) => `${hours} h`,
-    minutes: (minutes: string) => `${minutes} min`,
-    seconds: (seconds: string) => `${seconds} sec`,
-    duration: (hours: string, minutes: string) => `${hours} ${minutes}`,
+    count: (form: LDMLPluralRule, kind: "episode" | "track" | "chapter") =>
+      form === "one" ? kind : `${kind}s`,
+    hours: "h",
+    minutes: "min",
+    seconds: "sec",
     summary: (count: string, duration: string) => `${count} · ${duration}`,
+    rating: (limit: string) => `out of ${limit}`,
+    ratingCount: (form: LDMLPluralRule) => (form === "one" ? "rating" : "ratings"),
   },
   highlights: {
     quote: (text: string) => `“${text}”`,
@@ -26,6 +46,8 @@ export const en = {
     empty: "No saved titles yet",
     progress,
     progressReading: (title: string, percent: string) => `${title} · ${progress}: ${percent}`,
+    status: { owned: "Owned", borrowed: "Borrowed", hold: "On hold", finished: "Finished" },
+    loanReading: (title: string, detail: string) => `${title} · ${detail}`,
   },
   miniPlayer: {
     open: (title: string) => `Open full player: ${title}`,
@@ -34,15 +56,26 @@ export const en = {
     pause: "Pause",
     playing: "Playing",
     paused: "Paused",
-    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining}`,
+    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining} left`,
   },
   playlist: {
+    upNext: "Up next",
     download: (title: string) => `Download ${title}`,
     nowPlaying: (title: string) => `Now playing: ${title}`,
     completed: "Played",
     position: (percent: string) => `${percent} played`,
     timing: (duration: string, position: string) => `${duration} · ${position}`,
     timingReading: (title: string, timing: string) => `${title} · ${timing}`,
+  },
+  transcript: {
+    empty: "No transcript available",
+    label: "Transcript",
+    follow: "Follow playback",
+    following: "Following playback",
+    notFollowing: "Not following playback",
+    save: "Save line",
+    line: (time: string, speaker: string | undefined, text: string, active: boolean) =>
+      `${time} ${speaker ? `${speaker}: ` : ""}${text}${active ? " · Current line" : ""}`,
   },
 };
 
