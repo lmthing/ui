@@ -152,7 +152,7 @@ function DepartureAlerts({ alerts, density }: { alerts: DepartureCopy["alerts"];
   const { words } = kit.useWords(placesWordsFor);
   if (!alerts.length) return null;
   return (
-    <kit.KitRow part="alerts" label={words.departureAlerts} inset="none" density={density}>
+    <kit.KitRow part="alerts" label={words.departureAlerts} inline fitContent density={density}>
       <kit.KitContent density={density}>
         {alerts.map(({ title, text, tone }, index) => (
           <kit.KitMetaLine
@@ -177,17 +177,21 @@ export function Departures(input: DeparturesProps) {
   const thing = kit.useEmptyThing();
   const { rows, more, alerts } = departuresCopy({ ...input, detail }, kit.useDeviceData(), lang);
   const loading = state === "loading";
-  const content = <>
+  const content = <kit.KitContent density={density}>
     <DepartureRows {...{ rows, density, loading }} />
-    {!loading && <DepartureAlerts {...{ alerts, density }} />}
     <kit.KitLayoutText density={density} line={{ text: more, part: "more", role: "meta", tone: "muted" }} />
-  </>;
+    {!loading && alerts.length > 0 && <kit.KitContent group="response" density={density}>
+      <DepartureAlerts {...{ alerts, density }} />
+    </kit.KitContent>}
+  </kit.KitContent>;
+  const heading = <kit.KitHeader density={density} align={state === "empty" ? "center" : "start"}
+    title={{ text: input.stop, part: "stop" }} />;
+  const board = <kit.KitState part="empty" icon="clock" density={density} loading={content}
+    message={thing ? c.emptyLine(thing, lang) : words.departuresEmpty}>{content}</kit.KitState>;
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>
-      <kit.KitHeader density={density} align={state === "empty" ? "center" : "start"}
-        title={{ text: input.stop, part: "stop" }} />
-      <kit.KitState part="empty" icon="clock" density={density} loading={content}
-        message={thing ? c.emptyLine(thing, lang) : words.departuresEmpty}>{content}</kit.KitState>
+      {state === "empty" ? <kit.KitContent rhythm="flush" density={density}>{heading}{board}</kit.KitContent>
+        : <>{heading}{board}</>}
     </kit.KitCard>
   );
 }

@@ -1,13 +1,5 @@
 import { z } from "zod";
-import {
-  clock,
-  goalLine,
-  numberLine,
-  screenId,
-  text,
-  timeOfDayLine,
-  type DeviceData,
-} from "../../../catalog";
+import { clock, numberLine, screenId, text, timeOfDayLine, type DeviceData } from "../../../catalog";
 import { placesWordsFor } from "../lang";
 
 const venue = z.object({ name: text(32), goto: screenId });
@@ -61,8 +53,7 @@ function openingCopy({ opens, closes }: Place, localTime?: string, lang?: string
     : ({ text: words.openNow, tone: "good" } as const);
 }
 
-const ratingLevels = [1, 2, 3, 4, 5] as const;
-const maxRating = ratingLevels[4];
+const maxRating = 5;
 const maxPriceLevel = 4;
 const kmPerMile = 1.609344;
 
@@ -83,13 +74,6 @@ export function placeCardCopy(place: Place, data?: DeviceData, lang?: string) {
   return {
     rating: formattedRating,
     ratingReading: formattedRating === undefined ? undefined : words.rating(formattedRating, ratingMax),
-    ratingLabels: ratingLevels.map((level) => `${numberLine(level, lang)} ${goalLine(maxRating, lang)}`) as [
-      string,
-      string,
-      string,
-      string,
-      string,
-    ],
     price:
       priceLevel === undefined
         ? undefined
