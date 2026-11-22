@@ -5,6 +5,7 @@
 - `Poll.test.ts`: Poll contract, vote and results states, variants, and one-vote controller tests.
 - `Stories.test.ts`: Stories contract, rail states, variants, and actions.
 - `StoryViewer.test.ts`: Story draft schema and sequence controls.
+- `LiveRoom.test.ts`: Live audio room schema, display and host commands.
 - `EventCard.test.ts`: Event details, RSVP states, variants, and controller dispatch.
 - `Challenge.test.ts`: Shared goal, deadline, ranks, membership actions, and variant addresses.
 - `Invite.test.ts`: Invite codes, QR, joined count, variants, and copy/share actions.

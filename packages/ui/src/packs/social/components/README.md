@@ -11,6 +11,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Poll.tsx`
 - `Stories.tsx`
 - `StoryViewer.tsx`
+- `LiveRoom.tsx`
 - `EventCard.tsx`
 - `Challenge.tsx`
 - `Invite.tsx`

@@ -1,8 +1,10 @@
 import type { LDMLPluralRule } from "../../../catalog";
+import { liveRoomWords } from "./live-room";
 
 type CountCopy = { before?: string; after?: string };
 
 export type SocialWords = {
+  liveRoom: typeof liveRoomWords;
   feed: {
     likes: (form: LDMLPluralRule) => CountCopy;
     comments: (form: LDMLPluralRule) => CountCopy;
@@ -86,6 +88,7 @@ export type SocialWords = {
 };
 
 export const en = {
+  liveRoom: liveRoomWords,
   feed: {
     likes: (form) => ({ after: form === "one" ? " like" : " likes" }),
     comments: (form) => ({ after: form === "one" ? " comment" : " comments" }),

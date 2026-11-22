@@ -29,6 +29,7 @@ const ids = [
   "Challenge",
   "Invite",
   "StoryViewer",
+  "LiveRoom",
 ] as const;
 const scoped = createRegistry({ packs: ["social"], includeDrafts: true });
 const empty = { things: [], items: [] };
