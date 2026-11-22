@@ -124,7 +124,7 @@ describe("SleepLog states, parts and read/act", () => {
     const html = renderInstance("SleepLog", night, "filled", theme);
     const parts = addressedElements(html);
     const read = readComponent(components.SleepLog, night, "s1").join("\n");
-    for (const part of meta.parts.filter((part) => part !== "empty")) {
+    for (const part of ["root", "bed", "wake", "duration", "night", "quality", "average", "edit", "import"]) {
       expect(parts.has(`home/c1/${part}`), part).toBe(true);
       expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
     }
