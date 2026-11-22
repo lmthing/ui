@@ -147,6 +147,8 @@ describe("Progress ring", () => {
   it("accepts one long label, rejects row actions and preserves the stored caption", () => {
     const brief = { ...ring, detail: "brief" };
     expect(props.parse(brief).sub).toBe(ring.sub);
+    expect(props.safeParse({ ...ring, figures: "short" }).success).toBe(false);
+    expect(props.safeParse({ ...ring, bars: [{ ...goal, tone: "warn" }] }).success).toBe(true);
     for (const bars of [
       [goal, goal],
       [{ ...goal, goto: "details" }],

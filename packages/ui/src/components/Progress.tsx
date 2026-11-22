@@ -9,7 +9,6 @@ import {
   screenId, text, thingOf, titleOf, variantProps, wordsFor,
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
-
 export const meta = {
   id: "Progress",
   status: "ready",
@@ -17,7 +16,7 @@ export const meta = {
   purpose: "See measured progress toward one or more targets.",
   pick: "One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).",
   writeHints: [
-    'Use style "ring" only for one circular goal. Put its label, value and of in one bars entry without unit, tone or goto. Set style "bars" for explicitly requested bars, or null for an ordinary ratio.',
+    'Use style "ring" for one circular goal. Put its label (up to 24 characters), value and of in one bars entry. Leave unit, tone and goto null. Set style "bars" for requested bars or null for an ordinary ratio; either way, shorten every horizontal bar label to at most 20 characters.',
     'For a ring, always set figures to null. Write a requested caption verbatim in sub, even when asked to hide it with detail "brief". Use emphasis "hero" only for a large focal ring. Send null for all other unrequested axes and row options.',
     'Set figures to "short" only to abbreviate bar counts without changing stored numbers. A bar crossing a target does not by itself request a special tone.',
   ],
@@ -76,6 +75,7 @@ export const props = z
       ctx.addIssue({ code: "custom", path, message });
     if (style === "ring") {
       if (bars.length !== 1) issue(["bars"], "A ring needs exactly one goal");
+      if (input.figures !== "exact") issue(["figures"], "Only bars can abbreviate figures");
       if (bars.some(({ unit, tone, goto }) => unit || tone !== "warn" || goto))
         issue(["bars", 0], "A ring goal has only label, value and of");
     } else {

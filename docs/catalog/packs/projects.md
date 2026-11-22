@@ -17,7 +17,7 @@ deliverables, a photographer's exhibition preparation, a community group's one-o
 ## What the core already covers
 
 - Project name, summary and stored lifecycle state: `Card` with a badge; dates and owner: `KeyValue`.
-- Completion against agreed deliverables: `Progress`; one main goal: `Ring`; a few totals: `Stats`.
+- Completion against agreed deliverables: `Progress`; one main goal: `Progress[ring]`; a few totals: `Stats`.
 - A short list of independent jobs, even with an assignee or due date in meta: `Checklist`.
 - Dates in order without acceptance gates: `Timeline`; dates with marks: `Calendar`; a countdown: `Timer[until]`.
 - Steps through a short screen flow: `Steps`, not milestones in work that may run in parallel.

@@ -19,7 +19,7 @@ income diary, a household saving toward education or retirement.
 
 - Allocation by asset class: `Bars[share]`, with numeric class values computed from holdings and cash.
   Drop `Allocation`: core already computes totals and shares; there is no new allocation drawing.
-- A savings target: `Ring` with `Amount`; several targets: `Progress`, with `over: good`.
+- A savings target: `Progress[ring]` with `Amount`; several targets: `Progress`, with `tone: good`.
   Drop `SavingsGoal`: the host sums assigned contributions or valuations against stored targets.
 - A balance: `Amount[large]`; a few summary figures: `Stats`; a short latest-value trend: `Sparkline`.
 - Instrument identity and facts: `Profile`, `KeyValue`; ordinary saved names: `List`.
@@ -151,7 +151,7 @@ Target versus actual portfolio allocation across asset classes or holdings showi
 | `portfolio` | My investments over time | `invest_positions`, `invest_allocation`, `invest_rebalance`, `invest_performance` | `invest_positions`: Header, Amount[large], Holdings, Button · `invest_allocation`: Header, Bars[share], Note · `invest_rebalance`: Header, Rebalance, Note · `invest_performance`: Header, Performance, Note |
 | `holding` | One position and its income | `invest_holding`, `invest_trade`, `invest_income`, `invest_activity` | `invest_holding`: Header[back], Holdings[compact] (assetId filter), KeyValue, Button · `invest_trade`: Header[back], TradeTicket, Note · `invest_income`: Header[back], Dividends, Note · `invest_activity`: Header[back], InvestmentActivity, Button |
 | `watchlist` | Quotes against watch thresholds | `invest_watch` | Header, Search, Watchlist[targets], Button |
-| `goals` | Long-term savings targets | `invest_goal`, `invest_goals`, `invest_contribution` | `invest_goal`: Header, Ring, Amount, Note, Button · `invest_goals`: Header, Progress, Note, Button · `invest_contribution`: Header, Field[number], Field[date], Button |
+| `goals` | Long-term savings targets | `invest_goal`, `invest_goals`, `invest_contribution` | `invest_goal`: Header, Progress[ring], Amount, Note, Button · `invest_goals`: Header, Progress, Note, Button · `invest_contribution`: Header, Field[number], Field[date], Button |
 
 The first listed layout is each `defaultLayout`. Layout ids use the pack prefix; recipes use only core
 and this pack. The host projects numeric totals into core props; Writers never fill formatted totals.

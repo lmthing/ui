@@ -16,7 +16,7 @@ flashcards.
 
 ## What the core already covers
 
-- Progress through a course: `Ring`, `Progress`; a daily habit: `Streak`; a ranking: `List` style `ranked`.
+- Progress through a course: `Progress[ring]`, `Progress`; a daily habit: `Streak`; a ranking: `List` style `ranked`.
 - A lesson video or audio: `Player`; choosing among options with a sentence each: `Choice`.
 - Units to scan: `List`; a timer for a test: `Timer`; place in a lesson: `Steps`.
 
@@ -70,7 +70,7 @@ locked ones dim, a trophy at milestones.
 ### `Result` · planned · data · phone
 How a practice went: the score large, right and wrong counts, time taken, points earned, and the mistakes to
 review.
-- Pick: the outcome of a quiz or practice. Not saving something worked (`Success`), not a goal (`Ring`), not
+- Pick: the outcome of a quiz or practice. Not saving something worked (`Success`), not a goal (`Progress[ring]`), not
   summary numbers (`Stats`), not a match score (sports `Scoreboard`).
 - Writes: `right` number, `of` number, `seconds` optional, `points` number optional, `mistakes` of question
   text(60), answer text(40), 0–5.

@@ -177,7 +177,8 @@ Show one or more measured amounts against their own targets, in horizontal bars 
 - **Writes:** `bars` of `label`, `value` number ≥ 0, `of` number > 0. The `bars` style accepts one to
   five rows with labels text(20), optional `unit` text(8), `tone` (`warn` default, `good`, `bad`)
   for amounts past the target, and optional `goto`. The `ring` style accepts one row with a label
-  text(24), no row extras, and optional top-level `sub` text(48).
+  text(24) and optional top-level `sub` text(48). Omit row extras on rings. The shared defaults
+  `tone: "warn"` and `figures: "exact"` are accepted if sent explicitly.
 - **Styles:** `bars` (default) and `ring` (a circular goal with the amount inside). Both support
   `density`; bars support `figures`. On rings, `emphasis: "hero"` enlarges the figure and
   `detail: "brief"` hides the stored caption without dropping it.

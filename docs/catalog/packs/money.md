@@ -19,7 +19,7 @@ credit-card payoff, car-loan tracker, mortgage overview, paying back a friend ov
 
 - One balance or total as the headline: `Amount` style `large`; a few figures (income, spent, left):
   `Stats`.
-- Budget per category against its limit: `Progress` (`over: bad`); a savings goal: `Ring` with `Amount`.
+- Budget per category against its limit: `Progress` (`tone: bad`); a savings goal: `Progress[ring]` with `Amount`.
 - Spending by category: `Bars` style `share`; spending by day or week: `Bars`; one latest value with a
   short trend: `Sparkline`.
 - A bill's due date: `Calendar`; repeating bills: `Field` kind `repeat`.
@@ -162,7 +162,7 @@ A peer-to-peer send or request money flow: recipient row, funding source selecto
 
 ### `CreditScore` · planned · data · service
 A consumer credit score summary displaying the numeric score on a 300–850 band gauge with its rating tier, signed score delta since the previous report, bureau and update date label, and four to six rated factor rows covering payment history, utilization percent, credit age, recent inquiries, and credit mix. Tapping a factor opens its breakdown when linked.
-- Pick: displaying a consumer credit score and its contributing rating factors. Not a personal savings goal (`Ring`), body vitals (health `Vitals`), or category budgets (`Progress`).
+- Pick: displaying a consumer credit score and its contributing rating factors. Not a personal savings goal (`Progress[ring]`), body vitals (health `Vitals`), or category budgets (`Progress`).
 - Writes: `score` integer 300–850, `previousScore` integer 300–850 optional, `bureau` text(24), `updatedAt` date, `factors` of `label` text(24), `value` text(16), `rating` (`excellent`, `good`, `fair`, `poor`), `impact` (`high`, `medium`, `low`), `goto` optional, 4–6; `style`. Band tier label and signed score delta are computed by code from `score` and `previousScore`.
 - Styles: `gauge` (default, 300–850 multi-zone band gauge above factor rows), `compact` (headline score, delta, and factor rows without the band gauge).
 - Parts → actions: factors `root press` (when linked via `goto`), `refresh press`.
@@ -173,7 +173,7 @@ A consumer credit score summary displaying the numeric score on a 300–850 band
 
 | Archetype | Job                             | Layouts                      | Recipe                                                                                                                                   |
 | --------- | ------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `wallet`  | My money now                    | `accounts`, `goal`           | `accounts`: Header, Amount[large], AccountCard, Transactions · `goal`: Header, Ring, Amount, Transactions                                |
+| `wallet`  | My money now                    | `accounts`, `goal`           | `accounts`: Header, Amount[large], AccountCard, Transactions · `goal`: Header, Progress[ring], Amount, Transactions                                |
 | `budget`  | This month against the plan     | `categories`, `share`        | `categories`: Header, Segmented, Amount, SectionTitle, Progress, SectionTitle, Progress · `share`: Header, Segmented, Bars[share], Bills |
 | `entry`   | Log an expense or income        | `quick`                      | Header, AmountPad, Chips, Field[date], Button                                                                                            |
 | `split`   | A shared pot                    | `group`                      | Header, Split, Button                                                                                                                    |

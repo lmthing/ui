@@ -20,7 +20,7 @@ SOS emergency alert app, solo-traveler check-in beacon.
 ## What the core already covers
 
 - Circle member list or overlapping avatar stack: `People`; circle chat: `Bubbles` + `Composer[reply]`.
-- Static non-live pins: `MapPins`; safety summary KPIs: `Stats`; weekly safe-driver target: `Ring`.
+- Static non-live pins: `MapPins`; safety summary KPIs: `Stats`; weekly safe-driver target: `Progress[ring]`.
 - Urgent safety notices: `Banner`; alert history: `Timeline[history]`; emergency contact facts: `KeyValue`.
 
 `CircleMap` displays live member pins with movement state, battery %, and last-seen times; `PlaceAlerts`

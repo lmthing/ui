@@ -19,7 +19,7 @@ reader, a museum audio guide, a meditation library (with `mind`), a cooking vide
 - Playing one recording: `Player` (`audio`, `video`, `compact`).
 - "Continue listening": `List` style `shelf`; a featured item: `Hero` style `photo`.
 - Searching and filtering the library: `Search`, `Chips`; minutes listened: `Stats`; one book's progress:
-  `Ring`.
+  `Progress[ring]`.
 - Instructions, an about page or a policy that is short: `List` style `expand` or `Note`.
 
 The first plan's `RichText` is folded into `Article` style `plain`, and `Episode` is a `Playlist` row plus

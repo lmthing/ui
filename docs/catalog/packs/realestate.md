@@ -23,7 +23,7 @@ Apartments.com) and mortgage affordability calculators.
 - Rich multi-facet search filters (price range, beds, baths, home type, HOA cap): `FilterBar` (Core) paired
   with `Field[range]`, `Search`, and `Chips`.
 - Seller disclosures, inspection PDFs, and floorplans: `FileList` (Core); neighborhood or building reviews:
-  `Review` (Core); down-payment savings goals: `Ring` + `Amount`.
+  `Review` (Core); down-payment savings goals: `Progress[ring]` + `Amount`.
 - Originated debt repayment tracking: `money` (`Loan`, `Payoff`); landlord property management: `property`
   (`Units`, `RentRoll`, `Viewings`); single rental lease: `inventory` (`Lease`).
 
