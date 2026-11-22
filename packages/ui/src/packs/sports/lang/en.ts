@@ -105,6 +105,7 @@ export const en = {
   standings: {
     title: "League table",
     records: "Team records",
+    scroll: "Scroll for more stats",
     position: "#",
     team: "Team",
     summary: "Played, goal difference",

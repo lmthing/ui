@@ -90,6 +90,7 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 export const examples = [
   {
+    format: "football_pts",
     mine: 1,
     lines: [1, 2],
     rows: [
@@ -212,8 +213,8 @@ function RankNumber({
 }
 
 // prettier-ignore
-function StandingsTable({ input, density, showForm, loading }: {
-  input: StandingsProps; density: c.ThemeDensity; showForm: boolean; loading: boolean;
+function StandingsTable({ input, density, showForm, loading, fitted }: {
+  input: StandingsProps; density: c.ThemeDensity; showForm: boolean; loading: boolean; fitted: boolean;
 }) {
   const { lang, words: { standings: words } } = kit.useWords(sportsWordsFor);
   const percentage = input.format === "pct_gb";
@@ -239,8 +240,9 @@ function StandingsTable({ input, density, showForm, loading }: {
     return { id: row.id, label: row.team, ...(!loading ? { target: { item: row.id, part: "root" }, selected: row.mine } : {}),
       heading: <RankHeading {...{ row, density, percentage }} />, cells };
   });
-  return <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} fitColumns
-    corner={head(words.team)} />;
+  return <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} fitColumns={fitted}
+    corner={fitted ? head(words.team) :
+      <kit.KitLayoutText line={{ text: words.team, role: "meta", tone: "muted" }} align="center" density={density} />} />;
 }
 
 export function Standings(input: StandingsProps) {
@@ -250,17 +252,18 @@ export function Standings(input: StandingsProps) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
+  const fitted = input.format !== undefined || input.group !== undefined;
   const content = (
     <>
       <kit.KitHeader
         density={density}
-        title={{ text: words.title, part: "title" }}
+        title={{ text: words.title, part: "title", ...(fitted ? {} : { role: "body", strong: true }) }}
         meta={[
           { text: input.group, part: "group" },
-          { text: words.records, part: "hint" },
+          { text: fitted ? words.records : words.scroll, part: "hint" },
         ]}
       />
-      <StandingsTable {...{ input, density, loading }} showForm={detail === "full"} />
+      <StandingsTable {...{ input, density, loading, fitted }} showForm={detail === "full"} />
     </>
   );
   return (

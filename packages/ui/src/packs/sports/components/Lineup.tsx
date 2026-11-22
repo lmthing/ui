@@ -163,7 +163,7 @@ export const probes = [
   },
   {
     ...write(
-      "List the starters by position: goalkeeper 1 Porter, then defender 5 Banks, who got a yellow card. Show that card beside Banks.",
+      "Show a plain vertical list with exactly two playing lines: only goalkeeper 1 Porter in the first, and only defender 5 Banks in the second. Banks was booked; show his yellow card beside his name.",
     ),
     expectProps: { style: "list", lines: [{ players: [{}] }, { players: [{ cards: ["yellow"] }] }] },
   },

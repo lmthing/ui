@@ -181,9 +181,13 @@ describe("Standings divisions and win-percentage format", () => {
   });
 
   it("keeps football points as the default and validates the new options", () => {
-    expect(addressedElements(render({ ...full, format: "football_pts" }))).toEqual(
-      addressedElements(render(full)),
-    );
+    const legacy = { ...full, format: undefined };
+    const parts = addressedElements(render(legacy));
+    const explicit = addressedElements(render(full));
+    expect(parts.get(address("hint"))?.text).toEqual(["Scroll for more stats"]);
+    for (const part of ["position", "points", "difference", "form"])
+      expect(parts.get(address(`r1/${part}`))?.text).toEqual(explicit.get(address(`r1/${part}`))?.text);
+    expect(readComponent(def, legacy, "s1").join("\n")).toContain("Scroll for more stats");
     expect(props.safeParse({ ...full, group: "x".repeat(17) }).success).toBe(false);
     expect(props.safeParse({ ...full, format: "wins" }).success).toBe(false);
     expect(readComponent(def, input, "s1", "loading").join("\n")).not.toContain("East Division");

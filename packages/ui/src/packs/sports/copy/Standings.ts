@@ -78,7 +78,7 @@ export function standingsReading(input: StandingsInput & { detail?: string }, la
   const headings = [
     words.title,
     ...(input.group ? [input.group] : []),
-    words.records,
+    input.format !== undefined || input.group !== undefined ? words.records : words.scroll,
     words.position,
     words.team,
     percentage ? words.percentage : words.pointsSuffix,

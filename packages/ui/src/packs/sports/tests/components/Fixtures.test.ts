@@ -180,6 +180,15 @@ describe("Fixtures navigation", () => {
 describe("Fixtures scoreboard options", () => {
   const row = { ...first, live: true, clock: "Q3 04:12" };
 
+  it("keeps the classic list and its result when the new fields are absent", () => {
+    const parts = addressedElements(render({ matches: [first] }));
+    expect(parts.get(address("r1/root"))?.attributes).toContain('role="link"');
+    expect(parts.get(address("r1/score"))?.text).toEqual(["3–1"]);
+    expect(JSON.stringify(parts.get(address("r1/result")))).toContain("Win");
+    expect(parts.has(address("r1/live"))).toBe(false);
+    expect(parts.has(address("r1/clock"))).toBe(false);
+  });
+
   it.each(["list", "next", "scoreboard"])("draws the live score and game clock in %s", (style) => {
     const input = { style, matches: [row, { ...first, live: false }] };
     const parts = addressedElements(render(input));

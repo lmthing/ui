@@ -107,7 +107,7 @@ export const examples = [
   {
     matches: [
       { date: "2026-11-15", time: "10:00", opponent: "Fern House", home: false, us: 3, them: 1, goto: "fern_match" },
-      { date: "2026-11-22", time: "10:00", opponent: "Garden Crew", home: true, venue: "Ledge Park", goto: "garden_match" },
+      { date: "2026-11-22", time: "10:00", opponent: "Garden Crew", home: true, venue: "Ledge Park", live: false, goto: "garden_match" },
     ],
   },
   { style: "next", matches: [nextMatch] },
@@ -208,7 +208,9 @@ function FixtureKickoff({ venue, time, side, density, loading, separator }: {
 }
 
 // prettier-ignore
-function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; density: Density; loading: boolean }) {
+function MatchRow({ row, next, compactList, density, loading }: {
+  row: Match; next: boolean; compactList: boolean; density: Density; loading: boolean;
+}) {
   const { lang, words } = kit.useWords(sportsWordsFor);
   const { date, time, side, meet, clothing, score, result, initials } = fixtureCopy(row, lang);
   const role = next ? "title" : "heading";
@@ -228,7 +230,7 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
   );
   return (
     <kit.KitRow item={row.id} label={loading ? "" : row.opponent} goto={loading ? undefined : row.goto}
-      part={loading ? null : "root"} inline density={density} lineRole={role}>
+      part={loading ? null : "root"} inline={next || compactList} density={density} lineRole={role}>
       {score || row.live || row.clock ? <kit.KitGrid fitLast density={density}>
         {details}
         <kit.KitContent align="center" density={density}>
@@ -257,15 +259,19 @@ export function Fixtures(input: FixturesProps) {
   const next = input.style === "next";
   const ticker = input.style === "scoreboard";
   const rows = next ? input.matches.slice(0, 1) : input.matches;
+  const enhanced = ticker || rows.some(({ live, clock }) => live !== undefined || clock !== undefined);
+  const compactList = enhanced && !next;
   const loading = state === "loading";
+  const matches = rows.map((row) => <MatchRow key={row.id} {...{ row, next, compactList, density, loading }} />);
   const content = ticker ? <kit.KitRowGroup density={density}>
     {rows.map((row) => <TickerRow key={row.id} {...{ row, density, loading }} />)}
-  </kit.KitRowGroup> : <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-    {rows.map((row) => <MatchRow key={row.id} {...{ row, next, density, loading }} />)}
-  </kit.KitRowGroup>;
+  </kit.KitRowGroup> : compactList ? <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+    {matches}
+  </kit.KitRowGroup> : matches;
   return (
-    <kit.KitCard part="root" padded={state !== "empty"} density={density}>
-      <kit.KitState icon="calendar" part="message" density={density} loading={content}>{content}</kit.KitState>
+    <kit.KitCard part="root" padded={(enhanced || next) && state !== "empty"} density={density}>
+      {enhanced ? <kit.KitState icon="calendar" part="message" density={density} loading={content}>{content}</kit.KitState>
+        : state === "empty" ? <kit.KitEmpty icon="calendar" part="message" decorativeIcon /> : content}
     </kit.KitCard>
   );
 }
