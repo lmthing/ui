@@ -16,21 +16,32 @@ export function composeRequest(
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
   const offersVariants = names.some((name) => defs[name]?.meta.variants || defs[name]?.meta.items?.variants);
-  const toggle =
+  const inheritsToggle =
     slots.some((slot) => slot.variant === "toggle" && slot.allow.includes("List")) &&
-    defs.List?.meta.variants?.trail?.includes("toggle")
-      ? 'toggle means every List row has an effective trail of "toggle"; a row without a trail can inherit the List trail.'
-      : "toggle means every List row has trail: toggle.";
+    defs.List?.meta.variants?.trail?.includes("toggle");
+  const toggle = inheritsToggle
+    ? 'toggle means every List row has an effective trail of "toggle"; ' +
+      "a row without a trail can inherit the List trail."
+    : "toggle means every List row has trail: toggle.";
   const before = [
-    "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
+    "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. " +
+      "Use unique snake_case ids for components; never put ids on array items. " +
+      "Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
     ...(brief === undefined ? [] : [`Brief: ${brief}\n${omitGuidance}`]),
-    `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; ${toggle}`,
-    "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
+    `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. ` +
+      "Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. " +
+      `prices means every Choice option has a price value; ${toggle}`,
+    "Screen rules: three to nine components outside overlays, total weight at most twelve, " +
+      "at most two weight-three components. One primary Button at most. " +
+      "Hero first in the body; a SectionTitle needs following content. " +
+      "Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. " +
+      "Do not invent color, size or layout props.",
     ...(offersVariants
       ? [
           variantVocabulary,
-          "An explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.",
+          "An explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. " +
+            "Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.",
         ]
       : []),
     ...(meta.layouts[layout]!.writeHints ?? []).map((hint) => `Layout rule: ${hint}`),
@@ -40,7 +51,10 @@ export function composeRequest(
   const after = [
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
     ...(names.some((name) => defs[name]?.meta.variants?.density) ? [writerVariants] : []),
-    `Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. ${composeFlow} Reply with JSON only.`,
+    "Use the supplied facts, not content from examples. " +
+      "Do not invent dates, status, measurements, or zero values for missing data. " +
+      "Keep all components focused on the screen's job; give the main action a clear label " +
+      `and avoid duplicate or unrelated actions. ${composeFlow} Reply with JSON only.`,
   ];
   return {
     prompt: [...before, ...listing, ...after].join("\n\n"),
