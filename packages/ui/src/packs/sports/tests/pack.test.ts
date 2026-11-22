@@ -22,6 +22,7 @@ import {
 } from "@lmthing/ui/catalog";
 
 const ids = ["Fixtures", "Scoreboard", "Standings", "Lineup", "MatchFeed", "Squad", "Bracket"] as const;
+const additions = ["MatchStats", "BoxScore", "MomentumChart"] as const;
 const scoped = createRegistry({ packs: ["sports"], includeDrafts: true });
 const defs: Record<string, Definition> = components;
 const cast: CastLike = { things: [], items: [] };
@@ -30,18 +31,15 @@ it("exposes Sports only in an opted-in registry and gates drafts out of live Wri
   const core = createRegistry();
   const live = createRegistry({ packs: ["sports"] });
   const ready = packReady("sports");
-  expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual(
-    [...ids, "MatchStats", "BoxScore"].sort(),
-  );
+  expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids, ...additions].sort());
   if (!ready) expect(live.ids).toEqual(core.ids);
   const formats = [core, scoped, live].map((registry) => JSON.stringify(writerFormat(registry)));
-  for (const id of ids) {
+  for (const id of [...ids, ...additions]) {
     const choice = `"const":"${id}"`;
     expect(formats.map((format) => format.includes(choice))).toEqual([false, true, ready]);
     expect(packOf[id]).toBe("sports");
   }
-  expect(live.ids.includes("MatchStats")).toBe(ready);
-  expect(live.ids.includes("BoxScore")).toBe(ready);
+  for (const id of additions) expect(live.ids.includes(id)).toBe(ready);
   for (const { id } of packArchetypes.sports) {
     expect(core.archetypes).not.toHaveProperty(id);
     expect(scoped.archetypes).toHaveProperty(id);

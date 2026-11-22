@@ -14,6 +14,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Bracket.tsx`
 - `MatchStats.tsx`
 - `BoxScore.tsx`
+- `MomentumChart.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
