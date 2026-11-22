@@ -40,6 +40,7 @@ export const component = {
     shareFloor: 0.3,
     ringMd: 120,
     ringLg: 168,
+    codeScanner: 232,
     timeWidth: 64,
     barsHeight: 120,
     dayMinWidth: 40,

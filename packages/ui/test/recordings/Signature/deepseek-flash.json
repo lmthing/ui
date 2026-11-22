@@ -1,0 +1,1456 @@
+{
+  "041207a55d2d2e17": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Use surface:\"plain\" (not null) for a drawing pad on a plain background with no surrounding card. For that request alone write density:null, never \"comfortable\". Use surface:null if no surface is requested.\nRule: Use detail:\"brief\" only if asked to hide the optional hint. Keep supplied hint text in hint; use null for unrequested axes.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let Mina sign the Allotment access form, synthetic original lib:ledge_access. Store the supplied hint 'Review the access rules first.' but hide that hint in a brief view. Keep the preview, review, drawing and save controls.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}"
+    ]
+  },
+  "12f51b0fdf017f3c": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Draw a handwritten mark on a personal administrative form and save a dated local copy. Not a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"Let me read my personal office access form, draw my signature with my finger, and keep a signed copy on this phone.\"\nReply with only the component id, nothing else.",
+    "reply": "Signature",
+    "replies": [
+      "Signature",
+      "Signature",
+      "Signature"
+    ]
+  },
+  "1958ae6a659dd1da": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Use surface:\"plain\" (not null) for a drawing pad on a plain background with no surrounding card. For that request alone write density:null, never \"comfortable\". Use surface:null if no surface is requested.\nRule: Use detail:\"brief\" only if asked to hide the optional hint. Keep supplied hint text in hint; use null for unrequested axes.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Put the pad and its controls on a plain background with no card around them.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":null}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"full\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}"
+    ]
+  },
+  "3bf5aa5a0ffa75e5": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Use surface:\"plain\" (not null) for a drawing pad on a plain background with no surrounding card. For that request alone write density:null, never \"comfortable\". Use surface:null if no surface is requested.\nRule: Use detail:\"brief\" only if asked to hide the optional hint. Keep supplied hint text in hint; use null for unrequested axes.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let Mina draw her signature after reviewing the Allotment access form, supplied as synthetic attachment lib:ledge_access. Hint: Review the access rules first.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"full\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":\"full\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}"
+    ]
+  },
+  "4c96a5583fa2c3af": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Draw a handwritten mark on a personal administrative form and save a dated local copy. Not a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"Put a single yes or no switch on my form, labelled Use side entrance.\"\nReply with only the component id, nothing else.",
+    "reply": "Field",
+    "replies": [
+      "Field",
+      "Field",
+      "Field"
+    ]
+  },
+  "4e83993a2f360a35": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let Mina sign the Allotment access form, synthetic original lib:ledge_access. Store the supplied hint 'Review the access rules first.' but hide that hint in a brief view. Keep the preview, review, drawing and save controls.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}"
+    ]
+  },
+  "99739d396e4c816d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let Mina draw her signature after reviewing the Allotment access form, supplied as synthetic attachment lib:ledge_access. Hint: Review the access rules first.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\"}"
+    ]
+  },
+  "c3df5f1a1b9961dc": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Signature (private file) — Signer: Mina — (private mark) — \"Allotment access form\" — \"Mina\" — \"Review the access rules first.\" [s1/document press] [s1/clear press] [s1/save press]\n\nTask: Use the document preview action, not the signature pad, to open Mina's original allotment access form.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/document\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}"
+    ]
+  },
+  "e67b4c2859df0407": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Signature (private file) — Signer: Mina — (private mark) — Open original — I’ve reviewed the original — Save signed copy — Clear — Draft signature — \"Allotment access form\" — \"Mina\" — \"Review the access rules first.\" [s1/document press] [s1/clear press] [s1/save press]\n\nTask: Use the document preview action, not the signature pad, to open Mina's original allotment access form.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/document\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}"
+    ]
+  },
+  "e78f9140a75a22ea": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad=\"pad\" }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Put the pad and its controls on a plain background with no card around them.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\"}"
+    ]
+  },
+  "Signature%2Fchoose%2FLet%20me%20read%20my%20personal%20office%20access%20form%2C%20draw%20my%20signature%20with%20my%20finger%2C%20and%20keep%20a%20signed%20copy%20on%20this%20phone./c92fea7d03f7f813/207ca7b49960797b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- FormFiller: Complete a personal form and keep a local copy of the filled document. Pick: Fill named fields tied to a personal PDF or administrative template, check completeness and save a separate local copy. Not standalone input (Field), drawing a signature (Signature), or a client agreement (Agreement).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- ScanBatch: Arrange scanned pages and save them as one local PDF. Pick: Stage multiple scanned pages, reorder or replace pages and assemble one local PDF. Not a single capture (Camera), browsing photos (Gallery), or opening a saved document (Documents).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"Let me read my personal office access form, draw my signature with my finger, and keep a signed copy on this phone.\"\nReply with only the component id, nothing else.",
+    "reply": "Signature",
+    "replies": [
+      "Signature",
+      "Signature",
+      "Signature"
+    ]
+  },
+  "Signature%2Fchoose%2FPut%20a%20single%20yes%20or%20no%20switch%20on%20my%20form%2C%20labelled%20Use%20side%20entrance./f261a0bf99704168/dc2c009b6365471d": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- FormFiller: Complete a personal form and keep a local copy of the filled document. Pick: Fill named fields tied to a personal PDF or administrative template, check completeness and save a separate local copy. Not standalone input (Field), drawing a signature (Signature), or a client agreement (Agreement).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- ScanBatch: Arrange scanned pages and save them as one local PDF. Pick: Stage multiple scanned pages, reorder or replace pages and assemble one local PDF. Not a single capture (Camera), browsing photos (Gallery), or opening a saved document (Documents).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"Put a single yes or no switch on my form, labelled Use side entrance.\"\nReply with only the component id, nothing else.",
+    "reply": "Field",
+    "replies": [
+      "Field",
+      "Field",
+      "Field"
+    ]
+  },
+  "Signature%2Fread%2FUse%20the%20document%20preview%20action%2C%20not%20the%20signature%20pad%2C%20to%20open%20Mina's%20original%20allotment%20access%20form./2f8030f14dc961ad/e67b4c2859df0407": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Signature (private file) — Signer: Mina — (private mark) — Open original — I’ve reviewed the original — Save signed copy — Clear — Draft signature — \"Allotment access form\" — \"Mina\" — \"Review the access rules first.\" [s1/document press] [s1/clear press] [s1/save press]\n\nTask: Use the document preview action, not the signature pad, to open Mina's original allotment access form.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/document\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}",
+      "{\"address\": \"s1/document\", \"action\": \"press\"}"
+    ]
+  },
+  "Signature%2Fwrite%2FGive%20Mina%20a%20drawing%20pad%20for%20the%20Allotment%20access%20form%2C%20synthetic%20original%20lib%3Aledge_access.%20Put%20the%20pad%20and%20its%20controls%20on%20a%20plain%20background%20with%20no%20card%20around%20them./d6189ceacbd16a5a/82e0664a6424dc07": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad|initials=\"pad\", datedStamp?: boolean }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nRule: Default style is \"pad\" for a signature, drawing pad, or any unspecified mark. Use \"initials\" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Put the pad and its controls on a plain background with no card around them.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad",
+                    "initials"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "datedStamp": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style",
+            "datedStamp"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":false}"
+    ]
+  },
+  "Signature%2Fwrite%2FLet%20Mina%20draw%20her%20signature%20after%20reviewing%20the%20Allotment%20access%20form%2C%20supplied%20as%20synthetic%20attachment%20lib%3Aledge_access.%20Hint%3A%20Review%20the%20access%20rules%20first./a124a07d6cbde9cf/2877ee8b95b7ec8a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad|initials=\"pad\", datedStamp?: boolean }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nRule: Default style is \"pad\" for a signature, drawing pad, or any unspecified mark. Use \"initials\" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let Mina draw her signature after reviewing the Allotment access form, supplied as synthetic attachment lib:ledge_access. Hint: Review the access rules first.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad",
+                    "initials"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "datedStamp": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style",
+            "datedStamp"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}"
+    ]
+  },
+  "Signature%2Fwrite%2FLet%20Mina%20review%20the%20Allotment%20access%20form%2C%20synthetic%20original%20lib%3Aledge_access%2C%20and%20draw%20only%20her%20handwritten%20initials%20on%20the%20copy./9d28f3ca0c6a5797/a2857ab76b7c3277": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad|initials=\"pad\", datedStamp?: boolean }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nRule: Default style is \"pad\" for a signature, drawing pad, or any unspecified mark. Use \"initials\" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let Mina review the Allotment access form, synthetic original lib:ledge_access, and draw only her handwritten initials on the copy.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad",
+                    "initials"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "datedStamp": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style",
+            "datedStamp"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"initials\",\"datedStamp\":null}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"initials\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"initials\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"initials\",\"datedStamp\":null}"
+    ]
+  },
+  "Signature%2Fwrite%2FLet%20Mina%20sign%20the%20Allotment%20access%20form%2C%20synthetic%20original%20lib%3Aledge_access.%20Stamp%20the%20actual%20signing%20date%20on%20the%20signed%20copy%20itself%2C%20without%20changing%20the%20original./b7c2260f84e54137/e6af185ca90b3000": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad|initials=\"pad\", datedStamp?: boolean }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nRule: Default style is \"pad\" for a signature, drawing pad, or any unspecified mark. Use \"initials\" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let Mina sign the Allotment access form, synthetic original lib:ledge_access. Stamp the actual signing date on the signed copy itself, without changing the original.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad",
+                    "initials"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "datedStamp": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style",
+            "datedStamp"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":true}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":true}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":true}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":null,\"style\":\"pad\",\"datedStamp\":true}"
+    ]
+  },
+  "Signature%2Fwrite%2FLet%20Mina%20sign%20the%20Allotment%20access%20form%2C%20synthetic%20original%20lib%3Aledge_access.%20Store%20the%20supplied%20hint%20'Review%20the%20access%20rules%20first.'%20but%20hide%20that%20hint%20in%20a%20brief%20view.%20Keep%20the%20preview%2C%20review%2C%20drawing%20and%20save%20controls./6679d5d44304c538/d7fc31d6faf36b78": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSignature: Draw a personal signature and save a dated copy of the reviewed form.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", title: text≤32, document: id snake_case, signer: text≤28, hint?: text≤60, style?: pad|initials=\"pad\", datedStamp?: boolean }\nRule: document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.\nRule: Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.\nRule: Exact axis defaults are {\"density\":null,\"surface\":null,\"detail\":null}. Override only the one axis explicitly requested: tighter spacing changes density to \"compact\"; a plain background with no surrounding card changes surface to \"plain\"; hiding the optional hint changes detail to \"brief\".\nRule: For hiding the hint alone use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the supplied hint text in hint. For a plain background alone use {\"density\":null,\"surface\":\"plain\",\"detail\":null}. Never write \"plain\" merely because the brief asks for fewer words, nor \"full\" for an unrequested detail axis.\nRule: Default style is \"pad\" for a signature, drawing pad, or any unspecified mark. Use \"initials\" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.\nexample: {\"c\":\"Signature\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let Mina sign the Allotment access form, synthetic original lib:ledge_access. Store the supplied hint 'Review the access rules first.' but hide that hint in a brief view. Keep the preview, review, drawing and save controls.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Signature",
+              "enum": [
+                "Signature"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "document": {
+              "type": "string",
+              "pattern": "^(?:local|lib):[a-zA-Z0-9_-]+$"
+            },
+            "signer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "pad",
+                    "initials"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "datedStamp": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "document",
+            "signer",
+            "hint",
+            "style",
+            "datedStamp"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+    "replies": [
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}",
+      "{\"c\":\"Signature\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Allotment access form\",\"document\":\"lib:ledge_access\",\"signer\":\"Mina\",\"hint\":\"Review the access rules first.\",\"style\":\"pad\",\"datedStamp\":null}"
+    ]
+  }
+}

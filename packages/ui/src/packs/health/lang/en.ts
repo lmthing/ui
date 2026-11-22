@@ -1,3 +1,5 @@
+import { words as TrainingPlanWords } from "./en/TrainingPlan";
+import { words as CardioSessionWords } from "./en/CardioSession";
 import { words as ActivityRingsWords } from "./en/ActivityRings";
 import { words as SymptomLogWords } from "./en/SymptomLog";
 import { words as VitalsWords } from "./en/Vitals";
@@ -15,6 +17,8 @@ export const en = {
   ...MeasurementsWords,
   ...ExerciseWords,
   ...WorkoutWords,
+  ...TrainingPlanWords,
+  ...CardioSessionWords,
 };
 
 export type HealthWords = typeof en;

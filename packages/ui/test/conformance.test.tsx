@@ -47,6 +47,7 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
   if (meta.id === "CannedReplies") return expect(visibleTexts(html)).toContain("No saved replies yet");
   if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
+  if (meta.id === "CreditScore") return expect(visibleTexts(html)).toContain("No credit report available");
   if (meta.id === "Transcript") return expect(visibleTexts(html)).toContain("No transcript available");
   // Explicit empty screen reads only the state header; use the declared copy hook here.
   const lines =

@@ -5,6 +5,7 @@ import type { createAct } from "../dispatch";
 import { offersAt } from "../offers";
 import { trackPrivateOperations, type PrivateResult } from "./operations";
 import { createReveal } from "./reveal";
+import { createScannerBrightness } from "./scanner-brightness";
 export type { AuthenticateReveal } from "./reveal";
 
 export type { PrivateResult, PrivateStatus } from "./operations";
@@ -223,20 +224,25 @@ function offered(ctx: ControllerContext, address: string, kind: Operation | "inp
 export function createPrivateControls(ctx: ControllerContext) {
   const reveal = createReveal(ctx);
   const values = createPrivateValues(ctx);
+  const scanner = createScannerBrightness(ctx);
+  const hasScanner = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.actions?.scannerBrightness);
   return {
-    dispatch: (act: Act) => values.dispatch(reveal.dispatch(act)),
-    view: { ...reveal.view, ...values.view },
+    dispatch: (act: Act) => values.dispatch(reveal.dispatch(hasScanner ? scanner.dispatch(act) : act)),
+    view: { ...reveal.view, ...values.view, ...scanner.view },
     reconcile() {
       reveal.reconcile();
       values.reconcile();
+      scanner.reconcile();
     },
     clear() {
       reveal.clear();
       values.clear();
+      scanner.clear();
     },
     revoke(address: string) {
       reveal.revoke(address);
       values.revoke(address);
+      scanner.revoke(address);
     },
     dispose: values.dispose,
   };

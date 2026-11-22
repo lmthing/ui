@@ -3,7 +3,7 @@ import { accents, component, components, space, stampItemIds, type Definition } 
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { variantSheet } from "../../../../packages/ui/scripts/variants";
 import { drawPreviewEnvironment, galleryParts, previewComponent, resolvePhoto } from "../../index";
-import { createPreviewController } from "../draw";
+import { createPreviewController, SignaturePreview } from "../draw";
 import { cellKey, cellLabel, type Cell, type modes } from "./gallery-data";
 import { DraftPreview } from "./DraftPreview";
 
@@ -33,6 +33,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
   const theme = { preset, mode, accent: accents[0]!.id } as never;
   const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
+  const view = View ? <View {...props} /> : <DraftPreview id={cell.id} />;
   return (
     <YStack
       width={variant?.sheet ? variantSheet.width : responsive ? "100%" : component.Gallery.cardWidth}
@@ -54,7 +55,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
         theme={theme}
         parts={galleryParts}
         resolvePhoto={(ref) => resolvePhoto(ref, theme)}
-        interactive={Boolean(def.meta.actions?.reveal)}
+        interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
         <YStack
@@ -65,7 +66,11 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
           {...(variant?.sheet ? { "data-look-frame": screen } : {})}
         >
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
-            {View ? <View {...props} /> : <DraftPreview id={cell.id} />}
+            {cell.id === "Signature" && cell.state === "filled" ? (
+              <SignaturePreview style={input.style}>{view}</SignaturePreview>
+            ) : (
+              view
+            )}
           </PartScope>
         </YStack>
       </KitProvider>

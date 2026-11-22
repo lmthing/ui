@@ -5,6 +5,10 @@ export const words = {
   cycleWindow: (dates: string) => `Fertile window (est.) · ${dates}`,
   cycleLabels: {
     log: "Log period",
+    symptoms: "View symptoms",
+    conceive: "Trying to conceive",
+    pregnancy: "Pregnancy tracking",
+    pregnancyDetail: "Cycle estimates are paused.",
     disclaimer: "Predictions are not a method\u00a0of\u00a0contraception.",
     empty: "Log a period to see cycle\u00a0estimates.",
     upcoming: "Upcoming period",

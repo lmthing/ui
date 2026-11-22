@@ -4,6 +4,11 @@ import { healthWordsFor } from "../lang";
 export const { cycleLabels } = healthWordsFor();
 
 export type CycleSeed = { start: string; length: number; period: number };
+type CycleOptions = {
+  detail?: "full" | "brief";
+  mode?: "track" | "conceive" | "pregnancy";
+  symptoms?: { goto: string } | undefined;
+};
 const dayMs = 24 * 60 * 60 * 1000;
 const dateAt = (time: number) => new Date(time).toISOString().split("T")[0]!;
 const atMidnight = (date: string) => new Date(`${date}T00:00:00Z`);
@@ -59,16 +64,20 @@ export const cycleWindowLine = (start: string, end: string, lang?: string): stri
     ),
   );
 
-export function cycleReading(input: CycleSeed & { detail?: "full" | "brief" }, lang?: string): string[] {
+export function cycleReading(input: CycleSeed & CycleOptions, lang?: string): string[] {
   const { cycleLabels } = healthWordsFor(lang);
+  const symptoms = input.symptoms ? [cycleLabels.symptoms] : [];
+  if (input.mode === "pregnancy") return [cycleLabels.pregnancy, cycleLabels.pregnancyDetail, ...symptoms];
   const cycle = cycleEstimate(input, undefined, lang);
   return [
+    ...(input.mode === "conceive" ? [cycleLabels.conceive] : []),
     cycleDayLine(cycle.day, lang),
     cycle.phase,
     ...(input.detail === "brief"
       ? []
       : [cycleNextLine(cycle.next, lang), cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang)]),
     cycleLabels.log,
+    ...symptoms,
     cycleLabels.disclaimer,
   ];
 }

@@ -34,7 +34,7 @@ describe.each(defs.filter((def) => selectedIds([def.meta.id]).length))("$meta.id
     for (const input of [...def.examples, ...casts.map((cast) => def.fallback({ cast }))])
       expect(def.props.safeParse(input).success).toBe(true);
     expect(def.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(def.meta.tier).toBe("phone");
+    expect(def.meta.tier).toBe(def.meta.id === "CardioSession" ? "ok" : "phone");
     expect(def.meta.realPath).not.toBe("");
     if (def.meta.status === "draft") expect(def).not.toHaveProperty(def.meta.id);
   });

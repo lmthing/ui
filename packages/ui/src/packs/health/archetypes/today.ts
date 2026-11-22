@@ -6,6 +6,9 @@ export const today = {
   defaultLayout: "rings",
   layouts: {
     rings: {
+      writeHints: [
+        "Use ordinary ActivityRings with null style and score unless the person's data includes a headline score plus three distinct factors. Do not invent a readiness or bio-age score.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["ActivityRings"], required: true },

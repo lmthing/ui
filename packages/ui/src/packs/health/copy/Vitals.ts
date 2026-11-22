@@ -9,6 +9,7 @@ type Vital = {
   low: number;
   high: number;
   at: string;
+  context?: keyof ReturnType<typeof healthWordsFor>["vitalLabels"]["context"] | undefined;
 };
 
 export const { vitalLabels } = healthWordsFor();
@@ -58,5 +59,6 @@ export function vitalLine(reading: Vital, lang?: string, showTime = true): strin
     vitalRangeLine(reading, lang),
     vitalStatusLine(reading, lang),
     showTime ? reading.at : undefined,
+    reading.context === undefined ? undefined : healthWordsFor(lang).vitalLabels.context[reading.context],
   );
 }
