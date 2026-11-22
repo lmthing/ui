@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
-import { useComponentState, usePart } from "../../part";
+import { useComponentState, usePart, usePartDisabled } from "../../part";
 import { useNumericControl } from "../../interact";
 import { useKit } from "../../provider";
 import { useSlider } from "./use-slider";
@@ -91,7 +91,7 @@ export function KitSlider(props: SliderProps) {
     props,
   );
   const inactive = disabled || loading;
-  useDisabledWipe(address.testID, appearance === "wipe" && inactive);
+  useDisabledWipe(address.testID, appearance === "wipe" && Boolean(props.disabled || loading));
   const { width, handlers } = useSlider({
     address: address.testID,
     part,
@@ -143,13 +143,14 @@ function useSliderBounds(
   enabled: boolean,
   { min = 0, max = 10, step = 1, value = 0, disabled = false }: SliderProps,
 ) {
+  const blocked = usePartDisabled(address);
   const numeric = useNumericControl(address, enabled);
   return {
     min: numeric?.min ?? min,
     max: numeric?.max ?? max,
     step: numeric?.step ?? step,
     value: numeric?.value ?? value,
-    disabled: disabled || numeric === null,
+    disabled: disabled || blocked || numeric === null,
     declared: Boolean(numeric),
   };
 }

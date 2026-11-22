@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
@@ -44,12 +44,20 @@ const resolvePlayback = (address: string) => (address.includes("/r1/") ? "first_
 function MediaFixture() {
   const scope = usePartContext();
   const live = useLiveControls(definition.meta, { clips });
+  const [framed, setFramed] = useState(false);
   return (
     <>
       <output>{`Frame ${Number(live.cursor) + 1}`}</output>
+      <button type="button" onClick={() => setFramed(!framed)}>
+        Toggle playback overlay
+      </button>
       {clips.map(({ label }, index) => (
         <PartScope key={label} {...scope} item={`r${index + 1}`}>
-          <KitPlayback part="clip" style="video">
+          <KitPlayback
+            part="clip"
+            style="video"
+            overlay={index === 0 && framed ? <span>Overlay</span> : undefined}
+          >
             <div>{`Clip ${index + 1} preview`}</div>
           </KitPlayback>
           <KitAction part="clip" label={label} />

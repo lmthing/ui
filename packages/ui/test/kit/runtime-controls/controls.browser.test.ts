@@ -1,9 +1,19 @@
 import { fileURLToPath, URL } from "node:url";
 import { expect, it } from "vitest";
+import type { Locator, Page } from "playwright-core";
 import { createServer } from "vite";
 import { galleryConfig, launchChrome } from "../../../scripts/look";
 
 const fixture = fileURLToPath(new URL("./controls.fixture.tsx", import.meta.url));
+
+async function checkWipeRecovery(page: Page, wipe: Locator) {
+  await expect.poll(() => wipe.isEnabled()).toBe(true);
+  const toggle = page.getByRole("button", { name: "Toggle wipe lock" });
+  await toggle.click();
+  expect(await wipe.isEnabled()).toBe(false);
+  await toggle.click();
+  await expect.poll(() => wipe.isEnabled()).toBe(true);
+}
 
 it("refreshes declared ranges on mounted controls, snaps human edits, and focuses a local anchor", async () => {
   const server = await createServer({
@@ -41,8 +51,11 @@ it("refreshes declared ranges on mounted controls, snaps human edits, and focuse
       await slider.press("End");
       expect(await input.inputValue()).toBe("0.3");
       expect(await input.getAttribute("aria-valuemax")).toBe("0.3");
+      const wipe = page.getByRole("slider", { name: "Wipe slider" });
+      expect(await wipe.isEnabled()).toBe(false);
       await page.getByRole("button", { name: "Raise cap" }).click();
       expect(await slider.getAttribute("aria-valuemax")).toBe("0.5");
+      await checkWipeRecovery(page, wipe);
       await input.fill("0.46");
       expect(await slider.getAttribute("aria-valuenow")).toBe("0.5");
       const wholeInput = page.getByRole("spinbutton", { name: "Whole amount" });

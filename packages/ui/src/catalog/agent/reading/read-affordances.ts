@@ -113,6 +113,11 @@ function offeredChoices(meta: Meta, props: Values, target: string) {
   return { choices, selected: choices.find(({ value }) => value === selected)?.offered ?? selected };
 }
 
+function nestedChoices({ options, current }: NonNullable<Affordance["nestedChoice"]>) {
+  const choices = readChoices(options, false);
+  return { choices, selected: choices.find(({ value }) => value === current)?.offered ?? current };
+}
+
 export function readAffordances(
   affordances: Affordance[],
   values: Values,
@@ -131,7 +136,7 @@ export function readAffordances(
       return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const choice = a.nestedChoice
-      ? { choices: readChoices(a.nestedChoice.options, false), selected: a.nestedChoice.current }
+      ? nestedChoices(a.nestedChoice)
       : a.action === "select"
         ? offeredChoices(meta, props, target)
         : undefined;

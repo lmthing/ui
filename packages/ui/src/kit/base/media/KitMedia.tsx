@@ -40,7 +40,10 @@ type PlaybackProps = {
   part?: string;
 };
 
-function usePlayback({ style, speed, loop, loading, part }: Omit<PlaybackProps, "children" | "overlay">) {
+function usePlayback(
+  { style, speed, loop, loading, part }: Omit<PlaybackProps, "children" | "overlay">,
+  framed: boolean,
+) {
   const { controller } = useKit();
   const { component, item, screen } = usePartContext();
   const address =
@@ -61,7 +64,7 @@ function usePlayback({ style, speed, loop, loading, part }: Omit<PlaybackProps, 
     if (style === "video") element.style.aspectRatio = String(variants.aspect.wide);
     (mount.current as HTMLElement | null)?.appendChild(element);
     return () => element.remove();
-  }, [session, style]);
+  }, [session, style, framed]);
   useEffect(() => {
     const element = session?.element;
     if (!element) return;
@@ -79,7 +82,7 @@ function usePlayback({ style, speed, loop, loading, part }: Omit<PlaybackProps, 
 
 /** An optional toolbar stays in the frame even when real playback replaces its fallback children. */
 export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
-  const { controller, mount, video, content } = usePlayback(options);
+  const { controller, mount, video, content } = usePlayback(options, overlay !== undefined);
   const playback = (
     <>
       {controller && (
