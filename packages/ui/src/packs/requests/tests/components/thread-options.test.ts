@@ -10,12 +10,12 @@ const screen = (c: string, input: object, state: StateName = "filled") => ({
   components: [{ c, id: "c1", ...input, state }],
 });
 
-describe("saved reply shortcut and attached files", () => {
-  const [message] = thread.examples[1]!.entries;
-  const entry = { ...message, file: "demo_gate_report" };
-  const input = { number: "TR-06", cannedGoto: "saved_replies", entries: [entry] };
-  const canned = { address: "c1/canned", action: "press" };
+const [message] = thread.examples[1]!.entries;
+const entry = { ...message, file: "demo_gate_report" };
+const input = { number: "TR-06", cannedGoto: "saved_replies", entries: [entry] };
 
+describe("saved reply shortcut", () => {
+  const canned = { address: "c1/canned", action: "press" };
   it("links to saved replies without sending and is only offered to staff who can reply", () => {
     const mounted = screen("RequestThread", input);
     expect(planAct(mounted, components, {}, [canned])).toMatchObject({
@@ -40,7 +40,9 @@ describe("saved reply shortcut and attached files", () => {
       planAct(screen("RequestThread", { ...input, cannedGoto: undefined }), components, {}, [canned]).ok,
     ).toBe(false);
   });
+});
 
+describe("thread file attachments", () => {
   it("identifies the file without exposing its reference and keeps internal attachments private", () => {
     const deviceData = { requestFiles: [{ fileRef: entry.file, name: "Gate inspection.pdf" }] };
     const markup = renderInstance("RequestThread", input, "filled", theme, { deviceData });
@@ -80,26 +82,26 @@ describe("saved reply shortcut and attached files", () => {
       expect(thread.props.safeParse({ ...input, entries: [{ ...entry, file: ref }] }).success).toBe(false);
     }
   });
+});
 
-  it("can insert a saved reply into the opted-in staff draft without sending", () => {
-    const { templates, categories } = components.CannedReplies.examples[0]!;
-    const replies = { c: "CannedReplies", id: "replies", templates, categories };
-    const opened = (input: object) => {
-      const target = { ...screen("RequestThread", input), id: "saved_replies" };
-      return { ...target, components: [replies, ...target.components] };
-    };
-    const insert = { address: "replies/r1/insert", action: "press" };
-    const target = opened(input);
-    const staged = planAct(target, components, {}, [insert]);
-    expect(staged).toMatchObject({
-      ok: true,
-      values: { "saved_replies/c1/$type/field": templates[0]!.body },
-      links: [],
-    });
-    if (!staged.ok) return;
-    expect(readScreen(target, components, staged.values)).toContain("send !needs-people");
-    expect(planAct(opened({ ...input, cannedGoto: undefined }), components, {}, [insert]).ok).toBe(false);
-    const requester = RequestThread.bindRequestThread(() => ({ role: "requester", canReply: true }));
-    expect(planAct(target, { ...components, RequestThread: requester }, {}, [insert]).ok).toBe(false);
+it("can insert a saved reply into the opted-in staff draft without sending", () => {
+  const { templates, categories } = components.CannedReplies.examples[0]!;
+  const replies = { c: "CannedReplies", id: "replies", templates, categories };
+  const opened = (input: object) => {
+    const target = { ...screen("RequestThread", input), id: "saved_replies" };
+    return { ...target, components: [replies, ...target.components] };
+  };
+  const insert = { address: "replies/r1/insert", action: "press" };
+  const target = opened(input);
+  const staged = planAct(target, components, {}, [insert]);
+  expect(staged).toMatchObject({
+    ok: true,
+    values: { "saved_replies/c1/$type/field": templates[0]!.body },
+    links: [],
   });
+  if (!staged.ok) return;
+  expect(readScreen(target, components, staged.values)).toContain("send !needs-people");
+  expect(planAct(opened({ ...input, cannedGoto: undefined }), components, {}, [insert]).ok).toBe(false);
+  const requester = RequestThread.bindRequestThread(() => ({ role: "requester", canReply: true }));
+  expect(planAct(target, { ...components, RequestThread: requester }, {}, [insert]).ok).toBe(false);
 });
