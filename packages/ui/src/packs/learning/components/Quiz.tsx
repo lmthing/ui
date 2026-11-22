@@ -181,7 +181,6 @@ export function Quiz(input: QuizProps) {
   const item = round.item as QuizItem, { answers, ready } = round.assessment;
   const options = quizChoices(item, lang);
   const ordering = item.kind === "order";
-  const check = <kit.KitAction full kind={ready ? "primary" : "secondary"} label={quiz.check} part="check" action="press" disabled={!ready} />;
   return <kit.KitCard key={round.index} part={!round.revealed && (options.length || ordering) ? "panel" : "root"} padded {...{ density, surface }}>
     <kit.KitContent density={density} leadingAlign="row"
       lead={media === "thumb" && item.photo && <kit.KitPhoto photo={item.photo} shape="thumb" part="photo" label={quiz.photo} />}>
@@ -194,7 +193,6 @@ export function Quiz(input: QuizProps) {
       {item.kind === "type" && <kit.KitInput projected hint={quiz.type} value={typeof answers.field === "string" ? answers.field : ""} />}
       {item.kind === "match" && <MatchChoices {...{ item, answers }} />}
       {ordering && <OrderChoices {...{ item, answers }} />}
-      {ordering ? <kit.KitActionFooter density={density}>{check}</kit.KitActionFooter>
-        : <kit.KitContent group="response">{check}</kit.KitContent>}
+      <kit.KitContent group="response"><kit.KitAction full kind={ready ? "primary" : "secondary"} label={quiz.check} part="check" action="press" disabled={!ready} /></kit.KitContent>
     </kit.KitContent>}</kit.KitCard>;
 }

@@ -152,11 +152,11 @@ function ReviewCard({ card, finish, flipped, loading, remaining, binary }: Activ
       front={loading ? <LoadingFront {...{ card, finish }} reveal={words.reveal} /> : card.front && <CardFront card={card} {...finish} />}
       back={<KitText part="back" role="title" {...{ align, density }}>{card.back}</KitText>}
     />
-    {!flipped && card.audio && <PromptAudio density={density} />}
-    {flipped && !loading && (binary ? <KitActionFooter density={density}>
+    {!flipped && card.audio && <KitContent {...{ align, density }}><PromptAudio density={density} /></KitContent>}
+    {flipped && !loading && (binary ? <KitContent {...{ align, density }}><KitActionFooter density={density}>
       <KitAction part="again" contentParts={{}} kind="danger" label={words.stillLearning} />
       <KitAction part="good" contentParts={{}} label={words.know} />
-    </KitActionFooter> : <KitGrid density={density}>
+    </KitActionFooter></KitContent> : <KitGrid density={density}>
       {meta.session.ratings.map((part) => <KitAction key={part} part={part} kind="secondary" full label={words[part]} />)}
     </KitGrid>)}
   </>;

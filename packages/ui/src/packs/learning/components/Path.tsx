@@ -179,7 +179,7 @@ export function Path({ units, milestones = [], detail, density: requested, surfa
   const { lang } = kit.useWords();
   if (style === "modules") {
     const modules = <Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
-    return <kit.KitCard part="root" padded {...{ density, surface }}>
+    return <kit.KitCard part="root" {...{ density, surface }}>
       <kit.KitState density={density} loading={modules}>{modules}</kit.KitState>
     </kit.KitCard>;
   }

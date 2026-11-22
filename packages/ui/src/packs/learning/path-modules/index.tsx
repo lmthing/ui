@@ -17,7 +17,7 @@ export function Modules({ units, milestones, density, brief, loading }: {
       const status = { text: copy.status, part: "state", tone: unit.state === "current" ? "accent" : "muted" } as const;
       const badge = { text: copy.milestone, part: "milestone", role: "caption" } as const;
       return <kit.KitRow key={unit.id} item={unit.id} part={loading ? null : "root"}
-        label={copy.label} goto={loading || locked ? undefined : unit.goto} inset="none" density={density}
+        label={copy.label} goto={loading || locked ? undefined : unit.goto} density={density}
         selected={!loading && unit.state === "current"}
         leading={<kit.KitIcon name={unit.icon} tone={locked ? "muted" : "accent"} loading={loading} />}
         trailing={<kit.KitIcon name={trail} scale="sm" decorative loading={loading} />}>

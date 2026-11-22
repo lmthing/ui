@@ -13,7 +13,7 @@ function playback(page: Page, value?: string) {
 
 async function flashcard(page: Page) {
   const part = (name: string) => page.getByTestId(`home/cards/${name}`);
-  await part("audio").click();
+  await part("audio").press("Enter");
   await playback(page, "first");
   expect(await part("front").innerText()).toBe("First card");
   await part("audio").click();
@@ -44,7 +44,7 @@ async function quiz(page: Page) {
   await tile("W1 · fern.").click();
   await tile("W2 · the").click();
   await tile("W1 · fern.").click();
-  await part("check").press("Enter");
+  await part("check").click();
   await playback(page);
   expect(await part("answer").innerText()).toBe("Water the fern.");
   await part("next").click();
