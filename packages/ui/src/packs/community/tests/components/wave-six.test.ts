@@ -128,8 +128,11 @@ describe("trusted Community actions", () => {
         expect(runtime.act({ address: "c1/r2", action: "select", value: "jo" }).ok).toBe(false);
         const third = runtime.press("c1/r3");
         expect(third.ok, JSON.stringify({ third, reading: runtime.read() })).toBe(viewer === "cal" && !limit);
-        if (viewer === "cal")
+        if (viewer === "cal") {
+          expect(actions).toHaveBeenLastCalledWith({ address: "home/c1/r3", action: "select" });
+          expect(runtime.act({ address: "c1/r3", action: "select", value: "jo" }).ok).toBe(true);
           expect(actions).toHaveBeenLastCalledWith({ address: "home/c1/r3", action: "select", value: "jo" });
+        }
         expect(runtime.press("c1/r1").ok).toBe(viewer !== "outside");
         expect(runtime.snapshotScreen().components[0]?.ballots).toEqual(input.ballots);
         const reading = runtime.read();

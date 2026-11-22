@@ -18,7 +18,7 @@ export const meta = {
     "Use unique snake_case ids. Opens and closes need ISO datetimes with offsets, opens earlier than closes. Seed at most one ballot per eligible member; never write counts or a decision.",
     'Choose rule "majority", "two_thirds" or "unanimous". Use style "result" only for a read-only closed result.',
     "Use voteId for the stored motion reference; the screen instance id is separate.",
-    'Use arrange "rows" only when asked to stack choices one per line. Otherwise use arrange:null. Leave density and surface null unless a density or surface is explicitly requested. In particular, stacked choices do not request surface "card". Do not copy the example detail.',
+    'Vertical voting choices, one choice on each line: output "arrange":"rows","surface":null,"density":null (unless the person requests a separate finish). Otherwise leave arrange null if unrequested. Do not copy the example detail.',
     'Keep the usual motion style as "ballot" or null; use "motion" for an explicitly requested motion style. Use "election" to fill named seats. Only for elections, write candidates as {id,name} and seats 1–5 when specified. An election ballot choice is an array of up to seats candidate IDs or the string "abstain". A motion ballot choice is "for", "against" or "abstain".',
   ],
   region: "body",

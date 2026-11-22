@@ -98,7 +98,8 @@ the decision after closing. Before closing it shows participation, not a winning
 - Parts → actions: `for select`, `against select`, `abstain select` (eligible member, while open,
   replacing their previous ballot), `cancel press` (chair only). `meta.confirmParts: ["cancel"]`.
   In an election, candidate `root select` toggles approval in the viewer's one ballot and `abstain select`
-  replaces its choices. Selected candidates can always be deselected; the host also checks the seat cap.
+  replaces its choices. The host maps the stamped candidate address to the candidate id and checks the
+  seat cap. Selected candidates can always be deselected.
   `seats`, candidate `label`, `count`, and `elected` are read-only; counts and outcomes appear only after close.
 - States: filled (scheduled, open or closed), loading, success (ballot saved), error (ineligible,
   closed or save failed); cancellation is a retained, read-only state, not a failed motion.

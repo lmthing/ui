@@ -9,7 +9,7 @@ import { voteRecordKind } from "../../copy";
 const seed = components.Vote.props.parse(components.Vote.examples[4]);
 const now = Date.now();
 const opens = new Date(now - 60_000).toISOString();
-const closes = new Date(now + 60_000).toISOString();
+const closes = new Date(now + 600_000).toISOString();
 const arrange = location.search.includes("rows") ? ("rows" as const) : ("grid" as const);
 const screen = {
   id: "home",
@@ -18,8 +18,11 @@ const screen = {
 
 function ElectionFixture() {
   const [choice, setChoice] = useState<string[] | "abstain">(["ana"]);
-  const onAction = ({ action, value }: ActStep) => {
-    if (action !== "select" || typeof value !== "string") return;
+  const onAction = ({ action, address }: ActStep) => {
+    if (action !== "select") return;
+    const target = address.split("/").at(-1);
+    const value = target === "abstain" ? target : seed.candidates?.[Number(target?.slice(1)) - 1]?.id;
+    if (!value) return;
     if (value === "abstain") return setChoice("abstain");
     setChoice((prev) => {
       if (prev === "abstain") return [value];

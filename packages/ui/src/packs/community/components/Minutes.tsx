@@ -161,8 +161,8 @@ function Entry({ row, density }: { row: MinutesRow; density: Density }) {
   return <kit.KitRow item={row.id} part={loading ? null : "root"} label={loading ? "" : copy.title}
     inline fitContent goto={!loading && row.kind === "decision" ? row.goto : undefined} {...{ density, trailing }}>
     <kit.KitContent density={density} rhythm="flush">
-      <kit.KitLayoutText density={density} line={{ text: copy.title, part: "title", role: "body", strong: true }} />
-      {fields.map(([part, text]) => text && <kit.KitLayoutText key={part} density={density} line={{ text, part, role: "meta",
+      <kit.KitLayoutText density={density} line={{ text: copy.title, part: "title", role: "meta", strong: true }} />
+      {fields.map(([part, text]) => text && <kit.KitLayoutText key={part} density={density} line={{ text, part, role: "caption",
         tone: part === "motion" ? "accent" : part === "due" && row.kind === "action" && row.overdue ? "bad" : "muted" }} />)}
     </kit.KitContent>
   </kit.KitRow>;
@@ -178,7 +178,7 @@ export function Minutes(input: View) {
   const { present, apologies, ...header } = minutesHeader(input, lang, kit.useDeviceData());
   const sections = ["decision", "action"] as const;
   const content = <>
-    <kit.KitHeader density={density} title={{ text: input.title, part: "title" }}
+    <kit.KitHeader density={density} title={{ text: input.title, part: "title", role: "body", strong: true }}
       meta={Object.entries(header).map(([part, text]) => ({ part, text,
         tone: part === "approval" && input.approvedAt ? "good" : "muted" }))} />
     {present && <kit.KitContent group="response" rhythm="flush" density={density}>
