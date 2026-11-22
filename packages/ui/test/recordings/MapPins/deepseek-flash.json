@@ -2396,11 +2396,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":\"highlight\"}]}",
+    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":\"highlight\"}]}",
     "replies": [
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":\"highlight\"}]}",
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":\"highlight\"}]}",
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":\"highlight\"}]}"
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":\"highlight\"}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":\"highlight\"}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":1,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":\"highlight\"},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
     ]
   },
   "MapPins%2Fwrite%2FPut%20Park%20gate%20and%20Pond%20on%20a%20map%20and%20include%20my%20current%20location./514420a51aa48da9/1742ce8d0c883da3": {
@@ -2548,11 +2548,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
+    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
     "replies": [
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"none\",\"userLocation\":true,\"selected\":null,\"pins\":[{\"label\":\"Park gate\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
     ]
   },
   "MapPins%2Fwrite%2FShow%20nearby%20plant%20shops%3A%20Greenhouse%20plant%20shop%2C%20Riverside%20nursery%20and%20Garden%20centre/2b773987990052c6/65abb94689f40cee": {
@@ -2703,7 +2703,7 @@
     "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
     "replies": [
       "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"userLocation\":null,\"selected\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"userLocation\":null,\"selected\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"userLocation\":null,\"selected\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
     ]
   },

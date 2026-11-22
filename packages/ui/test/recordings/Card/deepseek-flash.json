@@ -6141,10 +6141,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":\"card\",\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"Today at 18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":\"card\",\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":\"card\",\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk\",\"body\":\"Pip · 18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}"
     ]
   },
@@ -6885,11 +6885,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":\"A relaxing stroll through the park at dusk\",\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}"
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk\",\"body\":\"Preview of the evening walk route and highlights\",\"meta\":null,\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":\"A relaxing stroll through the park\",\"meta\":\"6:30 PM\",\"badge\":null,\"reward\":\"20 points\",\"duration\":null,\"icon\":null,\"photo\":null,\"goto\":null}"
     ]
   },
   "Card%2Fwrite%2FPreview%20the%20evening%20walk%20and%20show%20a%20separate%20duration%20pill%20of%20exactly%2015%20min./87a044850947b024/b0c57983cf55ab09": {
@@ -7270,11 +7270,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":\"Preview the evening walk\",\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":\"Preview the evening walk\",\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}"
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":\"Preview the evening walk\",\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk\",\"body\":null,\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":\"15 min\",\"icon\":null,\"photo\":null,\"goto\":null}"
     ]
   },
   "Card%2Fwrite%2FShow%20Fern%20with%20lib%3Aplants%20as%20a%20wide%20photo%20at%20the%20top.%20Below%20it%20show%20Bathroom%20and%20then%20Water%20today.%20Tap%20to%20open%20fern./34eb30b405f8462a/e74748c4ea9a8a46": {
@@ -7655,11 +7655,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · Water today\",\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · Water today\",\"meta\":null,\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"reward\":null,\"duration\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
     ]
   },
   "Card%2Fwrite%2FShow%20Fern%20with%20lib%3Aplants%20as%20a%20wide%20photo%20at%20the%20top.%20Below%20it%20show%20Bathroom%20and%20then%20Water%20today.%20Tap%20to%20open%20fern./47ae1a1e616173e9/43a43a56fec0c310": {
