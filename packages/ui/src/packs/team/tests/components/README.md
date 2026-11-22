@@ -10,3 +10,4 @@
 `LeaveBalance.test.ts` covers leave balances, visible breakdowns, states and request dispatch.
 `PayStub.test.ts` covers statement totals, itemization, empty/error states and service export.
 `TeamDirectory.test.ts` covers live search, stable row addresses and contact actions.
+`TeamNotice.test.ts` covers bulletin variants, notice links and one-way read receipts.
