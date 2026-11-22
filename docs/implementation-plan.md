@@ -997,6 +997,14 @@ doc specifies it, and only show retry when an enabled action is declared. Layout
 change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
 filled/loading parity, and last-column reachability separately from gallery fixture quality.
 
+At pack acceptance, count action labels in the three-size limit for each item. Use tighter
+spacing within a label/value pair than between groups, align comparable figures to the end of
+their column, and keep a heading close to its first item. Use a neutral or danger finish for
+negative actions, never the positive accent. Keep the shared empty treatment but use the brief's
+specific empty copy when it calls for it. Fix recurring geometry in the base that owns the slot,
+not with per-component offsets. Inline links keep their reading order and reserve a real touch
+slot without covering neighboring text or targets.
+
 ### 5.5 Views
 
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.

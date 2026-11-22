@@ -261,6 +261,14 @@ for operations that leave useful content on screen. Keep existing parts, reading
 Only override a state treatment when the catalog doc calls for it, and do not invent a retry
 action. Test the kit geometry separately from host fixture data such as photos.
 
+For pack acceptance, count action labels in each item's three text sizes. Keep the gap inside a
+label/value pair smaller than the gap to the next group, align comparable figures at the end of
+their column, and keep a heading close to the first item it introduces. Give negative actions a
+neutral or danger finish instead of the positive accent. Keep `KitState`'s empty layout and supply
+specific empty copy only when the brief calls for it. Fix shared slot geometry in its owning base
+rather than adding per-component offsets. Inline links keep their reading order and reserve a touch
+slot that does not cover neighboring text or targets.
+
 | Recipe | Slots |
 | --- | --- |
 | `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
