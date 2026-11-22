@@ -71,6 +71,7 @@ export const en = {
       failed: "Couldn’t save the initialed copy",
     },
     dateStamp: "Add the signing date to the copy",
+    stampDate: (date: string) => `Signing date · ${date}`,
     dateStamped: (date: string) => `Date stamped on the copy · ${date}`,
   },
   taxYear: {
@@ -135,9 +136,7 @@ export const en = {
     attached: "File attached",
     unavailable: "File unavailable",
     remove: (title: string) => `Remove ${title} from the register`,
-    pages: (count: string, form: Intl.LDMLPluralRule) => `${count} ${form === "one" ? "page" : "pages"}`,
     unfiled: "Unfiled",
-    share: "Share",
     shareFile: (title: string) => `Share ${title}`,
   },
 };

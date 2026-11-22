@@ -144,9 +144,6 @@ type Display = ReturnType<typeof signatureDisplay>;
 function SignatureWorkflow({ copy, density, options }: { copy: Display; density: Density; options: boolean }) {
   const pad = <kit.KitSignaturePad part="pad_frame" target={{ part: "pad" }} label={copy.pad}
     loading={copy.loading} disabled={!copy.canDraw} {...(copy.mark ? { mark: copy.mark } : {})} />;
-  const save = <kit.KitAction part="save" label={copy.save} full={!options} disabled={!copy.canSave}
-    kind={copy.loading || copy.canSave ? "primary" : "quiet"} />;
-  const clear = <kit.KitAction part="clear" label={copy.clear} kind="quiet" disabled={!copy.canClear} />;
   return <>
     <kit.KitAction part="document" label={copy.open} icon="file_text" kind="secondary" full />
     <kit.KitRow part={null} label="" inline density={density} lineRole="label"
@@ -156,15 +153,16 @@ function SignatureWorkflow({ copy, density, options }: { copy: Display; density:
       {copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.review]]} /> :
         <kit.KitText part="review_label" role="label" density={density}>{copy.review}</kit.KitText>}
     </kit.KitRow>
-    {options ? <>
+    {options ?
       <kit.KitFigure density={density} media={pad}
         caption={copy.dateStamp && <kit.KitLayoutText {...{ density }}
           line={{ part: "date_stamp", text: copy.dateStamp, role: "caption", tone: "muted" }} />} />
-      <kit.KitActionFooter {...{ density }}>{save}{clear}</kit.KitActionFooter>
-    </> : <>
-      {pad}
-      <kit.KitGrid fitLast density={density}>{save}{clear}</kit.KitGrid>
-    </>}
+      : pad}
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
+        kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
+      <kit.KitAction part="clear" label={copy.clear} kind="danger" disabled={!copy.canClear} />
+    </kit.KitGrid>
   </>;
 }
 

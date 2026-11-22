@@ -12,7 +12,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
-import { createPreviewController } from "./draw";
+import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
@@ -37,6 +37,7 @@ function Screen({
   const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
   const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
+  const view = View ? <View {...props} /> : <DraftPreview id={id} />;
   return (
     <YStack gap={space.xs}>
       <Text fontSize={12} data-look-label>{`${preset} · ${cellLabel(cell)}`}</Text>
@@ -55,7 +56,11 @@ function Screen({
           data-look-frame={screen}
         >
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
-            {View ? <View {...props} /> : <DraftPreview id={id} />}
+            {id === "Signature" && cell.state === "filled" ? (
+              <SignaturePreview style={input.style}>{view}</SignaturePreview>
+            ) : (
+              view
+            )}
           </PartScope>
         </YStack>
       </KitProvider>

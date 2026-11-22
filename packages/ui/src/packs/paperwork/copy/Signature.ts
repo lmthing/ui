@@ -26,6 +26,7 @@ const hostForm = z.strictObject({
     .strictObject({
       version: revision,
       revision,
+      date: isoDate.optional(),
       mark: z
         .string()
         .max(120)
@@ -86,6 +87,7 @@ function signatureProjection(input: Readonly<Values>, instance: string, data: De
     can_draw: reviewed && !savedOn,
     can_save: Boolean(draft && !savedOn),
     savedOn,
+    ...(input.datedStamp === true && draft?.date ? { stampDate: draft.date } : {}),
     // Identity for the clear confirmation, never a mark reference or drawing payload.
     clearRevision:
       draft && !savedOn
@@ -138,7 +140,16 @@ export function previewSignature({
       ...(input.datedStamp === true ? { datedStamp: true } : {}),
       version,
       ...(active ? { openedVersion: version, reviewedVersion: version } : {}),
-      ...(state === "filled" ? { draft: { version, revision: "demo-draft", mark: "local:synthetic" } } : {}),
+      ...(state === "filled"
+        ? {
+            draft: {
+              version,
+              revision: "demo-draft",
+              mark: "local:synthetic",
+              ...(input.datedStamp === true ? { date: seedDate } : {}),
+            },
+          }
+        : {}),
       ...(state === "success" ? { saved: { version, date: seedDate } } : {}),
       ...(state === "error" ? { failure: { version, action: "open" } } : {}),
     })),
@@ -151,6 +162,10 @@ function signingCopy(w: SignatureWords, options: SignatureOptions) {
   const mark = options.style === "initials" ? w.initials : w;
   const stamped = options.datedStamp === true;
   return { mark, stamped, savedOn: stamped ? w.dateStamped : w.savedOn };
+}
+
+function signatureStamp(w: SignatureWords, date: unknown, lang?: string) {
+  return typeof date === "string" ? w.stampDate(appointmentDate(date, lang)) : w.dateStamp;
 }
 
 function signatureFeedback(
@@ -204,7 +219,7 @@ export function signatureDisplay(
     save: mark.save,
     clear: w.clear,
     pad: padLabel(mark, reviewed, Boolean(activeDraft)),
-    dateStamp: stamped ? w.dateStamp : undefined,
+    dateStamp: stamped ? signatureStamp(w, activeDraft?.date, lang) : undefined,
     loading,
     feedback: signatureFeedback(state, host, w, options, lang),
     reviewed,
@@ -218,10 +233,16 @@ export function signatureDisplay(
 
 export function signatureReading(input: unknown, state: StateName, lang?: string): string[] {
   const w = paperworkWordsFor(lang).signature;
-  const { signer, reviewed, has_mark, savedOn, style, datedStamp } = input as Values;
+  const { signer, reviewed, has_mark, savedOn, style, datedStamp, stampDate } = input as Values;
   const { mark, stamped, savedOn: dateLine } = signingCopy(w, { style, datedStamp });
   const identity = typeof signer === "string" ? [w.signer(signer)] : [];
-  const controls = [w.open, w.review, mark.save, w.clear, ...(stamped ? [w.dateStamp] : [])];
+  const controls = [
+    w.open,
+    w.review,
+    mark.save,
+    w.clear,
+    ...(stamped ? [signatureStamp(w, state === "filled" && has_mark ? stampDate : undefined, lang)] : []),
+  ];
   if (state === "empty") return [...identity, ...controls, mark.locked];
   if (state === "success")
     return [

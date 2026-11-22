@@ -125,7 +125,11 @@ describe("Signature view", () => {
     expect(explicit).toBe(legacy);
     const options = { ...input, style: "initials", datedStamp: true };
     const draft = renderExample("Signature", options, "filled", theme).html;
-    expect(elementAt(draft, "home/c1/date_stamp").text).toContain("Add the signing date to the copy");
+    expect(addressedElements(draft).get("home/c1/date_stamp")?.text.join("")).toContain("Signing date");
+    const pending = renderExample("Signature", options, "empty", theme).html;
+    expect(addressedElements(pending).get("home/c1/date_stamp")?.text).toContain(
+      "Add the signing date to the copy",
+    );
     expect(draft).toContain("Draft initials");
     expect(draft).toContain("Save initialed copy");
     const success = renderExample("Signature", options, "success", theme).html;

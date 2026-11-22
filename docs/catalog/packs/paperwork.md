@@ -55,7 +55,7 @@ computed; opening a record shows its local file, never an unmasked number in an 
   docs `file`, docs `tags`, docs `warning`, docs `folder` (row detail outside folders style), docs
   `pages`, docs `share press` (only with explicit `share: true`, an attachment and an available
   `shareDocument` host command), docs `remove press` (removes the entry, not the source file), docs
-  `remove_icon`; `meta.partTiers: { share: "service" }`, `meta.confirmParts: ["remove", "share"]`.
+  `remove_icon`. `meta.partTiers: { share: "service" }`, `meta.confirmParts: ["remove", "share"]`.
 - States: filled, empty, loading, error (file unavailable).
 - Real path: records and private attachments kept on the device; original files are opened by a local
   host viewer, with identifiers masked and read as `(secret)`.
@@ -117,10 +117,11 @@ binds the person's drawn mark to that version as a dated local copy, without cla
   `document_label`, `document_icon`, `review check` (confirms the opened version was reviewed),
   `review_label`, `pad set` (device-created local mark reference text(120); human strokes produce it),
   `pad_frame`, `clear press`, `clear_label`, `save press`, `save_label`, `success`, `error`, `sub`,
-  `date_stamp` (when requested, before saving); `meta.confirmParts: ["clear"]`.
+  `date_stamp` (when requested, before saving). `meta.confirmParts: ["clear"]`.
   Save requires a mark for the reviewed document version and current signing options. The host must
   acknowledge `initials` and `datedStamp: true` in the matching signature record; omit those fields for
-  the legacy pad. Only a saved host record for the current version confirms a stamped copy.
+  the legacy pad. The optional host `draft.date` displays the signing date before saving; only a
+  saved host record for the current version confirms a stamped copy.
 - States: empty (no mark), filled (draft mark), loading, success (copy saved), error (file or save failed).
 - Real path: a new kit drawing base captures a person's touch or stylus input, and the host saves a local
   signed copy without overwriting the original; identity verification and remote signing are not included.
@@ -135,9 +136,9 @@ allocation totals. Up to eight categories open their evidence; a task tick canno
   `Invoice`) or a back-office table of arbitrary records (data `Table`).
 - Writes: `label` text(24), `from` date, `to` date, `due` date optional, `requirements` of
   `label` text(32), `source` (`documents`, `receipts`), `tag` text(16), `needed` int 1–12, `goto` optional,
-  1–8. `from` must be on or before `to`. Matches need a usable attachment and this period's link and tag; receipts also need
-  `reviewed: true` and dates within the inclusive period. Code computes counts, totals and warnings,
-  not tax owed; unreviewed or file-less records stay outstanding.
+  1–8. `from` must be on or before `to`. Matches need a usable attachment and this period's link and
+  tag; receipts also need `reviewed: true` and dates within the inclusive period. Code computes
+  counts, totals and warnings, not tax owed; unreviewed or file-less records stay outstanding.
 - Styles: density: `comfortable` (default), `compact` (summary rows with the same evidence links);
   surface: `card` (default), `plain`; detail: `full` (default), `brief` (hides `due`, `receipt_total`,
   `allocation_total`).

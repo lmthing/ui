@@ -144,9 +144,9 @@ export const probes = [
   },
   {
     ...write(
-      "Put Mina's Greenhouse permit certificate in the Permits folder, but keep this as an ordinary row register rather than grouping the list.",
+      "File Mina's Greenhouse permit certificate under the Permits folder. Display it as a separate file card instead of grouping the register.",
     ),
-    expectProps: { docs: [{ folder: "Permits" }] },
+    expectProps: { style: "cards", docs: [{ folder: "Permits" }] },
   },
   {
     ...write("File Mina's Greenhouse permit as a certificate. The permit is 4 pages long."),
@@ -165,8 +165,22 @@ type DocumentsProps = c.Props<typeof props, typeof meta>;
 type DocumentRow = DocumentsProps["docs"][number];
 
 // prettier-ignore
-function DocumentFile({ row, density, surface, now, grouped }: {
-  row: DocumentRow; density: c.ThemeDensity; surface?: "card" | "plain" | undefined; now: Date; grouped?: boolean;
+function DocumentShare({ row, density }: { row: DocumentRow; density: c.ThemeDensity }) {
+  const { screen, component } = kit.usePartContext(), { controller, interactive } = kit.useKit();
+  const { words } = kit.useWords(paperworkWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  if (!loading && interactive && !controller?.actionsAt(`${screen}/${component}/${row.id}/share`).includes("press"))
+    return null;
+  return <kit.KitActionFooter {...{ density }} indent={1}>
+    {loading ? <kit.KitSkeleton shape="control" kind="quiet" />
+      : <kit.KitAction part="share" kind="quiet" icon="share"
+        a11y={words.documents.shareFile(row.title)} contentParts={{}} />}
+  </kit.KitActionFooter>;
+}
+
+// prettier-ignore
+function DocumentFile({ row, density, surface, now, grouped, first }: {
+  row: DocumentRow; density: c.ThemeDensity; surface?: "card" | "plain" | undefined; now: Date; grouped?: boolean; first?: boolean;
 }) {
   const { lang, words } = kit.useWords(paperworkWordsFor);
   const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
@@ -186,13 +200,14 @@ function DocumentFile({ row, density, surface, now, grouped }: {
   };
   const dot = <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} />;
   return (
-    <kit.KitRow item={row.id} part={null} label="" inset={grouped ? "none" : "md"} {...{ density, surface }} trailing={loading ?
-      <kit.KitSkeleton shape="control" kind="quiet" /> :
-      <kit.KitAction icon="close" part="remove" kind="quiet" a11y={words.documents.remove(row.title)} />
+    <kit.KitRow item={row.id} part={null} label="" inset={grouped ? "none" : "md"} inline={first === true}
+      {...{ density, surface }} trailing={loading ?
+      <kit.KitSkeleton shape="control" kind="danger" /> :
+      <kit.KitAction icon="trash" part="remove" kind="danger" a11y={words.documents.remove(row.title)} />
     }>
       <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.title}
         goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
-        trailing={canOpen && (loading ? dot : <kit.KitIcon name="chevron_right" tone="muted" decorative />)}
+        trailing={canOpen && <kit.KitIcon name="chevron_right" tone="muted" decorative loading={loading} />}
         leading={loading ? dot : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} children={null} />}>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", row.title]]} />
           : <kit.KitText part="title" density={density}>{row.title}</kit.KitText>}
@@ -202,11 +217,7 @@ function DocumentFile({ row, density, surface, now, grouped }: {
           {!grouped && draw("folder")}{draw("pages")}
         </kit.KitContent>}
       </kit.KitRow>
-      {row.file && row.share && <kit.KitActionFooter {...{ density }} indent={1}>
-        {loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-          : <kit.KitAction part="share" kind="quiet" label={words.documents.share}
-            a11y={words.documents.shareFile(row.title)} contentParts={{}} />}
-      </kit.KitActionFooter>}
+      {row.file && row.share && <DocumentShare {...{ density, row }} />}
     </kit.KitRow>
   );
 }
@@ -216,10 +227,10 @@ function FolderRegister({ docs, density, now }: Pick<DocumentsProps, "docs"> & {
   const { words } = kit.useWords(paperworkWordsFor), state = kit.useComponentState();
   const folders = documentFolders(docs);
   const rows = <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-    {folders.map(([folder, files]) => <kit.KitContent key={JSON.stringify(folder ?? null)} {...{ density }}>
-      <kit.KitHeader density={density} title={{ text: folder ?? words.documents.unfiled, role: "body",
-        strong: true }} />
-      <kit.KitRowGroup {...{ density }}>{files.map((row) => <DocumentFile key={row.id} grouped {...{ row, density, now }} />)}</kit.KitRowGroup>
+    {folders.map(([folder, files]) => <kit.KitContent key={JSON.stringify(folder ?? null)} rhythm="flush" {...{ density }}>
+      <kit.KitHeader density={density} title={{ text: folder ?? words.documents.unfiled, role: "meta", tone: "muted" }} />
+      <kit.KitRowGroup {...{ density }}>{files.map((row, index) =>
+        <DocumentFile key={row.id} grouped first={index === 0} {...{ row, density, now }} />)}</kit.KitRowGroup>
     </kit.KitContent>)}
   </kit.KitRowGroup>;
   return <kit.KitState {...{ density }} part={state === "error" ? "error" : "empty"} loading={rows}

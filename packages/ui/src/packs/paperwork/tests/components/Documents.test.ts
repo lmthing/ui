@@ -6,9 +6,12 @@ import {
   readComponent,
   stampItemIds,
 } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import { createScreenController, PhoneScreen } from "@lmthing/ui/kit";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, config, renderInstance } from "../../../../../test/render";
 
 const { meta, props, examples, fallback, probes } = components.Documents;
 const entry = examples[0]!.docs[0]!;
@@ -168,5 +171,26 @@ describe("Documents service share", () => {
     } finally {
       controller.dispose();
     }
+  });
+
+  it.each([undefined, false, true])("mounts a Share button only when the host allows it (%s)", (allowed) => {
+    const screen = {
+      id: "home",
+      components: [{ id: "d1", c: "Documents", docs: [{ ...entry, share: true }] }],
+    };
+    const hostCommands =
+      allowed === undefined
+        ? undefined
+        : {
+            commands: { shareDocument: { allows: () => allowed, run } },
+          };
+    const html = renderToStaticMarkup(
+      createElement(
+        TamaguiProvider,
+        { config, defaultTheme: "kit_calm_light_moss" },
+        createElement(PhoneScreen, { screen, theme, hostCommands }),
+      ),
+    );
+    expect(addressedElements(html).has(share.address)).toBe(allowed === true);
   });
 });

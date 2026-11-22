@@ -1,4 +1,4 @@
-import { appointmentDate, numberLine, pluralForm, wordsFor } from "../../../catalog";
+import { appointmentDate, filePagesLine, numberLine, pluralForm, wordsFor } from "../../../catalog";
 import { paperworkWordsFor, type PaperworkWords } from "../lang";
 
 type DocumentDetails = {
@@ -50,11 +50,7 @@ export function documentDetails(row: DocumentDetails, now: Date, lang?: string):
   if (row.file) lines.push({ part: "file", line: words.privateFile });
   if (row.tags.length) lines.push({ part: "tags", line: row.tags.join(words.separator) });
   if (row.folder) lines.push({ part: "folder", line: row.folder });
-  if (row.pages !== undefined)
-    lines.push({
-      part: "pages",
-      line: words.pages(numberLine(row.pages, lang), pluralForm(row.pages, lang)),
-    });
+  if (row.pages !== undefined) lines.push({ part: "pages", line: filePagesLine(row.pages, lang) });
   return lines;
 }
 
