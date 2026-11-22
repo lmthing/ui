@@ -3,7 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { storyViewerReading } from "../copy";
 import { socialWordsFor } from "../lang";
-import { StoryProgress } from "./story-progress";
+import * as progress from "./story-progress";
 
 const maxSlides = 8,
   maxReply = 120,
@@ -180,7 +180,7 @@ export function StoryViewer(input: StoryProps) {
     {detail === "full" && <StoryReply words={words} draft={replyDraft} />}
   </kit.KitContent>;
   const header = slide && <kit.KitContent inset="md">
-      <StoryProgress count={slides.length} at={current + 1} interval={slideIntervalMs} loading={loading} />
+      <progress.StoryProgress count={slides.length} at={current + 1} interval={slideIntervalMs} loading={loading} />
       <kit.KitGrid fitLast>
         <kit.KitContent leadingAlign="row" lead={<kit.KitPhoto part="avatar" photo={input.avatar} shape="round" label={input.author}
           initials={input.author.slice(0, 1)} loading={loading} />}>
