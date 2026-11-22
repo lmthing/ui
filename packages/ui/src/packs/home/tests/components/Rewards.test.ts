@@ -29,7 +29,7 @@ describe("Rewards contract", () => {
     expect(meta.realPath).not.toBe("");
     expect(probes.filter((probe) => probe.kind === "choose").map((probe) => probe.expect)).toEqual([
       "Rewards",
-      "Ring",
+      "Progress",
     ]);
     expect(probes).toContainEqual(expect.objectContaining({ kind: "write", expect: "Rewards" }));
     expect(probes).toContainEqual(

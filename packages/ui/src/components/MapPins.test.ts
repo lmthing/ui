@@ -1,13 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { renderInstance } from "../../test/render";
-import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
+// prettier-ignore
+import { affordancesOf, components, createRegistry, partTierAt, readComponent, stampItemIds,
+  type CastLike, type Props,
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.MapPins;
@@ -37,6 +32,8 @@ describe("MapPins schema", () => {
     { pins: [{ label: "Place" }], trail: "toggle" },
     { pins: [{ label: "Place", mark: "urgent" }] },
     { pins: [{ label: "Place" }], color: "red" },
+    { pins: [{ label: "Place" }], userLocation: "true" },
+    ...[-1, 0.5, 1, "0"].map((selected) => ({ pins: [{ label: "Place" }], selected })),
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths and count, repeated labels and navigation forms", () => {
     const pin = { label: "a".repeat(24), goto: "a".repeat(64) };
@@ -54,6 +51,17 @@ describe("MapPins schema", () => {
 });
 
 describe("MapPins actions", () => {
+  // prettier-ignore
+  it("highlights the indexed row and assigns needs-OK only to a map requesting user location", () => {
+    const base = { pins: [{ label: "First place", goto: "first" }, { label: "Second place" }] };
+    const input = { ...base, userLocation: true, selected: 0 };
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const html = renderInstance("MapPins", input, "filled", theme);
+    expect(html).toMatch(/data-testid="home\/c1\/r1\/root"[^>]*aria-current="true"/);
+    expect(partTierAt(meta, props.parse(input), "map")).toBe("ok");
+    expect(partTierAt(meta, props.parse({ ...base, userLocation: false }), "map")).toBe("service");
+    expect(partTierAt(meta, props.parse(input), "root")).toBe("service");
+  });
   it("can hide decorative arrows without changing linked pin addresses", () => {
     const input = { pins: [{ label: "First place", goto: "first" }, { label: "Second place" }] };
     const noArrows = { ...input, trail: "none", density: "compact" };
@@ -160,9 +168,8 @@ describe("MapPins metadata", () => {
   });
 });
 describe("MapPins rendering", () => {
-  it.each([1, 2, 3, 4, 5])(
-    "draws %i distinct row roots with matching numbers and mixed navigation",
-    (count) => {
+  // prettier-ignore
+  it.each([1, 2, 3, 4, 5])("draws %i distinct row roots with matching numbers and mixed navigation", (count) => {
       const input = {
         pins: Array.from({ length: count }, (_, index) => ({
           label: "Repeated place",
@@ -170,13 +177,8 @@ describe("MapPins rendering", () => {
         })),
       };
       for (const state of ["filled", "loading"] as const) {
-        const html = renderInstance(
-          "MapPins",
-          input,
-          state,
-          { preset: "calm", mode: "light", accent: "moss" },
-          { component: "m1" },
-        );
+        const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+        const html = renderInstance("MapPins", input, state, theme, { component: "m1" });
         expect(html.match(/data-testid="home\/m1\/root"/g)).toHaveLength(1);
         expect(html).toContain('data-testid="home/m1/map"');
         expect(html.includes('aria-busy="true"')).toBe(state === "loading");
@@ -194,6 +196,5 @@ describe("MapPins rendering", () => {
           }
         }
       }
-    },
-  );
+  });
 });

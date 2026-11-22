@@ -66,7 +66,7 @@ export function driveAffordances(
   if (typeof meta.drives === "object") {
     const { drives } = meta;
     return offered.flatMap((offer) => {
-      if (offer.hostIntent || offer.hostReveal) return [offer];
+      if (offer.hostIntent || offer.hostReveal || offer.hostSecret) return [offer];
       if (target && "defs" in target) {
         const routed = routeBinding(target, meta, drives, props, id, offer);
         return routed ? [routed] : [];
@@ -81,7 +81,7 @@ export function driveAffordances(
   const legacy = target && "address" in target ? target : undefined;
   const rows = new Map(addressedItems(meta, props).map((row) => [`${id}/${String(row.id)}`, row]));
   return offered.flatMap((a) => {
-    if (a.hostIntent || a.hostReveal) return [a];
+    if (a.hostIntent || a.hostReveal || a.hostSecret) return [a];
     const row = a.action === "press" && a.part === "root" && rows.get(a.address);
     if (!row) return [a];
     const value = row.at;

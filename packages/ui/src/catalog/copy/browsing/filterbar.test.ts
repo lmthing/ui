@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterCount, filterReading } from "../../copy";
+import { filterCount, filterReading } from "./filterbar";
 
 const room = { label: "Room", options: ["Kitchen", "Study"], value: "Study" };
 const light = { id: "r4", label: "Light", options: ["Bright", "Indirect"] };

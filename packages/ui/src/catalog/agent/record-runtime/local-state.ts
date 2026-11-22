@@ -9,24 +9,38 @@ type Projection = Readonly<Values>;
 type LocalStateOptions<T> = Pick<LocalStateRuntime, "events" | "itemEvents"> & {
   schema: z.ZodType<T>;
   initial: (seed: Projection) => NoInfer<T>;
-  reduce: (state: Readonly<NoInfer<T>>, event: LocalStateEvent) => { state: NoInfer<T> } | { error: string };
   /** Public presentation and gating fields only; never return hidden state. */
   project: (state: Readonly<NoInfer<T>>) => Projection;
 };
+type Reduce<T, Seed extends readonly unknown[] = []> = (
+  state: Readonly<NoInfer<T>>,
+  event: LocalStateEvent,
+  ...seed: Seed
+) => { state: NoInfer<T> } | { error: string };
+type TrustedState<T, S> = {
+  /** Look up a host-owned solution by public seed. Undefined means it is unavailable. */
+  trustedSeed: (seed: Projection) => S | undefined;
+  reduce: Reduce<T, [NoInfer<S>]>;
+};
+type PublicState<T> = { trustedSeed?: never; reduce: Reduce<T> };
 
 const invalid = { error: "Invalid local state" };
 const stateKey = (meta: Meta) => `$localState/${meta.id}`;
 
 /** Keep private state out of live props and validate the entire next state before staging it. */
-export function defineLocalState<T>({
+export function defineLocalState<T, S>(options: LocalStateOptions<T> & TrustedState<T, S>): LocalStateRuntime;
+export function defineLocalState<T>(options: LocalStateOptions<T> & PublicState<T>): LocalStateRuntime;
+export function defineLocalState<T, S>({
   schema,
   initial,
-  reduce,
   project,
-  ...events
-}: LocalStateOptions<T>): LocalStateRuntime {
+  events,
+  itemEvents,
+  ...game
+}: LocalStateOptions<T> & (PublicState<T> | TrustedState<T, S>)): LocalStateRuntime {
   return {
-    ...events,
+    ...(events && { events }),
+    ...(itemEvents && { itemEvents }),
     frame(seed, stored) {
       const start = schema.safeParse(initial(seed));
       if (!start.success) return;
@@ -37,7 +51,7 @@ export function defineLocalState<T>({
       return {
         props: project(state),
         advance(event) {
-          const result = reduce(state, event);
+          const result = reduceEvent(game, seed, state, event);
           if ("error" in result) return result;
           const next = schema.safeParse(result.state);
           if (!next.success) return invalid;
@@ -48,6 +62,20 @@ export function defineLocalState<T>({
       };
     },
   };
+}
+
+function reduceEvent<T, S>(
+  game: PublicState<T> | TrustedState<T, S>,
+  seed: Projection,
+  state: Readonly<T>,
+  event: LocalStateEvent,
+) {
+  if (!game.trustedSeed) return game.reduce(state, event);
+  const trusted = game.trustedSeed(seed);
+  if (trusted === undefined) return invalid;
+  const result = game.reduce(state, event, trusted);
+  // Neither a solution nor a diagnostic derived from it is part of the public protocol.
+  return "error" in result ? invalid : result;
 }
 
 export function projectLocalState(meta: Meta, props: Values, seed: Values, get: (part: string) => unknown) {

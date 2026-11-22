@@ -53,7 +53,10 @@ export function useActionPress(
 /** Disabled reveal buttons close the controller gate as well as removing their handlers. */
 export function useRevealControl(address: string, action: string | undefined, disabled: boolean) {
   const { controller, interactive } = useKit();
-  const reveal = interactive && (!action || action === "press") && controller?.isRevealControl?.(address);
+  const reveal =
+    interactive &&
+    (!action || action === "press") &&
+    (controller?.isRevealControl?.(address) || controller?.isPrivateVerification?.(address));
   useLayoutEffect(
     () => (reveal && disabled ? controller?.registerDisabledPart(address) : undefined),
     [address, controller, disabled, reveal],

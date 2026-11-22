@@ -1,4 +1,163 @@
 {
+  "081d0d992b3a499b": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Write a long guide titled Before the first walk, with two paragraphs and a heading about the lead. Show only its body, without the title or any reading header.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters most when you start out slow and look ahead, not at the ground. Keep your eyes up, your shoulders relaxed, and let your feet find the rhythm before you add distance or speed. Warm up with a few gentle swings of the arms and a quick roll of the ankles, so the first strides feel easy rather than forced. From the very first step, a steady lead builds confidence and spares you the aches that come from rushing into a pace your body hasn't agreed to yet. When you feel the pull to glance down at the pavement, lift your chin slightly and focus on a point ten meters ahead. That small shift changes the whole walk. Now that you have the posture and the pacing in mind, the next step is choosing where to go and how long to keep it comfortable, but the lead stays the same: start soft, stay curious, and let the walk unfold without a clock. A good lead is not about speed but about keeping the body and the mind on the same quiet road, one foot after the other, until the distance becomes a conversation rather than a task.\"}",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters most when you start out slow and look ahead, not at the ground. Keep your eyes up, your shoulders relaxed, and let your feet find the rhythm before you add distance or speed. Warm up with a few gentle swings of the arms and a quick roll of the ankles, so the first strides feel easy rather than forced. From the very first step, a steady lead builds confidence and spares you the aches that come from rushing into a pace your body hasn't agreed to yet. When you feel the pull to glance down at the pavement, lift your chin slightly and focus on a point ten meters ahead. That small shift changes the whole walk. Now that you have the posture and the pacing in mind, the next step is choosing where to go and how long to keep it comfortable, but the lead stays the same: start soft, stay curious, and let the walk unfold without a clock. A good lead is not about speed but about keeping the body and the mind on the same quiet road, one foot after the other, until the distance becomes a conversation rather than a task.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters most of all, but slowly. The first few steps will teach you more than any map. Keep the leash loose and your attention on the dog, not the destination. Let them sniff, pause, and choose the direction. This is not a test of obedience; it is a conversation in motion. Your job is to listen with your feet. If you rush, you will miss the quiet signals that tell you what they already know. Walk at their pace, and the trust will build itself. After ten minutes of letting them wander, you will understand where your own tension lives. Breathe it out. Reward calm choices with a soft word. Do not correct hesitation; it is not stubbornness, it is learning. A good lead is a shared intention, not a control line. Let the walk start before the front door closes. Let the first step be small. Let the next one follow without a plan. That is how you both become ready for the longer road ahead.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Lead basics on the leash first two steps Setup a **loose**, short lead and let your dog sniff the floor before moving. First paragraph stays slow: stop when they pause, praise softly, and never tug. Second paragraph goes gentle: keep the pace less than one block and end with a calm treat, so the walk feels safe. Read more in [leash prep](screen:leash_prep).\"}"
+    ]
+  },
   "15ce7f381758f3ba": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nGive the fern room to unfurl by a window with **indirect light**.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Write a long guide titled Before the first walk, with two paragraphs and a heading about the lead. Show only its body, without the title or any reading header.",
     "format": {
@@ -108,6 +267,15 @@
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Check the lead first, not the steps ahead. Take a slow lap around the block, feeling where the path narrows and where the light drops. Keep your hands free, your phone away, and your attention on the ground under each step. A short, quiet route beats a long, noisy one when you’re still learning the rhythm. See the [route setup](screen:route_setup) for a simple loop to try. Just after lunch is often calmer, and the pavement is drier. Walk the same way twice, once early and once late, to notice how shadows change the footing. When you return, sit for a minute and repeat the next heading. End by writing down one thing you’d change, then adjust that one thing tomorrow.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters more than the pace.  A good lead controls the whole walk — not just the first mile, but how the dog settles after.  Keep the leash short at the door, and let the dog step out only when the lead is calm.   > A slack lead is a quiet mind.   If the lead is taut, stop and wait.  Do not drag.  Do not follow the nose.  Wait for a soft ear and a loose shoulder, then move again — one step at a time.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters for rhythm and trust. Give the first minute a clear focus. Take a moment to assess the street and set a calm pace. We are not in a hurry. We are building a habit. Watch for curbs, puddles and warm engines. A steady start beats a fast one. Keep the leash loose in your hand. Let the dog sniff, but keep an eye on the clock. The first forty steps decide the rest of the route. If you rush here, the whole walk feels wrong. So plant your feet, breathe once, and step off together. That small pause is the lead. It is the part people forget to practice. It is also the part that saves you later. Resolve there and then to make the lead a ritual, not a chore. You will thank yourself on day ten. And your dog will thank you on day one.\"}"
+    ]
+  },
+  "1a9b351bfd6edd74": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Put one short supporting sentence below today's plan: The side gate sticks in wet weather.\"\nReply with only the component id, nothing else.",
+    "reply": "Note",
+    "replies": [
+      "Note",
+      "Note",
+      "Note"
     ]
   },
   "1e0d20459b48939c": {
@@ -443,6 +611,165 @@
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters most before you step out of the door. When you set off without a plan, your pup will set the pace—and it will be all sniffing and no walking. Decide in advance which direction you’ll go and how long you’ll stay out, so the walk feels purposeful from the first step. If the weather is hot or cold, shorten the distance and bring water or a light jacket for yourself; the lead should stay loose, not taut, so your dog learns that pulling gets them nowhere. You’ll both return calmer, and tomorrow’s walk will start the same way: with intention, not guesswork.\"}"
     ]
   },
+  "372f4775fba5f642": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write a long guide titled Before the first walk, with two paragraphs and a heading about the lead. Show only its body, without the title or any reading header.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Lead preparationnKeep the lead loose but secure, and let the dog set the pace for the first few minutes. Watch for signs of stress, like yawning or stopping, and pause to reassure them. **Short, calm praise** works better than excitement early on. Start with a familiar route, avoid crowded areas, and carry treats to build a positive association. Keep the first walk under ten minutes, then gradually extend as confidence grows. Ifthe dog pulls, stop and wait rather than tugging back. This teaches them that pulling gets them nowhere. A quiet voice and steady hands make the lead feel safe, not like a restraint. The goal is to build trust, not perfect heelwork. End the walk with a slow stretch and a few minutes of relaxed wandering so they learn that the leash means connection, not confinement. Each session builds a habit, so keep the tone light and the rewards consistent. Over time, the lead becomes a signal for adventure, not just restraint. If fear appears, shorten the walk and focus on sitting quietly in a doorway rather than forcing progress. The first steps shape every future outing. n> Keep the dog's head level with your hip for balance — it reduces both their stress and your leverage. néResist the urge to rush forward; let the dog sniff and choose direction occasionally. That small freedom builds confidence. Use [first walk tips](screen:first_walk_tips) for more. n## Lead release and checknin the final minute, slow down and let the dog stop fully. Unclip the lead calmly, but first do a quick body check: ears, tail, and mouth should be soft and relaxed, not tense. If the dog is still scanning or whining, add one more minute of slow walking instead of ending abruptly. After releasing, offer water and a quiet place to settle, then wait for them to approach you for affection rather than crowding them. A short, structured first walk teaches routines, and a gentle closing prevents overstimulation. Notice how the lead feels in your hand — if it went slack often, you’\" }",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Lead preparationnKeep the lead loose but secure, and let the dog set the pace for the first few minutes. Watch for signs of stress, like yawning or stopping, and pause to reassure them. **Short, calm praise** works better than excitement early on. Start with a familiar route, avoid crowded areas, and carry treats to build a positive association. Keep the first walk under ten minutes, then gradually extend as confidence grows. Ifthe dog pulls, stop and wait rather than tugging back. This teaches them that pulling gets them nowhere. A quiet voice and steady hands make the lead feel safe, not like a restraint. The goal is to build trust, not perfect heelwork. End the walk with a slow stretch and a few minutes of relaxed wandering so they learn that the leash means connection, not confinement. Each session builds a habit, so keep the tone light and the rewards consistent. Over time, the lead becomes a signal for adventure, not just restraint. If fear appears, shorten the walk and focus on sitting quietly in a doorway rather than forcing progress. The first steps shape every future outing. n> Keep the dog's head level with your hip for balance — it reduces both their stress and your leverage. néResist the urge to rush forward; let the dog sniff and choose direction occasionally. That small freedom builds confidence. Use [first walk tips](screen:first_walk_tips) for more. n## Lead release and checknin the final minute, slow down and let the dog stop fully. Unclip the lead calmly, but first do a quick body check: ears, tail, and mouth should be soft and relaxed, not tense. If the dog is still scanning or whining, add one more minute of slow walking instead of ending abruptly. After releasing, offer water and a quiet place to settle, then wait for them to approach you for affection rather than crowding them. A short, structured first walk teaches routines, and a gentle closing prevents overstimulation. Notice how the lead feels in your hand — if it went slack often, you’\" }",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters more than the pace.  Set the leash loose and let the dog set the rhythm for the first five minutes.  This warms up muscles and builds trust before you ask for any heel work.  Keep your voice light and reward every glance back at you with a quick treat.  A calm start prevents pulling later on.  After the warm-up, pick a quiet route with few distractions.  Stop often, let the dog sniff, and keep the session short — ten minutes is plenty for a first walk.  Watch for signs of stress like yawning or lip licking, and head home if you see them.  End with a slow cool-down and a sip of water.  The goal is a positive association, not distance.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead in hand position the leash before you open the door, and let your dog settle beside you. If they are calm, step out together with a **loose lead** — not pulled taut, not dragging—and keep your pace steady while they sniff and adjust. Pause every few steps to check their focus; the first walk is about trusting that quiet connection, not distance or speed. Break your attention only when they signal they need it, and read their body: ears soft, tail low and easy. When they walk on your left or right without tension, reward that moment with a calm word, and only then move on. Continue for the first block, then stop. Let them look around and breathe — the lead is a guide, not a harness, so avoid corrections unless they pull sharply into the street. End the short loop before they tire; the goal is a **positive memory** of being outside, not a workout. Return home with a quick sniff in the yard, a sip of water, and no fanfare. That first repetition builds the pattern for every walk after, so keep it simple and kind. If they freeze at a noise or a passing car, stand still with them, let the sound pass, and then walk on. Do not drag or lure with a treat every step — the lead should feel like a quiet conversation, not a constant tug. When the walk is over, release the lead only after they are calm inside; the door is the boundary, and the leash's job is to make that boundary clear. Let the lesson be yours, not the dog's: you are learning what pace they can hold, what startles them, what they love to sniff — and the lead is the thread that keeps you together while they teach you that.\"}"
+    ]
+  },
   "38b306f2a33d9694": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Write a long guide titled Before the first walk, with two paragraphs and a heading about the lead. Show only its body, without the title or any reading header.",
     "format": {
@@ -663,6 +990,174 @@
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"full\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot  Set the fern by a bright window in **indirect light**. Give its fronds room to unfurl, but keep them clear of the glass.  Keep the soil lightly moist — never soggy. Water when the top inch feels dry, and let it drain fully.  See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"full\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot  Set the fern by a bright window in **indirect light**. Give its fronds room to unfurl, and keep the soil evenly moist but never soggy.  Direct sun will scorch the leaves, so a north- or east-facing sill works best.  See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"full\",\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot  Set the fern by a bright window in **indirect light**. Give its fronds room to unfurl.  Keep it away from harsh noon sun, which can scorch the leaves. A north‑facing shelf works well.  See the [fern care schedule](screen:fern_schedule) for a reminder.\"}"
+    ]
+  },
+  "4e588f053b9bc033": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write a long reading page called A fern's first week, by Noor Martin, dated 2026-11-08. Use lib:plants, a heading called Pick a spot, two paragraphs about indirect light and a link to fern_schedule.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light**, where the fronds can stretch without scorching.<br><br>Keep it away from harsh midday sun — a bright windowsill with a sheer curtain works well. See the [fern care schedule](screen:fern_schedule) for weekly reminders.\"}",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light**, where the fronds can stretch without scorching.<br><br>Keep it away from harsh midday sun — a bright windowsill with a sheer curtain works well. See the [fern care schedule](screen:fern_schedule) for weekly reminders.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light** — a spot near an east-facing window works well, where morning sun is gentle and the afternoon stays shaded.<br><br>Keep it away from drafts and radiators, and rotate the pot a quarter turn each week so every frond gets even exposure. See the [fern care schedule](screen:fern_schedule) for watering reminders.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Set the fern in **indirect light**, where its fronds have plenty of room to unfurl.<br><br>Bright, filtered light keeps the leaves from scorching, while a few hours of morning sun can boost growth without stress.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}"
+    ]
+  },
+  "6d4b8b67208de14e": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Publish a full reading page with a byline, a lead photo, several headings, paragraphs and inline links\"\nReply with only the component id, nothing else.",
+    "reply": "Article",
+    "replies": [
+      "Article",
+      "Article",
+      "Article"
     ]
   },
   "7a98bafe8db25ba5": {
@@ -896,6 +1391,15 @@
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters most for pacing your dog's energy.  ## Keep the lead loose at the start, let your dog sniff the curb. A tight lead makes them pull harder from the first step.  > A relaxed lead tells your dog the walk is safe, not a race.  ## Let the lead guide your rhythm, not the other way around.  Short, gentle tugs work better than constant tension. Give two or three steps of slack after each correction.\"}"
     ]
   },
+  "863a6433de0c6d96": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Publish a full reading page with a byline, a lead photo, several headings, paragraphs and inline links\"\nReply with only the component id, nothing else.",
+    "reply": "Article",
+    "replies": [
+      "Article",
+      "Article",
+      "Article"
+    ]
+  },
   "8834a4d2a7b86eab": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- ChapterList: Jump to named chapters of the recording already on this screen. Pick: Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).\n- Collection: See one show's details, start the whole series and follow new releases. Pick: The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).\n- Highlights: Revisit saved passages and clips at their original source. Pick: Saved quotes or clip moments with a source, optional time and optional personal note, opening where they came from. Not original journal entries (Entries), whole saved titles (Library), or short tappable rows (List).\n- Library: Browse saved books, shows or albums and see progress and new releases. Pick: The media the person has saved to read or play, shown as cover tiles with per-title progress and new episode badges. Not a grid of photos (Gallery), a shelf of suggestions (List), or things owned (Things).\n- Playlist: Choose an ordered track or episode and see its playback progress. Pick: An ordered queue of separate tracks or episodes, with durations, played progress and download controls. Not ordinary rows (List) or chapter marks within one recording (ChapterList).\n\nNeed, in the person's words: \"Publish a full reading page with a byline, a lead photo, several headings, paragraphs and inline links\"\nReply with only the component id, nothing else.",
     "reply": "Article",
@@ -1018,6 +1522,360 @@
   },
   "a763383247f13895": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- ChapterList: Jump to named chapters of the recording already on this screen. Pick: Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).\n- Collection: See one show's details, start the whole series and follow new releases. Pick: The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).\n- Highlights: Revisit saved passages and clips at their original source. Pick: Saved quotes or clip moments with a source, optional time and optional personal note, opening where they came from. Not original journal entries (Entries), whole saved titles (Library), or short tappable rows (List).\n- Library: Browse saved books, shows or albums and see progress and new releases. Pick: The media the person has saved to read or play, shown as cover tiles with per-title progress and new episode badges. Not a grid of photos (Gallery), a shelf of suggestions (List), or things owned (Things).\n- Playlist: Choose an ordered track or episode and see its playback progress. Pick: An ordered queue of separate tracks or episodes, with durations, played progress and download controls. Not ordinary rows (List) or chapter marks within one recording (ChapterList).\n\nNeed, in the person's words: \"Put one short supporting sentence below today's plan: The side gate sticks in wet weather.\"\nReply with only the component id, nothing else.",
+    "reply": "Note",
+    "replies": [
+      "Note",
+      "Note",
+      "Note"
+    ]
+  },
+  "Article%2Fchoose%2FPublish%20a%20full%20reading%20page%20with%20a%20byline%2C%20a%20lead%20photo%2C%20several%20headings%2C%20paragraphs%20and%20inline%20links/202817957c23166a/863a6433de0c6d96": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Publish a full reading page with a byline, a lead photo, several headings, paragraphs and inline links\"\nReply with only the component id, nothing else.",
+    "reply": "Article",
+    "replies": [
+      "Article",
+      "Article",
+      "Article"
+    ]
+  },
+  "Article%2Fchoose%2FPut%20one%20short%20supporting%20sentence%20below%20today's%20plan%3A%20The%20side%20gate%20sticks%20in%20wet%20weather./e992582c6ee2e4de/c15bda3903d7faea": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Put one short supporting sentence below today's plan: The side gate sticks in wet weather.\"\nReply with only the component id, nothing else.",
+    "reply": "Note",
+    "replies": [
+      "Note",
+      "Note",
+      "Note"
+    ]
+  },
+  "Article%2Fread%2FFollow%20the%20fern%20care%20schedule%20link/10e868a1b404a260/d67981bc6ab505eb": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 Article A fern's first week at home — By Noor Martin — 8 Nov 2026 · 1 min read — Pick a spot — Set the fern in indirect light, where its fronds have plenty of room to unfurl. — “Check the pot before you water.” — See the fern care schedule for a reminder. — photo:fern\n  r1 [a1/r1 press→fern_schedule]\n\nTask: Follow the fern care schedule link\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"a1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"a1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"a1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"a1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "Article%2Fwrite%2FWrite%20a%20long%20guide%20titled%20Before%20the%20first%20walk%2C%20with%20two%20paragraphs%20and%20a%20heading%20about%20the%20lead.%20Show%20only%20its%20body%2C%20without%20the%20title%20or%20any%20reading%20header./3aba571b5201d57c/372f4775fba5f642": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write a long guide titled Before the first walk, with two paragraphs and a heading about the lead. Show only its body, without the title or any reading header.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Lead preparationnKeep the lead loose but secure, and let the dog set the pace for the first few minutes. Watch for signs of stress, like yawning or stopping, and pause to reassure them. **Short, calm praise** works better than excitement early on. Start with a familiar route, avoid crowded areas, and carry treats to build a positive association. Keep the first walk under ten minutes, then gradually extend as confidence grows. Ifthe dog pulls, stop and wait rather than tugging back. This teaches them that pulling gets them nowhere. A quiet voice and steady hands make the lead feel safe, not like a restraint. The goal is to build trust, not perfect heelwork. End the walk with a slow stretch and a few minutes of relaxed wandering so they learn that the leash means connection, not confinement. Each session builds a habit, so keep the tone light and the rewards consistent. Over time, the lead becomes a signal for adventure, not just restraint. If fear appears, shorten the walk and focus on sitting quietly in a doorway rather than forcing progress. The first steps shape every future outing. n> Keep the dog's head level with your hip for balance — it reduces both their stress and your leverage. néResist the urge to rush forward; let the dog sniff and choose direction occasionally. That small freedom builds confidence. Use [first walk tips](screen:first_walk_tips) for more. n## Lead release and checknin the final minute, slow down and let the dog stop fully. Unclip the lead calmly, but first do a quick body check: ears, tail, and mouth should be soft and relaxed, not tense. If the dog is still scanning or whining, add one more minute of slow walking instead of ending abruptly. After releasing, offer water and a quiet place to settle, then wait for them to approach you for affection rather than crowding them. A short, structured first walk teaches routines, and a gentle closing prevents overstimulation. Notice how the lead feels in your hand — if it went slack often, you’\" }",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## Lead preparationnKeep the lead loose but secure, and let the dog set the pace for the first few minutes. Watch for signs of stress, like yawning or stopping, and pause to reassure them. **Short, calm praise** works better than excitement early on. Start with a familiar route, avoid crowded areas, and carry treats to build a positive association. Keep the first walk under ten minutes, then gradually extend as confidence grows. Ifthe dog pulls, stop and wait rather than tugging back. This teaches them that pulling gets them nowhere. A quiet voice and steady hands make the lead feel safe, not like a restraint. The goal is to build trust, not perfect heelwork. End the walk with a slow stretch and a few minutes of relaxed wandering so they learn that the leash means connection, not confinement. Each session builds a habit, so keep the tone light and the rewards consistent. Over time, the lead becomes a signal for adventure, not just restraint. If fear appears, shorten the walk and focus on sitting quietly in a doorway rather than forcing progress. The first steps shape every future outing. n> Keep the dog's head level with your hip for balance — it reduces both their stress and your leverage. néResist the urge to rush forward; let the dog sniff and choose direction occasionally. That small freedom builds confidence. Use [first walk tips](screen:first_walk_tips) for more. n## Lead release and checknin the final minute, slow down and let the dog stop fully. Unclip the lead calmly, but first do a quick body check: ears, tail, and mouth should be soft and relaxed, not tense. If the dog is still scanning or whining, add one more minute of slow walking instead of ending abruptly. After releasing, offer water and a quiet place to settle, then wait for them to approach you for affection rather than crowding them. A short, structured first walk teaches routines, and a gentle closing prevents overstimulation. Notice how the lead feels in your hand — if it went slack often, you’\" }",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead matters more than the pace.  Set the leash loose and let the dog set the rhythm for the first five minutes.  This warms up muscles and builds trust before you ask for any heel work.  Keep your voice light and reward every glance back at you with a quick treat.  A calm start prevents pulling later on.  After the warm-up, pick a quiet route with few distractions.  Stop often, let the dog sniff, and keep the session short — ten minutes is plenty for a first walk.  Watch for signs of stress like yawning or lip licking, and head home if you see them.  End with a slow cool-down and a sip of water.  The goal is a positive association, not distance.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"Before the first walk\",\"by\":null,\"date\":null,\"photo\":null,\"body\":\"## The lead in hand position the leash before you open the door, and let your dog settle beside you. If they are calm, step out together with a **loose lead** — not pulled taut, not dragging—and keep your pace steady while they sniff and adjust. Pause every few steps to check their focus; the first walk is about trusting that quiet connection, not distance or speed. Break your attention only when they signal they need it, and read their body: ears soft, tail low and easy. When they walk on your left or right without tension, reward that moment with a calm word, and only then move on. Continue for the first block, then stop. Let them look around and breathe — the lead is a guide, not a harness, so avoid corrections unless they pull sharply into the street. End the short loop before they tire; the goal is a **positive memory** of being outside, not a workout. Return home with a quick sniff in the yard, a sip of water, and no fanfare. That first repetition builds the pattern for every walk after, so keep it simple and kind. If they freeze at a noise or a passing car, stand still with them, let the sound pass, and then walk on. Do not drag or lure with a treat every step — the lead should feel like a quiet conversation, not a constant tug. When the walk is over, release the lead only after they are calm inside; the door is the boundary, and the leash's job is to make that boundary clear. Let the lesson be yours, not the dog's: you are learning what pace they can hold, what startles them, what they love to sniff — and the lead is the thread that keeps you together while they teach you that.\"}"
+    ]
+  },
+  "Article%2Fwrite%2FWrite%20a%20long%20reading%20page%20called%20A%20fern's%20first%20week%2C%20by%20Noor%20Martin%2C%20dated%202026-11-08.%20Use%20lib%3Aplants%2C%20a%20heading%20called%20Pick%20a%20spot%2C%20two%20paragraphs%20about%20indirect%20light%20and%20a%20link%20to%20fern_schedule./008de796f8398c50/4e588f053b9bc033": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write a long reading page called A fern's first week, by Noor Martin, dated 2026-11-08. Use lib:plants, a heading called Pick a spot, two paragraphs about indirect light and a link to fern_schedule.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light**, where the fronds can stretch without scorching.<br><br>Keep it away from harsh midday sun — a bright windowsill with a sheer curtain works well. See the [fern care schedule](screen:fern_schedule) for weekly reminders.\"}",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light**, where the fronds can stretch without scorching.<br><br>Keep it away from harsh midday sun — a bright windowsill with a sheer curtain works well. See the [fern care schedule](screen:fern_schedule) for weekly reminders.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light** — a spot near an east-facing window works well, where morning sun is gentle and the afternoon stays shaded.<br><br>Keep it away from drafts and radiators, and rotate the pot a quarter turn each week so every frond gets even exposure. See the [fern care schedule](screen:fern_schedule) for watering reminders.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Set the fern in **indirect light**, where its fronds have plenty of room to unfurl.<br><br>Bright, filtered light keeps the leaves from scorching, while a few hours of morning sun can boost growth without stress.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}"
+    ]
+  },
+  "c15bda3903d7faea": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Put one short supporting sentence below today's plan: The side gate sticks in wet weather.\"\nReply with only the component id, nothing else.",
     "reply": "Note",
     "replies": [
       "Note",
@@ -1152,6 +2010,165 @@
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot1. Place the fern by a bright window in **indirect light**. Give its fronds room to unfurl.2. Keep the soil lightly moist, but never soggy. Check the pot before you water.See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot  Set the fern by a bright window in **indirect light**. Give its fronds room to unfurl.  Keep it away from harsh afternoon sun, which can scorch the leaves.  See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
       "{\"c\":\"Article\",\"density\":null,\"detail\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot  Set the fern by a bright window in **indirect light**. Give its fronds room to unfurl.  Bright, filtered light keeps the leaves from scorching while still feeding the plant.\"}"
+    ]
+  },
+  "efd4078122012a68": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nArticle: Read a long piece with headings, paragraphs, quotes and links.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: article|book|response=\"article\", paper?: light|sepia|dark, fontScale?: normal|small|large=\"normal\", title: text≤80, by?: text≤32, date?: date YYYY-MM-DD, photo?: photo lib:<tag>|local:<n>, body: text≤2000 }\nRule: Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.\nRule: Use style \"book\" for a book page, \"response\" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.\nRule: Copy this JSON body pattern: \"## Heading\\nFirst paragraph.\\n\\nSecond paragraph.\" Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.\nRule: For body-only reading with no header, set detail \"brief\". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.\nexample: {\"c\":\"Article\",\"title\":\"A fern's first week at home\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:fern\",\"body\":\"## Pick a spot\\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\\n\\n> Check the pot before you water.\\n\\nSee the [fern care schedule](screen:fern_schedule) for a reminder.\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Write a long reading page called A fern's first week, by Noor Martin, dated 2026-11-08. Use lib:plants, a heading called Pick a spot, two paragraphs about indirect light and a link to fern_schedule.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Article",
+              "enum": [
+                "Article"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "article",
+                    "book",
+                    "response"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "paper": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "light",
+                    "sepia",
+                    "dark"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fontScale": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "small",
+                    "large"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "paper",
+            "fontScale",
+            "title",
+            "by",
+            "date",
+            "photo",
+            "body"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Set the fern in **indirect light**, where its fronds have plenty of room to unfurl.<br><br>A little morning sun is fine, but keep it out of harsh afternoon rays. Watch for crispy edges — that means it's getting too much.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
+    "replies": [
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Set the fern in **indirect light**, where its fronds have plenty of room to unfurl.<br><br>A little morning sun is fine, but keep it out of harsh afternoon rays. Watch for crispy edges — that means it's getting too much.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":null,\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Set the fern in **indirect light**, where its fronds have plenty of room to unfurl.<br><br>Keep the soil evenly moist, but never soggy — roots need air, and too much water invites rot.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}",
+      "{\"c\":\"Article\",\"density\":null,\"detail\":\"brief\",\"style\":\"article\",\"paper\":null,\"fontScale\":null,\"title\":\"A fern's first week\",\"by\":\"Noor Martin\",\"date\":\"2026-11-08\",\"photo\":\"lib:plants\",\"body\":\"## Pick a spot<br>Place the fern in **indirect light**, where its fronds have room to breathe.<br><br>Keep it away from harsh sun, but don't hide it in a dark corner — bright, filtered light keeps the leaves vivid and healthy.<br><br>See the [fern care schedule](screen:fern_schedule) for a reminder.\"}"
     ]
   }
 }

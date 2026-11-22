@@ -90,7 +90,11 @@ export function collectionAt(meta: Meta, name?: string) {
 
 export function addressedItems(meta: Meta, props: Values, name?: string): Values[] {
   const key = collectionAt(meta, name)?.key;
-  return key && Array.isArray(props[key]) ? (props[key] as Values[]) : [];
+  return key &&
+    matches(name === undefined ? meta.items?.addressedWhen : undefined, props, props) &&
+    Array.isArray(props[key])
+    ? (props[key] as Values[])
+    : [];
 }
 
 /** Filter already addressed items without compacting the original address space. */

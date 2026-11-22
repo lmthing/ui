@@ -9,6 +9,7 @@ import {
   isLocalAnchorAction,
   liveProps,
   parseControlProps,
+  partTierAt,
   privateMarkKey,
   projectDeviceData,
   projectDriveObservation,
@@ -19,7 +20,9 @@ import {
   withDisabledSelectionChecks,
   withRecordScreen,
   type Affordance,
+  type Meta,
   type StateName,
+  type Values,
 } from "../../../../catalog";
 import type { ControllerContext } from "../context";
 import { driveAccess, inactive } from "../planning";
@@ -31,17 +34,27 @@ function confirmationOffer(local: string): Affordance[] {
     : [];
 }
 
+function captureStart({ action, hostIntent, part }: Affordance, meta: Meta, props: Values) {
+  return (
+    action === "start" &&
+    !hostIntent &&
+    partTierAt(meta, props, part) === "ok" &&
+    !meta.confirmParts?.includes(part)
+  );
+}
+
 export function offersAt(
   ctx: ControllerContext,
   address: string,
   includeBlocked = false,
   ignoreDisabledPart = false,
+  captureOnly = false,
 ): Affordance[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
   if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
-  if (ctx.confirmationFor()) return confirmationOffer(local);
+  if (ctx.confirmationFor()) return captureOnly ? [] : confirmationOffer(local);
   const now = ctx.now();
   const values = ctx.valuesOf(now);
   const sheet = ctx.status.openSheet;
@@ -49,8 +62,7 @@ export function offersAt(
   const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
-  if (!entry || !def) return [];
-  if (inactive(ctx, entry)) return [];
+  if (!entry || !def || inactive(ctx, entry)) return [];
   try {
     const localValues = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
@@ -83,8 +95,9 @@ export function offersAt(
     return driveAffordances(def.meta, props, id, offered, target).filter(
       (item) =>
         item.address === local &&
-        (item.action !== "copy" || ctx.clipboard.available()) &&
-        (!isLocalAnchorAction(item.action) || canDrive(local, undefined, item.action)),
+        (item.action !== "copy" || item.hostSecret === "copy" || ctx.clipboard.available()) &&
+        (!isLocalAnchorAction(item.action) || canDrive(local, undefined, item.action)) &&
+        (!captureOnly || captureStart(item, def.meta, props)),
     );
   } catch {
     return [];
@@ -124,4 +137,8 @@ export function actionsAt(
 }
 export function offersReveal(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   return offersAt(ctx, address, false, ignoreDisabledPart).some(({ hostReveal }) => hostReveal === true);
+}
+
+export function offersMicCapture(ctx: ControllerContext, address: string, ignoreDisabledPart: boolean) {
+  return offersAt(ctx, address, false, ignoreDisabledPart, true).length > 0;
 }

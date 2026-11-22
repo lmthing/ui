@@ -10,11 +10,13 @@ import {
   driveAffordances,
   isDeviceDataVisible,
   moneyLine,
+  pickerAt,
   readComponent,
   readScreen,
   stampItemIds,
   themeName,
   writerFormatFor,
+  wordsFor,
   type AppCurrency,
   type ComponentName,
   type Definition,
@@ -169,19 +171,29 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     }
     const seen = visibleTexts(html);
     const named = labels(html);
-    const quoted = [...read.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"'));
-    for (const text of seen) expect(read, `visible text missing from the read: "${text}"`).toContain(text);
-    for (const text of quoted) {
-      const shown = seen.some((s) => s.includes(text)) || named.includes(text);
-      expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
-    }
     const props = stampItemIds(def.meta, parsed);
-    const { hidden, issues } = peekForExample(def.meta, props, html);
-    expect(issues).toEqual([]);
-    const addressed = addressedElements(html);
     const declared = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
     // A standalone example has no same-screen seek target.
     const offers = driveAffordances(def.meta, props, "c1", declared);
+    // Inline pickers disclose their options on demand, but the reader offers them immediately.
+    const choices = offers.flatMap(({ action, address }) => {
+      const picker = action === "select" ? pickerAt(def.meta, props, address.slice("c1/".length)) : undefined;
+      const source = picker?.spec.choices;
+      const values = source && ("prop" in source ? picker?.row[source.prop] : source);
+      return Array.isArray(values) ? values : [];
+    });
+    const quoted = [...read.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"'));
+    for (const text of seen) {
+      const mask = (def as Definition).meta.items?.readSecrets && text === wordsFor().secretValue.mask;
+      expect(read, `visible text missing from the read: "${text}"`).toContain(mask ? "(secret)" : text);
+    }
+    for (const text of quoted) {
+      const shown = seen.some((s) => s.includes(text)) || named.includes(text) || choices.includes(text);
+      expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
+    }
+    const { hidden, issues } = peekForExample(def.meta, props, html);
+    expect(issues).toEqual([]);
+    const addressed = addressedElements(html);
     for (const affordance of offers) {
       if (!hidden.includes(affordance.address.split("/")[1]!))
         expectTarget(read, addressed, affordance, def.meta);

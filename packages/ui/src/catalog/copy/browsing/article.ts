@@ -1,10 +1,11 @@
-import { appointmentDate, numberLine } from "../../../catalog";
-import { mediaWordsFor } from "../lang";
+import { numberLine } from "../../format";
+import { appointmentDate } from "..";
+import { wordsFor } from "../../lang";
 
 type Emphasis = "strong" | "emphasis";
 type Run = { text: string; emphasis?: Emphasis | undefined; link?: number };
 type Link = { title: string; goto: string };
-type Kind = "heading" | "paragraph" | "quote" | "bullet" | "ordered";
+type Kind = "heading" | "paragraph" | "quote" | "callout" | "bullet" | "ordered";
 export type ArticleBlock = { kind: Kind; runs: Run[]; ordinal?: number };
 
 const wordsPerMinute = 200;
@@ -47,13 +48,16 @@ export function parseArticleBody(body: string) {
     }
     const match = /^(#{1,6}|>|[-*+]|\d{1,9}\.)\s+(.+)$/.exec(line);
     const marker = match?.[1];
-    const text = match?.[2] ?? line;
+    const callout = marker === ">" && /^\[!NOTE\]\s+(.+)$/i.exec(match![2]!);
+    const text = (callout && callout[1]) || match?.[2] || line;
     const kind = !marker
       ? "paragraph"
       : marker.startsWith("#")
         ? "heading"
         : marker === ">"
-          ? "quote"
+          ? callout
+            ? "callout"
+            : "quote"
           : marker.endsWith(".")
             ? "ordered"
             : "bullet";
@@ -73,8 +77,9 @@ export function parseArticleBody(body: string) {
 }
 
 export function articleEdges(block: ArticleBlock, lang?: string): [string, string] {
-  const words = mediaWordsFor(lang).article;
+  const words = wordsFor(lang).article;
   if (block.kind === "quote") return words.quote;
+  if (block.kind === "callout") return [words.callout, ""];
   if (block.kind === "bullet") return [words.bullet, ""];
   if (block.ordinal !== undefined) return [words.ordinal(numberLine(block.ordinal, lang)), ""];
   return ["", ""];
@@ -87,11 +92,12 @@ type ArticleCopy = {
   by?: string | undefined;
   date?: string | undefined;
   detail: "full" | "brief";
+  style?: "article" | "book" | "response";
   blocks: ArticleBlock[];
 };
 
 export function articleHeader({ by, date, blocks }: ArticleCopy, lang?: string) {
-  const words = mediaWordsFor(lang).article;
+  const words = wordsFor(lang).article;
   const wordCount = blocks
     .map(blockText)
     .join(" ")
@@ -112,6 +118,10 @@ export function articleReading(input: ArticleCopy, lang?: string): string[] {
   });
   if (detail === "brief") return body;
   const { by, date, time } = articleHeader(input, lang);
-  const separator = mediaWordsFor(lang).article.metadataSeparator;
-  return [title, ...(by ? [by] : []), date ? `${date}${separator}${time}` : time, ...body];
+  const separator = wordsFor(lang).article.metadataSeparator;
+  const metadata = date ? `${date}${separator}${time}` : time;
+  const attribution = by ? [by] : [];
+  return input.style === "response"
+    ? [title, metadata, ...body, ...attribution]
+    : [title, ...attribution, metadata, ...body];
 }

@@ -7,13 +7,13 @@ import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, Kit
   KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
 import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
-// Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
+// Core first: Progress/ring tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
   id: "Rewards",
   status: "ready",
   group: "data",
   purpose: "Keep children's earned points or pocket money and claim prizes they can afford.",
-  pick: "Children's points earned and spent on prizes with costs. Not one person's goal (Ring), a business stamp card (Loyalty), or milestone badges (Achievements).",
+  pick: "Children's points earned and spent on prizes with costs. Not one person's goal (Progress), a business stamp card (Loyalty), or milestone badges (Achievements).",
   writeHints: [
     "Write stored points and prize costs as nonnegative numbers. Claimability and balances after a claim are computed, never written. money means pocket money; never write a currency.",
     'Use detail "brief" only when asked to hide the amount still needed for unaffordable prizes. Keep the costs and disabled controls. Write surface:null unless an outlined card is requested.',
@@ -104,7 +104,7 @@ export const examples = [
 const { choose, write, read } = probesFor("Rewards");
 export const probes = [
   choose("Children earn points and spend them on a shelf of prizes with costs and a claim button"),
-  choose("Show how far I am toward one goal of twenty walks", "Ring"),
+  choose("Show how far I am toward one goal of twenty walks", "Progress"),
   write("Mia has twenty points, can claim Choose a new plant for fifteen points, her details are mia"),
   {
     ...write(

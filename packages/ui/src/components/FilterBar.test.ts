@@ -1,7 +1,6 @@
 import {
   components,
   createRegistry,
-  packReady,
   planAct,
   readScreen,
   stampItemIds,
@@ -10,7 +9,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController, renderers } from "@lmthing/ui/kit";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance } from "../../test/render";
+import { visibleTexts } from "../../test/variants";
 
 const def = components.FilterBar;
 const { meta, props, examples, fallback, probes } = def;
@@ -93,7 +93,7 @@ describe("FilterBar fallback and probes", () => {
 
   it("uses phone tier and retains the core near miss and the variant and action probes", () => {
     expect(meta).toMatchObject({ tier: "phone", weight: 2, states: ["filled"] });
-    expect(createRegistry({ packs: ["data"] }).ids.includes("FilterBar")).toBe(packReady("data"));
+    expect(createRegistry().ids).toContain("FilterBar");
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "FilterBar" }),
@@ -107,6 +107,12 @@ describe("FilterBar fallback and probes", () => {
 });
 
 describe.skipIf(!Object.hasOwn(renderers, "FilterBar"))("FilterBar filled state and parts", () => {
+  it.each(examples)("reads every visible label", (example) => {
+    const html = renderInstance("FilterBar", example, "filled", theme);
+    const read = readScreen(screen(example), defs);
+    for (const text of visibleTexts(html)) expect(read).toContain(text);
+  });
+
   it("renders the search field, closed pickers, count, sort and a non-destructive clear button", () => {
     const parts = addressedElements(renderInstance("FilterBar", ledge, "filled", theme));
     const at = (part: string) => parts.get(`home/c1/${part}`);
