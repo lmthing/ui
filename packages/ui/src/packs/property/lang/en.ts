@@ -1,6 +1,62 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
 export const en = {
+  renewals: {
+    success: "Response recorded",
+    error: "Couldn’t save the response",
+    expired: "The response deadline has passed",
+    statuses: {
+      sent: "Awaiting response",
+      accepted: "Accepted",
+      countered: "Countered",
+      declined: "Declined",
+    },
+    options: "Renewal terms",
+    proposed: "Proposed rent",
+    monthly: "per month",
+    proposedReading: (money: string) => `${money} per month`,
+    current: (money: string) => `Current rent · ${money}`,
+    change: (money: string, percent: string) => `${money} (${percent}) from current rent`,
+    unchanged: "No change from current rent",
+    deadline: (date: string) => `Respond by ${date}`,
+    selectedTerm: (label: string) => `Selected term · ${label}`,
+    rolling: "Rolling term",
+    fixed: (count: string, form: LDMLPluralRule) =>
+      `Fixed for ${count} ${form === "one" ? "month" : "months"}`,
+    chosen: (label: string) => `${label} · Selected`,
+    optionReading: (id: string, title: string, money: string, sub?: string) =>
+      [id, title, money, sub].filter(Boolean).join(" · "),
+    note: "Counter-proposal note",
+    accept: "Accept",
+    counter: "Counter",
+    decline: "Decline",
+  },
+  applications: {
+    empty: "No application loaded",
+    success: "Decision saved",
+    error: "Screening verification failed",
+    note: "Decision note",
+    waitlist: "Waitlist",
+    approve: "Approve",
+    decline: "Decline",
+    decisions: {
+      pending: "Decision pending",
+      waitlisted: "Waitlisted",
+      approved: "Approved",
+      declined: "Declined",
+    },
+    ratio: "income to rent",
+    ratioReading: (ratio: string) => `${ratio} income to rent`,
+    multiple: (value: string) => `${value}×`,
+    householdIncome: (value: string) => `${value} monthly household income`,
+    monthlyRent: (value: string) => `${value} monthly rent`,
+    moveIn: (date: string) => `Move-in · ${date}`,
+    checks: "Screening checks",
+    kinds: { credit: "Credit", background: "Background", income: "Income", refs: "References" },
+    checksStatus: { pending: "Pending", passed: "Passed", flagged: "Flagged", missing: "Missing" },
+    checkReading: (id: string, label: string, status: string, note?: string) =>
+      [id, label, status, note].filter(Boolean).join(" · "),
+  },
   inspections: {
     kind: { move_in: "Move-in", move_out: "Move-out", periodic: "Periodic" },
     condition: {
@@ -24,6 +80,12 @@ export const en = {
     completion: (recorded: string, total: string, form: LDMLPluralRule) =>
       `${recorded} of ${total} ${form === "one" ? "check" : "checks"} recorded`,
     previous: "Previous report referenced",
+    coSign: "Co-sign check",
+    coSigned: "Tenant co-signed",
+    coSignPending: "Tenant co-sign pending",
+    dispute: "Tenant dispute",
+    disputeHint: "Describe what you disagree with",
+    disputeReading: (comment: string) => `Tenant dispute: ${comment}`,
     error: "Couldn’t update the report",
     errorDetail: "Review conditions and photos.",
   },
@@ -42,6 +104,10 @@ export const en = {
     remind: "Remind",
     void: "Void",
     voided: "Voided",
+    tenant: "Your rent",
+    autopay: { on: "Autopay on", off: "Autopay off" },
+    pay: "Pay rent",
+    paymentReceived: "Rent payment received",
     success: "Receipt recorded",
     error: "Rent ledger update failed",
     noCharges: "No charges for this view",
@@ -68,11 +134,14 @@ export const en = {
   },
   units: {
     date: "Occupancy date",
+    vacancies: "Vacancies",
+    noVacancies: "No vacant units or tenancies on notice for this date",
+    notice: "Notice given",
     dateFormat: "YYYY-MM-DD",
     dateReading: (date: string, value: string) => `Occupancy date: ${date} (${value})`,
     unitReading: (id: string, fields: readonly string[]) => [id, ...fields].join(" · "),
     error: "Invalid or overlapping let dates",
-    status: { occupied: "occupied", reserved: "reserved", vacant: "vacant" },
+    status: { occupied: "Occupied", reserved: "Reserved", vacant: "Vacant" },
   },
   viewings: {
     statuses: {
