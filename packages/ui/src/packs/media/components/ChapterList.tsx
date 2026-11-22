@@ -85,7 +85,6 @@ export const probes = [
 type ChapterListProps = c.Props<typeof props, typeof meta>;
 const hourInSeconds = 3600;
 
-// prettier-ignore
 export function ChapterList(input: ChapterListProps) {
   const { chapters, current } = input;
   const surface = "card";
@@ -99,14 +98,42 @@ export function ChapterList(input: ChapterListProps) {
           const time = c.clockLine(at, lang);
           const selected = current === index;
           return (
-            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} surface="plain" density={density}
+            <kit.KitRow
+              key={id}
+              item={id}
+              part="root"
+              role="button"
+              selected={selected}
+              surface="plain"
+              density={density}
               label={words.chapterList.line(time, title, selected)}
               leadingWidth={showsHours ? undefined : "avatar"}
-              leading={showsHours ? <kit.KitTime part="at" value={time} /> :
-                <kit.KitText part="at" role="number" numberScale="compact" tone="muted" density="comfortable" align="end" tabular lines={1}>{time}</kit.KitText>}
-              trailing={<kit.KitIcon name="play" scale="sm" tone={selected ? "accent" : "muted"} decorative />}
+              leading={
+                showsHours ? (
+                  <kit.KitTime part="at" value={time} />
+                ) : (
+                  <kit.KitText
+                    part="at"
+                    role="number"
+                    numberScale="compact"
+                    tone="muted"
+                    density="comfortable"
+                    align="end"
+                    tabular
+                    lines={1}
+                  >
+                    {time}
+                  </kit.KitText>
+                )
+              }
+              trailing={
+                <kit.KitIcon name="play" scale="sm" tone={selected ? "accent" : "muted"} decorative />
+              }
             >
-              <kit.KitMetaLine title={{ text: title, part: "title", strong: selected }} density="comfortable" />
+              <kit.KitMetaLine
+                title={{ text: title, part: "title", strong: selected }}
+                density="comfortable"
+              />
             </kit.KitRow>
           );
         })}
