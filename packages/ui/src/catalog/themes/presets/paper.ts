@@ -26,7 +26,7 @@ export const paper = {
       bg: "#1b1c18",
       surface: "#272822",
       raised: "#303127",
-      line: "#656653",
+      line: "#5d5e50",
       text: "#f8f4e5",
       muted: "#c8c5b3",
       good: "#83cca0",
