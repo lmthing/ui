@@ -158,6 +158,8 @@ it("lists curated starter pack members without replacing the invite actions", ()
   const def = components.Invite;
   const input = def.examples[2]!;
   const drawn = addressedElements(renderInstance("Invite", input, "filled", theme));
+  expect(drawn.has("home/c1/r1/root")).toBe(true);
+  expect(drawn.has("home/c1/r2/root")).toBe(true);
   expect(drawn.get("home/c1/r1/name")?.text).toEqual(["Maya"]);
   expect(drawn.get("home/c1/r2/name")?.text).toEqual(["Sam"]);
   expect(drawn.has("home/c1/r2/photo")).toBe(false);

@@ -39,7 +39,7 @@ export const meta = {
     "share_label",
     "members_title",
   ],
-  items: { key: "members", parts: ["name", "photo"], addressedWhen: { style: "starter_pack" } },
+  items: { key: "members", parts: ["root", "name", "photo"], addressedWhen: { style: "starter_pack" } },
   states: ["filled"],
   actions: { parts: { copy: ["press"], share: ["press"] } },
   read: inviteReading,
@@ -177,7 +177,7 @@ function InviteMembers({ members, density }: { members: NonNullable<InviteProps[
     <kit.KitHeader title={{ text: invite.members, part: "members_title", role: "meta", strong: true }} density={density} />
     <kit.KitGrid density={density} list>
       {members.map(({ id, name, photo }) =>
-        <kit.KitRow key={id} item={id} part={null} inset="none" label={name} inline fitContent density={density}>
+        <kit.KitRow key={id} item={id} part="root" inset="none" label={name} inline fitContent density={density}>
           <kit.KitContent density={density}>
             <kit.KitPhoto photo={photo} part={photo ? "photo" : null} label={name} shape="round" initials={liveRoomSpeakerInitials(name)} />
             <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
