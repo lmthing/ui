@@ -418,6 +418,10 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
 
+Core Composer still requires a text draft. Its accepted send consumes the picked file once and
+passes its opaque reference to `onSend`; only replies add a conversation row. Authored attachment
+chips are display labels, not picked files. Sent feedback acknowledges dispatch and clears on the next edit.
+
 For a range calendar, declare `meta.dateSpan: { start, end, date, available?, minNights?, clear?, when? }`.
 `start`, `end` and `minNights` name component props; `date` and `available` name fields on the day rows.
 Use ISO dates and a minimum of 1–30 nights (default 1). Every calendar date from start through end,

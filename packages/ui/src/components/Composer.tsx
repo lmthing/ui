@@ -1,12 +1,13 @@
 // prettier-ignore
 import {
-  useComponentState, useWords, KitAction, KitActionFooter, KitCard, KitContent, KitHeader, KitMicCapture,
+  PartContext, useComponentState, useControlValue, useKit, usePartContext, useWords,
+  KitAction, KitActionFooter, KitCard, KitContent, KitHeader, KitMicCapture,
   KitRow, KitState, KitText, KitTextArea, KitTrail,
 } from "../kit";
 // prettier-ignore
 import {
-  wordsFor, probesFor, charLine, clip, text, thingOf, variantProps, type FallbackInput, type Meta,
-  type Probe, type Props,
+  attachmentKey, wordsFor, probesFor, charLine, clip, text, thingOf, variantProps, type AttachmentStatus,
+  type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { z } from "zod";
 
@@ -31,7 +32,7 @@ export const meta = {
     'Use style "prompt" for a multiline prompt with a run button. Use attach and voice to enable the picker and microphone, attachments for prelisted chips with label, and replyingTo for reply context.',
   ],
   items: { key: "attachments", parts: ["root", "label"] },
-  parts: ["root", "label", "field", "count", "send", "attach", "voice", "replying_to", "sent"],
+  parts: ["root", "label", "field", "count", "send", "attach", "picked", "voice", "replying_to", "sent"],
   states: ["filled", "empty", "success"],
   emptyActions: ["field.type", "attach.press", "voice.start", "voice.stop", "send.send"],
   readSuccess: true,
@@ -45,6 +46,10 @@ export const meta = {
     if (state === "success") return [composer.sent];
     const { style, detail, value, max, hint, replyingTo, voice, attach } = input as z.output<typeof props>;
     return [
+      ...(get?.("$sent") === true ? [composer.sent] : []),
+      ...((get?.(attachmentKey("attach")) as AttachmentStatus | undefined)?.present
+        ? [composer.attached]
+        : []),
       ...(state === "empty" ? [hint] : []),
       ...(replyingTo ? [composer.replying(replyingTo)] : []),
       ...(attach ? [composer.attach] : []),
@@ -129,18 +134,29 @@ export const probes = [
 
 type ViewProps = Props<typeof props, typeof meta>;
 // prettier-ignore
-function ComposerTools({ attach, voice, attachments }: ViewProps) {
+function ComposerTools({ attach, voice, attachments, picked }: ViewProps & { picked: boolean }) {
   const { composer } = useWords().words;
   return <>
-    {(attachments || attach) && <KitActionFooter>{attachments?.map((item) => (
+    {(attachments || attach || picked) && <KitActionFooter>{attachments?.map((item) => (
       <KitRow key={item.id} item={item.id} label={item.label} inline fitContent>
         <KitTrail part="label" kind="badge" value={item.label} />
       </KitRow>
-    ))}{attach && <KitAction label={composer.attach} icon="paperclip" kind="secondary" part="attach" contentParts={{}} />}</KitActionFooter>}
+    ))}{picked && <KitTrail part="picked" kind="badge" value={composer.attached} />}
+    {attach && <KitAction label={composer.attach} icon="paperclip" kind="secondary" part="attach" contentParts={{}} />}</KitActionFooter>}
     {voice && <KitContent group="response">
       <KitMicCapture part="voice" target={{ part: "voice" }} label={composer.voice} level={0} recording={false} />
     </KitContent>}
   </>;
+}
+
+function ComposerSent() {
+  const scope = usePartContext();
+  const { composer } = useWords().words;
+  return (
+    <PartContext.Provider value={{ ...scope, state: "success" }}>
+      <KitState retain message={composer.sent} part="sent" />
+    </PartContext.Provider>
+  );
 }
 
 // prettier-ignore
@@ -148,6 +164,12 @@ export function Composer(input: ViewProps) {
   const { style, detail, label, hint, max, value, replyingTo } = input;
   const { lang, words: { sendLabel, composer } } = useWords();
   const state = useComponentState();
+  const { screen, component } = usePartContext();
+  const { controller } = useKit();
+  const address = `${screen}/${component}`;
+  const sent = useControlValue(`${address}/$sent`, false);
+  const attachment = useControlValue<AttachmentStatus | undefined>(`${address}/${attachmentKey("attach")}`, undefined);
+  const picked = Boolean(attachment?.present && controller?.attachmentReference(`${address}/attach`));
   const reply = style === "reply";
   const prompt = style === "prompt";
   return <KitCard style="plain" part="root" padded>
@@ -157,12 +179,13 @@ export function Composer(input: ViewProps) {
         : label && <KitText role="label" part="label">{label}</KitText>}
       {state === "empty" && <KitState />}
       <KitTextArea hint={hint} value={value} maxLength={max} lines={reply || prompt || state === "empty" ? 2 : 6} />
-      <ComposerTools {...input} />
+      <ComposerTools {...input} picked={picked} />
       {reply || prompt ? <KitAction label={prompt ? composer.prompt : sendLabel} icon={prompt ? "sparkles" : "send"}
         kind="primary" part="send" action="send" full disabled={!value?.trim()} />
         : detail === "full" && <KitText role="caption" tone="muted" align="end" tabular part="count">
           {charLine(value?.length ?? 0, max, lang)}
         </KitText>}
+      {sent && <ComposerSent />}
     </>}
   </KitCard>;
 }
