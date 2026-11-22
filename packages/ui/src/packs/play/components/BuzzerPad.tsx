@@ -111,21 +111,36 @@ type Pad = ReturnType<typeof buzzerPadCopy<Setup["players"][number]>>["pads"][nu
 function PlayerPad({ pad, density }: { pad: Pad; density: Density }) {
   const scope = kit.usePartContext();
   const loading = kit.useComponentState() === "loading";
-  const surface = pad.first ? "tinted" : pad.used ? "card" : "outlined";
+  const surface = loading || (pad.used && !pad.first) ? "outlined" : "tinted";
+  const caption = <PadResult pad={pad} density={density} loading={loading} />;
   return (
     <kit.PartScope {...scope} item={pad.id}>
-      <kit.KitCard part="root" surface={surface} density={density}>
-        <kit.KitTile
-          item={pad.id}
-          icon={pad.first ? "check" : pad.used ? "clock" : "zap"}
-          label={pad.name}
-          labelPart="name"
-          badgeTone="muted"
-          disabled={pad.used}
-          touchTarget="buzz"
-          detail={<PadResult pad={pad} density={density} loading={loading} />}
-          density={density}
-        />
+      <kit.KitCard
+        part="root"
+        surface={surface}
+        density={density}
+        padded={loading || density === "compact"}
+        inset="none"
+      >
+        {loading ? (
+          <kit.KitContent align="center" density={density}>
+            <kit.KitPhoto shape="round" part={null} loading />
+            <kit.KitLayoutText line={{ text: pad.name, role: "meta" }} align="center" density={density} />
+            {caption}
+          </kit.KitContent>
+        ) : (
+          <kit.KitTile
+            item={pad.id}
+            icon={pad.first ? "check" : pad.used ? "clock" : "zap"}
+            label={pad.name}
+            labelPart="name"
+            badgeTone={pad.first ? "muted" : "accent"}
+            disabled={pad.used}
+            touchTarget="buzz"
+            detail={caption}
+            density={density}
+          />
+        )}
       </kit.KitCard>
     </kit.PartScope>
   );
@@ -139,17 +154,22 @@ function PadResult({ pad, density, loading }: { pad: Pad; density: Density; load
     </kit.KitCard>
   );
   return (
-    <kit.KitContent lead={mark} lineRole="body" density={density}>
-      {pad.time === undefined ? (
-        <kit.KitLayoutText line={{ text: pad.caption, role: "caption", tone: "muted" }} density={density} />
-      ) : (
-        <kit.KitText part="delta" role="caption" tone="muted" density={density}>
-          <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
-            {pad.time}
+    <kit.KitContent align="center" density={density}>
+      <kit.KitContent lead={mark} leadingAlign="row" density={density}>
+        {pad.time === undefined ? (
+          <kit.KitLayoutText
+            line={{ text: pad.caption, role: "caption", tone: pad.used ? "muted" : "text" }}
+            density={density}
+          />
+        ) : (
+          <kit.KitText part="delta" role="caption" tone="muted" density={density}>
+            <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+              {pad.time}
+            </kit.KitText>
+            {words.buzzerPad.delta("")}
           </kit.KitText>
-          {words.buzzerPad.delta("")}
-        </kit.KitText>
-      )}
+        )}
+      </kit.KitContent>
     </kit.KitContent>
   );
 }
