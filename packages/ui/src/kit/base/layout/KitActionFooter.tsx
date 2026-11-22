@@ -8,10 +8,12 @@ export function KitActionFooter({
   children,
   density,
   align = "start",
+  indent,
 }: {
   children?: ReactNode;
   density?: ThemeDensity | undefined;
   align?: "start" | "end";
+  indent?: 0 | 1 | undefined;
 }) {
   const rhythm = useVariantDensity(density);
   if (!Children.toArray(children).length) return null;
@@ -20,6 +22,7 @@ export function KitActionFooter({
       flexWrap="wrap"
       alignItems="center"
       justifyContent={align === "end" ? "flex-end" : "flex-start"}
+      paddingLeft={indent === 1 ? space.xl : undefined}
       paddingTop={space[rhythm.contentGap]}
       gap={space[rhythm.contentGap]}
     >

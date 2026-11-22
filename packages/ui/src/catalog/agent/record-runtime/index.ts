@@ -4,6 +4,7 @@ import { deviceTimeOf, selectDeviceData, type DeviceData } from "../device-data"
 import { liveProps, parseControlProps } from "../live-props";
 import { addressedItems } from "../visibility";
 import type { ActStep, ScreenLike, Values } from "../index";
+export { defineLocalState, localEventOffer, projectLocalState, stageLocalEvent } from "./local-state";
 
 export const isRecordJournal = (key: string) => key.startsWith("$record:");
 const addressOf = (screen: string, key: string) =>

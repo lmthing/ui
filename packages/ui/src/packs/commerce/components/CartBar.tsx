@@ -69,10 +69,11 @@ export function CartBar(input: c.Props<typeof props, typeof meta>) {
     <kit.KitText
       part="total"
       role="number"
-      tone={quiet ? "muted" : "text"}
+      tone="muted"
       numberScale="compact"
       tabular
-      {...finish}
+      density={density}
+      emphasis="quiet"
     >
       {lines.total}
     </kit.KitText>

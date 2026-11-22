@@ -42,6 +42,11 @@ export const product = {
       ],
     },
     sizing: {
+      writeHints: [
+        'Start with {"c":"Header","style":"back",…}. Set "style":"back" explicitly; a plain header does not provide the back action.',
+        'SizeGuide columns are measurement names only, such as ["Chest","Sleeve"]. Put the size label in each row’s "size" field, not in columns. Give every row exactly one value per column, e.g. {"size":"Small","values":[36,24]}. Set the source unit once.',
+        'Use VariantPicker with "style":"size" and one option per offered size. Mark each option’s availability.',
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["SizeGuide"], required: true },

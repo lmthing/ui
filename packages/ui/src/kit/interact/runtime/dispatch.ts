@@ -1,10 +1,12 @@
 import {
   atDeviceTime,
+  buzzTarget,
   filterDeviceDataScreen,
   projectDeviceData,
   projectDeviceRows,
   hasPlaybackClock,
   hasRecordClock,
+  mediaHostKey,
   withDisabledSelectionChecks,
   wordsFor,
   type ActStep,
@@ -16,7 +18,18 @@ import type { ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
 
-function snapshotPlanning(ctx: ControllerContext, holdApproval?: symbol): ControllerContext {
+function isBuzz(ctx: ControllerContext, { address, action }: ActStep): boolean {
+  const [id, ...parts] = ctx.relative(address).split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/") || "root", action));
+}
+
+function snapshotPlanning(
+  ctx: ControllerContext,
+  touchNow: () => number,
+  holdApproval?: symbol,
+): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
   const data = atDeviceTime(ctx.options.deviceData, at);
@@ -30,6 +43,7 @@ function snapshotPlanning(ctx: ControllerContext, holdApproval?: symbol): Contro
     options: { ...ctx.options, deviceData: data, clipboard: ctx.clipboard },
     screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projected),
     now: () => at,
+    touchNow,
     valuesOf: () => values,
     status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
@@ -49,8 +63,35 @@ export function discardHiddenConfirmation(ctx: ControllerContext) {
   }
 }
 
-function releaseStoppedCaptures(ctx: ControllerContext, steps: ActStep[]) {
-  for (const step of steps) if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
+function commitSteps(
+  ctx: ControllerContext,
+  result: ReturnType<typeof planSteps>,
+  hadConfirmation: boolean,
+  agent: boolean,
+  media: Values,
+) {
+  const { state, effects } = result;
+  ctx.status.openSheet = state.sheet;
+  ctx.status.confirmation = state.confirmation;
+  if (!ctx.standalone) {
+    state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
+    state.values[`${ctx.screen.id}/$agentMode`] = agent;
+  }
+  // Planning timestamps must not freeze subsequent detached reads.
+  for (const { c, id } of ctx.screen.components) {
+    const meta = ctx.defs[c]?.meta;
+    if (meta && (hasRecordClock(meta) || (!ctx.standalone && hasPlaybackClock(meta))))
+      state.values[ctx.key(id, "$now")] = undefined;
+  }
+  if (!ctx.standalone || state.confirmation || hadConfirmation)
+    state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
+  delete state.values[mediaHostKey];
+  ctx.hosts.commit(state.values);
+  ctx.store.setMany({ ...media, ...state.values });
+  ctx.hosts.prune();
+  for (const step of result.performed)
+    if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
+  for (const effect of effects) effect();
 }
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
@@ -63,14 +104,17 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
+    if (!ctx.admitted()) return actionFailure(0, "not_actionable", "This screen requires admission");
     const list = Array.isArray(steps) ? steps : [steps];
     if (markToken && (ctx.standalone || opts.agent || list.length !== 1))
       return actionFailure(0, "not_actionable", "Private control");
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
+    // Sample contact before projection, and reuse it if the action is planned again.
+    let touchTime = opts.dryRun ? 0 : list.some((step) => isBuzz(ctx, step)) ? ctx.touchNow() : undefined;
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = snapshotPlanning(ctx, holdApproval);
-    const preview = planSteps(list, planning, media, null, markToken);
+    const planning = snapshotPlanning(ctx, () => (touchTime ??= ctx.touchNow()), holdApproval);
+    const preview = planSteps(list, planning, media, null, markToken, opts.agent);
     if (preview.error) return preview.error;
     if (opts.dryRun)
       return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
@@ -85,31 +129,17 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
         error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
-    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random, markToken) : preview;
+    const result = preview.drew
+      ? planSteps(list, planning, media, ctx.options.random, markToken, opts.agent)
+      : preview;
     if (result.error) {
       settleMedia(false);
       return result.error;
     }
-    const { state, effects } = result;
-    ctx.status.openSheet = state.sheet;
-    ctx.status.confirmation = state.confirmation;
-    if (!ctx.standalone) {
-      state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
-      state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
-    }
-    // Planning timestamps must not freeze subsequent detached reads.
-    for (const { c, id } of ctx.screen.components) {
-      const meta = ctx.defs[c]?.meta;
-      if (meta && (hasRecordClock(meta) || (!ctx.standalone && hasPlaybackClock(meta))))
-        state.values[ctx.key(id, "$now")] = undefined;
-    }
-    if (!ctx.standalone || state.confirmation || planning.status.confirmation)
-      state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
-    ctx.store.setMany({ ...settleMedia(true), ...state.values });
-    releaseStoppedCaptures(ctx, result.performed);
-    for (const effect of effects) effect();
+    commitSteps(ctx, result, Boolean(planning.status.confirmation), Boolean(opts.agent), settleMedia(true));
+    media.reconcile();
     scheduleClock();
     ctx.notifyChange();
-    return { ok: true, screen: ctx.screen.id, changed: state.changes.join("\n"), dryRun: false };
+    return { ok: true, screen: ctx.screen.id, changed: result.state.changes.join("\n"), dryRun: false };
   };
 }

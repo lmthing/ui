@@ -6,8 +6,14 @@ import {
   liveProps,
   parseControlProps,
   drawStatus,
+  buzzStatus,
   hasPlaybackClock,
   sessionStatus,
+  sequenceKey,
+  atDeviceTime,
+  projectDeviceData,
+  withRecordScreen,
+  type DeviceData,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -24,6 +30,7 @@ export function projectScreen(
   openSheet?: string,
   includeSheet = false,
   clocks = true,
+  deviceData?: DeviceData,
 ): ScreenLike {
   return {
     ...screen,
@@ -33,7 +40,11 @@ export function projectScreen(
           !values[valueKey(screen.id, entry.id, "$dismissed")] &&
           (entry.c !== "Sheet" || includeSheet || entry.id === openSheet),
       )
-      .map((entry) => projectEntry(entry, screen, defs, values, now, clocks)),
+      .map((entry) => {
+        const result = projectEntry(entry, screen, defs, values, now, clocks);
+        if (clocks) projectSequenceCursor(defs[entry.c], result, screen, values, now, deviceData);
+        return result;
+      }),
   };
 }
 
@@ -116,9 +127,11 @@ function projectEntry(
     const state = drawStatus(meta, props, (props.state as Entry["state"]) ?? result.state ?? "filled", get);
     if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
   }
-  if (meta.session) {
+  if (meta.session || meta.buzz) {
     const { id: _id, c: _c, state: _state, ...wire } = result;
-    const state = sessionStatus(meta, parseControlProps(def, wire, get), result.state ?? "filled", get);
+    const props = parseControlProps(def, wire, get);
+    const base = result.state ?? "filled";
+    const state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
     if (result.state !== undefined || state !== "filled") result.state = state;
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")
@@ -127,4 +140,26 @@ function projectEntry(
   if (entry.c === "SwipeStack" && Number(get("$cursor") ?? 0) >= (entry.cards as unknown[]).length)
     result.state = "empty";
   return result;
+}
+
+function projectSequenceCursor(
+  def: Definition | undefined,
+  result: Entry,
+  screen: ScreenLike,
+  values: Values,
+  now: number,
+  deviceData?: DeviceData,
+) {
+  const cursor = def?.meta.sequence?.cursor;
+  if (!def || !cursor || !Object.hasOwn(def.props.shape, cursor)) return;
+  if (values[valueKey(screen.id, result.id, sequenceKey)] === undefined && result[cursor] === undefined)
+    return;
+  const { id, c: _c, state: _state, ...wire } = result;
+  const local = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key.replace(`${screen.id}/`, ""), value]),
+  );
+  const get = (part: string) => local[`${id}/${part}`];
+  const data = withRecordScreen(atDeviceTime(projectDeviceData(deviceData, values), now), screen);
+  const index = liveProps(def.meta, parseControlProps(def, wire, get), id, local, true, data, now)[cursor];
+  if (def.props.safeParse({ ...wire, [cursor]: index }).success) result[cursor] = index;
 }

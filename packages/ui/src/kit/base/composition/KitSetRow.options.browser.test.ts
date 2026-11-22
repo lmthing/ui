@@ -42,14 +42,16 @@ async function capture(
   child: ReactNode,
   state: "filled" | "loading" = "filled",
   offered: readonly string[] = actions,
+  hostAware = true,
 ) {
   const act = vi.fn(),
     press = vi.fn();
   const controller = {
     act,
     press,
-    canPress: () => true,
+    canPress: () => state !== "loading",
     actionsAt: () => offered,
+    ...(hostAware ? { hasHostCommandsAt: () => false } : {}),
     store: { subscribe: () => () => {}, get: () => undefined },
   } as unknown as ScreenController;
   const targets = new Map<string, Handler>();
@@ -110,6 +112,11 @@ describe("KitAction wave 2 declared actions and values", () => {
     }
     const loading = await capture(createElement(KitAction, { label: "Action" }), "loading");
     expect(loading.targets.get("home/c1/root")!.onPress).toBeUndefined();
+  });
+  it("keeps implicit press on a controller without host commands", async () => {
+    const result = await capture(createElement(KitAction, { label: "Action" }), "filled", actions, false);
+    result.targets.get("home/c1/root")!.onPress!();
+    expect(result.press).toHaveBeenCalledWith("home/c1/root");
   });
 });
 describe("KitTile wave 2 selected, detail and declared root actions", () => {

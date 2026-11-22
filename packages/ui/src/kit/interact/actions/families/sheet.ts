@@ -1,5 +1,6 @@
 import { confirmLabel, type ActStep } from "../../../../catalog";
 import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
+import { allowsDestination, bindMediaConfirmation } from "../../runtime";
 type Confirmation = NonNullable<ActionState["confirmation"]>;
 export function showConfirmation(
   state: ActionState,
@@ -15,14 +16,17 @@ export function showConfirmation(
   return {
     state: {
       ...state,
-      confirmation: {
-        message: String(input.confirm ?? confirmLabel),
-        kind,
-        source,
-        ...(input.goto ? { goto: String(input.goto) } : {}),
-        ...(removal ? { removal } : {}),
-        step: { ...action, address: source },
-      },
+      confirmation: bindMediaConfirmation(
+        {
+          message: String(input.confirm ?? confirmLabel),
+          kind,
+          source,
+          ...(input.goto ? { goto: String(input.goto) } : {}),
+          ...(removal ? { removal } : {}),
+          step: { ...action, address: source },
+        },
+        ctx.media,
+      ),
     },
     effects: [],
   };
@@ -53,6 +57,8 @@ export function confirmationAction(
   let sheet = state.sheet;
   const effects: (() => void)[] = [];
   if (accepting) {
+    if (pending.goto && pending.goto !== "sheet" && !allowsDestination(ctx.options.parentGate, pending.goto))
+      return rejected(state, ctx.at, "not_actionable", "This destination requires admission");
     if (pending.goto === "sheet") {
       const sheets = ctx.screen.components.filter((entry) => entry.c === "Sheet");
       if (sheets.length !== 1)
@@ -65,7 +71,8 @@ export function confirmationAction(
       sheet = sheets[0]!.id;
     }
     effects.push(() => {
-      if (pending.goto && pending.goto !== "sheet") ctx.options.onLink?.(pending.goto, pending.source);
+      if (pending.goto && pending.goto !== "sheet" && allowsDestination(ctx.options.parentGate, pending.goto))
+        ctx.options.onLink?.(pending.goto, pending.source);
       ctx.options.onAction?.({ address: pending.source, action: "press" });
     });
   }

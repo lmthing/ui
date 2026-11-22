@@ -1,6 +1,6 @@
 import { checkCoreComposition } from "../core-compose";
 import { checkCoreMerges } from "../core-merges";
-import { packProbes } from "./pack-probes";
+import { packProbes } from "../pack-probes";
 import { checkDirector } from "./director-probes";
 import { directorMode } from "./director-mode";
 // pnpm llm:check [--component List,Header | --director] [--replay]

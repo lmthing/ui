@@ -1,97 +1,27 @@
 import {
   atDeviceTime,
+  type AppCurrency,
   wordsFor,
-  affordancesOf,
   clockControlDeclared,
-  driveAffordances,
-  driveTarget,
-  hostOnlyAddresses,
+  clipKey,
   isPlaybackAction,
-  liveProps,
-  parseControlProps,
-  partTierAt,
-  privateMarkKey,
-  projectDeviceData,
-  projectSelectionBinding,
-  recordClockOffer,
-  reportEditWire,
-  selectionBindingFor,
+  mediaOffer,
   sessionEvent,
-  withDisabledSelectionChecks,
-  withRecordScreen,
 } from "../../../catalog";
-import type { AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { captureAccess } from "./capture";
 import { registerHoldPart } from "./hold";
-import { registerPart } from "./part-registration";
-import { drivenPartBlock } from "./planning";
-import { privateMarkRegistration } from "./private-mark";
+import { driveRefresh, registerEntry, registerPart } from "./part-registration";
+import { driveAccess } from "./planning";
+import { actionsAt, numericControlAt, offersMicCapture } from "./offers";
+import { commandForConfirmation } from "./host";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
+type Revoke = (address: string) => void;
 const pressActions = "press select toggle check increment decrement start stop send copy dismiss".split(" ");
-function actionsAt(
-  ctx: ControllerContext,
-  address: string,
-  includeBlocked = false,
-  ignoreDisabledPart = false,
-  tier?: "ok",
-): string[] {
-  const local = ctx.relative(address),
-    id = local.split("/")[0]!;
-  if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
-  if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
-  if (ctx.confirmationFor()) {
-    if (tier) return [];
-    if (local === "confirm/confirm") return ["press"];
-    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
-  }
-  const now = ctx.now();
-  const values = ctx.valuesOf(now);
-  const sheet = ctx.status.openSheet;
-  const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
-  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && ctx.defs[entry.c];
-  if (!entry || !def) return [];
-  const { draw, emptyActions, errorActions, session, successActions } = def.meta;
-  const stateActions =
-    draw || emptyActions?.length || errorActions?.length || session || successActions?.length;
-  if (entry.state && entry.state !== "filled" && !stateActions) return [];
-  try {
-    const localValues = Object.fromEntries(
-      Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
-    );
-    const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const get = (part: string) => localValues[`${id}/${part}`];
-    const projected = projectDeviceData(ctx.options.deviceData, values);
-    const data = withRecordScreen(atDeviceTime(projected, now), ctx.screen);
-    const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
-    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
-    const props = projectSelectionBinding(def.meta, live, selection?.view);
-    const clock = recordClockOffer(def, raw, props, get, data, now, values);
-    const wire = reportEditWire(def, raw, get);
-    const state = (props.state as StateName | undefined) ?? entry.state;
-    const offerContext = { data, clock, wire, schema: def.props };
-    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
-    if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
-    const canDrive = (part: string) => !drivenPartBlock(ctx, part);
-    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
-    return driveAffordances(def.meta, props, id, offered, target)
-      .filter(
-        ({ address, action, part }) =>
-          address === local &&
-          (action !== "copy" || ctx.clipboard.available()) &&
-          (!tier || (partTierAt(def.meta, props, part) === tier && !def.meta.confirmParts?.includes(part))),
-      )
-      .map((item) => item.action);
-  } catch {
-    return [];
-  }
-}
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);
   if (!ctx.status.disposed && ctx.options.interactive !== false) discardHiddenConfirmation(ctx);
@@ -104,7 +34,7 @@ function press(ctx: ControllerContext, act: Act, address: string) {
     });
   }
   const offered = actionsAt(ctx, address, true);
-  const tap = offered.find((item) => isPressAction(ctx, local, item));
+  const tap = clipTap(ctx, local, offered) ?? offered.find((item) => isPressAction(ctx, local, item));
   const action =
     tap ??
     (local.endsWith("/play") && offered.includes("play")
@@ -112,34 +42,85 @@ function press(ctx: ControllerContext, act: Act, address: string) {
         ? "pause"
         : "play"
       : undefined);
-  return action
-    ? act({ address, action })
-    : actionFailure(0, "not_actionable", "No press action at this address");
+  if (action) return act({ address, action });
+  return actionFailure(0, "not_actionable", "No press action at this address");
 }
 function isPressAction(ctx: ControllerContext, local: string, action: string) {
   if (pressActions.includes(action)) return true;
-  if (action !== "flip" && !isPlaybackAction(action)) return false;
   const [id, ...parts] = local.split("/");
   const entry = ctx.sourceOf(id!);
   const meta = entry && ctx.defs[entry.c]?.meta;
   const target = parts.join("/") || "root";
+  const part = parts.at(-1) ?? "root";
+  if (!meta) return false;
+  if (action === "scan")
+    return [part, "root"].some(
+      (name) => mediaOffer(meta, id!, { address: local, part: name, action })?.kind === "attachment",
+    );
+  if (action === "seek")
+    return (
+      target !== meta.sequence?.seek &&
+      (parts.length === 2
+        ? meta.sequence?.item === part
+        : meta.sequence?.item === "root" && parts.length === 1)
+    );
+  if ((action === "play" || action === "pause") && target === meta.sequence?.controls?.part) return true;
+  if (action !== "flip" && !isPlaybackAction(action)) return false;
   return Boolean(
-    meta &&
-    (action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action)),
+    action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action),
+  );
+}
+function clipTap(ctx: ControllerContext, address: string, offered: string[]) {
+  const [id, ...parts] = address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  if (!meta || !offered.includes("play")) return;
+  const part = parts.at(-1) ?? "root";
+  const offer = { address, part, action: "play" };
+  if (
+    mediaOffer(meta, id!, offer)?.kind !== "playback" &&
+    mediaOffer(meta, id!, { ...offer, part: "root" })?.kind !== "playback"
+  )
+    return;
+  return offered.includes("pause") && ctx.store.get(ctx.key(id!, clipKey(parts.join("/") || "root"))) === true
+    ? "pause"
+    : "play";
+}
+function mediaKeyTarget(ctx: ControllerContext, address: string) {
+  const local = ctx.relative(address);
+  const [id, ...parts] = local.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  if (!meta) return false;
+  const target = parts.join("/") || "root";
+  const sequence = meta.sequence;
+  if (
+    sequence &&
+    [sequence.seek, sequence.controls?.part, sequence.steps?.next, sequence.steps?.previous].includes(target)
+  )
+    return true;
+  if (sequence && isPressAction(ctx, local, "seek")) return true;
+  return ["press", "scan", "play", "stop"].some((action) =>
+    [parts.at(-1) ?? "root", "root"].some((part) => mediaOffer(meta, id!, { address: local, part, action })),
   );
 }
 function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { lang, deviceData } = ctx.options;
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
   const confirmation = ctx.confirmationFor();
-  if (confirmation)
-    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  if (confirmation) {
+    const accept =
+      commandForConfirmation(confirmation)?.request.kind === "external"
+        ? "(user confirmation required)"
+        : `[confirm/confirm press] ${JSON.stringify(confirmLabel)}`;
+    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} ${accept} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
   const sheet = ctx.status.openSheet;
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const data = atDeviceTime(deviceData, now);
-  const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
+  const canDrive = ctx.standalone ? undefined : driveAccess(ctx);
   const reading = readControls(
     visible,
     ctx.defs,
@@ -163,21 +144,21 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
   const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
+export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency, revoke?: Revoke) {
+  const refresh = driveRefresh(ctx);
   return {
-    ...captureAccess(ctx, act, (address, ignore) =>
-      actionsAt(ctx, address, false, ignore, "ok").includes("start"),
-    ),
+    ...captureAccess(ctx, act, (address, ignore) => offersMicCapture(ctx, address, ignore)),
     registerHoldPart: (address: string) => registerHoldPart(ctx, act, address),
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
+    numericControl: (address: string) => numericControlAt(ctx, address),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
-    canPress: (address: string) =>
-      actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
-      (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
+    mediaKeyTarget: (address: string) => mediaKeyTarget(ctx, address),
+    canPress: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
+      canPress(ctx, address, options?.ignoreDisabledPart),
     edit(address: string, text: string) {
       const result = act({ address, action: "type", value: text });
       if (!result.ok && result.code === "invalid_value") {
@@ -190,8 +171,29 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       }
       return result;
     },
-    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address)),
-    registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
-    registerPrivateMarkPart: privateMarkRegistration(ctx, act),
+    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address), revoke, refresh),
+    registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
+      registerEntry(ctx.anchors, ctx.relative(address), handler, refresh),
+    isPartDisabled: (address: string) => ctx.disabledParts.has(ctx.relative(address)),
+    subscribeDisabledParts: ctx.disabledRegistry.subscribe,
+    registerDisabledPart(address: string) {
+      const local = ctx.relative(address);
+      const remove = ctx.disabledRegistry.register(local);
+      refresh();
+      revoke?.(local);
+      return () => {
+        remove();
+        refresh();
+      };
+    },
   };
+}
+function canPress(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
+  const offered = actionsAt(ctx, address, false, ignoreDisabledPart);
+  const local = ctx.relative(address);
+  return (
+    Boolean(clipTap(ctx, local, offered)) ||
+    offered.some((action) => isPressAction(ctx, local, action)) ||
+    (address.endsWith("/play") && offered.includes("play"))
+  );
 }

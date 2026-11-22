@@ -7,6 +7,13 @@ export const en = {
     offer: "Offer",
   },
   outcomes: { active: "Active", hired: "Hired", rejected: "Rejected", withdrawn: "Withdrawn" },
+  pipeline: {
+    move: "Move to",
+    destination: (stage: string, candidate: string) => `Move ${candidate} to ${stage}`,
+    outcomes: (counts: readonly string[]) => counts.join(" · "),
+    count: (label: string, count: string) => `${label}: ${count}`,
+    error: "Couldn’t save the change",
+  },
   applications: {
     applied: (date: string) => `Applied ${date}`,
     contact: (date: string, ago?: string) => `Last contact ${date}${ago ? ` · ${ago}` : ""}`,

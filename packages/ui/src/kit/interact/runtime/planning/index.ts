@@ -1,101 +1,34 @@
-import type { ActStep, RandomSource } from "../../../../catalog";
-import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
+import { isLocalAnchorAction, type ActStep, type RandomSource } from "../../../../catalog";
 import {
   actionFailure,
   confirmationAction,
   confirmationFor,
   handlerFor,
-  rejected,
-  type ActionContext,
+  navigationAction,
   type ActionResult,
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, MediaRuntime } from "../index";
 import {
-  confirmReport,
   dispatchPlan,
   drivenPartBlock,
   hostCaptureEffects,
-  inactive,
-  introducedPart,
   isDraw,
   isRevealRelease,
   needsConfirmation,
+  runAnchor,
   standaloneEffects,
 } from "./introduced-part";
-import { actionInput, disabledHint } from "./action-input";
-export { drivenPartBlock } from "./introduced-part";
+import { prepareStep, type PreparedAction } from "./prepare-step";
+import { runHostCommand } from "./host-command";
+import { holdFailure } from "../hold";
+export { driveAccess, inactive } from "./introduced-part";
 
-type PreparedStep =
-  | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
-  | { error: Extract<ActReply, { ok: false }> };
-function prepareStep(
-  state: ActionState,
-  action: ActStep,
-  ctx: ControllerContext,
-  media: MediaRuntime,
-  at: number,
-  confirmed?: ActionState["confirmation"],
-  markToken?: symbol,
-): PreparedStep {
-  const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
-  const id = action.address.split("/")[0]!;
-  const entry = active.components.find((item) => item.id === id);
-  const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
-  if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
-  if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
-  const def = ctx.defs[entry.c]!;
-  if (ctx.disabledParts.has(action.address) && !introducedPart(ctx, state, entry, action, true))
-    return fail("disabled", "This control is disabled");
-  const input = actionInput(ctx, entry, state.values);
-  if (!input) return fail("invalid_value", "This component has invalid props");
-  const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
-  if (hint) return fail("disabled", hint);
-  const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = dispatchPlan(ctx, active, state.values, selected, null, markToken);
-  if (!plan.ok) return { error: { ...plan, at } };
-  const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
-  if (mustMount && !introducedPart(ctx, state, entry, action))
-    return fail("not_mounted", "This control is not mounted");
-  const values =
-    confirmed && (!ctx.standalone || def.meta.items?.reset !== undefined)
-      ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
-      : plan.values;
-  if (!values) return fail("invalid_value", "Clear conflicts with component props");
-  if (confirmed && confirmReport(ctx, active, values, selected, confirmed.removal) === false)
-    return fail("invalid_value", "Confirmation conflicts with report props");
-  return {
-    state: { ...state, values, changes: [...state.changes, ...plan.changed] },
-    drive: plan.driven?.[0],
-    context: {
-      screen: ctx.screen,
-      active,
-      entry,
-      input,
-      defs: ctx.defs,
-      selected,
-      links: plan.links,
-      send: plan.sends?.[0],
-      at,
-      now: ctx.now,
-      key: ctx.key,
-      options: ctx.options,
-      playMedia: media.playMedia,
-      seekMedia: media.seekMedia,
-      requestPhoto: media.requestPhoto,
-    },
-  };
-}
-
-function runControl(
-  { state, context }: Extract<PreparedStep, { context: ActionContext }>,
-  selected: ActStep,
-  address: string,
-) {
+function runControl({ state, context, localEvent }: PreparedAction, selected: ActStep, address: string) {
   const { links, screen } = context;
-  return handlerFor(selected.action)(
+  return (localEvent ? navigationAction : handlerFor(selected.action))(
     state,
-    { ...selected, address },
+    { ...(context.plannedDate ?? selected), address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
   );
 }
@@ -107,6 +40,7 @@ function stepRunner(
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
   markToken: symbol | undefined,
+  source: { agent: boolean; single: boolean },
 ) {
   const run = (
     before: ActionState,
@@ -116,11 +50,12 @@ function stepRunner(
     const selected = markToken ? original : { ...original, address: ctx.relative(original.address) };
     if (!markToken && ctx.privateMarks.has(selected.address))
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
-    const hold = selected.action === "press" && ctx.hold.parts.get(selected.address);
-    if (hold && !confirmed && ctx.hold.approval !== hold)
-      return rejected(before, at, "hold_required", "Hold the button on the screen");
+    const hold = !confirmed && holdFailure(ctx, selected.address, selected.action, at, ctx.hold.approval);
+    if (hold) return { state: before, effects: [], error: hold };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
+    if (prepared.host && !markToken)
+      return runHostCommand(ctx, before, prepared, prepared.host, source, confirmed);
     const pending =
       !confirmed &&
       needsConfirmation(ctx, prepared.context) &&
@@ -132,11 +67,12 @@ function stepRunner(
     }
     if (pending) return pending;
     if (!ctx.standalone && prepared.drive) {
-      const block = drivenPartBlock(ctx, prepared.drive.address);
+      const block = drivenPartBlock(ctx, prepared.drive.address, prepared.drive.action);
       if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
       return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
     }
-    execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
+    if (!prepared.localEvent)
+      execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {
@@ -148,11 +84,9 @@ function stepRunner(
         prepared.context.links = plan.links;
       }
     }
-    if (ctx.standalone)
-      return {
-        state: prepared.state,
-        effects: standaloneEffects(prepared.context),
-      };
+    if (ctx.standalone) return { state: prepared.state, effects: standaloneEffects(prepared.context) };
+    if (isLocalAnchorAction(selected.action))
+      return runAnchor(ctx, before, prepared.state, selected.address, selected.action, at);
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
     return runControl(prepared, selected, address);
   };
@@ -165,6 +99,7 @@ export function planSteps(
   media: MediaRuntime,
   random: RandomSource | null | undefined,
   markToken?: symbol,
+  agent = false,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: { ...ctx.valuesOf() },
@@ -174,9 +109,10 @@ export function planSteps(
   };
   const effects: (() => void)[] = [];
   const execution = { performed: [] as ActStep[], drew: false };
+  const source = { agent, single: list.length === 1 };
   for (const [at, step] of list.entries()) {
     const action = markToken ? step : { ...step, address: ctx.relative(step.address) };
-    const run = stepRunner(ctx, media, random, at, execution, markToken);
+    const run = stepRunner(ctx, media, random, at, execution, markToken, source);
     let result: ActionResult;
     if (state.confirmation && !isRevealRelease(ctx, action))
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);

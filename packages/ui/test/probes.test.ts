@@ -10,7 +10,7 @@ import {
   packOf,
   runComposeProbes,
   variantAxes,
-  type CallModel,
+  type ProbeCall,
   type PackId,
   type PackMeta,
   type ComposeProbe,
@@ -77,7 +77,7 @@ function expectPassing(results: readonly { status: string }[]) {
 async function replayPackComposition(
   id: PackId,
   registry: ReturnType<typeof createRegistry>,
-  callModel: CallModel,
+  callModel: ProbeCall,
   samples: number,
   all: boolean,
 ) {

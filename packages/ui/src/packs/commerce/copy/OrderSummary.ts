@@ -12,10 +12,14 @@ type Receipt = {
 };
 
 export function receiptLine(line: Line, detail: Receipt["detail"], lang?: string) {
+  const words = commerceWordsFor(lang);
   return {
     name: line.name,
     qty: quantityLine(line.qty, lang),
-    price: detail === "brief" ? undefined : moneyLine(line.price, undefined, "each", lang, "fixed"),
+    price:
+      detail === "brief"
+        ? undefined
+        : words.cart.unitPrice(moneyLine(line.price, undefined, undefined, lang, "fixed")),
     extended: moneyLine(documentTotals({ lines: [line] }).total, undefined, undefined, lang, "fixed"),
   };
 }

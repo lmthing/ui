@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { createScreenController, type MicCaptureSession } from "@lmthing/ui/kit";
+import { createParentGate, createScreenController, type MicCaptureSession } from "@lmthing/ui/kit";
 import { defs, screen } from "./fixture-data";
 
 const address = "test/mic/record";
@@ -71,4 +71,26 @@ it("closes a root-part microphone even when the component itself is named root",
   expect(session.close).toHaveBeenCalledExactlyOnceWith("stop");
   expect(controller.micCapturePhase(root)).toBe("idle");
   controller.dispose();
+});
+
+it("does not open capture without parent admission and closes it when admission is revoked", async () => {
+  const session = { close: vi.fn() };
+  const open = vi.fn(() => session);
+  const parentGate = createParentGate({ destinations: [screen.id], ttlMs: 10_000, verify: () => true });
+  const controller = createScreenController({ screen, defs, micCapture: { open }, parentGate });
+  try {
+    controller.mount();
+    await controller.startMicCapture(address);
+    expect(open).not.toHaveBeenCalled();
+    expect(parentGate.submit({ address: "home/gate", destination: screen.id, proof: { kind: "hold" } })).toBe(
+      true,
+    );
+    await controller.startMicCapture(address);
+    expect(controller.micCapturePhase(address)).toBe("recording");
+    parentGate.revoke(screen.id);
+    expect(controller.micCapturePhase(address)).toBe("idle");
+    expect(session.close).toHaveBeenCalledExactlyOnceWith("cancel");
+  } finally {
+    controller.dispose();
+  }
 });
