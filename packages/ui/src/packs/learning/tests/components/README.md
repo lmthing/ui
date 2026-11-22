@@ -8,5 +8,6 @@
 - `Path.test.ts`: course path schema, fallback, parts, reading, and navigation.
 - `Quiz.test.ts`: bounds, fallback, rendered parts, and assessment read/act flow.
 - `Result.test.ts`: score bounds, fallback, rendered parts and states, and review/retry gating.
+- `SpeechCheck.test.ts`: pronunciation drill contract, parts and actions.
 - `Timetable.test.ts`: timetable contract, fallback, variants, addressed parts and actions.
 - `WorkedSolution.test.ts`: bounds, reveal, copy, tutor and solver actions.

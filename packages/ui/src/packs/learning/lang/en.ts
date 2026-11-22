@@ -78,6 +78,16 @@ export const en = {
     review: "Review",
     again: "Try again",
   },
+  speechCheck: {
+    label: "Pronunciation practice",
+    listen: "Hear the phrase",
+    mic: "Record your voice",
+    evaluate: "Check pronunciation",
+    retry: "Try again",
+    loading: "Checking pronunciation…",
+    success: "Pronunciation passed",
+    error: "Could not check your speech. Try again.",
+  },
   timetable: {
     picker: "Show first",
     days: {

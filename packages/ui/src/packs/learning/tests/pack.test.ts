@@ -29,6 +29,7 @@ const ids = [
   "Assignments",
   "Gradebook",
   "WorkedSolution",
+  "SpeechCheck",
 ] as const;
 const layouts = {
   course: { path: ["Header", "Streak", "Path", "Button"], list: ["Header", "Streak", "List", "Button"] },
