@@ -64,3 +64,16 @@ it("plays, pauses and sends from the active slide on a 390px phone", async () =>
   await button("Close story").click();
   await position.waitFor({ state: "detached" });
 });
+
+it("replaces an open story with expiry copy and keeps dismissal available", async () => {
+  await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
+  const position = page.getByTestId("home/story/position");
+  await position.waitFor();
+  await page.getByRole("button", { name: "Expire story" }).click();
+  const expired = page.getByText("This story is no longer available.");
+  await expired.waitFor();
+  expect(await position.count()).toBe(0);
+  expect(await page.getByRole("textbox", { name: "Reply to this slide" }).count()).toBe(0);
+  await page.getByRole("button", { name: "Close story" }).click();
+  await expired.waitFor({ state: "detached" });
+});

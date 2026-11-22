@@ -4,9 +4,11 @@ import * as kit from "../../../kit";
 import { storyViewerReading } from "../copy";
 import { socialWordsFor } from "../lang";
 
-const maxSlides = 8;
-const maxReply = 120;
-const slideIntervalMs = 5000;
+const maxSlides = 8,
+  maxReply = 120,
+  slideIntervalMs = 5000;
+const availabilityKind = "social_story_availability";
+const availability = z.strictObject({ component: c.screenId, expired: z.literal(true) });
 
 // Core first: Gallery/carousel browses static photos, not timed stories with slide replies or stickers.
 // prettier-ignore
@@ -31,7 +33,15 @@ export const meta = {
   },
   emptyActions: ["close.dismiss"], loadingActions: ["close.dismiss"], successActions: ["close.dismiss"],
   sequence: { cursor: "current", count: "slideCount", steps: { previous: "prev", next: "next" }, controls: { part: "story", intervalMs: slideIntervalMs, start: { prop: "paused", equals: false } } },
-  live: { text: { reply: { prop: "replyDraft", max: maxReply } } },
+  deviceData: [availabilityKind],
+  previewDeviceData: ({ state }) => state === "empty" ? { [availabilityKind]: [{ component: "c1", expired: true }] } : {},
+  live: {
+    text: { reply: { prop: "replyDraft", max: maxReply } },
+    derive: ({ slides }, instance, data) => ({
+      slideCount: Array.isArray(slides) ? slides.length : 0,
+      ...(data[availabilityKind]?.some((row) => availability.safeParse(row).data?.component === instance) && { state: "empty" }),
+    }),
+  },
   hostCommands: { parts: {
     "sticker.press": { kind: "command", name: "story.sticker", input: ({ props }) => {
       const { slides, current } = props as z.output<typeof storyProps>;
@@ -75,8 +85,7 @@ const storyProps = z.strictObject({
 
 export const props = storyProps
   .extend(c.variantProps(meta.variants))
-  .refine(({ slides, current }) => current < slides.length, { path: ["current"] })
-  .overwrite((input) => ({ ...input, slideCount: input.slides.length }));
+  .refine(({ slides, current }) => current < slides.length, { path: ["current"] });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -106,27 +115,20 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("StoryViewer");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Open Maya’s temporary update: show one timed photo slide at a time with progress across the top and a quick reply to the current slide.",
-  ),
-  choose(
-    "Browse four saved garden photos in a plain photo carousel with previous and next arrows. Keep every photo in the album; no sorting or dismissing cards, timer, replies, or stickers.",
-    "Gallery",
-  ),
-  write(
-    "Make Maya’s story that disappears after a day. First show her fern from four minutes ago, then her greenhouse from two minutes ago. Let me reply to the slide I’m viewing.",
-  ),
+  choose("Open Maya’s temporary update: show one timed photo slide at a time with progress across the top and a quick reply to the current slide."),
+  choose("Show the whole album as a browsable gallery of four saved garden photos. Keep every photo in the set and let me move between them with previous and next arrows. Not a single featured photo or a card stack to sort. No timer, replies or stickers.", "Gallery"),
+  write("Make Maya’s story that disappears after a day. First show her fern from four minutes ago, then her greenhouse from two minutes ago. Let me reply to the slide I’m viewing."),
   {
-    ...write(
-      "Open Maya’s temporary story with two timed fern photos from today. Hide quick replies and reactions. Keep the crop and edge treatment at their defaults: leave aspect and bleed unset.",
-    ),
+    ...write("Open Maya’s temporary story with two timed fern photos from today. Hide quick replies and reactions. Keep the crop and edge treatment at their defaults: leave aspect and bleed unset."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Go to the next slide in Maya’s story.", { address: "s1/next", action: "press" }),
 ] satisfies c.Probe[];
 
 type StoryProps = c.Props<typeof props, typeof meta>;
+type StoryLive = StoryProps & { sequencePlaying?: boolean; state?: "empty" };
 type StoryWords = ReturnType<typeof socialWordsFor>["storyViewer"];
 
 // prettier-ignore
@@ -160,16 +162,17 @@ function StoryReply({ words, draft }: { words: StoryWords; draft: string | undef
 
 // prettier-ignore
 export function StoryViewer(input: StoryProps) {
-  const state = kit.useComponentState();
+  const scope = kit.usePartContext(), live = kit.useLiveControls(meta, input) as StoryLive;
+  const state = live.state ?? scope.state, { interactive } = kit.useKit();
   const { lang, words: { storyViewer: words } } = kit.useWords(socialWordsFor);
-  const { current, slides, replyDraft, sequencePlaying } = kit.useLiveControls(meta, input) as StoryProps & { sequencePlaying?: boolean };
+  const { current, slides, replyDraft, sequencePlaying } = live;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect), bleed = kit.useVariant("bleed", meta.variants.bleed, input.bleed);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const slide = slides[current], loading = state === "loading";
   const position = words.position(c.numberLine(current + 1, lang), c.numberLine(slides.length, lang));
   const close = <kit.KitAction part="close" icon="close" a11y={words.close} action="dismiss" kind="quiet" contentParts={{}} />;
   const controls = <kit.KitContent inset="md">
-    <StoryNavigation {...{ current, position, words }} count={slides.length} playing={sequencePlaying ?? !input.paused} />
+    <StoryNavigation {...{ current, position, words }} count={slides.length} playing={interactive ? (sequencePlaying ?? !input.paused) : !input.paused} />
     <kit.KitLayoutText line={{ text: slide?.caption, part: "caption" }} />
     {slide?.sticker && <kit.KitAction part="sticker" kind="secondary" action="press" label={slide.sticker.label}
       icon={slide.sticker.kind === "link" ? "link" : "bar_chart"} contentParts={{}} />}
@@ -188,9 +191,9 @@ export function StoryViewer(input: StoryProps) {
     <kit.KitContent inset={bleed === "inset" ? "md" : "none"}>
       <kit.KitPhoto part="photo" photo={slide.photo} aspect={aspect} label={slide.caption ?? words.photo(position)} loading={loading} />
     </kit.KitContent>{controls}</>;
-  return <kit.KitCard bleed={bleed} part="root" padded inset="none" clip>
+  return <kit.PartScope {...scope} state={state}><kit.KitCard bleed={bleed} part="root" padded inset="none" clip>
     {state === "filled" || loading ? header : <kit.KitContent inset="md"><kit.KitGrid fitLast><>{null}</>{close}</kit.KitGrid></kit.KitContent>}
     <kit.KitState part="status" icon={state === "empty" ? "clock" : undefined}
       message={state === "success" ? words.sent : words.expired} loading={body}>{body}</kit.KitState>
-  </kit.KitCard>;
+  </kit.KitCard></kit.PartScope>;
 }

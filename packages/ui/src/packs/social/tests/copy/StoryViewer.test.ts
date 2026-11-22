@@ -27,3 +27,13 @@ it("keeps saved reply text out of read-only and terminal stories", () => {
   expect(read({ state: "success" })).toContain("Reply sent.");
   expect(read({ state: "success" })).not.toMatch(/See you soon|New fronds|Maya/);
 });
+
+it("reads the expired state only for the addressed story", () => {
+  const def = components.StoryViewer;
+  const entry = { ...def.examples[0]!, id: "s1", c: def.meta.id };
+  const screen = { id: "home", components: [entry, { ...entry, id: "s2" }] };
+  const data = { social_story_availability: [{ component: "s1", expired: true }] };
+  const lines = readScreen(screen, { StoryViewer: def }, {}, undefined, data).split("\n");
+  expect(lines[1]).toBe("s1 StoryViewer (empty) [s1/close dismiss]");
+  expect(lines[2]).toContain("s2 StoryViewer Maya — Slide 1 of 2");
+});
