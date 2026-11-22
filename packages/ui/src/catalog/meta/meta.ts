@@ -74,6 +74,8 @@ export type Meta = {
   errorActions?: readonly `${string}.${ActionName}`[];
   /** Read visible content and the read summary in success, not just the header and available actions. */
   readSuccess?: true;
+  /** Read the component's error summary alongside its available recovery actions. */
+  readError?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: LiveMeta.Draw;
   /** Monotonic round timing for an item press and a component reset press. */
