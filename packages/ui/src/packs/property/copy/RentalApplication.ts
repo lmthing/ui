@@ -114,5 +114,8 @@ export function applicationReading(
       return words.checkReading(`r${index + 1}`, label, status, note);
     }),
     ...(input.detail !== "brief" && input.note ? [input.note] : []),
+    ...(state === "filled" && input.detail !== "brief" && isOpen(input.decision)
+      ? [words.approve, ...(input.decision === "pending" ? [words.waitlist] : []), words.decline]
+      : []),
   ];
 }

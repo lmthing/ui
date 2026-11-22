@@ -41,5 +41,6 @@ export const example = [
   '{"id":"f8","c":"Field","kind":"choice","label":"Payment method","options":["Cash","Transfer","Card"],"value":"Transfer"}',
   '{"id":"b5","c":"Button","label":"Save receipt","goto":"property_rent_ledger"}',
   '{"id":"a1","c":"RentalApplication","applicationRef":"noor_elm","unitRef":"flat_c","unit":"Elm Flat","monthlyRent":925,"applicants":[{"name":"Noor","monthlyIncome":3200}],"moveIn":"2027-01-12","checks":[{"kind":"credit","status":"passed"},{"kind":"refs","status":"pending"}]}',
+  '{"id":"l1","c":"LeaseRenewal","renewalRef":"asha_willow","unitRef":"flat_a","unit":"Willow Flat","tenant":"Asha","currentRent":900,"proposedRent":925,"deadline":"2027-10-01","options":[{"label":"12 months","months":12},{"label":"6 months","months":6,"rent":950}]}',
   "",
 ].join("\n");
