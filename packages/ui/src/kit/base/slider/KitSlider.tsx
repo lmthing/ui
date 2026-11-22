@@ -5,6 +5,7 @@ import { useComponentState, usePart, usePartDisabled } from "../../part";
 import { useNumericControl } from "../../interact";
 import { useKit } from "../../provider";
 import { useSlider } from "./use-slider";
+import { RangeSlider, type RangeSliderProps } from "./RangeSlider";
 
 type SliderProps = {
   value?: number;
@@ -81,7 +82,11 @@ function useDisabledWipe(address: string, disabled: boolean) {
 }
 
 /** An addressed themed slider with native actions and web keyboard/pointer controls. */
-export function KitSlider(props: SliderProps) {
+export function KitSlider(props: SliderProps | RangeSliderProps) {
+  return "range" in props ? <RangeSlider {...props} /> : <SingleSlider {...props} />;
+}
+
+function SingleSlider(props: SliderProps) {
   const { label, part = "field", appearance = "track" } = props;
   const address = usePart(part);
   const loading = useComponentState() === "loading";

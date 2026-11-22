@@ -6,12 +6,14 @@ function composerControl(ctx: ControlContext): ControlChange {
     const text = String(step.value);
     if (text.length > Number(input.max)) return bad("The text is over this composer limit");
     put("field", text);
+    put("$sent", undefined);
     return { values, value: text };
   }
   if (step.action === "send") {
     const text = String(get("field") ?? input.value ?? "");
     if (!text.trim()) return bad("Write a reply before sending", true);
     put("field", "");
+    put("$sent", true);
     return { values, send: { text, address: valueKey(ctx.screen.id, ctx.entry.id, "field") } };
   }
   return { values };
