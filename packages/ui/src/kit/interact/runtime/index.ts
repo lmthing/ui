@@ -24,6 +24,12 @@ export {
 } from "./host";
 export { createReveal, type AuthenticateReveal } from "./reveal";
 export {
+  createPrivateValues,
+  type PrivateValuesHost,
+  type PrivateResult,
+  type PrivateStatus,
+} from "./private-values";
+export {
   privateMarkRegistration,
   PrivateMarkContext,
   type PrivateMarkAdapter,

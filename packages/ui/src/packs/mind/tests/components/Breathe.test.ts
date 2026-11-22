@@ -27,6 +27,7 @@ describe("Breathe schema", () => {
   it("uses a box pattern and the default finishes when omitted", () => {
     expect(props.parse({ rounds: 1 })).toEqual({
       pattern: "box",
+      style: "circle",
       rounds: 1,
       surface: "card",
       emphasis: "normal",
@@ -77,7 +78,7 @@ describe("Breathe fallback and metadata", () => {
       tier: "phone",
       status: "ready",
       states: ["filled", "success"],
-      parts: ["root", "circle", "phase", "rounds"],
+      parts: ["root", "circle", "phase", "rounds", "grounding", "step", "next"],
     });
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Timer");
@@ -95,7 +96,7 @@ describe("Breathe fallback and metadata", () => {
 describe("Breathe state, parts and reading", () => {
   it("draws the cue, rounds and play target in the filled state", () => {
     const parts = addressedElements(renderInstance("Breathe", { rounds: 4 }, "filled", theme));
-    expect([...parts.keys()]).toEqual(meta.parts.map((part) => `home/c1/${part}`));
+    expect([...parts.keys()]).toEqual(["root", "circle", "phase", "rounds"].map((part) => `home/c1/${part}`));
     expect(parts.get(circle)?.attributes).toContain('role="button"');
     expect(parts.get(circle)?.attributes).toContain('aria-label="Play breathing · Breathe in"');
     expect(parts.get("home/c1/phase")?.text).toEqual(["Breathe in"]);

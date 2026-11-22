@@ -17,11 +17,14 @@ import {
   DeviceDataContext,
   type AttachmentHost,
   type AuthenticateReveal,
+  type ClipboardText,
+  type ClipboardWriter,
   type HostCommandAdapter,
   type ParentGate,
   type InteractionStore,
   type MediaAdapter,
   type PlaybackResolver,
+  type PrivateValuesHost,
   type SendHandler,
 } from "../interact";
 import type { PartRegistry } from "../registry";
@@ -45,6 +48,9 @@ export type PhoneScreenProps = {
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;
+  privateValues?: PrivateValuesHost | undefined;
+  resolveClipboardText?: ClipboardText | undefined;
+  writeClipboard?: ClipboardWriter | undefined;
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;

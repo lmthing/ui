@@ -28,6 +28,7 @@ export {
   type PrivateMarks,
 } from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
+import { isKeypadPart } from "../keypad-profile";
 import {
   controlValueKey,
   nestedAt,
@@ -60,10 +61,13 @@ export function validateStep(
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
-  const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
-  let result = keypad
-    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
-    : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
+  const keypad =
+    step.action === "type" && !found.keypad ? keypadInput(screen, defs, found, values) : undefined;
+  let result = found.keypad
+    ? resolveKeypadValue(step.value, values[key] ?? found.keypad.initial, {}, found.keypad.profile)
+    : keypad
+      ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
+      : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
   if (!("code" in result)) {
     const max = found.input?.kind === "text" ? found.input.max : undefined;
     if (max !== undefined && typeof result.value === "string" && result.value.length > max)
@@ -132,8 +136,7 @@ export function keypadInput(
   const entry = screen.components.find((entry) => entry.id === id)!;
   const { id: _id, c, state: _state, ...raw } = entry;
   const def = defs[c]!;
-  const keypadParts = def.props.meta()?.keypadParts;
-  if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
+  if (!isKeypadPart(def.props, found.part)) return undefined;
   const get = (target: string) => values[`${screen.id}/${id}/${target}`];
   const parsed = parseControlProps(def, raw, get);
   const input = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;

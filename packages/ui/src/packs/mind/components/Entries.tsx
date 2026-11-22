@@ -20,15 +20,20 @@ export const meta = {
     density: ["comfortable", "compact"],
     surface: ["card", "outlined"],
     detail: ["full", "brief"],
+    media: ["thumb", "none"],
   },
-  variantParts: { "detail.brief": { hides: ["tags"] } },
-  parts: ["root", "month", "empty"],
+  variantParts: { "detail.brief": { hides: ["tags"] }, "media.none": { hides: ["photo"] } },
+  parts: ["root", "month", "empty", "prompt"],
   items: { key: "entries", parts: ["root", "date", "mood", "text", "tags", "photo"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
+  // prettier-ignore
+  live: { derive: ({ entries, media }) => media === "none" && Array.isArray(entries)
+    ? { entries: entries.map((row: Record<string, unknown>) => ({ ...row, photo: undefined })) } : {} },
   writeHints: [
     "Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id; when fewer than three tags are known, provide only those tags.",
     'Use detail null when tags should be visible, including whenever the journal brief names tags to show. Use detail "brief" only when explicitly asked to hide tags. Write null for unrequested density and surface; never fill in default variant names.',
+    'An explicit compact digest or one-line excerpt request requires both {"density":"compact","media":"none"}, even when the brief has no photos. When hiding a supplied photo, keep its reference in the entry and set media "none". If the only request is to hide tags, media must remain null. Supply prompt only when a shared journal prompt badge is requested.',
   ],
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
@@ -62,6 +67,7 @@ const entry = z.strictObject({
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
+    prompt: c.text(24).optional(),
     entries: z.array(entry).min(1).max(6),
   })
   .overwrite((value) => ({
@@ -97,9 +103,9 @@ export const examples = [
     { date: "2026-11-04", mood: 3, text: "I put my phone away early to write.",
       tags: ["Evening"], goto: "nov_04" },
   ] },
-  { entries: [
+  { density: "compact", media: "none", prompt: "Small joys", entries: [
     { date: "2026-10-02", text: "I took my time over breakfast.",
-      tags: [], goto: "oct_02" },
+      tags: [], photo: "lib:parks", goto: "oct_02" },
     { date: "2026-09-29", mood: 5, text: "I laughed on the way home.",
       tags: ["Friends"], goto: "sep_29" },
   ] },
@@ -124,33 +130,42 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the reflection about putting my phone away early.", { address: "e1/r2", action: "press" }),
+  {
+    ...write(
+      "One entry only: ‘I felt calmer after walking’ on 2026-11-19, opens nov_19. Keep its attached library photo lib:parks. Use compact density and the text-only media setting (none) so the digest shows one line and hides the thumbnail without deleting the photo.",
+    ),
+    expectProps: { density: "compact", media: "none", entries: [{ photo: "lib:parks" }] },
+  },
+  {
+    ...write(
+      "Show my journal entry ‘I took my time over breakfast’ dated 2026-10-02, linking to oct_02. Above the journal list, show the shared prompt badge ‘Small joys’.",
+    ),
+    expectProps: { prompt: "Small joys" },
+  },
 ] satisfies c.Probe[];
 
 type EntriesProps = c.Props<typeof props, typeof meta>;
-
 // prettier-ignore
-function EntryRow({ entry, density }: { entry: EntriesProps["entries"][number]; density: c.ThemeDensity }) {
+function EntryRow({ entry, density, compact }: { entry: EntriesProps["entries"][number]; density: c.ThemeDensity; compact: boolean }) {
   const { lang, words } = kit.useWords(mindWordsFor);
   const { id, date, mood, tags, photo, text, goto } = entry;
   const day = c.appointmentDate(date, lang);
   const loading = kit.useComponentState() === "loading";
   const skeleton = words.entrySkeleton;
-  const face = <kit.KitScaleTrack style="mood" value={mood ?? 0} labels={words.entryMood} readonly single part="mood" />;
-  const target = loading ? { part: null, label: "" } : { item: id, part: "root", goto, label: words.entryLabel(day, text) };
-  return <kit.KitRow {...target} leading={face} lineRole="heading" {...{ density }}>
-    <kit.KitGrid fitLast {...{ density }}>
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[
-            ["label", skeleton.date], ["body", skeleton.excerpt], ["label", tags.length ? skeleton.tags : undefined],
-          ]} />
-        : <kit.KitContent {...{ density }}>
-            <kit.KitText {...{ density }} part="date" role="label" tone="muted" lines={1}>{day}</kit.KitText>
-            <kit.KitText {...{ density }} part="text" lines={2}>{text}</kit.KitText>
-            {tags.length > 0 && <kit.KitText {...{ density }} part="tags" role="label" tone="muted">{entryTags(tags, lang)}</kit.KitText>}
-          </kit.KitContent>}
-      {photo && (loading
-        ? <kit.KitSkeleton shape="control" kind="secondary" label={c.wordsFor(lang).placeholderValue} />
-        : <kit.KitPhoto photo={photo} part="photo" shape="thumb" ring="muted" label={words.entryPhoto} />)}
+  const face = <kit.KitScaleTrack style="mood" value={mood ?? 0} labels={words.entryMood} readonly single part={loading ? null : "mood"} />;
+  const target = loading ? { part: null, label: "" } : { part: "root", goto, label: words.entryLabel(day, text) };
+  const thumbnail = photo && !compact
+    ? <kit.KitPhoto photo={photo} part={loading ? null : "photo"} loading={loading} shape="thumb" ring="muted" label={words.entryPhoto} />
+    : undefined;
+  return <kit.KitRow item={id} {...target} leading={face} inset="none" lineRole="heading" density={density}>
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitMetaLine density={density}
+        title={{ part: "date", role: "meta", tone: "muted", text: loading ? skeleton.date : day, lines: 1 }}
+        meta={[
+          { part: "text", role: "body", tone: "text", text: loading ? skeleton.excerpt : text, lines: compact ? 1 : 2 },
+          { part: "tags", text: tags.length ? (loading ? skeleton.tags : entryTags(tags, lang)) : undefined },
+        ]} />
+      {thumbnail}
     </kit.KitGrid>
   </kit.KitRow>;
 }
@@ -163,22 +178,23 @@ export function Entries(input: EntriesProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(mindWordsFor);
   const { thing } = kit.usePartContext();
-  const skeleton = words.entrySkeleton;
-  return <kit.KitCard part="root" padded inset="none" {...{ surface, density }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" title={thing ? c.emptyLine(thing, lang) : words.entriesEmpty} decorativeIcon />
-      : entryMonths(entries).map(({ month, entries: group }, index) => {
+  const groups = entryMonths(entries).map(({ month, entries: group }, index) => {
         const rows = detail === "brief" ? group.map((row) => ({ ...row, tags: [] })) : group;
-        const heading = entryMonth(rows[0]!.date, lang);
+        const heading = state === "loading" ? words.entrySkeleton.month : entryMonth(rows[0]!.date, lang);
         return <kit.KitContent key={month} group={index ? "response" : "content"} {...{ density }}>
-          <kit.KitContent inset="md" {...{ density }}>
-            {state === "loading"
-              ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", skeleton.month]]} density="comfortable" />
-              : <kit.KitText part={index ? null : "month"} role="heading" density="comfortable">{heading}</kit.KitText>}
-          </kit.KitContent>
-          <kit.KitGrid list={state !== "loading"} arrange="rows" {...{ density }}>
-            {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} />)}
-          </kit.KitGrid>
+          <kit.KitHeader title={{ text: heading, part: index ? null : "month", role: "meta", tone: "muted", strong: true }} density="comfortable" />
+          <kit.KitRowGroup density={density}>
+            {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} compact={input.media === "none"} />)}
+          </kit.KitRowGroup>
         </kit.KitContent>;
-      })}
+  });
+  const content = <kit.KitContent density={density}>
+    {input.prompt && <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" part="prompt" value={state === "loading" ? words.entrySkeleton.prompt : input.prompt} />}><></></kit.KitContent>}
+    {groups}
+  </kit.KitContent>;
+  return <kit.KitCard part="root" padded {...{ surface, density }}>
+    <kit.KitState loading={content} part="empty" message={thing ? c.emptyLine(thing, lang) : words.entriesEmpty} density={density}>
+      {content}
+    </kit.KitState>
   </kit.KitCard>;
 }
