@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { tableCell, tableChoices, tableSections, tableSummary, type tableSummaryModes } from "../copy";
@@ -15,6 +16,7 @@ type ViewProps = {
 };
 
 const numericKind = (kind: Column["kind"]) => kind === "number" || kind === "money";
+const shortHeading = 8;
 // prettier-ignore
 function TableCell(cell: Row["cells"][number], { kind }: Column, index: number, density: c.ThemeDensity, loading: boolean, lang: string, part: "root" | null = null) {
   const value = tableCell(cell, kind, lang);
@@ -65,6 +67,31 @@ function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: 
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
   return <kit.KitRow inline fitContent part={null} label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
 }
+
+function sectionLabel(label: string, density: c.ThemeDensity) {
+  return (
+    <kit.KitContent inset="md">
+      <kit.KitLayoutText
+        density={density}
+        line={{ text: label, part: "group_heading", role: "meta", tone: "muted", strong: true }}
+      />
+    </kit.KitContent>
+  );
+}
+
+function sectionCell(value: ReactNode, label: string, density: c.ThemeDensity, heading: boolean) {
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitRow inline fitContent part={null} lineRole="label" label={label} density={density}>
+        {heading && sectionLabel(label, density)}
+      </kit.KitRow>
+      <kit.KitRow inline part={null} label={label} density={density}>
+        {value}
+      </kit.KitRow>
+    </kit.KitContent>
+  );
+}
+
 // prettier-ignore
 export function TableMatrix({ input, density, loading, lang, pending }: {
   input: ViewProps; density: c.ThemeDensity; loading: boolean; lang: string; pending: boolean;
@@ -76,19 +103,23 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
     header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending, density),
   }));
   const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section) => {
-    const records = rows.map((row) => ({
-      id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
-      heading: TableHeading(row, columns[0]!, { selectable, density, loading, lang }),
-      cells: columns.slice(1).map((column, i) => ({
-        id: headers[i + 1]!.id, content: TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang),
-      })),
-    }));
-    if (label) records.unshift({
+    // A heading that may wrap needs its own measured row; the short slot uses one label line.
+    const short = label && label.length <= shortHeading;
+    const records = rows.map((row, index) => {
+      const decorate = (value: ReactNode, heading = false) =>
+        index === 0 && short ? sectionCell(value, label, density, heading) : value;
+      return {
+        id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
+        heading: decorate(TableHeading(row, columns[0]!, { selectable, density, loading, lang }), true),
+        cells: columns.slice(1).map((column, i) => ({
+          id: headers[i + 1]!.id,
+          content: decorate(TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang)),
+        })),
+      };
+    });
+    if (label && !short) records.unshift({
       id: `section_${section}`, label, cells: [],
-      heading: <kit.PartScope {...scope} item={rows[0]!.id}>
-        <kit.KitContent inset="md" group="response"><kit.KitLayoutText density={density}
-          line={{ text: label, part: "group_heading", role: "meta", tone: "muted", strong: true }} /></kit.KitContent>
-      </kit.PartScope>,
+      heading: <kit.PartScope {...scope} item={rows[0]!.id}>{sectionLabel(label, density)}</kit.PartScope>,
     });
     return records;
   });
@@ -111,6 +142,6 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
 
 // prettier-ignore
 function fitTable({ columns, rows }: ViewProps, lang: string) {
-  return columns.length <= 3 && columns.every(({ label }) => label.length <= 8) &&
+  return columns.length <= 3 && columns.every(({ label }) => label.length <= shortHeading) &&
     rows.every(({ cells }) => cells.every((cell, at) => tableCell(cell, columns[at]!.kind, lang).length <= 12));
 }
