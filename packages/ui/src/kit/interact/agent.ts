@@ -26,6 +26,7 @@ type AgentOptions = {
   currency?: AppCurrency | undefined;
   store: InteractionStore;
   random?: RandomSource | undefined;
+  touchNow?: (() => number) | undefined;
   deviceData?: DeviceData | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
@@ -42,6 +43,8 @@ function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
     if (!meta) return false;
     return (
       meta.recordRuntime ||
+      meta.buzz ||
+      meta.draw?.kind === "deck" ||
       meta.items?.reset ||
       hasReportConfirmation(meta) ||
       (meta.confirmParts?.length &&

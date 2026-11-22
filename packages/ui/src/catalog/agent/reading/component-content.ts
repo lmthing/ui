@@ -36,6 +36,7 @@ function readingProps(
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
+    meta.buzz ||
     meta.localState ||
     meta.sequence ||
     meta.dateSpan ||

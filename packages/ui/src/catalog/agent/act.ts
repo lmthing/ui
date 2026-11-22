@@ -13,6 +13,7 @@ import {
   validateStep,
 } from "./action-input";
 import { deviceRandom, type RandomSource } from "./draw";
+import { monotonicNow } from "./buzz";
 import { adjustmentChanges, stageStandaloneClock } from "./clocks";
 import {
   captureDeviceTime,
@@ -143,10 +144,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
   now = deviceTimeOf(data) ?? Date.now(),
+  touchNow = monotonicNow,
 ): ActResult {
   data = captureDeviceTime(defs, data, now);
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
   const migrated = migrateScreen(input, { variantOnly: true });
@@ -160,9 +162,8 @@ export function planAct(
     if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${actionValueAddress(address, found)}`;
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, plan.values, key) };
-    const { result } = validated;
-    if ("code" in result) return { ok: false, at, ...result };
-    const resolved = { ...step, address, value: result.value };
+    if ("code" in validated.result) return { ok: false, at, ...validated.result };
+    const resolved = { ...step, address, value: validated.result.value };
     if (stageEffect(plan, screen, resolved, found, now)) continue;
     if (found.localEvent) {
       const failure = stageLocalEvent(screen, defs, plan.values, resolved, found.localEvent);
@@ -176,7 +177,7 @@ export function planAct(
     try {
       const progress = record
         ? ""
-        : stageStepProgress(screen, defs, plan.values, resolved, found, random, snapshot, now);
+        : stageStepProgress(screen, defs, plan.values, resolved, found, random, snapshot, now, touchNow);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {

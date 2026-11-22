@@ -6,6 +6,7 @@ import { formatAffordance } from "./affordances";
 import { visibleNestedProps } from "./selection";
 import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, readDraw } from "./draw";
+import { buzzStatus } from "./buzz";
 import { sessionState, sessionStatus } from "./session";
 import { migrateScreen } from "../migrations";
 import {
@@ -62,7 +63,8 @@ export function readComponent(
     instance,
     target,
   );
-  state = sessionStatus(meta, props, drawStatus(meta, props, (props.state as StateName) ?? state, get), get);
+  const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
+  state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),

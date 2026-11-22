@@ -1,6 +1,7 @@
 import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
 import { drawKey, drawRole, holdIndex, performDraw, staleDraw, storeDraw, type RandomSource } from "../draw";
+import { buzzKey, buzzTarget, recordBuzz, staleBuzz } from "../buzz";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "../session";
 import {
   liveProps,
@@ -23,14 +24,14 @@ export function expireProgress(
 ) {
   for (const { id, c, state: _state, ...raw } of screen.components) {
     const def = defs[c];
-    const draw = `${screen.id}/${id}/${drawKey}`;
-    const session = `${screen.id}/${id}/${sessionKey}`;
-    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const local = localValues(screen.id, values);
-    const parsed = parseControlProps(def, raw, (part) => local[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, local, true, data);
-    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
-    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
+    const base = `${screen.id}/${id}`;
+    const get = (part: string) => values[`${base}/${part}`];
+    if (!def || ![drawKey, sessionKey, buzzKey].some((part) => get(part) !== undefined)) continue;
+    const parsed = parseControlProps(def, raw, get);
+    const props = liveProps(def.meta, parsed, id, localValues(screen.id, values), true, data);
+    if (def.meta.draw && staleDraw(def.meta, props, get(drawKey))) values[`${base}/${drawKey}`] = undefined;
+    if (staleSession(def.meta, props, get(sessionKey))) values[`${base}/${sessionKey}`] = undefined;
+    if (staleBuzz(def.meta, props, get(buzzKey))) values[`${base}/${buzzKey}`] = undefined;
   }
 }
 
@@ -41,19 +42,25 @@ function stageProgress(
   step: ActStep,
   next: Values,
   random: RandomSource | null,
-  data?: DeviceData,
+  data: DeviceData | undefined,
+  touchNow: () => number,
 ): string | undefined {
   const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const target = parts.join("/") || "root";
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const buzz = buzzTarget(def.meta, target, step.action);
   const event = sessionEvent(def.meta, target, step.action);
   const role = drawRole(def.meta, target, step.action);
-  if (!event && !role) return;
+  if (buzz === null && !event && !role) return;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const parsed = parseControlProps(def, raw, get);
   const props = liveProps(def.meta, parsed, entry.id, localValues(screen.id, next), true, data);
+  if (buzz !== null) {
+    next[`${screen.id}/${id}/${buzzKey}`] = recordBuzz(def.meta, props, get, buzz, touchNow);
+    return "";
+  }
   if (event) {
     next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(
       def.meta,
@@ -83,12 +90,13 @@ export function stageStepProgress(
   random: RandomSource | null,
   snapshot: DeviceData | undefined,
   now: number,
+  touchNow: () => number,
 ) {
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
     stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
   );
 }

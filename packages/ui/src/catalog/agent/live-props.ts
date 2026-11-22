@@ -6,6 +6,7 @@ import { repairVariants } from "../rules";
 import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { projectDraw } from "./draw";
+import { projectBuzz } from "./buzz";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
@@ -116,8 +117,7 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
 export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
-  return projectComponentSets(meta, projected, get);
+  return projectComponentSets(meta, projectNested(meta, projectSelection(meta, props, get, mode), get), get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
@@ -188,12 +188,12 @@ export function liveProps(
       props = { ...props, value: String(value) };
   }
   const key = meta.items?.key;
-  if (!key || !Array.isArray(props[key])) return props;
+  if (!key || !Array.isArray(props[key])) return projectBuzz(meta, props, get);
   let items = props[key] as Values[];
   if (meta.items?.visible === "first") items = items.slice(Number(values[`${instance}/$cursor`] ?? 0));
   if (meta.id === "List" && props.style === "expand")
     items = items.map((item) =>
       values[`${instance}/${String(item.id)}`] === false ? { ...item, body: undefined } : item,
     );
-  return { ...props, [key]: items };
+  return projectBuzz(meta, { ...props, [key]: items }, get);
 }

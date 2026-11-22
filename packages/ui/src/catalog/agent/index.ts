@@ -117,6 +117,7 @@ export {
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
 export { hasNestedCollectionControls, itemCounterReset, nestedCapacityBlocked } from "./nested";
+export { buzzKey, buzzRound, buzzStatus, buzzTarget, monotonicNow, staleBuzz, type BuzzRound } from "./buzz";
 export {
   projectSelectionBinding,
   selectionBindingFor,

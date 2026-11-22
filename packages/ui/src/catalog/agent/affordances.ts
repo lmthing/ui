@@ -4,6 +4,7 @@ import type { StateName } from "../types";
 import { choiceValues, type ChoiceOption } from "./validate-value";
 import { clockActionValid, clockControlDeclared, type numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
+import { buzzAvailable, buzzRound, buzzStatus, buzzTarget } from "./buzz";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
@@ -137,6 +138,8 @@ export function affordancesOf(
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  state = buzzStatus(meta, props, state, get);
+  const round = buzzRound(meta, props, get);
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
@@ -162,16 +165,16 @@ export function affordancesOf(
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
+    const buzz = buzzTarget(meta, target, action);
     if (!actionAllowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
-    if (
-      (liveClock || clockControlDeclared(meta, target, action, true)) &&
-      !clockActionValid(meta, props, target, action, get, now)
-    )
-      return false;
-    return true;
+    if (buzz !== null && !buzzAvailable(round, buzz)) return false;
+    return (
+      !(liveClock || clockControlDeclared(meta, target, action, true)) ||
+      clockActionValid(meta, props, target, action, get, now)
+    );
   });
   const offered = available.flatMap((offer) => {
     const media = mediaOffer(meta, instance, offer);

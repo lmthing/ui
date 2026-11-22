@@ -75,6 +75,7 @@ export function needsConfirmation(ctx: ControllerContext, { entry, selected }: A
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (meta.draw?.kind === "deck" && drawRole(meta, part, selected.action) === "reset") return true;
   if (selected.action === "press" && meta.items?.reset === part) return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits || meta.localState)
@@ -108,6 +109,8 @@ export function dispatchPlan(
     random,
     ctx.standalone ? "planner" : "controller",
     ctx.options.deviceData,
+    ctx.now(),
+    ctx.touchNow,
   );
 }
 

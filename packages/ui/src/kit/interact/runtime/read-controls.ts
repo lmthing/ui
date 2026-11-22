@@ -1,5 +1,6 @@
 import {
   atDeviceTime,
+  buzzTarget,
   captureDeviceTime,
   driveTarget,
   hostActionPolicy,
@@ -57,7 +58,12 @@ export function visibleConfirmation(
   const bound = meta.selectionBinding || meta.drives;
   if (
     entry &&
-    (bound || meta.deviceDataFlags || meta.media || meta.items?.media || meta.sequence) &&
+    (bound ||
+      meta.deviceDataFlags ||
+      meta.media ||
+      meta.items?.media ||
+      meta.sequence ||
+      meta.draw?.kind === "deck") &&
     confirmation.step
   ) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
@@ -78,7 +84,14 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
+
+function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((component) => component.id === id);
+  const meta = entry && defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/"), "press"));
+}
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -139,13 +152,12 @@ export function readControls(
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size || canDrive
-    ? read.replace(controlTokens, (token, address, action) =>
-        disabled?.has(address) ||
-        (action === "set" && privateMarks?.has(address)) ||
-        (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false)
-          ? ""
-          : token,
-      )
+    ? read.replace(controlTokens, (token, address, action) => {
+        if (action === "set" && privateMarks?.has(address)) return "";
+        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        if (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false) return "";
+        return token;
+      })
     : read;
 }
 

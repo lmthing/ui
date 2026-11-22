@@ -4,15 +4,13 @@ import type { ActStep, Values } from "../act";
 import { affordancesOf, type Affordance } from "../affordances";
 import {
   hasPlaybackClock,
-  clockChanges,
-  clockControlDeclared,
   hasRecordClock,
   hasRuntimeSets,
   recordClockInput,
   recordClockOffer,
   stageRecordClock,
 } from "../clocks";
-import { deviceTimeOf, type DeviceData } from "../device-data";
+import type { DeviceData } from "../device-data";
 import { driveAffordances, driveTarget, projectDriveObservation } from "../drives";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
@@ -42,6 +40,7 @@ function usesLiveState(meta: Meta) {
   const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = meta;
   return (
     draw ||
+    meta.buzz ||
     emptyActions ||
     meta.loadingActions?.length ||
     meta.hostCommands ||
@@ -150,31 +149,4 @@ export function stageRecord(
     target,
     step.action,
   );
-}
-
-/** A mounted controller already stages clocks through its action table. */
-export function stageStandaloneClock(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  address: string,
-  step: ActStep,
-  data?: DeviceData,
-) {
-  const [id, ...parts] = address.split("/");
-  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
-  const def = defs[c]!;
-  const { meta } = def;
-  const legacy =
-    (meta.live?.derive || meta.recordRuntime?.actions) &&
-    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
-  const target = parts.join("/") || "root";
-  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
-  const props = legacy
-    ? liveInput(def, input, id!, localValues(screen.id, next), data)
-    : parseControlProps(def, input, get);
-  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
-  const changes = clockChanges(meta, props, get, target, step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }

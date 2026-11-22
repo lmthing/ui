@@ -1,4 +1,5 @@
 import {
+  monotonicNow,
   migrateScreen,
   mediaHostKey,
   resolveDefinition,
@@ -48,6 +49,7 @@ export type ControllerOptions = {
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
+  touchNow?: (() => number) | undefined;
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
@@ -97,9 +99,9 @@ function relativeAddress(screen: string, address: string) {
 function createClipboard(
   { writeClipboard, resolveClipboardText }: ControllerOptions,
   store: InteractionStore,
-  status: { disposed: boolean },
+  disposed: () => boolean,
 ) {
-  return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
+  return clipboardRuntime(store, disposed, writeClipboard, resolveClipboardText);
 }
 type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
 function createValues(
@@ -132,7 +134,7 @@ function createValues(
 }
 
 export function createControllerContext(options: RuntimeOptions, standalone = false) {
-  const { defs, now = Date.now, store = createInteractionStore() } = options;
+  const { defs, now = Date.now, touchNow = monotonicNow, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const { parts: disabledParts, ...disabledRegistry } = createDisabledParts();
   const attachmentEntries: AttachmentEntries = new Map();
@@ -152,8 +154,9 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     screen,
     defs,
     now,
+    touchNow,
     store,
-    clipboard: createClipboard(options, store, status),
+    clipboard: createClipboard(options, store, () => status.disposed),
     status,
     valuesOf,
     ...projection,

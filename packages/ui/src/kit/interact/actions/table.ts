@@ -1,5 +1,6 @@
 import {
   affordancesOf,
+  drawRole,
   hostActionPolicy,
   isRecordPress,
   itemEditSpec,
@@ -82,6 +83,8 @@ export function confirmationFor(
   const def = ctx.defs[c]!;
   const { meta } = def;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
+  if (meta.draw?.kind === "deck" && drawRole(meta, target, action.action) === "reset")
+    return showConfirmation(state, ctx.selected, ctx);
   if (reportConfirmation(meta, target, action.action))
     return isRecordPress(meta, action.address, action.action) || recordActionAt(meta, target, action.action)
       ? confirmRecordAction(state, action, ctx)
