@@ -77,28 +77,51 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { requests: requests.length ? requests : [placeholder] };
 }
 
-// prettier-ignore
 export const examples = [
   {
     requests: [
-      { from: "Anna", photo: "lib:people", kind: "time_off", title: "Friday off",
-        dates: "20 Nov", note: "Rae can water the ferns." },
-      { from: "Rae", photo: "lib:people", kind: "expense", title: "Seed trays",
-        amount: 24, note: "Receipt is in the greenhouse." },
+      {
+        from: "Anna",
+        photo: "lib:people",
+        kind: "time_off",
+        title: "Friday off",
+        dates: "20 Nov",
+        note: "Rae can water the ferns.",
+      },
+      {
+        from: "Rae",
+        photo: "lib:people",
+        kind: "expense",
+        title: "Seed trays",
+        amount: 24,
+        note: "Receipt is in the greenhouse.",
+      },
     ],
   },
   {
     requests: [
-      { from: "Sam", photo: "lib:people", kind: "swap", title: "Swap Saturday walks",
-        dates: "21 Nov", note: "Lee can take the park route." },
+      {
+        from: "Sam",
+        photo: "lib:people",
+        kind: "swap",
+        title: "Swap Saturday walks",
+        dates: "21 Nov",
+        note: "Lee can take the park route.",
+      },
       { from: "Lee", photo: "lib:people", kind: "other", title: "Add a spare lead" },
     ],
   },
   {
     style: "my_requests",
     requests: [
-      { from: "Anna", photo: "lib:people", kind: "shift_claim", title: "Friday greenhouse shift",
-        dates: "20 Nov", status: "pending" },
+      {
+        from: "Anna",
+        photo: "lib:people",
+        kind: "shift_claim",
+        title: "Friday greenhouse shift",
+        dates: "20 Nov",
+        status: "pending",
+      },
       { from: "Anna", photo: "lib:people", kind: "time_off", title: "Monday off", status: "approved" },
     ],
   },

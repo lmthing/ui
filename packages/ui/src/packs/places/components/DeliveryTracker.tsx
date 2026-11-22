@@ -99,7 +99,7 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
   const avatar = photo && (loading
     ? <kit.KitPhoto part="photo" shape="round" />
     : <kit.KitPhoto part="photo" shape="round" {...{ photo }} {...(courier ? { label: courier } : {})} />);
-  const name = <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
+  const name = <kit.KitContent lead={avatar} leadingAlign="row" rhythm="flush" density={density}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
       content={[["label", courier], ["label", courierLabel]]} /> : <>
         {courier && <kit.KitText part="courier" role="label" emphasis="strong" density="comfortable">{courier}</kit.KitText>}

@@ -99,9 +99,14 @@ export const probes = [
   read("Ask to swap my morning care shift", { address: "s1/swap", action: "press" }),
 ] satisfies c.Probe[];
 
-// prettier-ignore
-function ShiftDetails({ details, density, loading }: {
-  details: ReturnType<typeof shiftDetails>; density: c.ThemeDensity; loading: boolean;
+function ShiftDetails({
+  details,
+  density,
+  loading,
+}: {
+  details: ReturnType<typeof shiftDetails>;
+  density: c.ThemeDensity;
+  loading: boolean;
 }) {
   if (!details.length) return null;
   if (loading)
@@ -110,16 +115,26 @@ function ShiftDetails({ details, density, loading }: {
         shape="figure"
         inset="none"
         density={density}
-        content={details.map(({ part, prefix, text }) => [part === "role" ? "body" : "label", `${prefix}${text}`])}
+        content={details.map(({ part, prefix, text }) => [
+          part === "role" ? "body" : "label",
+          `${prefix}${text}`,
+        ])}
       />
     );
   return (
     <kit.KitContent density={density}>
       {details.map(({ part, prefix, text }) => (
-        <kit.KitText key={part} part={part} role={part === "role" ? "body" : "label"}
-          tone={part === "role" ? "text" : "muted"} density={density}>
+        <kit.KitText
+          key={part}
+          part={part}
+          role={part === "role" ? "body" : "label"}
+          tone={part === "role" ? "text" : "muted"}
+          density={density}
+        >
           {prefix && (
-            <kit.KitText part={null} role="label" tone="muted" density={density}>{prefix}</kit.KitText>
+            <kit.KitText part={null} role="label" tone="muted" density={density}>
+              {prefix}
+            </kit.KitText>
           )}
           {text}
         </kit.KitText>
@@ -128,9 +143,11 @@ function ShiftDetails({ details, density, loading }: {
   );
 }
 
-// prettier-ignore
 function ShiftHeader({
-  schedule: { date, from, to }, status, separator, density,
+  schedule: { date, from, to },
+  status,
+  separator,
+  density,
 }: {
   schedule: ReturnType<typeof shiftSchedule>;
   status: string;
@@ -139,12 +156,20 @@ function ShiftHeader({
 }) {
   return (
     <kit.KitContent density={density}>
-      <kit.KitFigure density={density}
+      <kit.KitFigure
+        density={density}
         value={{ text: from, part: "from" }}
-        unit={{ text: `${separator}${to}`, part: "to", role: "figure", tone: "text", tabular: true }} />
+        unit={{ text: `${separator}${to}`, part: "to", role: "figure", tone: "text", tabular: true }}
+      />
       <kit.KitGrid fitLast density={density}>
-        <kit.KitLayoutText line={{ text: date, part: "date", role: "meta", tone: "muted" }} density={density} />
-        <kit.KitLayoutText line={{ text: status, part: "status", role: "meta", tone: "muted" }} density={density} />
+        <kit.KitLayoutText
+          line={{ text: date, part: "date", role: "meta", tone: "muted" }}
+          density={density}
+        />
+        <kit.KitLayoutText
+          line={{ text: status, part: "status", role: "meta", tone: "muted" }}
+          density={density}
+        />
       </kit.KitGrid>
     </kit.KitContent>
   );

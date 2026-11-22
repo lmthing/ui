@@ -1,12 +1,39 @@
-// prettier-ignore
-import { KitCard, KitContent, KitGrid, KitLayoutText, KitMetaLine, KitRow, KitRowGroup,
-  KitSlotGrid, KitState, KitTrail, useWords,
-  useComponentState, useEmptyThing, useVariant } from "../../../kit";
+import {
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitLayoutText,
+  KitMetaLine,
+  KitRow,
+  KitRowGroup,
+  KitSlotGrid,
+  KitState,
+  KitTrail,
+  useWords,
+  useComponentState,
+  useEmptyThing,
+  useVariant,
+} from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
-// prettier-ignore
-import { clock, clockLine, detailOf, durationLine, emptyLine, itemsOf, placeholderValue, probesFor,
-  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  clock,
+  clockLine,
+  detailOf,
+  durationLine,
+  emptyLine,
+  itemsOf,
+  placeholderValue,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  variantProps,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 import { slotLabelLine } from "../copy";
 import { prompt } from "../../../entry/prompt-Slots.generated";
 
@@ -177,7 +204,6 @@ function SlotPlaceholders({
   );
 }
 
-// prettier-ignore
 export function Slots(input: Props<typeof props, typeof meta>) {
   const { times, at, minutes, timezone } = input;
   const ranges = input.style === "ranges";
@@ -195,20 +221,41 @@ export function Slots(input: Props<typeof props, typeof meta>) {
     sub: taken ? slotLabels.taken : slotLabels.free,
   }));
   const selected = times.find(({ time }) => time === at);
-  const body = <>
-    {timezone && <KitContent leadingAlign="row"
-      lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}>{null}</KitContent>}
-    {state === "loading" ? <SlotPlaceholders slots={slots} list={list} label={duration} /> :
-      <KitSlotGrid times={slots} {...(selected ? { at: selected.id } : {})}
-        style={list ? "list" : "grid"} part="times" />}
-    <KitContent group="response">
-      <KitLayoutText line={{ text: duration, role: "caption", tone: "muted", tabular: true, part: "minutes" }} />
-    </KitContent>
-  </>;
+  const body = (
+    <>
+      {timezone && (
+        <KitContent
+          leadingAlign="row"
+          lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}
+        >
+          {null}
+        </KitContent>
+      )}
+      {state === "loading" ? (
+        <SlotPlaceholders slots={slots} list={list} label={duration} />
+      ) : (
+        <KitSlotGrid
+          times={slots}
+          {...(selected ? { at: selected.id } : {})}
+          style={list ? "list" : "grid"}
+          part="times"
+        />
+      )}
+      <KitContent group="response">
+        <KitLayoutText
+          line={{ text: duration, role: "caption", tone: "muted", tabular: true, part: "minutes" }}
+        />
+      </KitContent>
+    </>
+  );
   return (
     <KitCard style="inset" padded={state !== "empty"} part="root">
-      <KitState part="minutes" icon="clock" message={thing ? emptyLine(thing, lang) : slotLabels.empty}
-        loading={body}>
+      <KitState
+        part="minutes"
+        icon="clock"
+        message={thing ? emptyLine(thing, lang) : slotLabels.empty}
+        loading={body}
+      >
         {body}
       </KitState>
     </KitCard>

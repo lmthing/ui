@@ -58,12 +58,22 @@ export const examples = [
   { ...ledgePlan, debts: [...ledgePlan.debts] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Payoff");
-// prettier-ignore
 export const probes = [
-  choose("Use my debts' terms, regular monthly payments and an extra monthly amount to prioritise high-interest debts, forecast each clearance month and when I am debt free"),
-  choose("Show recorded payments against several fixed repayment goals as separate progress bars, no allocation or future interest calculation", "Progress"),
-  choose("Calculate the next principal and interest instalment for one loan from its terms, not a debt-priority plan", "Loan"),
-  choose("Show the recent trend of my outstanding balance beside its latest value, not a future repayment forecast", "Sparkline"),
+  choose(
+    "Use my debts' terms, regular monthly payments and an extra monthly amount to prioritise high-interest debts, forecast each clearance month and when I am debt free",
+  ),
+  choose(
+    "Show recorded payments against several fixed repayment goals as separate progress bars, no allocation or future interest calculation",
+    "Progress",
+  ),
+  choose(
+    "Calculate the next principal and interest instalment for one loan from its terms, not a debt-priority plan",
+    "Loan",
+  ),
+  choose(
+    "Show the recent trend of my outstanding balance beside its latest value, not a future repayment forecast",
+    "Sparkline",
+  ),
   choose("Calculate who in our shared flat should pay whom after grocery expenses", "Split"),
   write(
     "Plan repayment of Card: principal 1200, rate 18.9, payment 100; Friend: principal 480, rate zero, payment 40. Both first due 2026-12-01 with no recorded payments. Extra monthly 50, high rate priority, edit opens debts. No computed totals",
@@ -86,20 +96,27 @@ function PayoffControls({ strategyChoice, extra, goto, density }: ControlProps) 
   const chip = { item: null, role: "radio", look: "segment", ...inactive } as const;
   const field = { kind: "number", action: "set", min: 0, part: "extra", ...inactive } as const;
   const editor = { part: "edit", label: labels.edit, goto, kind: "secondary", ...inactive } as const;
-  // prettier-ignore
   return (
     <kit.KitContent density={density} group="response">
       <PayoffText density={density} text={labels.strategy} />
       <kit.KitTrack part="strategy" look="segments" role="radiogroup" label={labels.strategy}>
         {payoffChoices.map((value, index) => (
-          <kit.KitChip key={value} {...chip} value={value} label={labels.choice[payoffStrategies[index]!]} on={strategyChoice === value} />
+          <kit.KitChip
+            key={value}
+            {...chip}
+            value={value}
+            label={labels.choice[payoffStrategies[index]!]}
+            on={strategyChoice === value}
+          />
         ))}
       </kit.KitTrack>
       <kit.KitContent density={density} group="response">
         <PayoffText density={density} text={labels.extra} />
-        {state === "loading"
-          ? <kit.KitSkeleton shape="control" kind="secondary" full />
-          : <kit.KitInput {...field} hint={labels.extra} value={String(extra)} />}
+        {state === "loading" ? (
+          <kit.KitSkeleton shape="control" kind="secondary" full />
+        ) : (
+          <kit.KitInput {...field} hint={labels.extra} value={String(extra)} />
+        )}
       </kit.KitContent>
       {goto && <kit.KitContent density={density} group="response" children={<kit.KitAction {...editor} />} />}
     </kit.KitContent>
@@ -128,8 +145,11 @@ function PayoffText({ text, role = "label", part = null, tone = "muted", numberS
   const draw = { density, role, part, tone, ...(numberScale ? { numberScale } : {}) };
   return <kit.KitText {...draw} lines={1} tabular children={text} />;
 }
-// prettier-ignore
-function PayoffRows({ debts, rows, density }: Pick<PayoffProps, "debts"> & { density: c.ThemeDensity } & { rows: Summary["rows"] }) {
+function PayoffRows({
+  debts,
+  rows,
+  density,
+}: Pick<PayoffProps, "debts"> & { density: c.ThemeDensity } & { rows: Summary["rows"] }) {
   const loading = kit.useComponentState() === "loading";
   return rows.map(({ index, order, balance, clearance }) => {
     const { id, name } = debts[index]!;
@@ -173,7 +193,6 @@ export function Payoff(input: PayoffProps) {
   const debts = <PayoffRows density={density} debts={input.debts} rows={rows} />;
   const headline = { role: "title", part: "finish", tone: stalled ? "bad" : "text" } as const;
   const figures = { total: [labels.owed, total], budget: [labels.budget, budget] } as const;
-  // prettier-ignore
   return (
     <kit.KitCard padded density={density}>
       <kit.KitContent density={density}>
@@ -186,11 +205,22 @@ export function Payoff(input: PayoffProps) {
           </kit.KitGrid>
         ))}
       </kit.KitContent>
-      {input.detail === "full" && <kit.KitContent density={density}>
-        <PayoffText density={density} text={labels.forecast} />
-        <kit.KitLinePlot part="line" style="compact" series={[{ ...plot, label: "", points }]} loading={loading} />
-      </kit.KitContent>}
-      {input.detail === "full" ? <kit.KitContent density={density} group="response" children={debts} /> : debts}
+      {input.detail === "full" && (
+        <kit.KitContent density={density}>
+          <PayoffText density={density} text={labels.forecast} />
+          <kit.KitLinePlot
+            part="line"
+            style="compact"
+            series={[{ ...plot, label: "", points }]}
+            loading={loading}
+          />
+        </kit.KitContent>
+      )}
+      {input.detail === "full" ? (
+        <kit.KitContent density={density} group="response" children={debts} />
+      ) : (
+        debts
+      )}
       <PayoffControls {...input} density={density} />
     </kit.KitCard>
   );

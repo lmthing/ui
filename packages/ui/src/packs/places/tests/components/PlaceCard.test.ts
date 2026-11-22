@@ -150,7 +150,7 @@ describe("PlaceCard states and parts", () => {
       "home/p1/category",
     ]);
     expect(draw({ ...cafe, photo: "local:1" }).has("home/p1/photo")).toBe(false);
-    expect(draw({ ...cafe, rating: 0 }).get("home/p1/rating")?.text).toEqual(["0"]);
+    expect(draw({ ...cafe, rating: 0 }).get("home/p1/rating")?.text).toEqual(["Rating 0 out of 5"]);
   });
 
   it("retains every filled part when moving the cover to the compact thumbnail", () => {

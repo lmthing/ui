@@ -142,7 +142,7 @@ type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 function Entry({ copy, density, w, loading }: { copy: Row; density: c.ThemeDensity; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
-    <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
+    <kit.KitAction part="remove" kind="danger" icon="trash" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow part={null} label={row.title} density={density} inset="none" trailing={remove}>
     <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
