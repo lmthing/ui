@@ -2832,7 +2832,7 @@
     "reply": "Hero",
     "replies": [
       "Hero",
-      "Hero",
+      "Amount",
       "Hero"
     ]
   },
@@ -3085,7 +3085,7 @@
     "replies": [
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}",
-      "{\"c\":\"Empty\",\"detail\":null,\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}"
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}"
     ]
   },
   "Empty%2Fwrite%2FMy%20walks%20could%20not%20be%20loaded.%20Show%20a%20calm%20message%20that%20says%20what%20went%20wrong./e122e87fad5cd4de/736201dffb74dd96": {
@@ -3324,11 +3324,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks could not be loaded\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks could not be loaded\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"cloud_rain\",\"kind\":\"error\"}"
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"cloud_rain\",\"kind\":\"error\"}"
     ]
   },
   "Empty%2Fwrite%2FSay%20No%20walks%20booked.%20Save%20the%20explanation%20New%20bookings%20will%20appear%20here%2C%20but%20show%20only%20the%20main%20line%20for%20now./141664511af109a6/690daa36a3170bde": {
@@ -3567,10 +3567,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":\"calendar\",\"kind\":null}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":\"calendar\",\"kind\":null}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}"
     ]
   },

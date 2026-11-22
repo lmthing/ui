@@ -869,10 +869,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
+    "reply": "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":null,\"days\":null}",
     "replies": [
-      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
-      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":null,\"days\":30}",
+      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":null,\"days\":null}",
+      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":null,\"days\":null}",
       "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":null,\"days\":30}"
     ]
   },
@@ -1013,11 +1013,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":null,\"days\":30}",
+    "reply": "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"bad\"}],\"selected\":null,\"start\":null,\"days\":null}",
     "replies": [
-      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":null,\"days\":30}",
-      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":1,\"days\":30}",
-      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":1,\"days\":30}"
+      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"bad\"}],\"selected\":null,\"start\":null,\"days\":null}",
+      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":null,\"days\":null}",
+      "{\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":12,\"tone\":\"warn\"}],\"selected\":null,\"start\":null,\"days\":null}"
     ]
   },
   "dba15006f312d55c": {

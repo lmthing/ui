@@ -559,9 +559,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":null,\"style\":null}",
+    "reply": "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":false,\"style\":null}",
     "replies": [
-      "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":null,\"style\":null}",
+      "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":false,\"style\":null}",
       "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":false,\"style\":null}",
       "{\"c\":\"FileList\",\"density\":null,\"detail\":\"brief\",\"files\":[{\"fileRef\":\"demo_intake\",\"name\":\"Intake.pdf\",\"ext\":\"pdf\",\"sizeBytes\":120000,\"pages\":3,\"status\":\"ready\",\"goto\":null}],\"removable\":null,\"style\":null}"
     ]

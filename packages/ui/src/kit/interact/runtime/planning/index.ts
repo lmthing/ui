@@ -21,6 +21,7 @@ import {
 } from "./introduced-part";
 import { prepareStep, type PreparedAction } from "./prepare-step";
 import { runHostCommand } from "./host-command";
+import { holdFailure } from "../hold";
 export { driveAccess, inactive } from "./introduced-part";
 
 function runControl({ state, context, localEvent }: PreparedAction, selected: ActStep, address: string) {
@@ -49,6 +50,8 @@ function stepRunner(
     const selected = markToken ? original : { ...original, address: ctx.relative(original.address) };
     if (!markToken && ctx.privateMarks.has(selected.address))
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
+    const hold = !confirmed && holdFailure(ctx, selected.address, selected.action, at, ctx.hold.approval);
+    if (hold) return { state: before, effects: [], error: hold };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     if (prepared.host && !markToken)

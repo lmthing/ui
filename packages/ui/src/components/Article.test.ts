@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { components, createRegistry, packReady, placeholderTitle, wordsFor } from "@lmthing/ui/catalog";
+import { components, createRegistry, placeholderTitle, wordsFor } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
-import { visibleTexts } from "../../../../../test/variants";
+import { addressedElements, renderInstance, styleAt } from "../../test/render";
+import { visibleTexts } from "../../test/variants";
 
 const { props, meta, examples, fallback, probes } = components.Article;
 const sample = examples[0]!;
@@ -41,6 +41,7 @@ describe("Article schema and boundaries", () => {
     { by: "" }, { by: "b".repeat(33) }, { date: "2026-02-29" },
     { photo: "https://example.org/cover.png" }, { detail: "article" }, { density: "tiny" },
     { links: [{ title: "Open", goto: "there" }] }, { reading_time: 3 }, { color: "red" },
+    { style: "page" }, { paper: "#ffffff" }, { fontScale: 2 },
   ])("rejects invalid wire props: %j", (patch) => {
     expect(props.safeParse({ ...sample, ...patch }).success).toBe(false);
   });
@@ -69,12 +70,12 @@ describe("Article fallback and contract", () => {
     expect(props.parse(fallback({ cast }))).toMatchObject({ title: "t".repeat(80), body: "d".repeat(2000) });
   });
 
-  it("preserves the phone tier, pack gate and choose/write/read probes", () => {
-    expect(meta).toMatchObject({ status: "ready", tier: "phone", region: "body", weight: 2 });
+  it("preserves the phone tier, core registration and choose/write/read probes", () => {
+    expect(meta).toMatchObject({ tier: "phone", region: "body", weight: 2 });
     expect(meta).not.toHaveProperty("confirmParts");
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(createRegistry({ packs: ["media"] }).ids.includes(meta.id)).toBe(packReady("media"));
+    expect(createRegistry().ids).toContain(meta.id);
     expect(probes.filter(({ kind }) => kind === "choose").map(({ expect: id }) => id)).toEqual([
       "Article",
       "Note",
@@ -119,6 +120,49 @@ describe("Article states and parts", () => {
     expect(html).not.toContain('role="link"');
     expect(visibleTexts(html)).toEqual([]);
   });
+});
+
+it.each(["comfortable", "compact"] as const)("scales prose on fixed papers at %s density", (density) => {
+  const sizes = ["small", "normal", "large"] as const;
+  const papers = ["light", "sepia", "dark"] as const;
+  const swatches = ["white", "beige", "black"] as const;
+  const fonts = sizes.map((fontScale, index) => {
+    const html = renderInstance(
+      "Article",
+      { ...sample, paper: papers[index], fontScale, density },
+      "filled",
+      theme,
+    );
+    const parts = addressedElements(html);
+    expect(parts.get(`${prefix}/root`)?.attributes).toContain(`kit-swatch-${swatches[index]}`);
+    expect(parts.get(`${prefix}/r1/root`)?.attributes).toContain('role="link"');
+    return Number(/font-size:(\d+)px/.exec(styleAt(html, parts.get(`${prefix}/r1/root`)!))?.[1]);
+  });
+  expect(fonts[0]).toBeLessThan(fonts[1]!);
+  expect(fonts[1]).toBeLessThan(fonts[2]!);
+});
+
+it("preserves a callout and places response attribution after its body", () => {
+  const input = {
+    title: "Answer",
+    style: "response",
+    by: "Noor",
+    body: "A long answer.\n\n> [!NOTE] Do not overwater.",
+  };
+  const html = renderInstance("Article", input, "filled", theme);
+  expect(visibleTexts(html)).toEqual([
+    "Answer",
+    "1 min read",
+    "A long answer.",
+    "Note: Do not overwater.",
+    "By Noor",
+  ]);
+  const screen = { id: "home", components: [{ ...input, id: "c1", c: "Article" }] };
+  const runtime = createScreenController({ screen, defs: components });
+  expect(runtime.read()).toContain(
+    "Answer — 1 min read — A long answer. — Note: Do not overwater. — By Noor",
+  );
+  runtime.dispose();
 });
 
 describe("Article read and act", () => {

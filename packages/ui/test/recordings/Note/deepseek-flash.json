@@ -2783,11 +2783,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Note\",\"density\":null,\"emphasis\":\"quiet\",\"media\":\"none\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
+    "reply": "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
     "replies": [
-      "{\"c\":\"Note\",\"density\":null,\"emphasis\":\"quiet\",\"media\":\"none\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
-      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}",
-      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":null}"
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"info\"}",
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}"
     ]
   },
   "Note%2Fwrite%2FAdd%20a%20supporting%20line%3A%20Ferns%20prefer%20indirect%20light.%20Save%20the%20sun%20icon%20with%20it%2C%20but%20show%20the%20sentence%20without%20the%20icon./958c798e222ac12d/0482eda5c396d876": {

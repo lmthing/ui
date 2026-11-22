@@ -2986,9 +2986,9 @@
   },
   "Success%2Fread%2FUndo%20the%20cancellation/33a46208f27ce7df/ae5a1fada097758e": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Success[toast] Undo — \"Walk cancelled\" [s1/close dismiss] [s1/undo press]\n\nTask: Undo the cancellation\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"s1\", \"action\": \"press\"}",
+    "reply": "{\"address\": \"s1/undo\", \"action\": \"press\"}",
     "replies": [
-      "{\"address\": \"s1\", \"action\": \"press\"}",
+      "{\"address\": \"s1/undo\", \"action\": \"press\"}",
       "{\"address\": \"s1/undo\", \"action\": \"press\"}",
       "{\"address\": \"s1/undo\", \"action\": \"press\"}"
     ]
@@ -3239,9 +3239,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
+    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":\"circle_check\",\"undo\":true}",
     "replies": [
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":\"circle_check\",\"undo\":true}",
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}"
     ]
@@ -3745,11 +3745,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Clover’s walk booked\",\"sub\":\"Dog: Clover · Tomorrow 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
+    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Clover, tomorrow 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
     "replies": [
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Clover’s walk booked\",\"sub\":\"Dog: Clover · Tomorrow 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Dog · Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Clover's walk booked\",\"sub\":\"Clover · 09:00\",\"icon\":\"circle_check\",\"undo\":null}"
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Clover, tomorrow 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\",\"undo\":null}",
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Clover's walk booked\",\"sub\":\"Dog walk · Tomorrow, 09:00\",\"icon\":\"circle_check\",\"undo\":null}"
     ]
   }
 }

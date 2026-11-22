@@ -2031,8 +2031,8 @@
     "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
     "replies": [
       "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
-      "{\"c\":\"Button\",\"surface\":\"plain\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
-      "{\"c\":\"Button\",\"surface\":\"plain\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}"
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}"
     ]
   },
   "Button%2Fwrite%2FKeep%20the%20normal%20filled%20Log%20watering%20button.%20Store%20its%20water%20drop%20icon%20but%20hide%20the%20icon./9affefc85750c7a3/0299be0733476d03": {
@@ -2562,11 +2562,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Book dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}",
+    "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":\"danger\",\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":\"Book this dog walk?\"}",
     "replies": [
-      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Book dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}",
-      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}",
-      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}"
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":\"danger\",\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":\"Book this dog walk?\"}",
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}",
+      "{\"c\":\"Button\",\"surface\":\"plain\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}"
     ]
   },
   "c0a1ddff13a3e99d": {

@@ -588,7 +588,7 @@
     "reply": "{\"c\":\"Segmented\",\"surface\":null,\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}",
     "replies": [
       "{\"c\":\"Segmented\",\"surface\":null,\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}",
-      "{\"c\":\"Segmented\",\"surface\":null,\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}",
+      "{\"c\":\"Segmented\",\"surface\":\"plain\",\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}",
       "{\"c\":\"Segmented\",\"surface\":null,\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}"
     ]
   }
