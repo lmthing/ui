@@ -14,6 +14,10 @@ type Workout = {
   rest: number;
   elapsed?: number | undefined;
   detail?: "full" | "brief";
+  style?: "sets" | "interval";
+  interval?: keyof ReturnType<typeof healthWordsFor>["workout"]["interval"] | undefined;
+  rpe?: number | undefined;
+  note?: string | undefined;
 };
 
 export function hasWorkoutSetFields({ seconds, weight, reps }: Pick<Set, "seconds" | "weight" | "reps">) {
@@ -42,22 +46,33 @@ export function workoutSetTimes(set: Set, lang?: string): [part: "duration" | "r
   return times;
 }
 
-export function workoutSetLabel(position: number, seconds?: number, lang?: string) {
+export function workoutSetLabel(position: number, seconds?: number, lang?: string, interval = false) {
   const words = healthWordsFor(lang).workout;
-  const label = words.set(numberLine(position, lang));
+  const label = (interval ? words.round : words.set)(numberLine(position, lang));
   return seconds === undefined ? label : words.timedSet(label, clockLine(seconds, lang));
+}
+
+export function workoutSummary(input: Pick<Workout, "interval" | "rpe" | "note">, lang?: string) {
+  const words = healthWordsFor(lang).workout;
+  return {
+    interval: input.interval === undefined ? undefined : words.interval[input.interval],
+    rpe: input.rpe === undefined ? undefined : words.rpeScore(numberLine(input.rpe, lang)),
+    note: input.note,
+  };
 }
 
 export function workoutReading(input: Workout, lang?: string): string[] {
   const words = healthWordsFor(lang).workout;
   const weightLabel = words.weight(words.units[input.unit]);
+  const { interval, rpe, note } = workoutSummary(input, lang);
   return [
+    ...[interval, rpe && words.rpe(rpe), note].filter((line) => line !== undefined),
     ...(input.detail === "brief" ? [] : [words.timeLine(clockLine(input.elapsed ?? 0, lang))]),
     ...input.exercises.flatMap(({ name, sets }) =>
       sets.map((set, at) =>
         words.reading([
           name,
-          workoutSetLabel(at + 1, set.seconds, lang),
+          workoutSetLabel(at + 1, set.seconds, lang, input.style === "interval"),
           ...(hasWorkoutSetFields(set)
             ? [
                 words.field(weightLabel, set.weight === undefined ? undefined : numberLine(set.weight, lang)),

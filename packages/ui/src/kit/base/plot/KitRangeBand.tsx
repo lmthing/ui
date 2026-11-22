@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { isWeb, YStack, XStack } from "tamagui";
-import { component, radius, space, type as typography } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitIcon, KitText } from "../text";
 import { PlotLabel } from "./PlotParts";
@@ -101,6 +101,7 @@ function BandReading({ reading, loading }: { reading: ReactNode; loading: boolea
         <YStack
           position="absolute"
           width="100%"
+          maxWidth={size.control.md * 2}
           top={(typography.number.lineHeight - typography.number.size * 0.6) / 2}
           height={typography.number.size * 0.6}
           backgroundColor="$line"
@@ -145,9 +146,9 @@ export function KitRangeBand({
                 <PlotLabel label={props.label} tone="muted" loading={loading} />
               </YStack>
             </XStack>
-          ) : (
+          ) : reading !== null ? (
             <BandReading reading={reading} loading={loading} />
-          )}
+          ) : null}
           <RangeDrawing {...props} tone={tone} loading={loading} />
         </>
       )}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { affordancesOf, components, readComponent } from "@lmthing/ui/catalog";
 import { queueLabels } from "../copy";
-import { renderInstance } from "../../../../test/render";
+import { addressedElements, renderInstance } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Waitlist;
 it("keeps distinct exact boundary counts in accessibility labels and the agent reading", () => {
@@ -63,6 +63,8 @@ describe("Waitlist probes and actions", () => {
     expect(html).toContain(`home/c1/${part}`);
     expect(html).not.toContain(`home/c1/${joined ? "join" : "leave"}`);
     expect(html.includes("home/c1/position")).toBe(joined);
+    const title = addressedElements(html).get("home/c1/title")?.text.join("");
+    expect(title?.replaceAll("&#x27;", "'")).toBe(joined ? queueLabels.joined : "Waitlist");
     expect(readComponent(components.Waitlist, input, "w1").join("\n")).toContain(
       joined ? queueLabels.leave : queueLabels.join,
     );

@@ -8,5 +8,6 @@ A digital membership card, coupon, insurance ID or transit fare pass with a code
 
 ## Writer
 
-- Use style "coupon" for a voucher with an expiry, "code" for a centered QR-only presentation, or "transit" for a fare pass; otherwise use style null for a membership card. If a code is supplied, copy the exact value and use codeKind "qr". Never invent issuer credentials, member IDs, balances, or codes.
+- Use style "coupon" for a voucher with an expiry, "code" for a centered scannable code, or "transit" for a fare pass; otherwise use style null for a membership card. Copy an explicitly supplied code exactly and use codeKind "barcode" for a requested 1D barcode (up to 10 printable ASCII characters or up to 20 digits in complete pairs), otherwise "qr". Never invent issuer credentials, member IDs, balances, or codes.
+- Use bright true only when asked for a bright or enlarged scanner view for a supplied code. This adds a local toggle and does not turn on brightness by default; use null otherwise.
 - Use detail "brief" only if asked to hide the summary facts; keep the supplied facts in the data. Use null for unrequested axes and [] when there are no summary facts.

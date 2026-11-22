@@ -30,11 +30,40 @@ function DeviceText({ children, ...props }: ComponentProps<typeof KitText> & { c
     <KitText {...props} role={role} children={children} />
   );
 }
-// prettier-ignore
+type SetPointStepsProps = { value: number; disabled: boolean; decrease: string; increase: string };
+
+function SetPointSteps({ value, disabled, decrease, increase }: SetPointStepsProps) {
+  const { min, max } = home.thermostatBounds;
+  return (
+    <kit.KitGrid>
+      <KitAction
+        part="minus"
+        action="decrement"
+        icon="minus"
+        a11y={decrease}
+        kind="secondary"
+        full
+        disabled={disabled || value <= min}
+      />
+      <KitAction
+        part="plus"
+        action="increment"
+        icon="plus"
+        a11y={increase}
+        kind="secondary"
+        full
+        disabled={disabled || value >= max}
+      />
+    </kit.KitGrid>
+  );
+}
+
 function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactNode }) {
   const { lang, words } = useWords(homeWordsFor);
   const { min, max } = home.thermostatBounds;
-  const value = row.temp!, coolTemp = row.coolTemp, hasCooling = coolTemp !== undefined;
+  const value = row.temp!;
+  const coolTemp = row.coolTemp;
+  const hasCooling = coolTemp !== undefined;
   const step = meta.items.adjust["plus.increment"].delta;
   const { decrease, increase } = hasCooling ? words.thermostat : words.devicePanel;
   const { setPoint, mode, heatingCaption, coolingCaption } = thermostatCopy(row, lang);
@@ -42,7 +71,12 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
   const target = (
     <kit.KitContent>
       <DeviceText role="label" tone="muted" part={null} children={measure(heatingCaption)} />
-      <DeviceText role="number" numberScale={focused ? "display" : "compact"} part={null} children={numberLine(value, lang)} />
+      <DeviceText
+        role="number"
+        numberScale={focused ? "display" : "compact"}
+        part={null}
+        children={numberLine(value, lang)}
+      />
     </kit.KitContent>
   );
   return (
@@ -54,20 +88,25 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
         {hasCooling && (
           <kit.KitContent>
             <DeviceText role="label" tone="muted" part={null} children={measure(coolingCaption)} />
-            <DeviceText role="number" numberScale="compact" part="cool_temp" children={numberLine(coolTemp, lang)} />
+            <DeviceText
+              role="number"
+              numberScale="compact"
+              part="cool_temp"
+              children={numberLine(coolTemp, lang)}
+            />
           </kit.KitContent>
         )}
       </kit.KitGrid>
-      {hasCooling && <kit.KitContent group="response"><DeviceText role="label" part={null} children={words.thermostat.adjustHeat} /></kit.KitContent>}
+      {hasCooling && (
+        <kit.KitContent group="response">
+          <DeviceText role="label" part={null} children={words.thermostat.adjustHeat} />
+        </kit.KitContent>
+      )}
       <kit.KitSlider part="temp" label={setPoint} {...{ min, max, step, value, disabled }} />
-      <kit.KitGrid>
-        <KitAction part="minus" action="decrement" icon="minus" a11y={decrease} kind="secondary" full disabled={disabled || value <= min} />
-        <KitAction part="plus" action="increment" icon="plus" a11y={increase} kind="secondary" full disabled={disabled || value >= max} />
-      </kit.KitGrid>
+      <SetPointSteps {...{ value, disabled, decrease, increase }} />
     </kit.KitContent>
   );
 }
-// prettier-ignore
 function Reading({ row, focused }: Pick<Tile, "row" | "focused">) {
   const { lang, words } = useWords(homeWordsFor);
   const loading = kit.useComponentState() === "loading";
@@ -83,13 +122,16 @@ function Reading({ row, focused }: Pick<Tile, "row" | "focused">) {
   return (
     <kit.KitContent>
       <DeviceText role="label" tone="muted" part={null} children={caption} />
-      {range ? <kit.KitRangeBand {...range} part="reading" reading={content} {...{ tone, loading }} /> : content}
+      {range ? (
+        <kit.KitRangeBand {...range} part="reading" reading={content} {...{ tone, loading }} />
+      ) : (
+        content
+      )}
       {range && <DeviceText role="label" tone="muted" part={null} children={range.label} />}
       {range?.status && !loading && <KitText role="label" part={null} tone="warn" children={range.status} />}
     </kit.KitContent>
   );
 }
-// prettier-ignore
 function DeviceTile({ row, disabled, focused, group }: DeviceTileProps) {
   const { words } = useWords(homeWordsFor);
   const { deviceLabels: labels, devicePanel: panel } = words;
@@ -105,13 +147,21 @@ function DeviceTile({ row, disabled, focused, group }: DeviceTileProps) {
   const link = { goto: row.goto, disabled };
   const details = row.goto && <KitAction part="controls" kind="quiet" label={panel.controls} {...link} />;
   const reading = row.reading !== undefined && <Reading {...{ row, focused }} />;
-  const simpleSwitch = row.switchable && !focused && !details && !reading && level === undefined && row.temp === undefined;
+  const simpleSwitch =
+    row.switchable && !focused && !details && !reading && level === undefined && row.temp === undefined;
   return (
-    <kit.KitRow item={row.id} part={row.switchable ? null : "root"} label={row.name} density={simpleSwitch ? "compact" : undefined}>
+    <kit.KitRow
+      item={row.id}
+      part={row.switchable ? null : "root"}
+      label={row.name}
+      density={simpleSwitch ? "compact" : undefined}
+    >
       <kit.KitContent>
         {focused && (group === "sections" || details) && (
           <kit.KitGrid arrange={details && group === "sections" ? "grid" : "rows"} fitLast>
-            {group === "sections" && <DeviceText role="label" density="compact" tone="muted" part="room" children={row.room} />}
+            {group === "sections" && (
+              <DeviceText role="label" density="compact" tone="muted" part="room" children={row.room} />
+            )}
             {details}
           </kit.KitGrid>
         )}
@@ -136,19 +186,21 @@ function DeviceTile({ row, disabled, focused, group }: DeviceTileProps) {
     </kit.KitRow>
   );
 }
-// prettier-ignore
-export function Devices({ entries, focus, style, rooms, group }: DevicePanel) {
-  const state = kit.useComponentState();
-  const scope = kit.usePartContext(), panel = useWords(homeWordsFor).words.devicePanel;
-  const devices = entries.filter((row) => row.entryKind === "device");
-  const scenes = entries.filter((row) => row.entryKind === "scene");
-  const focused = style === "focused" ? focusedDevice(devices, focus) : undefined;
-  const disabled = state !== "filled";
+type Scene = Extract<DevicePanel["entries"][number], { entryKind: "scene" }>;
+
+function SavedScenes({
+  scenes,
+  disabled,
+  focused,
+}: {
+  scenes: Scene[];
+  disabled: boolean;
+  focused: boolean;
+}) {
+  const panel = useWords(homeWordsFor).words.devicePanel;
   const kind = focused ? "secondary" : "quiet";
   const multi = scenes.length > 1;
-  const tile = (row: Device) => <DeviceTile key={row.id} {...{ row, disabled, group }} focused={row === focused} />;
-  if (state === "empty") return <kit.KitCard children={<kit.KitEmpty decorativeIcon />} />;
-  const saved = scenes.length > 0 && (
+  return (
     <kit.KitContent group={focused ? "response" : "content"}>
       <DeviceText role="label" tone="muted" part={null} children={panel.scenes} />
       <kit.KitGrid arrange={multi ? "grid" : "rows"}>
@@ -167,9 +219,25 @@ export function Devices({ entries, focus, style, rooms, group }: DevicePanel) {
       </kit.KitGrid>
     </kit.KitContent>
   );
+}
+
+export function Devices({ entries, focus, style, rooms, group }: DevicePanel) {
+  const state = kit.useComponentState();
+  const scope = kit.usePartContext();
+  const panel = useWords(homeWordsFor).words.devicePanel;
+  const devices = entries.filter((row) => row.entryKind === "device");
+  const scenes = entries.filter((row) => row.entryKind === "scene");
+  const focused = style === "focused" ? focusedDevice(devices, focus) : undefined;
+  const disabled = state !== "filled";
+  const tile = (row: Device) => (
+    <DeviceTile key={row.id} {...{ row, disabled, group }} focused={row === focused} />
+  );
+  if (state === "empty") return <kit.KitCard children={<kit.KitEmpty decorativeIcon />} />;
+  const saved = scenes.length > 0 && <SavedScenes {...{ scenes, disabled }} focused={!!focused} />;
   const remaining = devices.filter((row) => row !== focused);
-  const tiles = (rows: Device[], arrange: "rows" | "grid") =>
-    <kit.KitGrid list listRowGap="cards" {...{ arrange }} children={rows.map(tile)} />;
+  const tiles = (rows: Device[], arrange: "rows" | "grid") => (
+    <kit.KitGrid list listRowGap="cards" {...{ arrange }} children={rows.map(tile)} />
+  );
   const roomOrder = new Set([...(focused ? [focused.roomIndex] : []), ...rooms.keys()]);
   return (
     <kit.KitCard style="plain" part="root" padded inset="none">
@@ -178,21 +246,23 @@ export function Devices({ entries, focus, style, rooms, group }: DevicePanel) {
         <KitText role="body" part={null} tone={state === "error" ? "bad" : "good"} children={panel[state]} />
       )}
       {focused ? tile(focused) : saved}
-      {group === "none" ? remaining.length > 0 && <kit.KitContent group="response">{tiles(remaining, "rows")}</kit.KitContent> : [...roomOrder].map((index) => {
-        const rows = remaining.filter((row) => row.roomIndex === index);
-        if (!rows.length) return null;
-        const arrange = rows.some((row) => row.switchable) ? "rows" : "grid";
-        return (
-          <kit.KitContent key={index} group="response">
-            {focused?.roomIndex !== index && (
-              <kit.PartContext.Provider value={{ ...scope, item: rows[0]!.id }}>
-                <DeviceText role="heading" part="room" children={rooms[index]!.label} />
-              </kit.PartContext.Provider>
-            )}
-            {tiles(rows, arrange)}
-          </kit.KitContent>
-        );
-      })}
+      {group === "none"
+        ? remaining.length > 0 && <kit.KitContent group="response">{tiles(remaining, "rows")}</kit.KitContent>
+        : [...roomOrder].map((index) => {
+            const rows = remaining.filter((row) => row.roomIndex === index);
+            if (!rows.length) return null;
+            const arrange = rows.some((row) => row.switchable) ? "rows" : "grid";
+            return (
+              <kit.KitContent key={index} group="response">
+                {focused?.roomIndex !== index && (
+                  <kit.PartContext.Provider value={{ ...scope, item: rows[0]!.id }}>
+                    <DeviceText role="heading" part="room" children={rooms[index]!.label} />
+                  </kit.PartContext.Provider>
+                )}
+                {tiles(rows, arrange)}
+              </kit.KitContent>
+            );
+          })}
       {focused && saved}
     </kit.KitCard>
   );

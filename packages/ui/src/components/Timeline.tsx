@@ -121,7 +121,6 @@ const careHours = [
 ];
 const dayWalks = sampleWalks.map((walk, index) => (index === 0 ? { ...walk, title: "Park walk" } : walk));
 
-// prettier-ignore
 export const examples = [
   {
     style: "history",
@@ -134,7 +133,8 @@ export const examples = [
   { style: "hours", items: careHours },
   { items: dayWalks },
   ...(["good", "warn", "bad"] as const).map((tone) => ({
-    style: "hours" as const, items: careHours.map((item, index) => index === 0 ? { ...item, tone } : item),
+    style: "hours" as const,
+    items: careHours.map((item, index) => (index === 0 ? { ...item, tone } : item)),
   })),
 ] satisfies z.input<typeof props>[];
 
@@ -178,16 +178,30 @@ function TimelineEvents({ items, density }: Pick<TimelineProps, "items"> & { den
   return <TimelineFlow groups={[group]} density={density} />;
 }
 
-// prettier-ignore
 export function Timeline({ style, items }: TimelineProps) {
   const state = useComponentState();
   const density = useKit().density;
   const hours = style === "hours";
-  return <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
-    {state === "loading" ? <KitSkeleton rows={items.length} lead="time" items={items} density={density} /> :
-      state === "empty" ? <KitEmpty part="title" /> :
-      hours ? <KitHours blocks={items.map(({ id, time, end, title, tone, goto }) => ({
-        id, start: time, end: end!, title, tone, ...(goto ? { goto } : {}),
-      }))} /> : <TimelineEvents {...{ items, density }} />}
-  </KitCard>;
+  return (
+    <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
+      {state === "loading" ? (
+        <KitSkeleton rows={items.length} lead="time" items={items} density={density} />
+      ) : state === "empty" ? (
+        <KitEmpty part="title" />
+      ) : hours ? (
+        <KitHours
+          blocks={items.map(({ id, time, end, title, tone, goto }) => ({
+            id,
+            start: time,
+            end: end!,
+            title,
+            tone,
+            ...(goto ? { goto } : {}),
+          }))}
+        />
+      ) : (
+        <TimelineEvents {...{ items, density }} />
+      )}
+    </KitCard>
+  );
 }

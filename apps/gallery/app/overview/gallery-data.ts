@@ -10,7 +10,14 @@ import {
 export const modes = ["light", "dark"] as const;
 export const groups = ["structure", "content", "data", "input", "action", "beyond", "escape"] as const;
 export type GalleryGroup = { kind: "core" | "pack"; group: string };
-export type Cell = { id: ComponentName; example: unknown; index: number; state: StateName; drawn?: true };
+export type Cell = {
+  id: ComponentName;
+  example: unknown;
+  index: number;
+  state: StateName;
+  drawn?: true;
+  scanner?: true;
+};
 export const componentIds = (Object.keys(components) as ComponentName[]).sort();
 
 export function screenPresets(ids: readonly string[]) {
@@ -30,11 +37,17 @@ export function cellsOf(id: ComponentName): Cell[] {
     ...(meta.draw && meta.status !== "draft"
       ? filled.map((cell) => ({ ...cell, drawn: true as const }))
       : []),
+    ...(meta.actions?.scannerBrightness?.length
+      ? filled
+          .filter(({ example }) => (example as { bright?: boolean }).bright === true)
+          .map((cell) => ({ ...cell, scanner: true as const }))
+      : []),
   ];
 }
 
-export const cellKey = (cell: Cell) => `${cell.index}_${cell.drawn ? "drawn" : cell.state}`;
-export const cellLabel = (cell: Cell) => `${cell.drawn ? "drawn" : cell.state} ${cell.index + 1}`;
+const cellState = (cell: Cell) => (cell.scanner ? "scanner" : cell.drawn ? "drawn" : cell.state);
+export const cellKey = (cell: Cell) => `${cell.index}_${cellState(cell)}`;
+export const cellLabel = (cell: Cell) => `${cellState(cell)} ${cell.index + 1}`;
 
 export function variantCount(id: ComponentName): number {
   return cellsOf(id).length * presets.length * modes.length;

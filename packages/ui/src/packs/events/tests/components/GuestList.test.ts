@@ -24,11 +24,12 @@ const render = (input = waiting, state: StateName = "filled") =>
   renderInstance("GuestList", input, state, theme, { component: "g1" });
 const read = (input = waiting, state: StateName = "filled") =>
   readComponent(GuestList, input, "g1", state).join("\n");
-const mount = (input = waiting, state: StateName = "filled", onAction = vi.fn()) =>
+const mount = (input = waiting, state: StateName = "filled", onAction = vi.fn(), onLink = vi.fn()) =>
   createScreenController({
     screen: { id: "home", components: [{ id: "g1", c: "GuestList", state, ...input }] },
     defs: { GuestList },
     onAction,
+    onLink,
   });
 
 describe("GuestList contract and fallback", () => {
@@ -122,5 +123,47 @@ describe("GuestList states, parts and actions", () => {
     expect(read(answered)).not.toContain("g1/remind");
     expect(addressedElements(render(answered)).has(address("remind"))).toBe(false);
     expect(mount(answered).press("g1/remind").ok).toBe(false);
+  });
+});
+
+describe("GuestList host decisions", () => {
+  it("counts new statuses and exposes decisions only for the pending RSVP", () => {
+    const html = render(answered);
+    const parts = addressedElements(html);
+    expect(parts.has(address("r3/status"))).toBe(true);
+    expect(parts.has(address("r4/status"))).toBe(true);
+    expect(html).toContain(">Pending approval<");
+    expect(html).toContain(">Waitlisted<");
+    expect(parts.has(address("r3/approve"))).toBe(true);
+    expect(parts.has(address("r3/decline"))).toBe(true);
+    expect(read(answered)).toContain("1 Pending approval");
+    expect(read(answered)).toContain("1 Waitlisted");
+    expect(read(answered)).toContain("[g1/r3/approve press !needs-people]");
+    for (const row of ["r1", "r2", "r4"])
+      for (const verb of ["approve", "decline"]) {
+        expect(parts.has(address(`${row}/${verb}`))).toBe(false);
+        expect(mount(answered).press(`g1/${row}/${verb}`).ok).toBe(false);
+      }
+    expect(addressedElements(render(answered, "loading")).has(address("r3/approve"))).toBe(false);
+    expect(mount(answered, "loading").press("g1/r3/approve").ok).toBe(false);
+  });
+  it("dispatches approval immediately and only dispatches decline after confirmation", () => {
+    const onAction = vi.fn(),
+      onLink = vi.fn();
+    const controller = mount(answered, "filled", onAction, onLink);
+    expect(controller.press("g1/r3/approve").ok).toBe(true);
+    expect(onAction).toHaveBeenCalledWith({ address: address("r3/approve"), action: "press" });
+    onAction.mockClear();
+    expect(controller.press("g1/r3/decline").ok).toBe(true);
+    expect(controller.confirmation?.source).toBe(address("r3/decline"));
+    expect(onAction).not.toHaveBeenCalled();
+    expect(controller.press("confirm/cancel").ok).toBe(true);
+    expect(onAction).not.toHaveBeenCalled();
+    expect(controller.press("g1/r3/decline").ok).toBe(true);
+    expect(controller.press("confirm/confirm").ok).toBe(true);
+    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: address("r3/decline"), action: "press" });
+    expect(onLink).not.toHaveBeenCalled();
+    expect(controller.press("g1/r3").ok).toBe(true);
+    expect(onLink).toHaveBeenCalledExactlyOnceWith("lee", address("r3"));
   });
 });

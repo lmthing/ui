@@ -52,6 +52,20 @@ function weekRows(days: readonly Column[], rows: readonly MatrixRow[]) {
   }));
 }
 
+function totalsRow(rows: readonly MatrixRow[], trailing: NonNullable<WeekMatrixProps["trailing"]>) {
+  return {
+    id: "trailing",
+    label: "",
+    heading: null,
+    cells: rows.map((row) => ({
+      id: `${row.id}/trailing`,
+      content: (
+        <WeekContent item={row.id}>{trailing.find((entry) => entry.row === row.id)?.content}</WeekContent>
+      ),
+    })),
+  };
+}
+
 /** A seven-day table. Days-down transposes caller headings and cells without recomputing values. */
 export function KitWeekMatrix({
   orientation = "daysAcross",
@@ -74,7 +88,15 @@ export function KitWeekMatrix({
   }));
   const columns = [...props.days, ...(totals ? [{ id: "trailing", label: "", header: null }] : [])];
   if (orientation === "daysAcross")
-    return <KitTable {...props} columns={columns} rows={rows} {...(today ? { activeColumn: today } : {})} />;
+    return (
+      <KitTable
+        {...props}
+        contentWidth
+        columns={columns}
+        rows={rows}
+        {...(today ? { activeColumn: today } : {})}
+      />
+    );
   const transposed = transposeWeek(props.days, source);
   return (
     <MatrixSelectionContext.Provider value={props.rows.filter((row) => row.selected).map((row) => row.id)}>
@@ -87,23 +109,7 @@ export function KitWeekMatrix({
         )}
         rows={[
           ...(source.length ? transposed.rows.map((row) => ({ ...row, selected: row.id === today })) : []),
-          ...(totals
-            ? [
-                {
-                  id: "trailing",
-                  label: "",
-                  heading: null,
-                  cells: props.rows.map((row) => ({
-                    id: `${row.id}/trailing`,
-                    content: (
-                      <WeekContent item={row.id}>
-                        {trailing!.find((entry) => entry.row === row.id)?.content}
-                      </WeekContent>
-                    ),
-                  })),
-                },
-              ]
-            : []),
+          ...(totals ? [totalsRow(props.rows, trailing!)] : []),
         ]}
       />
     </MatrixSelectionContext.Provider>

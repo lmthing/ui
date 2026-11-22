@@ -112,40 +112,67 @@ const icons = {
   other: "file_text",
 } as const;
 
-// prettier-ignore
-function DocumentRow({ doc, tripEnds, density, detail }: Pick<TravelDocsProps, "tripEnds" | "detail"> & { density: ThemeDensity } & {
+function DocumentRow({
+  doc,
+  tripEnds,
+  density,
+  detail,
+}: Pick<TravelDocsProps, "tripEnds" | "detail"> & { density: ThemeDensity } & {
   doc: TravelDocsProps["docs"][number];
 }) {
-  const { lang, words: { travelDocs: words } } = kit.useWords(tripsWordsFor);
+  const {
+    lang,
+    words: { travelDocs: words },
+  } = kit.useWords(tripsWordsFor);
   const { kind, number, expires, warning } = travelDocLines(doc, tripEnds, lang);
-  return <kit.KitRow item={doc.id} role="button" label={words.open(kind, doc.who)} density={density}
-    leading={<kit.KitIcon name={icons[doc.kind]} decorative />}
-    trailing={<kit.KitTrail kind="chevron" part="trail" />}>
-    <kit.KitMetaLine density={density} title={{ text: kind, part: "kind" }} meta={[
-      { text: doc.who, part: "who", role: "body" },
-      ...(detail === "full" ? [{ text: number, part: "number", role: "caption" } as const] : []),
-      { text: expires, part: "expires", role: "caption", tone: "text" },
-      ...(warning ? [{ text: warning.label, part: "warning", role: "caption", tone: warning.tone } as const] : []),
-    ]} />
-  </kit.KitRow>;
+  return (
+    <kit.KitRow
+      item={doc.id}
+      role="button"
+      label={words.open(kind, doc.who)}
+      density={density}
+      leading={<kit.KitIcon name={icons[doc.kind]} decorative />}
+      trailing={<kit.KitTrail kind="chevron" part="trail" />}
+    >
+      <kit.KitMetaLine
+        density={density}
+        title={{ text: kind, part: "kind" }}
+        meta={[
+          { text: doc.who, part: "who", role: "body" },
+          ...(detail === "full" ? [{ text: number, part: "number", role: "caption" } as const] : []),
+          { text: expires, part: "expires", role: "caption", tone: "text" },
+          ...(warning
+            ? [{ text: warning.label, part: "warning", role: "caption", tone: warning.tone } as const]
+            : []),
+        ]}
+      />
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function TravelDocs(input: TravelDocsProps) {
-  const { docs, tripEnds, detail  } = input;
+  const { docs, tripEnds, detail } = input;
   const surface = "card";
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(tripsWordsFor);
   const density = kit.useKit().density;
   const trip = travelDocsTripEnd(tripEnds, lang);
-  return <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"} inset="none">
-    <kit.KitState icon="file_text" part="empty" message={words.travelDocs.empty} density={density}>
-      {trip && <kit.KitContent inset="md" density={density}>
-        <kit.KitText part="trip_ends" role="caption" tone="muted" density={density}>{trip}</kit.KitText>
-      </kit.KitContent>}
-      <kit.KitRowGroup density={density}>
-        {docs.map((doc) => <DocumentRow key={doc.id} {...{ doc, tripEnds, detail, density }} />)}
-      </kit.KitRowGroup>
-    </kit.KitState>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"} inset="none">
+      <kit.KitState icon="file_text" part="empty" message={words.travelDocs.empty} density={density}>
+        {trip && (
+          <kit.KitContent inset="md" density={density}>
+            <kit.KitText part="trip_ends" role="caption" tone="muted" density={density}>
+              {trip}
+            </kit.KitText>
+          </kit.KitContent>
+        )}
+        <kit.KitRowGroup density={density}>
+          {docs.map((doc) => (
+            <DocumentRow key={doc.id} {...{ doc, tripEnds, detail, density }} />
+          ))}
+        </kit.KitRowGroup>
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

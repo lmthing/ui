@@ -32,7 +32,7 @@ const casts: CastLike[] = [
 ];
 const layouts = {
   today: ["rings", "meds"],
-  workout: ["log", "exercise", "history"],
+  workout: ["log", "cardio", "plan", "exercise", "history"],
   body_trends: ["measure", "summary", "add"],
   bodylog: ["symptoms", "vitals", "cycle", "med_edit"],
 };
@@ -60,6 +60,8 @@ it("validates generated metadata, archetypes and each worked line", () => {
     [0, 3],
     [3, 6],
     [6, 9],
+    [14, 17],
+    [17, 20],
   ]) {
     expect(checkScreen({ id: "rep", components: lines.slice(start, end) }, registry)).toEqual([]);
   }
@@ -69,21 +71,21 @@ it("keeps the default core registry isolated and loads health only when ready", 
   const live = createRegistry({ packs: ["health"] });
   const draft = createRegistry({ packs: ["health"], includeDrafts: true });
   const health = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "health");
-  expect(health).toHaveLength(9);
-  expect(packReady("health")).toBe(true);
+  const ready = packReady("health");
+  expect(health).toHaveLength(11);
   expect(
     buildPackIndex()
       .split("\n")
       .some((line) => line.startsWith("- health: ")),
-  ).toBe(true);
-  expect(draft.ids.filter((id) => health.includes(id))).toHaveLength(9);
+  ).toBe(ready);
+  expect(draft.ids.filter((id) => health.includes(id))).toHaveLength(health.length);
   expect(live.ids.filter((id) => !health.includes(id))).toEqual(core.ids);
-  expect(live.ids.filter((id) => health.includes(id))).toHaveLength(9);
+  expect(live.ids.filter((id) => health.includes(id))).toHaveLength(ready ? health.length : 0);
   for (const id of selectedIds(health)) {
     expect(core.ids).not.toContain(id);
     expect(JSON.stringify(writerFormat(core))).not.toContain(`"const":"${id}"`);
     expect(JSON.stringify(writerFormat(draft))).toContain(`"const":"${id}"`);
-    expect(JSON.stringify(writerFormat(live))).toContain(`"const":"${id}"`);
+    expect(JSON.stringify(writerFormat(live)).includes(`"const":"${id}"`)).toBe(ready);
   }
   expect(packs.health.probes.filter((probe) => probe.kind === "pack")).toHaveLength(4);
   expect(packs.health.probes.find((probe) => probe.kind === "choose")).toMatchObject({ expect: "Progress" });

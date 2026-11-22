@@ -30,6 +30,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
   variantProps,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Player.generated";
@@ -101,22 +102,47 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     seconds: 60,
   };
 }
-// prettier-ignore
-const fernGuide = { style: "video", media: "lib:fern_care", title: "Repotting a fern", sub: "Two minute guide", photo: "lib:fern_care", seconds: 134 } as const;
-// prettier-ignore
-const voiceNote = { style: "audio", media: "lib:voice_note", title: "Voice note from Anna", photo: "lib:anna", seconds: 38, at: 12 } as const;
-// prettier-ignore
+const fernGuide = {
+  style: "video",
+  media: "lib:fern_care",
+  title: "Repotting a fern",
+  sub: "Two minute guide",
+  photo: "lib:fern_care",
+  seconds: 134,
+} as const;
+const voiceNote = {
+  style: "audio",
+  media: "lib:voice_note",
+  title: "Voice note from Anna",
+  photo: "lib:anna",
+  seconds: 38,
+  at: 12,
+} as const;
 export const examples = [
   {
-    style: "audio", media: "lib:wind_down", title: "Evening wind-down", sub: "Guided breathing",
-    photo: "lib:plants", seconds: 720, at: 245,
+    style: "audio",
+    media: "lib:wind_down",
+    title: "Evening wind-down",
+    sub: "Guided breathing",
+    photo: "lib:plants",
+    seconds: 720,
+    at: 245,
   },
   fernGuide,
   { ...voiceNote, detail: "brief" },
   voiceNote,
   { ...fernGuide },
   { ...voiceNote, title: "Park walk recap", style: "compact", mode: "podcast", speed: 1.5, liked: true },
-  { style: "audio", mode: "music", media: "lib:park_walk", title: "Morning walk playlist", seconds: 182, shuffle: true, repeat: true, loop: true },
+  {
+    style: "audio",
+    mode: "music",
+    media: "lib:park_walk",
+    title: "Morning walk playlist",
+    seconds: 182,
+    shuffle: true,
+    repeat: true,
+    loop: true,
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Player");
@@ -147,52 +173,169 @@ function optionLines({ mode, speed, liked, shuffle, repeat, loop }: PlayerProps,
   ].filter((line): line is string => typeof line === "string");
 }
 
-// prettier-ignore
+function playerLines(title: PlayerProps["title"], sub: PlayerProps["sub"], info: string) {
+  return [
+    { text: title, role: "heading" as const },
+    ...(sub ? [{ text: sub, role: "body" as const }] : []),
+    ...(info ? [{ text: info, role: "caption" as const }] : []),
+  ];
+}
+
+type PlayerTitles = Pick<PlayerProps, "title" | "sub"> & {
+  density: ThemeDensity;
+  info: string;
+  loading: boolean;
+  compact: boolean;
+  artwork: PlayerProps["photo"];
+  lines: ReturnType<typeof playerLines>;
+};
+
+function PlayerTitles({ title, sub, info, loading, compact, artwork, density, lines }: PlayerTitles) {
+  return loading ? (
+    compact ? (
+      <KitSkeleton
+        items={[
+          {
+            lines: lines.map((line, i) => ({ ...line, role: i === 0 ? "body" : "caption" })),
+            ...(artwork ? { photo: artwork } : {}),
+          },
+        ]}
+        lead={artwork ? "box" : "none"}
+        density={density}
+      />
+    ) : (
+      <KitSkeleton shape="media" aspect="none" inset="none" {...{ density, lines }} />
+    )
+  ) : (
+    <>
+      <KitText role={compact ? "body" : "heading"} part="title" density={density}>
+        {title}
+      </KitText>
+      {sub && (
+        <KitText role={compact ? "caption" : "body"} tone="muted" part="sub" density={density}>
+          {sub}
+        </KitText>
+      )}
+      {info && (
+        <KitText role="caption" tone="muted" part="options">
+          {info}
+        </KitText>
+      )}
+    </>
+  );
+}
+
+type PlayerPosition = Pick<PlayerProps, "title" | "seconds" | "style"> & {
+  here: number;
+  lang: string;
+  loading: boolean;
+};
+
+function PlayerPosition({ title, here, seconds, lang, loading, style }: PlayerPosition) {
+  return loading ? (
+    <>
+      <KitSkeleton shape="control" kind="quiet" full label={title} />
+      <KitSkeleton
+        shape="figure"
+        split
+        inset="none"
+        lines={[
+          { text: clockLine(here, lang), role: "caption" },
+          { text: remainingLine(seconds - here, lang), role: "caption", align: "end" },
+        ]}
+      />
+    </>
+  ) : (
+    <>
+      <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
+      <KitTimes
+        elapsed={clockLine(here, lang)}
+        remaining={remainingLine(seconds - here, lang)}
+        prominent={style !== "audio"}
+      />
+    </>
+  );
+}
+
+function PlayerCover(
+  title: string,
+  artwork: PlayerProps["photo"],
+  aspect: "wide" | "square",
+  loading: boolean,
+  compact: boolean,
+) {
+  if (loading) return compact ? null : <KitSkeleton shape="media" aspect="wide" inset="none" lines={[]} />;
+  return (
+    artwork && <KitPhoto photo={artwork} shape={compact ? "thumb" : aspect} part="artwork" label={title} />
+  );
+}
+
+function PlayerAudioSkeleton(
+  density: ThemeDensity,
+  artwork: PlayerProps["photo"],
+  lines: PlayerTitles["lines"],
+) {
+  return (
+    <KitCard style="inset" padded density={density}>
+      <KitSkeleton
+        shape="media"
+        inset="none"
+        playback
+        aspect={artwork ? "square" : "none"}
+        {...{ density, lines }}
+      />
+    </KitCard>
+  );
+}
+
 export function Player(input: PlayerProps) {
   const { style, title, sub, detail, photo: art, seconds, at, speed, loop, repeat } = input;
   const density = useKit().density;
   const artwork = detail === "full" ? art : undefined;
   const aspect = style === "video" ? "wide" : "square";
-  const { lang, words: { mediaLabels } } = useWords();
+  const {
+    lang,
+    words: { mediaLabels },
+  } = useWords();
   const loading = useComponentState() === "loading";
   const compact = style === "compact";
-  const here = at ?? 0, info = optionLines(input, lang).join(" · ");
-  const lines = [{ text: title, role: "heading" as const }, ...(sub ? [{ text: sub, role: "body" as const }] : []),
-    ...(info ? [{ text: info, role: "caption" as const }] : [])];
-  if (loading && style === "audio") {
-    return <KitCard style="inset" padded density={density}>
-      <KitSkeleton shape="media" inset="none" playback aspect={artwork ? aspect : "none"} {...{ density, lines }} />
-    </KitCard>;
-  }
+  const here = at ?? 0;
+  const info = optionLines(input, lang).join(" · ");
+  const lines = playerLines(title, sub, info);
+  if (loading && style === "audio") return PlayerAudioSkeleton(density, artwork, lines);
   const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
-  const titles = loading ? (compact ?
-    <KitSkeleton items={[{ lines: lines.map((line, i) => ({ ...line, role: i === 0 ? "body" : "caption" })), ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
-    <KitSkeleton shape="media" aspect="none" inset="none" {...{ density, lines }} />) : <>
-    <KitText role={compact ? "body" : "heading"} part="title" density={density}>{title}</KitText>
-    {sub && <KitText role={compact ? "caption" : "body"} tone="muted" part="sub" density={density}>{sub}</KitText>}
-    {info && <KitText role="caption" tone="muted" part="options">{info}</KitText>}
-  </>;
-  const position = loading ? <><KitSkeleton shape="control" kind="quiet" full label={title} />
-    <KitSkeleton shape="figure" split inset="none" lines={[{ text: clockLine(here, lang), role: "caption" }, { text: remainingLine(seconds - here, lang), role: "caption", align: "end" }]} /></> : <>
-    <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
-    <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} prominent={style !== "audio"} />
-  </>;
-  const cover = loading ? (compact ? null : <KitSkeleton shape="media" aspect="wide" inset="none" lines={[]} />) :
-    artwork && <KitPhoto photo={artwork} shape={compact ? "thumb" : aspect} part="artwork" label={title} />;
+  const titles = PlayerTitles({ title, sub, info, loading, compact, artwork, density, lines });
+  const position = PlayerPosition({ title, here, seconds, lang, loading, style });
+  const cover = PlayerCover(title, artwork, aspect, loading, compact);
   const playback = { style, speed, loop: loop ?? repeat, loading };
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {compact ? <KitPlayback {...playback}>
-        <KitRow label={title} leading={cover} leadingAlign="row" trailing={controls} inset="none" density={density}>
-          <KitContent density={density} lineRole="body">{titles}</KitContent>
-        </KitRow>
-        {position}
-      </KitPlayback> : <>
-        <KitPlayback {...playback} overlay={style === "video" ? controls : undefined}>{cover}</KitPlayback>
-        <KitContent density={density}>{titles}</KitContent>
-        {position}
-        {style !== "video" && controls}
-      </>}
+      {compact ? (
+        <KitPlayback {...playback}>
+          <KitRow
+            label={title}
+            leading={cover}
+            leadingAlign="row"
+            trailing={controls}
+            inset="none"
+            density={density}
+          >
+            <KitContent density={density} lineRole="body">
+              {titles}
+            </KitContent>
+          </KitRow>
+          {position}
+        </KitPlayback>
+      ) : (
+        <>
+          <KitPlayback {...playback} overlay={style === "video" ? controls : undefined}>
+            {cover}
+          </KitPlayback>
+          <KitContent density={density}>{titles}</KitContent>
+          {position}
+          {style !== "video" && controls}
+        </>
+      )}
     </KitCard>
   );
 }

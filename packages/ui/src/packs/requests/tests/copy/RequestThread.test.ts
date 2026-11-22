@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { threadEntryCopy, threadOrder } from "../../copy";
+import { threadEntryCopy, threadOrder, threadRead } from "../../copy";
 
 const event = {
   id: "r3",
@@ -34,5 +34,25 @@ describe("thread display copy", () => {
     ];
     expect(threadOrder(rows).map(({ id }) => id)).toEqual(["r1", "r2", "r3", "r4"]);
     expect(rows[0]?.id).toBe("r3");
+  });
+  it("reads the composer but not hidden events in the empty state", () => {
+    const input = {
+      number: "TR-06",
+      detail: "full",
+      entries: [event],
+      draft: "Checking the latch.",
+      audience_choices: ["requester", "internal"],
+      canBrowseReplies: true,
+    };
+    expect(threadRead(input, "empty")).toEqual([
+      "Request TR-06",
+      "Who can see this?",
+      "To requester",
+      "Keep internal",
+      "Checking the latch.",
+      "Browse saved replies",
+      "Send reply",
+    ]);
+    expect(threadRead({ ...input, draft: undefined }, "empty")).toContain("Write a reply");
   });
 });

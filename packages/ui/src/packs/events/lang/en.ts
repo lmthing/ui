@@ -1,3 +1,4 @@
+import { words as SessionsWords } from "./en/Sessions";
 import { words as SeatingWords } from "./en/Seating";
 import { words as DoorWords } from "./en/Door";
 import { words as FindDateWords } from "./en/FindDate";
@@ -17,4 +18,5 @@ export const en = {
   ...RegistryWords,
   ...TicketWords,
   ...VendorsWords,
+  ...SessionsWords,
 };

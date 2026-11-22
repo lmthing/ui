@@ -5,7 +5,7 @@ it("reads dates, amounts and style-specific actions", () => {
   const input = { date: "2026-11-20", time: "09:00", minutes: 30, status: "confirmed" as const, price: 0 };
   expect(appointmentReading({ ...input, style: "card" })).toContain("Confirmed");
   expect(appointmentReading({ ...input, style: "summary" })).not.toContain("Confirmed");
-  expect(appointmentReading({ ...input, style: "summary" })).toContain("Edit details");
+  expect(appointmentReading({ ...input, style: "summary" })).toContain("Change booking");
   expect(appointmentReading({ ...input, style: "card" })).toContain("$0");
 });
 
@@ -25,7 +25,7 @@ it("orders optional booking details without dropping a zero price", () => {
 it("labels booking states and actions", () => {
   expect(appointmentLabels).toEqual({
     reschedule: "Reschedule",
-    edit: "Edit details",
+    edit: "Change booking",
     booked: "Booked",
     confirmed: "Confirmed",
     pending: "Pending",

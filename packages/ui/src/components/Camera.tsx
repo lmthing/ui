@@ -116,24 +116,47 @@ function shutterLabel({ kind, recording, side }: CameraProps, lang?: string) {
   return kind === "scan" ? photoLabels.scan : photoLabels.take;
 }
 
-// prettier-ignore
 export function Camera(input: CameraProps) {
   const { kind, hint } = input;
-  const { lang, words: { captureLabels } } = useWords();
+  const {
+    lang,
+    words: { captureLabels },
+  } = useWords();
   const { screen, component } = usePartContext();
   const base = `${screen}/${component}`;
   const clock = useControlValue<ClockState | undefined>(`${base}/$recording`, undefined);
   const side = useControlValue(`${base}/$adjust/side`, input.side ?? 0);
   const recording = Boolean(clock?.running);
   const label = shutterLabel({ ...input, side, recording }, lang);
-  const dual = kind === "document_dual", video = kind === "video";
+  const dual = kind === "document_dual",
+    video = kind === "video";
   return (
     <KitCard style="plain" part="root">
-      <KitViewfinder kind={dual || kind === "scan" ? "scan" : "photo"} hint={dual && side > 0 ? side === 1 ? captureLabels.backHint : captureLabels.complete : hint} part="viewfinder" hintPart="hint" />
-      {dual || video ? <KitRow part={null} label={label}><KitContent align="center"><KitContent>
-        <KitAction {...(video ? { a11y: label, icon: recording ? "square" as const : "video" as const } : { label })} part="shutter" action={dual ? "increment" : recording ? "stop" : "start"}
-          kind={recording ? "danger" : "primary"} disabled={dual && side === 2} />
-      </KitContent></KitContent></KitRow> : <KitShutter label={label} part="shutter" />}
+      <KitViewfinder
+        kind={dual || kind === "scan" ? "scan" : "photo"}
+        hint={dual && side > 0 ? (side === 1 ? captureLabels.backHint : captureLabels.complete) : hint}
+        part="viewfinder"
+        hintPart="hint"
+      />
+      {dual || video ? (
+        <KitRow part={null} label={label}>
+          <KitContent align="center">
+            <KitContent>
+              <KitAction
+                {...(video
+                  ? { a11y: label, icon: recording ? ("square" as const) : ("video" as const) }
+                  : { label })}
+                part="shutter"
+                action={dual ? "increment" : recording ? "stop" : "start"}
+                kind={recording ? "danger" : "primary"}
+                disabled={dual && side === 2}
+              />
+            </KitContent>
+          </KitContent>
+        </KitRow>
+      ) : (
+        <KitShutter label={label} part="shutter" />
+      )}
     </KitCard>
   );
 }

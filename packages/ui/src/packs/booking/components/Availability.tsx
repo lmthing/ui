@@ -1,17 +1,16 @@
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
-  useControlValue, usePart, useWords,
-  useKit,
-} from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitInput, KitLayoutText, KitRow, KitRowGroup, KitText, KitTrail,
+  useControlValue, usePart, useKit, useWords } from "../../../kit";
 // prettier-ignore
 import { clock, isoDate, probesFor, type CastLike, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
 import {
+  availabilityDayLabel,
   availabilityDefaults,
   availabilityReading,
+  bookingWeekdays,
   breakLine,
-  breakRange,
   bufferLine,
   dateOverrideLine,
 } from "../copy";
@@ -38,7 +37,7 @@ export const meta = {
   read: (input, state, lang): string[] =>
     state === "filled" ? availabilityReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const weekdays = bookingWeekdays;
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
@@ -135,16 +134,16 @@ export const probes = [
     expectProps: { dateOverrides: [{ date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" }] } },
 ] satisfies Probe[];
 // prettier-ignore
-function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["days"][number]; enhanced: boolean }) {
-  const { lang, words: { weekdayNames } } = useWords();
-  const weekday = weekdayNames[weekdays.indexOf(day.day)]!;
-  const { availabilityLabels } = bookingWordsFor(lang);
+function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
+  const { lang, words: { availabilityLabels } } = useWords(bookingWordsFor);
   const toggle = usePart("toggle", false);
   const on = useControlValue(toggle.testID, day.on);
   return (
     <>
-      <KitRow inline label={weekday} trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
-        <KitText role={enhanced ? "heading" : "label"} part="day">{weekday}</KitText>
+      <KitRow inline label={availabilityDayLabel(day.day, true, lang)}
+        trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
+        <KitLayoutText line={{ text: availabilityDayLabel(day.day, on, lang),
+          part: "day", strong: on, tone: on ? "text" : "muted" }} />
       </KitRow>
       <KitGrid columns={2}>
         <KitRow inline label={availabilityLabels.from}>
@@ -157,10 +156,10 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
         </KitRow>
       </KitGrid>
       {day.breakFrom && day.breakTo && (
-        <KitText role="caption" tone="muted" part="break">
-          {enhanced ? <>{availabilityLabels.break} <KitText role="number" numberScale="compact" tabular part={null}>
-            {breakRange(day.breakFrom, day.breakTo)}</KitText></> : breakLine(day.breakFrom, day.breakTo, lang)}
-        </KitText>
+        <KitContent group="response">
+          <KitLayoutText line={{ text: breakLine(day.breakFrom, day.breakTo, lang),
+            part: "break", role: "caption", tone: "muted", tabular: true }} />
+        </KitContent>
       )}
     </>
   );
@@ -173,11 +172,13 @@ export function Availability(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">
-      {days.map((day) => (
-        <KitRow key={day.id} item={day.id} label={day.day} density={density}>
-          <DayFields day={day} enhanced={bufferMinutes !== undefined || !!dateOverrides?.length} />
-        </KitRow>
-      ))}
+      <KitRowGroup density={density}>
+        {days.map((day) => (
+          <KitRow key={day.id} item={day.id} label={day.day} density={density}>
+            <DayFields day={day} />
+          </KitRow>
+        ))}
+      </KitRowGroup>
       {bufferMinutes !== undefined && <KitRow part={null} label={bufferLine(bufferMinutes, lang)} density={density}>
         <KitText part="buffer" role="label">{bufferLine(bufferMinutes, lang)}</KitText>
       </KitRow>}

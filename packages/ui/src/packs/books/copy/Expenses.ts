@@ -5,16 +5,25 @@ import { ref, dateTime } from "../seeds";
 
 const recordRef = ref.meta({ kind: "ref" });
 const fraction = z.number().min(0).max(1);
-// prettier-ignore
 const split = z.strictObject({
-  title: c.text(32), net: z.number().positive(), businessUse: fraction, categoryRef: recordRef, vatCode: recordRef,
+  title: c.text(32),
+  net: z.number().positive(),
+  businessUse: fraction,
+  categoryRef: recordRef,
+  vatCode: recordRef,
 });
-// prettier-ignore
-export const expenseReceipt = z.strictObject({
-  expenseRef: recordRef, date: c.isoDate, supplier: c.text(32), receipt: c.photo.optional(),
-  lines: z.array(split).min(1).max(8), postedAt: dateTime.optional(), voided: z.boolean().default(false),
-  goto: c.screenId.optional(),
-}).refine(({ postedAt, voided }) => !voided || postedAt !== undefined, { path: ["voided"] });
+export const expenseReceipt = z
+  .strictObject({
+    expenseRef: recordRef,
+    date: c.isoDate,
+    supplier: c.text(32),
+    receipt: c.photo.optional(),
+    lines: z.array(split).min(1).max(8),
+    postedAt: dateTime.optional(),
+    voided: z.boolean().default(false),
+    goto: c.screenId.optional(),
+  })
+  .refine(({ postedAt, voided }) => !voided || postedAt !== undefined, { path: ["voided"] });
 type Receipt = z.output<typeof expenseReceipt>;
 const choice = z.object({ value: recordRef, label: c.text(24) });
 const choices = z
@@ -27,8 +36,12 @@ const permission = z.object({
   categories: choices,
   vatRates: choices,
 });
-// prettier-ignore
-const receiptFields = { ...expenseReceipt.shape, linked: z.boolean(), hasPhoto: z.boolean(), canVoid: z.boolean() };
+const receiptFields = {
+  ...expenseReceipt.shape,
+  linked: z.boolean(),
+  hasPhoto: z.boolean(),
+  canVoid: z.boolean(),
+};
 const splitFields = {
   ...split.shape,
   expenseRef: recordRef,
@@ -149,42 +162,99 @@ export function expenseDisplay(receipt: Receipt, lines: readonly Line[], data?: 
   };
 }
 
-// prettier-ignore
+function readExpenseSplit(row: SplitRow, state: c.StateName, lang?: string, data?: c.DeviceData) {
+  const {
+    expenses: w,
+    ledger: { refLabel },
+  } = booksWordsFor(lang);
+  const labels = (options: SplitRow["categories"], value: string) =>
+    row.editable && state === "filled" && options.length
+      ? options.map(({ label }) => label)
+      : [options.find((item) => item.value === value)?.label ?? refLabel(value, lang)];
+  const share = c.percentageLine(row.businessPercent, lang),
+    editing = row.editable && state === "filled";
+  return [
+    w.item(row.id, [
+      row.title,
+      c.numberLine(row.net, lang),
+      w.businessRead(c.numberLine(row.businessPercent / 100, lang)),
+    ]),
+    w.net,
+    editing ? w.share : w.business,
+    share,
+    ...(editing ? [] : [expenseNet(row.net, data, lang)]),
+    w.category,
+    ...labels(row.categories, row.categoryRef),
+    w.vatCode,
+    ...labels(row.vatRates, row.vatCode),
+  ];
+}
+
 export function expenseRead(input: unknown, state: c.StateName, lang?: string, data?: c.DeviceData) {
   if (state === "empty" || state === "loading") return [];
-  const { rows = [], detail, style, captureGoto, canPost } = input as Input & { captureGoto?: string; canPost?: boolean };
-  const { expenses: w, ledger: { refLabel } } = booksWordsFor(lang);
+  const {
+    rows = [],
+    detail,
+    style,
+    captureGoto,
+    canPost,
+  } = input as Input & { captureGoto?: string; canPost?: boolean };
+  const { expenses: w } = booksWordsFor(lang);
   if (state === "error") return [w.errorTitle, w.errorDetail];
-  return [style === "receipt" ? w.receipt : w.register, ...rows.flatMap((row) => {
-    if (row.kind === "split") {
-      const labels = (options: SplitRow["categories"], value: string) =>
-        row.editable && state === "filled" && options.length ? options.map(({ label }) => label) :
-          [options.find((item) => item.value === value)?.label ?? refLabel(value, lang)];
-      const share = c.percentageLine(row.businessPercent, lang), editing = row.editable && state === "filled";
-      return [w.item(row.id, [row.title, c.numberLine(row.net, lang), w.businessRead(c.numberLine(row.businessPercent / 100, lang))]),
-        w.net, editing ? w.share : w.business, share, ...(editing ? [] : [expenseNet(row.net, data, lang)]),
-        w.category, ...labels(row.categories, row.categoryRef), w.vatCode, ...labels(row.vatRates, row.vatCode)];
-    }
-    const status = row.voided ? w.voided : row.postedAt ? w.posted : state === "success" ? w.saved : w.draft;
-    const splits = rows.filter((item): item is SplitRow => item.kind === "split" && item.expenseRef === row.expenseRef);
-    const values = expenseDisplay(row, splits.length ? splits : row.lines, data, lang);
-    const title = w.item(row.id, [row.supplier, c.appointmentDate(row.date, lang), status]);
-    return [title, ...(!values ? [w.unavailable] : [w.field(w.gross, values.gross),
-      ...(detail !== "brief" ? [w.field(w.cost, values.cost), w.field(w.vat, values.vat)] : [])]),
-      ...(row.hasPhoto ? [w.evidence] : []), ...(row.canVoid ? [w.void] : [])];
-  }), ...(canPost && state === "filled" ? [w.post] : []), ...(captureGoto ? [w.capture] : [])];
+  return [
+    style === "receipt" ? w.receipt : w.register,
+    ...rows.flatMap((row) => {
+      if (row.kind === "split") return readExpenseSplit(row, state, lang, data);
+      const status = row.voided
+        ? w.voided
+        : row.postedAt
+          ? w.posted
+          : state === "success"
+            ? w.saved
+            : w.draft;
+      const splits = rows.filter(
+        (item): item is SplitRow => item.kind === "split" && item.expenseRef === row.expenseRef,
+      );
+      const values = expenseDisplay(row, splits.length ? splits : row.lines, data, lang);
+      const title = w.item(row.id, [row.supplier, c.appointmentDate(row.date, lang), status]);
+      return [
+        title,
+        ...(!values
+          ? [w.unavailable]
+          : [
+              w.field(w.gross, values.gross),
+              ...(detail !== "brief" ? [w.field(w.cost, values.cost), w.field(w.vat, values.vat)] : []),
+            ]),
+        ...(row.hasPhoto ? [w.evidence] : []),
+        ...(row.canVoid ? [w.void] : []),
+      ];
+    }),
+    ...(canPost && state === "filled" ? [w.post] : []),
+    ...(captureGoto ? [w.capture] : []),
+  ];
 }
 
 // Synthetic rules and split permissions for the worked examples.
-// prettier-ignore
 export function previewExpenses({ input }: { input: c.Values }): c.DeviceData {
   const { receipts } = input as Input;
-  const categories = [{ value: "supplies", label: "Supplies" }, { value: "travel", label: "Travel" }];
-  const vatRates = [{ value: "standard", label: "Standard" }, { value: "none", label: "No VAT" }];
+  const categories = [
+    { value: "supplies", label: "Supplies" },
+    { value: "travel", label: "Travel" },
+  ];
+  const vatRates = [
+    { value: "standard", label: "Standard" },
+    { value: "none", label: "No VAT" },
+  ];
   return {
-    books_expense_rules: [{ currency: "GBP", categories: { supplies: 1, travel: 0.8 },
-      vatRates: { standard: { rate: 0.2, recovery: 1 }, none: { rate: 0, recovery: 0 } } }],
+    books_expense_rules: [
+      {
+        currency: "GBP",
+        categories: { supplies: 1, travel: 0.8 },
+        vatRates: { standard: { rate: 0.2, recovery: 1 }, none: { rate: 0, recovery: 0 } },
+      },
+    ],
     books_expense_choices: receipts.flatMap(({ expenseRef, lines }) =>
-      lines.map(({ title }) => ({ expenseRef, title, categories, vatRates }))),
+      lines.map(({ title }) => ({ expenseRef, title, categories, vatRates })),
+    ),
   };
 }
