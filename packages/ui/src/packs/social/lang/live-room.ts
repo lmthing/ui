@@ -1,10 +1,14 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
+const listenerUnit = (form: LDMLPluralRule) => (form === "one" ? "listener" : "listeners");
+
 export const liveRoomWords = {
-  listeners: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "listener" : "listeners"}`,
+  listenerUnit,
+  listeners: (count: string, form: LDMLPluralRule) => `${count} ${listenerUnit(form)}`,
   role: { host: "Host", cohost: "Co-host", speaker: "Speaker" },
   speaking: "Speaking",
   muted: "Muted",
+  speakerStatus: (name: string, status: string) => `${name}: ${status}`,
   connect: "Join audio",
   speak: "Unmute mic",
   mute: "Mute mic",

@@ -7,6 +7,10 @@ export function liveRoomListenerLine(count: number, lang?: string): string {
   return socialWordsFor(lang).liveRoom.listeners(numberLine(count, lang), pluralForm(count, lang));
 }
 
+export function liveRoomListenerUnit(count: number, lang?: string): string {
+  return socialWordsFor(lang).liveRoom.listenerUnit(pluralForm(count, lang));
+}
+
 export function liveRoomSpeakerStatus(speaker: Speaker, lang?: string): string | undefined {
   const words = socialWordsFor(lang).liveRoom;
   return speaker.muted ? words.muted : speaker.speaking ? words.speaking : undefined;
@@ -30,5 +34,11 @@ export function liveRoomReading(input: unknown, state: StateName, lang?: string)
     const speaker = liveRoomActiveSpeaker(speakers);
     return speaker ? [speaker.name, words.speaking] : [];
   }
-  return [liveRoomListenerLine(listenersCount, lang)];
+  return [
+    liveRoomListenerLine(listenersCount, lang),
+    ...speakers.flatMap((speaker) => {
+      const status = liveRoomSpeakerStatus(speaker, lang);
+      return status ? [words.speakerStatus(speaker.name, status)] : [];
+    }),
+  ];
 }

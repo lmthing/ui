@@ -6,7 +6,7 @@ const { props, meta, fallback, examples, probes } = def;
 const example = examples[0]!;
 const slide = example.slides[0]!;
 
-describe("StoryViewer draft", () => {
+describe("StoryViewer schema", () => {
   it.each(examples)("parses the domain examples", (input) => {
     expect(props.safeParse(input).success).toBe(true);
   });
@@ -40,7 +40,9 @@ describe("StoryViewer draft", () => {
   ])("rejects invalid input: %j", (patch) => {
     expect(props.safeParse({ ...example, ...patch }).success).toBe(false);
   });
+});
 
+describe("StoryViewer fallback and sequence", () => {
   it("keeps the pack gate and the core carousel near miss", () => {
     expect(createRegistry({ packs: ["social"], includeDrafts: true }).schema("StoryViewer")).toBe(props);
     expect(createRegistry({ packs: ["social"] }).ids.includes("StoryViewer")).toBe(packReady("social"));
