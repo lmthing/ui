@@ -3,6 +3,15 @@ import type { LDMLPluralRule } from "../../../catalog";
 const scope = { one: "one affected", several: "several affected", site: "whole site" };
 
 export const en = {
+  cannedReplies: {
+    title: "Saved replies",
+    category: "Reply category",
+    all: "All",
+    insert: "Insert",
+    insertReply: (title: string) => `Insert ${title}`,
+    empty: "No saved replies yet",
+    noMatches: "No saved replies in this category",
+  },
   slaPolicy: {
     policy: "SLA rules",
     response: "First response",

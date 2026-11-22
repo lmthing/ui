@@ -26,6 +26,7 @@ export const request_detail = {
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Card"], required: true },
+        { allow: ["CannedReplies"], required: false },
         { allow: ["RequestThread"], required: true },
       ],
       defaults: [
