@@ -1,5 +1,4 @@
-// Checks the value an action carries, before anything changes. Errors say the allowed format in
-// under 10 words (plan 4.12).
+/** Checks carried values before mutation; hints describe the allowed format (plan 4.12). */
 import { z } from "zod";
 import { localeOf } from "../lang";
 import type { Meta, NumericLimits as Range } from "../meta";
@@ -8,7 +7,6 @@ import { itemEditAt } from "./report-edits";
 import { pickerAt } from "./live-inputs";
 import { numericError } from "./clocks";
 import { validateSequenceSeek, type SeekLimits } from "./media";
-
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
 type StringLimits =

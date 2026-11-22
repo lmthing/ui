@@ -99,7 +99,7 @@ export function createHostProjection(
   standalone: boolean,
   now: () => number,
   valuesOf: (at?: number) => Values,
-  disabled: Map<string, symbol>,
+  disabled: Pick<ReadonlySet<string>, "has" | "size">,
   changed: () => void,
 ) {
   const enabled =

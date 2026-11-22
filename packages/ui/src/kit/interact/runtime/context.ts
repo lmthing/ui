@@ -27,6 +27,7 @@ import { createHostProjection, type HostCommandAdapter, type ParentGate } from "
 import type { AuthenticateReveal } from "./reveal";
 import { expiredProgress } from "./expired-progress";
 import { mediaHostGate, type AttachmentEntries } from "./media";
+import { createDisabledParts } from "./part-registration";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -133,7 +134,7 @@ function createValues(
 export function createControllerContext(options: RuntimeOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
-  const disabledParts = new Map<string, symbol>();
+  const { parts: disabledParts, ...disabledRegistry } = createDisabledParts();
   const attachmentEntries: AttachmentEntries = new Map();
   const status = {
     disposed: false,
@@ -166,6 +167,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     anchors: new Map<string, (action: "focus" | "jump") => void>(),
     disabledParts,
     attachmentEntries,
+    disabledRegistry,
     privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),

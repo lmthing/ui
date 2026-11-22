@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { XStack, styled, isWeb } from "tamagui";
-import { useAnimatedValue } from "../../motion";
 import { useActionPress, useCopyFeedback, useRevealControl } from "../../interact";
 import {
   component,
   layoutType,
-  motion,
   radius,
   size,
   space,
@@ -13,15 +10,17 @@ import {
   type ActionName,
   type IconName,
 } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
+import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
-import { useActionAvailability } from "./use-action-availability";
+import { useActionAvailability, usePressMotion } from "./use-action-availability";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
+const webCopyButton = { tag: "button", type: "button" } as const;
 const Frame = styled(XStack, {
   alignItems: "center",
   justifyContent: "center",
+  borderWidth: component.base.none,
   minHeight: size.control.md,
   minWidth: size.control.md,
   gap: space.sm,
@@ -37,9 +36,7 @@ const Frame = styled(XStack, {
       },
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
-    loading: {
-      true: { borderColor: "$line" },
-    },
+    loading: { true: { borderColor: "$line" } },
   } as const,
 });
 const toneOf: Record<ActionKind, TextTone & IconTone> = {
@@ -131,22 +128,20 @@ export function KitAction({
   disabled = false,
   copiedLabel,
 }: ActionProps) {
-  const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part ?? undefined, part !== null);
   const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
-  const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
+  const copy = action === "copy";
+  const noCopyValue = copy && (typeof value !== "string" || value.length === 0);
   const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
-  const inactive = part === null || disabled || loading || noCopyValue || (!reveal && unavailable);
+  const inactive = part === null || unavailable || noCopyValue;
   const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
   const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const [pressed, setPressed] = useState(false);
-  const still = kit.environment.reduceMotion || kit.environment.agentMode;
-  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  const motionProps = usePressMotion(inactive);
   const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
   return (
     <Frame
@@ -155,18 +150,16 @@ export function KitAction({
       backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
       loading={loading}
       iconOnly={!label}
+      {...(isWeb && copy && !loading ? webCopyButton : {})}
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
-      {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
+      alignSelf={full ? "stretch" : "flex-start"}
       accessibilityRole={loading ? undefined : "button"}
       aria-busy={loading || undefined}
       {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
       {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
       accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
-      aria-live={action === "copy" ? "polite" : undefined}
-      scale={scale}
-      {...(kit.interactive && !inactive
-        ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
-        : {})}
+      aria-live={copy ? "polite" : undefined}
+      {...motionProps}
       {...handlers}
     >
       <ActionContent

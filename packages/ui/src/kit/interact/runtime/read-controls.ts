@@ -126,7 +126,7 @@ export function readControls(
   defs: Record<string, Definition>,
   values: Values,
   lang?: string,
-  disabled?: ReadonlyMap<string, symbol>,
+  disabled?: ReadonlyMap<string, unknown>,
   deviceData?: DeviceData,
   currency?: AppCurrency,
   canDrive?: CanDrive,

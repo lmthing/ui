@@ -1,6 +1,8 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
+import { motion } from "../../../catalog";
+import { useAnimatedValue } from "../../motion";
 import { useKit } from "../../provider";
-import { useComponentState, usePartContext } from "../../part";
+import { useComponentState, usePartContext, usePartDisabled } from "../../part";
 
 export function useActionAvailability(
   address: string,
@@ -21,6 +23,20 @@ export function useActionAvailability(
     (action
       ? controller.actionsAt(address, { ignoreDisabledPart: hostPart }).includes(action)
       : controller.canPress(address, { ignoreDisabledPart: hostPart }));
+  const blocked = usePartDisabled(part === null ? undefined : address);
   const loading = useComponentState() === "loading" && !offered;
-  return { loading, inactive: loading || disabled || Boolean(interactive && controller && !offered) };
+  return {
+    loading,
+    inactive: loading || disabled || blocked || Boolean(interactive && controller && !offered),
+  };
+}
+
+export function usePressMotion(inactive: boolean) {
+  const { environment, interactive } = useKit();
+  const [pressed, setPressed] = useState(false);
+  const still = environment.reduceMotion || environment.agentMode;
+  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  return interactive && !inactive
+    ? { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
+    : { scale };
 }

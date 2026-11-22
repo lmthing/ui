@@ -176,11 +176,17 @@ export function createAccess(
       registerPart(ctx.mounted, ctx.relative(address), revokeReveal, refresh),
     registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
       registerEntry(ctx.anchors, ctx.relative(address), handler, refresh),
+    isPartDisabled: (address: string) => ctx.disabledParts.has(ctx.relative(address)),
+    subscribeDisabledParts: ctx.disabledRegistry.subscribe,
     registerDisabledPart(address: string) {
       const local = ctx.relative(address);
-      const remove = registerPart(ctx.disabledParts, local, undefined, refresh);
+      const remove = ctx.disabledRegistry.register(local);
+      refresh();
       revokeReveal?.(local);
-      return remove;
+      return () => {
+        remove();
+        refresh();
+      };
     },
   };
 }
