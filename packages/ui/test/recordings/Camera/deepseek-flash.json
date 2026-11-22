@@ -166,11 +166,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at leaves, then shoot\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at the leaves, then tap shutter\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at leaves, then shoot\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves for a clear shot\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at the leaves, then tap shutter\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Aim at your plant's leaves\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at the leaves and shoot\"}"
     ]
   },
   "49db0dbde3146bcd": {
@@ -236,11 +236,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's leaves\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}"
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's fronds\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's fronds\"}"
     ]
   },
   "4b810454bca23afd": {
@@ -327,8 +327,8 @@
     "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}",
     "replies": [
       "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front & back of Clover's vaccination card\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan the front of Clover's vaccine card\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}"
     ]
   },
   "6b9a7373082fe519": {
@@ -394,11 +394,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover's moments\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover now; tap shutter to start and stop\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover's moments\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Point at Clover and tap shutter to start/stop\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover now; tap shutter to start and stop\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Point at Clover, press shutter to start and stop\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record a new video of Clover\"}"
     ]
   },
   "8080f73baac8b520": {

@@ -706,7 +706,7 @@
     "replies": [
       "{\"c\":\"Ring\",\"density\":null,\"emphasis\":null,\"detail\":null,\"value\":3,\"of\":5,\"label\":\"Watered today\",\"sub\":null}",
       "{\"c\":\"Ring\",\"density\":null,\"emphasis\":null,\"detail\":null,\"value\":3,\"of\":5,\"label\":\"Watered today\",\"sub\":null}",
-      "{\"c\":\"Ring\",\"density\":null,\"emphasis\":null,\"detail\":null,\"value\":3,\"of\":5,\"label\":\"Watered today\",\"sub\":null}"
+      "{\"c\":\"Ring\",\"density\":null,\"emphasis\":null,\"detail\":\"brief\",\"value\":3,\"of\":5,\"label\":\"Watered today\",\"sub\":\"3 of 5 plants watered\"}"
     ]
   },
   "817e2d9141da6f3a": {

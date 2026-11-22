@@ -270,11 +270,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
     "replies": [
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
     ]
   },
   "27129964e80e3037": {
@@ -823,10 +823,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
     "replies": [
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":650,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}"
     ]
   },
@@ -1281,7 +1281,7 @@
     "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
     "replies": [
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}"
     ]
   },

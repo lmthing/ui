@@ -1420,10 +1420,10 @@
   },
   "69235f37faf37934": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nf1 Field text — \"Plant name\" — \"Fern\" [f1/field type]\n\nTask: Name the plant Basil\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"f1\", \"action\": \"type\"}",
+    "reply": "{\"address\": \"f1/field\", \"action\": \"type\"}",
     "replies": [
-      "{\"address\": \"f1\", \"action\": \"type\"}",
       "{\"address\": \"f1/field\", \"action\": \"type\"}",
+      "{\"address\": \"f1\", \"action\": \"type\"}",
       "{\"address\": \"f1/field\", \"action\": \"type\"}"
     ]
   },
@@ -1923,9 +1923,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
     "replies": [
-      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}"
     ]
@@ -2242,7 +2242,7 @@
     "replies": [
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
-      "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}"
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}"
     ]
   },
   "d7c4e591b8d1832d": {

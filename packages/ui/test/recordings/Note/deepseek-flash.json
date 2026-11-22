@@ -782,11 +782,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
+    "reply": "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":null}",
     "replies": [
-      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
       "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":null,\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":null}",
-      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"bell\"}"
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}",
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"icon\",\"tone\":null,\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}"
     ]
   },
   "0f7c8033b4a34250": {

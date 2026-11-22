@@ -783,11 +783,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered\",\"value\":3,\"of\":5,\"unit\":\"week\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed\",\"value\":1,\"of\":4,\"unit\":\"month\",\"tone\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered\",\"value\":3,\"of\":5,\"unit\":\"week\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed\",\"value\":1,\"of\":4,\"unit\":\"month\",\"tone\":null,\"goto\":null}]}",
       "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}"
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this \",\"value\":0,\"of\":0.876,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":0,\"of\":0.876,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}"
     ]
   },
   "ef8fffa5c108fe08": {

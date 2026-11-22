@@ -792,8 +792,8 @@
     "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
     "replies": [
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":null,\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":null,\"photo\":null,\"goto\":\"ben\"}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}"
     ]
   },
   "51b011f73061c4b3": {
@@ -1446,11 +1446,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Ava\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Liam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Noah\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Ava\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Liam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Noah\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Amy\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Ben\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Cal\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Ava\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Liam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Noah\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}"
     ]
   },
   "9c75eb4860e6b273": {
@@ -1808,10 +1808,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"weekday watering\",\"photo\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
     "replies": [
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"weekday watering\",\"photo\":null,\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Weekday watering\",\"photo\":null,\"goto\":null}]}",
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}"
     ]
   },

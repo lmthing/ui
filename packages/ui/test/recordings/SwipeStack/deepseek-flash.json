@@ -521,7 +521,7 @@
     "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description of Pip\"}]}",
     "replies": [
       "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description of Pip\"}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description\"}]}",
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description not provided\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description not provided\"}]}",
       "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description\"}]}"
     ]
   },
@@ -919,11 +919,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}",
+    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":null,\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}",
     "replies": [
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}",
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":null,\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}",
       "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\",\"meta\":null}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\",\"meta\":null}]}"
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}"
     ]
   },
   "ea885226d0cb70e1": {

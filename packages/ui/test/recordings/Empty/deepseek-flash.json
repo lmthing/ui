@@ -1526,10 +1526,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}"
     ]
   },
@@ -1777,11 +1777,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"There was a problem fetching your walks.\",\"icon\":\"calendar_days\",\"kind\":\"error\"}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn’t load your walks\",\"sub\":\"My walks could not be loaded. Please check your connection and try again.\",\"icon\":\"cloud_rain\",\"kind\":\"offline\"}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"There was a problem fetching your walks.\",\"icon\":\"calendar_days\",\"kind\":\"error\"}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn’t load walks\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}"
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn’t load your walks\",\"sub\":\"My walks could not be loaded. Please check your connection and try again.\",\"icon\":\"cloud_rain\",\"kind\":\"offline\"}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}"
     ]
   },
   "7bac2b6b6c6650a7": {

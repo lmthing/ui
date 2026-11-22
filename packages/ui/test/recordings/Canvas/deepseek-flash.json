@@ -217,11 +217,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Dog Breed Guessing Game\"}",
+    "reply": "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed and earn points!\"}",
     "replies": [
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Dog Breed Guessing Game\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Dog breed guessing game: tap a photo, type your guess, earn points\"}",
-      "{\n  \"c\": \"Canvas\",\n  \"surface\": \"plain\",\n  \"caption\": \"Dog Breed Guessing Game\"\n}"
+      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed and earn points!\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Dog breed guessing game: swipe through photos, earn points for correct answers\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the dog breed - tap to play\"}"
     ]
   },
   "Canvas%2Fchoose%2FLet%20me%20draw%20with%20my%20finger%20to%20sketch%20where%20each%20plant%20goes/2eb5be25b15f40de/835515b5b049511d": {

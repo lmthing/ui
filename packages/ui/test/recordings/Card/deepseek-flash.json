@@ -386,10 +386,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk with Pip\",\"body\":\"18:30 · Enjoy the cool air\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · park route\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening Walk with Pip\",\"body\":\"18:30 · Enjoy the cool air\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Park route\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · park route\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · leash and treats ready\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}"
     ]
   },
@@ -766,10 +766,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
     ]
   },

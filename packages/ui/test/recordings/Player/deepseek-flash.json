@@ -1039,10 +1039,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"audio\",\"mode\":\"audio\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":false,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
       "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}"
     ]
   },
@@ -1800,11 +1800,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+    "reply": "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
       "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
     ]
   },
   "d3cb2ccfc4852795": {

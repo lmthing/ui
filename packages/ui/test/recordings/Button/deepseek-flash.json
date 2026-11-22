@@ -262,7 +262,7 @@
     "reply": "{\"c\":\"Button\",\"surface\":null,\"media\":\"none\",\"label\":\"Log watering\",\"kind\":null,\"icon\":\"drop\",\"goto\":null,\"confirm\":null}",
     "replies": [
       "{\"c\":\"Button\",\"surface\":null,\"media\":\"none\",\"label\":\"Log watering\",\"kind\":null,\"icon\":\"drop\",\"goto\":null,\"confirm\":null}",
-      "{\"c\":\"Button\",\"surface\":null,\"media\":\"none\",\"label\":\"Log watering\",\"kind\":null,\"icon\":\"drop\",\"goto\":null,\"confirm\":null}",
+      "{\"c\":\"Button\",\"surface\":null,\"media\":null,\"label\":\"Log watering\",\"kind\":null,\"icon\":\"drop\",\"goto\":null,\"confirm\":null}",
       "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"none\",\"label\":\"Log watering\",\"kind\":null,\"icon\":\"drop\",\"goto\":null,\"confirm\":null}"
     ]
   },
@@ -1074,10 +1074,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+    "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
     "replies": [
-      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
-      "{\"c\":\"Button\",\"surface\":\"plain\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
       "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"none\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}"
     ]
   },
@@ -3090,11 +3090,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"dog_walk_booking\",\"confirm\":null}",
+    "reply": "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking\",\"confirm\":null}",
     "replies": [
-      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"dog_walk_booking\",\"confirm\":null}",
-      "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}",
-      "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"none\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}"
+      "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"dog\",\"goto\":\"booking\",\"confirm\":null}",
+      "{\"c\":\"Button\",\"surface\":\"card\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}",
+      "{\"c\":\"Button\",\"surface\":\"tinted\",\"media\":\"icon\",\"label\":\"Book a dog walk\",\"kind\":null,\"icon\":\"paw\",\"goto\":\"booking_screen\",\"confirm\":null}"
     ]
   },
   "e5137d8d3e00ef42": {

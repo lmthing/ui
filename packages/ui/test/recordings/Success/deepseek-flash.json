@@ -1840,7 +1840,7 @@
     "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
     "replies": [
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}",
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":\"circle_check\",\"undo\":true}",
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":\"toast\",\"title\":\"Walk cancelled\",\"sub\":null,\"icon\":null,\"undo\":true}"
     ]
   },
@@ -2669,9 +2669,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
+    "reply": "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Clover, tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
     "replies": [
-      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
+      "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Clover, tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}",
       "{\"c\":\"Success\",\"detail\":\"brief\",\"style\":null,\"title\":\"Walk booked for Clover\",\"sub\":\"Dog · Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":null}"
     ]

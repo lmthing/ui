@@ -250,11 +250,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Banner\",\"surface\":\"tinted\",\"media\":\"none\",\"tone\":\"warn\",\"text\":\"Park gate is closed\",\"icon\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Banner\",\"surface\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Park gate is closed\" ,\"icon\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Banner\",\"surface\":\"tinted\",\"media\":\"none\",\"tone\":\"warn\",\"text\":\"Park gate is closed\",\"icon\":null,\"goto\":null}",
       "{\"c\":\"Banner\",\"surface\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Park gate is closed\" ,\"icon\":null,\"goto\":null}",
-      "{\"c\":\"Banner\",\"surface\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Park gate is closed\",\"icon\":null,\"goto\":null}"
+      "{\"c\":\"Banner\",\"surface\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Park gate is closed\",\"icon\":null,\"goto\":null}",
+      "{\"c\":\"Banner\",\"surface\":null,\"media\":\"none\",\"tone\":\"warn\",\"text\":\"Park gate is closed\",\"icon\":null,\"goto\":null}"
     ]
   },
   "068cfe0f6401f1ed": {
@@ -836,11 +836,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Banner\",\"surface\":null,\"media\":null,\"tone\":null,\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}",
+    "reply": "{\"c\":\"Banner\",\"surface\":null,\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}",
     "replies": [
-      "{\"c\":\"Banner\",\"surface\":null,\"media\":null,\"tone\":null,\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}",
       "{\"c\":\"Banner\",\"surface\":null,\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}",
-      "{\"c\":\"Banner\",\"surface\":null,\"media\":null,\"tone\":\"warn\",\"text\":\"Today's 4pm dog walk is cancelled — view details\",\"icon\":null,\"goto\":\"walk_details\"}"
+      "{\"c\":\"Banner\",\"surface\":\"tinted\",\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}",
+      "{\"c\":\"Banner\",\"surface\":\"tinted\",\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"goto\":\"walk_details\"}"
     ]
   },
   "4a512acac92bcd3e": {

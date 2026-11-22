@@ -242,11 +242,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\".\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":null,\"hint\":\"Reply to Anna\",\"max\":null,\"value\":\"Thanks, see you at nine\"}",
     "replies": [
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\".\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":null,\"hint\":\"Reply to Anna\",\"max\":null,\"value\":\"Thanks, see you at nine\"}",
       "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\":\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\",\" ,\"max\":600,\"value\":\"Thanks, see you at nine\"}"
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":null,\"hint\":\"Reply to Anna\",\"max\":600,\"value\":\"Thanks, see you at nine\"}"
     ]
   },
   "5471fe4fec9c49cc": {
@@ -691,10 +691,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}",
+    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":null,\"hint\": \"Walk notes\",\"max\":400,\"value\":null}",
     "replies": [
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":null,\"hint\": \"Walk notes\",\"max\":400,\"value\":null}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\": \"How was your walk?\",\"max\":400,\"value\":null}",
       "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}"
     ]
   },

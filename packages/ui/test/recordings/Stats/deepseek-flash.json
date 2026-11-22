@@ -389,11 +389,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Stats\",\"density\":null,\"arrange\":\"rows\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
+    "reply": "{\"c\":\"Stats\",\"density\":null,\"arrange\":null,\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
     "replies": [
-      "{\"c\":\"Stats\",\"density\":null,\"arrange\":\"rows\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
-      "{\"c\":\"Stats\",\"density\":null,\"arrange\":null,\"tiles\":[{\"label\":\"Walks\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
-      "{\"c\":\"Stats\",\"density\":null,\"arrange\":null,\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}"
+      "{\"c\":\"Stats\",\"density\":null,\"arrange\":null,\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
+      "{\"c\":\"Stats\",\"density\":null,\"arrange\":null,\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
+      "{\"c\":\"Stats\",\"density\":null,\"arrange\":\"rows\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":null,\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}"
     ]
   },
   "d4863381a99ea3ea": {

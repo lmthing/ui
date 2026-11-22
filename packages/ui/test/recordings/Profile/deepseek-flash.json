@@ -509,7 +509,7 @@
     "reply": "{\"c\":\"Profile\",\"align\":null,\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle\",\"photo\":\"lib:dogs\"}",
     "replies": [
       "{\"c\":\"Profile\",\"align\":null,\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle\",\"photo\":\"lib:dogs\"}",
-      "{\"c\":\"Profile\",\"align\":null,\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle\",\"photo\":\"lib:dogs\"}",
+      "{\"c\":\"Profile\",\"align\":null,\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":null,\"photo\":\"lib:dogs\"}",
       "{\"c\":\"Profile\",\"align\":null,\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle\",\"photo\":\"lib:dogs\"}"
     ]
   },
@@ -983,11 +983,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"full\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}",
+    "reply": "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
     "replies": [
-      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"full\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}",
       "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
-      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}"
+      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}",
+      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"brief\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}"
     ]
   },
   "f43dc9f70aefe65d": {

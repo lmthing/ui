@@ -319,9 +319,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
+    "reply": "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":\"Start walk\"},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Water break\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
     "replies": [
-      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
+      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":\"Start walk\"},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Water break\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
       "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
       "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}"
     ]
