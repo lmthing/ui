@@ -32,17 +32,7 @@ function keyHandlers(press: (() => void) | undefined, inactive: boolean, disable
   };
 }
 
-export function KeyButton({
-  label,
-  glyph = label,
-  sublabel,
-  loading,
-  disabled,
-  press,
-  finish = "plain",
-  round = false,
-  address,
-}: {
+type KeyButtonProps = {
   label: string;
   glyph?: string;
   sublabel?: string | undefined;
@@ -52,7 +42,22 @@ export function KeyButton({
   finish?: KeyFinish;
   round?: boolean | undefined;
   address?: ReturnType<typeof usePart> | undefined;
-}) {
+  decimal?: boolean;
+};
+
+export function KeyButton(props: KeyButtonProps) {
+  const {
+    label,
+    glyph = label,
+    sublabel,
+    loading,
+    disabled,
+    press,
+    finish = "plain",
+    round,
+    address,
+    decimal,
+  } = props;
   const ks = useKitStyle();
   const { fill, tone, line } = finishes[disabled ? "absent" : finish];
   return (
@@ -80,9 +85,19 @@ export function KeyButton({
         opacity={loading ? component.base.none : undefined}
         aria-hidden={loading || undefined}
       >
-        <KitText role="number" numberScale="compact" tone={tone} part={null}>
-          {glyph}
-        </KitText>
+        {decimal ? (
+          <YStack
+            width={component.base.dot}
+            height={component.base.dot}
+            borderRadius={radius.pill}
+            backgroundColor={`$${tone}`}
+            aria-hidden
+          />
+        ) : (
+          <KitText role="number" numberScale="compact" tone={tone} part={null}>
+            {glyph}
+          </KitText>
+        )}
         {sublabel && (
           <KitText role="caption" tone={tone} part={null}>
             {sublabel}
@@ -121,6 +136,7 @@ export function PadKey({
         loading={loading}
         disabled={unavailable}
         press={press}
+        decimal={keyValue.label === "."}
       />
     </YStack>
   );

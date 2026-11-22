@@ -283,6 +283,11 @@ row can use `fitContent` to avoid reserving a control-height slot. This never sh
 In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
 `KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
 
+Use the matrix's pinned rail and content-sized days-across columns for weekly data. Keep timeline
+columns on their shared fixed scale. `KitColumns` shows complete lanes in a paged rail, while
+`stack` keeps all lanes in vertical reading order. A scroll region inside a padded `KitCard`
+uses the card's surface and gutter rather than adding a second frame.
+
 ### Base reference
 
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.

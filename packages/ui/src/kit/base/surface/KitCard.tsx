@@ -1,5 +1,5 @@
 import { Theme, YStack, createVariable, getThemes, isWeb, styled, useThemeName } from "tamagui";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode } from "react";
 import {
   component,
   presets,
@@ -22,6 +22,7 @@ const Frame = styled(YStack, {
     },
   } as const,
 });
+export const CardGutterContext = createContext(false);
 type CardProps = {
   children: ReactNode;
   style?: CardStyle;
@@ -143,7 +144,9 @@ export function KitCard(props: CardProps) {
           {...action}
         >
           {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
-          <CardChildren loading={loading}>{children}</CardChildren>
+          <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
+            <CardChildren loading={loading}>{children}</CardChildren>
+          </CardGutterContext.Provider>
         </Frame>
       </Theme>
     </CardStyleContext.Provider>

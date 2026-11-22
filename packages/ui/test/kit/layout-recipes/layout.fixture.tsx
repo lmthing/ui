@@ -6,6 +6,8 @@ import {
   KitAction,
   KitActionFooter,
   KitCard,
+  KitChip,
+  KitColumns,
   KitFigure,
   KitGrid,
   KitHeader,
@@ -15,10 +17,16 @@ import {
   KitProvider,
   KitRow,
   KitRowGroup,
+  KitRouteStop,
+  KitSeatGrid,
   KitState,
+  KitStepper,
+  KitStrip,
   KitTable,
   KitText,
+  KitTrack,
   KitTrail,
+  KitWeekMatrix,
   PartScope,
 } from "@lmthing/ui/kit";
 import { config } from "../../render";
@@ -109,12 +117,134 @@ const matrix = {
   ],
 };
 
+function Links({ state }: { state: StateName }) {
+  return (
+    <PartScope screen="fixture" component="links" state={state} rev={1}>
+      <KitCard padded>
+        <KitText part="paragraph">
+          <KitText part="before">Read</KitText>{" "}
+          <KitText item="r1" goto="first">
+            it
+          </KitText>{" "}
+          <KitText item="r2" goto="second">
+            next
+          </KitText>{" "}
+          <KitText part="after">before you go.</KitText>
+        </KitText>
+        <KitText part={null}>
+          <KitText item="r3" goto="long">
+            {"LongUnbrokenLabel".repeat(6)}
+          </KitText>
+        </KitText>
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function Columns({ state }: { state: StateName }) {
+  return (
+    <PartScope screen="fixture" component="columns" state={state} rev={1}>
+      <KitCard padded>
+        <KitColumns
+          part="lanes"
+          loading={state === "loading"}
+          columns={["First", "Second", "Third"].map((label, index) => ({
+            id: label,
+            part: `lane_${index}`,
+            label,
+            count: "1",
+            children: <KitText part={`description_${index}`}>{label} column</KitText>,
+          }))}
+        />
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function Controls({ state }: { state: StateName }) {
+  return (
+    <PartScope screen="fixture" component="controls" state={state} rev={1}>
+      <KitCard padded>
+        <KitTrack look="segments" part="track">
+          <KitChip item="r1" look="segment" role="tab" label="US" on />
+          <KitChip item="r2" look="segment" role="tab" label="A longer alternative" on={false} />
+        </KitTrack>
+        <KitStepper part="quantity" value={2} min={1} max={3} />
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function Week({ state }: { state: StateName }) {
+  const days = columns.slice(0, 7);
+  const rows = [
+    {
+      ...matrix.rows[0]!,
+      cells: matrix.rows[0]!.cells.slice(0, 7).map((cell, index) =>
+        index === 1
+          ? {
+              ...cell,
+              content: (
+                <KitText part="shift" lines={1}>
+                  07:00–12:00 · Morning shift
+                </KitText>
+              ),
+            }
+          : cell,
+      ),
+    },
+  ];
+  return (
+    <PartScope screen="fixture" component="week" state={state} rev={1}>
+      <KitCard padded>
+        <KitWeekMatrix part="table" corner={null} days={days} rows={rows} loading={state === "loading"} />
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function Drawings({ state }: { state: StateName }) {
+  const loading = state === "loading";
+  const seats = [
+    { id: "r1", label: "A", kind: "free" },
+    { id: "r2", label: "B", kind: "free" },
+  ] as const;
+  const sections = [
+    {
+      id: "section",
+      label: "Seats",
+      rows: [
+        { label: "01", mark: { icon: "flag" as const, label: "Exit" }, seats },
+        { label: "02", seats },
+      ],
+    },
+  ];
+  return (
+    <PartScope screen="fixture" component="drawings" state={state} rev={1}>
+      <KitCard padded>
+        <KitSeatGrid part="seat_grid" {...{ sections, loading }} />
+        <KitRouteStop item="r3" goto="milestone" label="Milestone" position="start">
+          <KitText part={null}>Long milestone description</KitText>
+          <KitText part={null}>Fri</KitText>
+        </KitRouteStop>
+        <div data-testid="legacy-carousel">
+          <KitStrip pages>
+            <KitText part="first_page">First caption</KitText>
+            <KitText part="second_page">Second caption</KitText>
+          </KitStrip>
+        </div>
+      </KitCard>
+    </PartScope>
+  );
+}
+
 function Fixture() {
   const [state, setState] = useState<StateName>("filled");
   const [fit, setFit] = useState(true);
+  const [pressed, setPressed] = useState("");
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
-      <KitProvider theme={theme}>
+      <KitProvider theme={theme} interactive onLink={(goto, address) => setPressed(`${goto}:${address}`)}>
         {(["filled", "empty", "loading", "error", "success"] as const).map((value) => (
           <button key={value} onClick={() => setState(value)}>
             {value}
@@ -127,6 +257,12 @@ function Fixture() {
             <KitTable part="table" corner={null} {...matrix} fitColumns={fit} loading={state === "loading"} />
           </KitCard>
         </PartScope>
+        <Links state={state} />
+        <output data-testid="pressed">{pressed}</output>
+        <Columns state={state} />
+        <Controls state={state} />
+        <Week state={state} />
+        <Drawings state={state} />
       </KitProvider>
     </TamaguiProvider>
   );

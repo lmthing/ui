@@ -140,6 +140,12 @@ function MicReading({
 }) {
   const { environment, motion } = useKit();
   const { lang, words } = useWords();
+  if (!loading && unavailable)
+    return (
+      <KitText part={null} role="caption" tone="muted">
+        {words.mediaUnavailable}
+      </KitText>
+    );
   const time =
     elapsedSeconds !== undefined && Number.isFinite(elapsedSeconds)
       ? clockLine(elapsedSeconds, lang)
@@ -147,21 +153,14 @@ function MicReading({
   const settled =
     environment.reduceMotion || environment.agentMode || motion === "calm" || !listening || disabled;
   return (
-    <>
-      <XStack gap={space.sm} alignItems="center" minHeight={size.icon.md}>
-        <LevelBar level={listening ? level : 0} {...{ settled, loading }} />
-        {!loading && time !== undefined && (
-          <KitText part={null} role="caption" tabular tone={listening ? "accent" : "muted"}>
-            {time}
-          </KitText>
-        )}
-      </XStack>
-      {!loading && unavailable && (
-        <KitText part={null} role="caption" tone="muted">
-          {words.mediaUnavailable}
+    <XStack gap={space.sm} alignItems="center" minHeight={size.icon.md}>
+      <LevelBar level={listening ? level : 0} {...{ settled, loading }} />
+      {!loading && time !== undefined && (
+        <KitText part={null} role="caption" tabular tone={listening ? "accent" : "muted"}>
+          {time}
         </KitText>
       )}
-    </>
+    </XStack>
   );
 }
 /** An ok-tier host capture; props carry the sampled level and elapsed clock, not audio. */
