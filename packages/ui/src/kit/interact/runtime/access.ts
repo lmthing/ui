@@ -151,6 +151,8 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
     registerHoldPart: (address: string) => registerHoldPart(ctx, act, address),
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
+    registerHostCopyTarget: ctx.clipboard.registerHostTarget,
+    hostCopiedAt: ctx.clipboard.hostCopiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     numericControl: (address: string) => numericControlAt(ctx, address),
@@ -191,9 +193,7 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
 function canPress(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   const offered = actionsAt(ctx, address, false, ignoreDisabledPart);
   const local = ctx.relative(address);
-  return (
-    Boolean(clipTap(ctx, local, offered)) ||
-    offered.some((action) => isPressAction(ctx, local, action)) ||
-    (address.endsWith("/play") && offered.includes("play"))
-  );
+  const playback = address.endsWith("/play") && offered.includes("play");
+  if (clipTap(ctx, local, offered) || playback) return true;
+  return offered.some((action) => isPressAction(ctx, local, action));
 }

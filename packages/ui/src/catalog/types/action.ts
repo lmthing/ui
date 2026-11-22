@@ -1,3 +1,5 @@
+import type { KeypadProfile } from "../agent";
+
 export type ActionName =
   | "press"
   | "toggle"
@@ -50,4 +52,10 @@ export type ActionSpec = {
   noGoto?: { parts?: readonly string[]; items?: readonly string[] };
   /** Declared presses that require local host authentication before the view may reveal a secret. */
   reveal?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Copy controls that require local authentication and a host-bound clipboard operation. */
+  authenticatedCopy?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Component `type` part → local-only keypad profile. Never bind this to a wire value. */
+  privateInput?: Readonly<Record<string, KeypadProfile>>;
+  /** Component `press` part → private keypad part to submit to the host. */
+  privateVerify?: Readonly<Record<string, string>>;
 };

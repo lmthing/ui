@@ -95,7 +95,7 @@ export function offersAt(
     return driveAffordances(def.meta, props, id, offered, target).filter(
       (item) =>
         item.address === local &&
-        (item.action !== "copy" || ctx.clipboard.available()) &&
+        (item.action !== "copy" || item.hostSecret === "copy" || ctx.clipboard.available()) &&
         (!isLocalAnchorAction(item.action) || canDrive(local, undefined, item.action)) &&
         (!captureOnly || captureStart(item, def.meta, props)),
     );

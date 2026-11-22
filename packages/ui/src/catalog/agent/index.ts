@@ -82,6 +82,7 @@ export {
   validateActionValue,
   type ValueError,
 } from "./validate-value";
+export { isKeypadPart, resolveTextKeypad, type KeypadProfile, type KeypadEdit } from "./keypad-profile";
 export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
   attachmentKey,

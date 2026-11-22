@@ -1,4 +1,5 @@
 import type { Meta } from "../../meta";
+import type { Affordance } from "../index";
 import type { DeviceData } from "../device-data";
 import { matches } from "../visibility";
 import { hasComponentToggle, withLiveInput } from "../live-inputs";
@@ -61,6 +62,14 @@ function componentPressAt(meta: Meta, part: string, action: string) {
 function revealOffer(address: string, part: string, action: string) {
   return { address, part, action, detail: "", hostReveal: true as const };
 }
+
+function secretControl(meta: Meta, part: string, action: string, item: boolean): Affordance["hostSecret"] {
+  const spec = meta.actions;
+  if (action === "copy" && spec?.authenticatedCopy?.[item ? "items" : "parts"]?.includes(part)) return "copy";
+  if (item) return;
+  if (action === "type" && Object.hasOwn(spec?.privateInput ?? {}, part)) return "input";
+  if (action === "press" && Object.hasOwn(spec?.privateVerify ?? {}, part)) return "verify";
+}
 function nestedHolder(holder: Props, part: string) {
   const target = holder[part];
   return target && typeof target === "object" ? (target as Props) : holder;
@@ -97,6 +106,8 @@ export function partsOf(
           .map((action) => {
             const localEvent = localEventOffer(meta, part, action, item ? String(holder.id) : undefined);
             const address = part === "root" ? base : `${base}/${part}`;
+            const hostSecret = secretControl(meta, part, action, item);
+            if (hostSecret) return { address, part, action, detail: "", hostSecret };
             if (action === "press" && meta.actions?.reveal?.[item ? "items" : "parts"]?.includes(part))
               return revealOffer(address, part, action);
             const nested = nestedHolder(holder, part);
