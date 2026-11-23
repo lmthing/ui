@@ -6,6 +6,9 @@ export const rentals = {
   defaultLayout: "listings",
   layouts: {
     listings: {
+      writeHints: [
+        'For All and Available chips, use style "choose". Only bind them to the List if availability is supplied: set filter.field to "category", tag each known row, and set view.panel:null on both items, view.match:null for All and view.match:"available" for Available. Without availability data, set filter:null and view:null on every item. Do not infer availability from names or links.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Chips"], required: true },

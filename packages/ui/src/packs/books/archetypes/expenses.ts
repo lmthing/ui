@@ -6,6 +6,9 @@ export const expenses = {
   defaultLayout: "books_receipts",
   layouts: {
     books_receipts: {
+      writeHints: [
+        "Chips.filter can only target a List, not the Expenses register. Keep the requested chip labels, set filter:null and view:null on every chip, and render the receipts in Expenses.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },

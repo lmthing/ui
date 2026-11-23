@@ -37,6 +37,8 @@ export const family = {
     leaders: {
       writeHints: [
         'Use List with lead "number", trail "value", no style, and 1–6 short titles. Use trail "none" on rows with no supplied score. Do not write points totals computed from chore data.',
+        "Rank is already shown by the numbered lead. Leave each row's mark and tone null unless the brief requests a visual highlight.",
+        "If no period-specific rows are supplied, keep the period labels but set Segmented filter:null and view:null on every option. Do not invent period data or panel IDs.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

@@ -18,6 +18,9 @@ export const groceries = {
       ],
     },
     pantry: {
+      writeHints: [
+        "Keep the requested Segmented labels, with filter:null and view:null on every option. This layout has one Pantry, not a List or separate category panels. Keep the stock in that Pantry.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
