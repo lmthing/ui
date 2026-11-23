@@ -1,11 +1,12 @@
 import { writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { build, type BuildOptions } from "esbuild";
 import ts from "typescript";
 import { packRendererPath, scanEntries } from "./entries";
 import { assertRuntimeBundle, runtimeBundle } from "./runtime-bundle";
 import { checkRendererScope } from "./renderer-graph";
+import { checkEntryTypes } from "./check-entry-types";
 
 async function kitEntries(root: string) {
   const { packs } = await scanEntries(root);
@@ -49,11 +50,15 @@ export async function buildKit(emitDeclarations = true) {
       name === "renderers/core" ? undefined : name.split("/")[1],
     );
   }
-  if (emitDeclarations) await emitTypes(root, { ...entries, ...tamagui });
+  if (emitDeclarations) {
+    await emitTypes(root, { ...entries, ...tamagui });
+    checkEntryTypes(root);
+  }
   console.log("Built kit, core and pack renderer entries with shared chunks and external peers.");
 }
 
 async function emitTypes(root: string, entries: Record<string, string>) {
+  const outDir = resolve(root, "dist/kit-types");
   const options: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.ESNext,
@@ -66,11 +71,23 @@ async function emitTypes(root: string, entries: Record<string, string>) {
     declaration: true,
     emitDeclarationOnly: true,
     rootDir: resolve(root, "src"),
-    outDir: resolve(root, "dist/kit-types"),
+    outDir,
+  };
+  const host = ts.createCompilerHost(options);
+  const write = host.writeFile.bind(host);
+  host.writeFile = (file, source, ...args) => {
+    const path = relative(outDir, file);
+    // Catalog symbols and other nominal types must have one declaration identity across both builds.
+    if (path.startsWith(`catalog${sep}`)) {
+      const target = relative(dirname(file), resolve(root, "dist/types", path)).replace(/\.d\.ts$/, "");
+      source = `export * from "${target.split(sep).join("/")}";\n`;
+    }
+    write(file, source, ...args);
   };
   const program = ts.createProgram(
     Object.values(entries).map((entry) => resolve(root, entry)),
     options,
+    host,
   );
   const result = program.emit();
   const errors = [...ts.getPreEmitDiagnostics(program), ...result.diagnostics];
