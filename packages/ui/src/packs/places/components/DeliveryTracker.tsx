@@ -73,61 +73,150 @@ export const probes = [
 type DeliveryProps = c.Props<typeof props, typeof meta>;
 type DeliveryCopy = ReturnType<typeof deliveryCopy>;
 
-// prettier-ignore
-function DeliveryHeading({ display, loading, etaLabel, density }: {
-  display: DeliveryCopy; loading: boolean; etaLabel: string; density: c.ThemeDensity;
+function DeliveryHeading({
+  display,
+  loading,
+  etaLabel,
+  density,
+}: {
+  display: DeliveryCopy;
+  loading: boolean;
+  etaLabel: string;
+  density: c.ThemeDensity;
 }) {
   const { delivered, eta, timed, step } = display;
   const etaRole = timed ? "number" : "label";
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
-    content={eta ? [["label", etaLabel], [etaRole, eta], ["label", step]] : [["title", step]]} />;
-  return <kit.KitContent density={density}>
-    {eta && <>
-      <kit.KitText part={null} role="label" tone="muted" density="comfortable">{etaLabel}</kit.KitText>
-      <kit.KitText part="eta" role={etaRole} tabular={timed} density="comfortable">{eta}</kit.KitText>
-    </>}
-    <kit.KitText part="step" role={delivered ? "title" : "label"} tone={delivered ? "good" : "muted"} density="comfortable">{step}</kit.KitText>
-  </kit.KitContent>;
+  if (loading)
+    return (
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        density={density}
+        content={
+          eta
+            ? [
+                ["label", etaLabel],
+                [etaRole, eta],
+                ["label", step],
+              ]
+            : [["title", step]]
+        }
+      />
+    );
+  return (
+    <kit.KitContent density={density}>
+      {eta && (
+        <>
+          <kit.KitText part={null} role="label" tone="muted" density="comfortable">
+            {etaLabel}
+          </kit.KitText>
+          <kit.KitText part="eta" role={etaRole} tabular={timed} density="comfortable">
+            {eta}
+          </kit.KitText>
+        </>
+      )}
+      <kit.KitText
+        part="step"
+        role={delivered ? "title" : "label"}
+        tone={delivered ? "good" : "muted"}
+        density="comfortable"
+      >
+        {step}
+      </kit.KitText>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function DeliveryContact({ courier, photo, call, courierLabel, density, loading }: {
-  courier: string | undefined; photo: string | undefined; call: string | undefined; courierLabel: string | undefined;
-  density: c.ThemeDensity; loading: boolean;
+function DeliveryContact({
+  courier,
+  photo,
+  call,
+  courierLabel,
+  density,
+  loading,
+}: {
+  courier: string | undefined;
+  photo: string | undefined;
+  call: string | undefined;
+  courierLabel: string | undefined;
+  density: c.ThemeDensity;
+  loading: boolean;
 }) {
   if (!courier && !photo) return null;
-  const avatar = photo && (loading
-    ? <kit.KitPhoto part="photo" shape="round" />
-    : <kit.KitPhoto part="photo" shape="round" {...{ photo }} {...(courier ? { label: courier } : {})} />);
-  const name = <kit.KitContent lead={avatar} leadingAlign="row" rhythm="flush" density={density}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["label", courier], ["label", courierLabel]]} /> : <>
-        {courier && <kit.KitText part="courier" role="label" emphasis="strong" density="comfortable">{courier}</kit.KitText>}
-        {courierLabel && <kit.KitText part={null} role="label" tone="muted" density="comfortable">{courierLabel}</kit.KitText>}
-    </>}
-  </kit.KitContent>;
-  return call ? <kit.KitGrid fitLast density={density}>
-    {name}
-    <kit.KitAction part="call" action="press" kind="secondary" icon="phone" label={call} />
-  </kit.KitGrid> : name;
+  const avatar =
+    photo &&
+    (loading ? (
+      <kit.KitPhoto part="photo" shape="round" />
+    ) : (
+      <kit.KitPhoto part="photo" shape="round" {...{ photo }} {...(courier ? { label: courier } : {})} />
+    ));
+  const name = (
+    <kit.KitContent lead={avatar} leadingAlign="row" rhythm="flush" density={density}>
+      {loading ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          content={[
+            ["label", courier],
+            ["label", courierLabel],
+          ]}
+        />
+      ) : (
+        <>
+          {courier && (
+            <kit.KitText part="courier" role="label" emphasis="strong" density="comfortable">
+              {courier}
+            </kit.KitText>
+          )}
+          {courierLabel && (
+            <kit.KitText part={null} role="label" tone="muted" density="comfortable">
+              {courierLabel}
+            </kit.KitText>
+          )}
+        </>
+      )}
+    </kit.KitContent>
+  );
+  return call ? (
+    <kit.KitGrid fitLast density={density}>
+      {name}
+      <kit.KitAction part="call" action="press" kind="secondary" icon="phone" label={call} />
+    </kit.KitGrid>
+  ) : (
+    name
+  );
 }
 
-// prettier-ignore
 export function DeliveryTracker(input: DeliveryProps) {
-  const state = kit.useComponentState(), loading = state === "loading";
+  const state = kit.useComponentState(),
+    loading = state === "loading";
   const density = kit.useKit().density;
   const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { lang, words } = kit.useWords(placesWordsFor);
   const display = deliveryCopy(input, state, kit.useDeviceData(), lang);
-  return <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-    <DeliveryHeading {...{ display, loading, density }} etaLabel={words.deliveryEta} />
-    {loading ? <kit.KitCard part="map" style="plain">
-      <kit.KitSkeleton shape="media" inset="none" content={[]} />
-    </kit.KitCard> : <kit.KitMapTile part="map" pins={display.pins} />}
-    {(input.courier || (media === "thumb" && input.photo)) && <kit.KitContent group="response" density={density}>
-      <DeliveryContact courier={input.courier} photo={media === "thumb" ? input.photo : undefined}
-        call={display.call} courierLabel={display.courierLabel} {...{ density, loading }} />
-    </kit.KitContent>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
+      <DeliveryHeading {...{ display, loading, density }} etaLabel={words.deliveryEta} />
+      {loading ? (
+        <kit.KitCard part="map" style="plain">
+          <kit.KitSkeleton shape="media" inset="none" content={[]} />
+        </kit.KitCard>
+      ) : (
+        <kit.KitMapTile part="map" pins={display.pins} />
+      )}
+      {(input.courier || (media === "thumb" && input.photo)) && (
+        <kit.KitContent group="response" density={density}>
+          <DeliveryContact
+            courier={input.courier}
+            photo={media === "thumb" ? input.photo : undefined}
+            call={display.call}
+            courierLabel={display.courierLabel}
+            {...{ density, loading }}
+          />
+        </kit.KitContent>
+      )}
+    </kit.KitCard>
+  );
 }

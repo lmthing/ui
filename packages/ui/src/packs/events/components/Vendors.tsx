@@ -33,10 +33,21 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due"] } },
   parts: ["root", "totals", "empty"],
-  // prettier-ignore
   items: {
     key: "vendors",
-    parts: ["root", "supplier", "role", "name", "cost", "paid", "balance", "due", "booked", "call", "call_icon"],
+    parts: [
+      "root",
+      "supplier",
+      "role",
+      "name",
+      "cost",
+      "paid",
+      "balance",
+      "due",
+      "booked",
+      "call",
+      "call_icon",
+    ],
   },
   partTiers: { call: "service" },
   states: ["filled", "empty"],
@@ -129,70 +140,128 @@ type VendorRow = VendorsProps["vendors"][number];
 type Finish = { density: c.ThemeDensity; surface: c.SurfaceFinish };
 type AmountFigure = ReturnType<typeof vendorAmounts>[number];
 
-// prettier-ignore
-function PaymentFigure({ label, value, part, density, focal = false }: {
-  label: string; value: string; part: string | null; density: c.ThemeDensity; focal?: boolean;
+function PaymentFigure({
+  label,
+  value,
+  part,
+  density,
+  focal = false,
+}: {
+  label: string;
+  value: string;
+  part: string | null;
+  density: c.ThemeDensity;
+  focal?: boolean;
 }) {
   const align = focal ? "start" : "end";
-  return <kit.KitContent density={density}>
-    <kit.KitText part={null} role="caption" tone="muted" align={align}>{label}</kit.KitText>
-    <kit.KitText part={part} role="number" numberScale={focal ? "display" : "compact"} tabular
-      tone={focal ? "accent" : "text"} align={align} density={density}>{value}</kit.KitText>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitText part={null} role="caption" tone="muted" align={align}>
+        {label}
+      </kit.KitText>
+      <kit.KitText
+        part={part}
+        role="number"
+        numberScale={focal ? "display" : "compact"}
+        tabular
+        tone={focal ? "accent" : "text"}
+        align={align}
+        density={density}
+      >
+        {value}
+      </kit.KitText>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function VendorTotals({ totals: [balance, ...other], density, surface }: Finish & {
+function VendorTotals({
+  totals: [balance, ...other],
+  density,
+  surface,
+}: Finish & {
   totals: readonly [AmountFigure, ...AmountFigure[]];
 }) {
-  return <kit.KitCard part="totals" {...{ density, surface }} padded>
-    <PaymentFigure {...balance} part={null} density={density} focal />
-    <kit.KitContent group="response" density={density}>
-      <kit.KitGrid columns={2} density={density}>
-        {other.map((figure) => <PaymentFigure key={figure.part} {...figure} part={null} density={density} />)}
-      </kit.KitGrid>
-    </kit.KitContent>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="totals" {...{ density, surface }} padded>
+      <PaymentFigure {...balance} part={null} density={density} focal />
+      <kit.KitContent group="response" density={density}>
+        <kit.KitGrid columns={2} density={density}>
+          {other.map((figure) => (
+            <PaymentFigure key={figure.part} {...figure} part={null} density={density} />
+          ))}
+        </kit.KitGrid>
+      </kit.KitContent>
+    </kit.KitCard>
+  );
 }
 
-// prettier-ignore
-function Supplier({ row, detail, density, surface }: Finish & { row: VendorRow; detail: VendorsProps["detail"] }) {
+function Supplier({
+  row,
+  detail,
+  density,
+  surface,
+}: Finish & { row: VendorRow; detail: VendorsProps["detail"] }) {
   const { lang } = kit.useWords(eventsWordsFor);
   const scope = kit.usePartContext();
   const { booked, due, call } = vendorCopy(row, detail, lang);
-  return <kit.PartScope {...scope} item={row.id}>
-    <kit.KitCard part="supplier" {...{ density, surface }} padded>
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitRow part="root" role="button" label={row.name} density={density} inline lineRole="body"
-          leading={<kit.KitIcon part="role" name={vendorIcons[row.role]} />}
-          trailing={<kit.KitIcon name="chevron_right" scale="sm" decorative />}>
-          <kit.KitText part="name" role="body" density={density}>{row.name}</kit.KitText>
-          <kit.KitText part="booked" role="caption" tone="muted">{booked}</kit.KitText>
-        </kit.KitRow>
-        {call && <kit.KitAction part="call" kind="secondary" icon="phone" a11y={call} />}
-      </kit.KitGrid>
-      <kit.KitGrid columns={3} density={density}>
-        {vendorAmounts([row], false, lang).map((figure) => <PaymentFigure key={figure.part} {...figure} density={density} />)}
-      </kit.KitGrid>
-      {due && <kit.KitText part="due" role="caption" tone="muted">{due}</kit.KitText>}
-    </kit.KitCard>
-  </kit.PartScope>;
+  return (
+    <kit.PartScope {...scope} item={row.id}>
+      <kit.KitCard part="supplier" {...{ density, surface }} padded>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitRow
+            part="root"
+            role="button"
+            label={row.name}
+            density={density}
+            inline
+            lineRole="body"
+            leading={<kit.KitIcon part="role" name={vendorIcons[row.role]} />}
+            trailing={<kit.KitIcon name="chevron_right" scale="sm" decorative />}
+          >
+            <kit.KitText part="name" role="body" density={density}>
+              {row.name}
+            </kit.KitText>
+            <kit.KitText part="booked" role="caption" tone="muted">
+              {booked}
+            </kit.KitText>
+          </kit.KitRow>
+          {call && <kit.KitAction part="call" kind="secondary" icon="phone" a11y={call} />}
+        </kit.KitGrid>
+        <kit.KitGrid columns={3} density={density}>
+          {vendorAmounts([row], false, lang).map((figure) => (
+            <PaymentFigure key={figure.part} {...figure} density={density} />
+          ))}
+        </kit.KitGrid>
+        {due && (
+          <kit.KitText part="due" role="caption" tone="muted">
+            {due}
+          </kit.KitText>
+        )}
+      </kit.KitCard>
+    </kit.PartScope>
+  );
 }
 
-// prettier-ignore
 export function Vendors(input: VendorsProps) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(eventsWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
-    <kit.KitEmpty part="empty" icon="briefcase" decorativeIcon />
-  </kit.KitCard>;
-  return <kit.KitCard part="root" style="cards" density={density}>
-    <VendorTotals totals={vendorAmounts(input.vendors, true, lang)} {...{ density, surface }} />
-    <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
-      {input.vendors.map((row) => <Supplier key={row.id} {...{ row, detail, density, surface }} />)}
-    </kit.KitGrid>
-  </kit.KitCard>;
+  if (state === "empty")
+    return (
+      <kit.KitCard part="root" {...{ density, surface }}>
+        <kit.KitEmpty part="empty" icon="briefcase" decorativeIcon />
+      </kit.KitCard>
+    );
+  return (
+    <kit.KitCard part="root" style="cards" density={density}>
+      <VendorTotals totals={vendorAmounts(input.vendors, true, lang)} {...{ density, surface }} />
+      <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+        {input.vendors.map((row) => (
+          <Supplier key={row.id} {...{ row, detail, density, surface }} />
+        ))}
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
 }

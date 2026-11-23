@@ -1,8 +1,19 @@
 import { z } from "zod";
+import type { ReactNode } from "react";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { fieldStatus, formCopyRequest, formCount, formDraft, formFailure, formField, formGates, formLimit, formProgress, formReading } from "../copy";
+import {
+  fieldStatus,
+  formCopyRequest,
+  formCount,
+  formDraft,
+  formFailure,
+  formField,
+  formGates,
+  formLimit,
+  formProgress,
+  formReading,
+} from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedFile, seedRows } from "../seeds";
 import { prompt } from "../../../entry/prompt-FormFiller.generated";
@@ -127,80 +138,182 @@ type View = c.Props<typeof props, typeof meta>;
 type Form = Omit<View, "fields"> & ReturnType<typeof formGates>;
 type Row = Form["fields"][number];
 type Density = c.ThemeDensity;
+type FormWords = ReturnType<typeof paperworkWordsFor>["formFiller"];
 
-// prettier-ignore
-function FormField({ row, density }: { row: Row; density: Density }) {
-  const { words: { formFiller: words } } = kit.useWords(paperworkWordsFor);
-  const state = kit.useComponentState(), loading = state === "loading", inactive = state === "error";
-  const label = row.required ? words.requiredLabel(row.label) : row.label;
-  const error = row.status === "invalid" ? row.kind === "date" ? words.invalidDate : words.invalidNumber : undefined;
-  const line = <kit.KitLayoutText {...{ density }} line={{ part: "label", text: label, role: "meta", strong: true }} />;
-  if (inactive) {
-    const value = row.checkbox ? (row.checked ? words.checked : words.unchecked) :
-      (typeof row.value === "string" && row.value.trim()) || words.notEntered;
-    return <kit.KitRow item={row.id} part={null} inset="none" inline fitContent label={label} {...{ density }}>
-      <kit.KitContent {...{ density }}>{line}
+function InactiveField(row: Row, line: ReactNode, label: string, density: Density, words: FormWords) {
+  const value = row.checkbox
+    ? row.checked
+      ? words.checked
+      : words.unchecked
+    : (typeof row.value === "string" && row.value.trim()) || words.notEntered;
+  return (
+    <kit.KitRow item={row.id} part={null} inset="none" inline fitContent label={label} {...{ density }}>
+      <kit.KitContent {...{ density }}>
+        {line}
         <kit.KitLayoutText {...{ density }} line={{ text: value, role: "body", tone: "muted" }} />
-      </kit.KitContent></kit.KitRow>;
-  }
-  if (row.checkbox) return <kit.KitRow item={row.id} inset="none" inline label={label} {...{ density }}>
-    <kit.KitGrid fitLast {...{ density }}>{line}
-      {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
-        <kit.KitCheck part="check" done={row.checked} {...{ label }} />}
-    </kit.KitGrid></kit.KitRow>;
-  return <kit.KitRow item={row.id} inset="none" inline label={label} {...{ density }}>
-    <kit.KitContent {...{ density }}>
-      {line}
-      <kit.KitInput part="field" kind={row.kind === "number" ? "number" : "text"} {...{ label }}
-        hint={row.kind === "date" ? words.date : row.kind === "number" ? words.number : words.text}
-        value={typeof row.value === "string" ? row.value : ""} compact={density === "compact"} projected />
-      {error && <kit.KitLayoutText {...{ density }} line={{ part: "hint", text: error, role: "caption", tone: "bad" }} />}
-    </kit.KitContent></kit.KitRow>;
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-function FormProgress({ label, amount, ratio, density }: { label: string; amount: string; ratio: number; density: Density }) {
+function FormField({ row, density }: { row: Row; density: Density }) {
+  const {
+    words: { formFiller: words },
+  } = kit.useWords(paperworkWordsFor);
+  const state = kit.useComponentState();
+  const loading = state === "loading";
+  const inactive = state === "error";
+  const label = row.required ? words.requiredLabel(row.label) : row.label;
+  const error =
+    row.status === "invalid" ? (row.kind === "date" ? words.invalidDate : words.invalidNumber) : undefined;
+  const line = (
+    <kit.KitLayoutText {...{ density }} line={{ part: "label", text: label, role: "meta", strong: true }} />
+  );
+  if (inactive) return InactiveField(row, line, label, density, words);
+  if (row.checkbox)
+    return (
+      <kit.KitRow item={row.id} inset="none" inline label={label} {...{ density }}>
+        <kit.KitGrid fitLast {...{ density }}>
+          {line}
+          {loading ? (
+            <kit.KitSkeleton shape="control" kind="quiet" />
+          ) : (
+            <kit.KitCheck part="check" done={row.checked} {...{ label }} />
+          )}
+        </kit.KitGrid>
+      </kit.KitRow>
+    );
+  return (
+    <kit.KitRow item={row.id} inset="none" inline label={label} {...{ density }}>
+      <kit.KitContent {...{ density }}>
+        {line}
+        <kit.KitInput
+          part="field"
+          kind={row.kind === "number" ? "number" : "text"}
+          {...{ label }}
+          hint={row.kind === "date" ? words.date : row.kind === "number" ? words.number : words.text}
+          value={typeof row.value === "string" ? row.value : ""}
+          compact={density === "compact"}
+          projected
+        />
+        {error && (
+          <kit.KitLayoutText
+            {...{ density }}
+            line={{ part: "hint", text: error, role: "caption", tone: "bad" }}
+          />
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+function FormProgress({
+  label,
+  amount,
+  ratio,
+  density,
+}: {
+  label: string;
+  amount: string;
+  ratio: number;
+  density: Density;
+}) {
   const loading = kit.useComponentState() === "loading";
-  return <kit.KitContent rhythm="flush" {...{ density }}>
-    <kit.KitGrid fitLast {...{ density }}>
-      <kit.KitLayoutText {...{ density }} line={{ part: "label", text: label, role: "meta" }} />
-      <kit.KitLayoutText {...{ density }} align="end" line={{ part: "amount", text: amount, role: "meta", tone: "muted", tabular: true }} />
-    </kit.KitGrid>
-    <kit.KitMeter label="" amount="" ratio={loading ? 0 : ratio} slim addressed={false} />
-  </kit.KitContent>;
+  return (
+    <kit.KitContent rhythm="flush" {...{ density }}>
+      <kit.KitGrid fitLast {...{ density }}>
+        <kit.KitLayoutText {...{ density }} line={{ part: "label", text: label, role: "meta" }} />
+        <kit.KitLayoutText
+          {...{ density }}
+          align="end"
+          line={{ part: "amount", text: amount, role: "meta", tone: "muted", tabular: true }}
+        />
+      </kit.KitGrid>
+      <kit.KitMeter label="" amount="" ratio={loading ? 0 : ratio} slim addressed={false} />
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
+function FormPreview(label: string, preview: boolean | undefined, density: Density, loading: boolean) {
+  return (
+    <kit.KitRow
+      part={!loading && preview ? "preview" : null}
+      role={!loading && preview ? "button" : "text"}
+      label={label}
+      lineRole="label"
+      inline
+      inset="none"
+      {...{ density }}
+      leading={
+        <kit.KitIcon name="file_text" decorative tone={preview ? "accent" : "muted"} {...{ loading }} />
+      }
+    >
+      <kit.KitLayoutText
+        {...{ density }}
+        line={{ text: label, role: "meta", tone: preview ? "accent" : "muted" }}
+      />
+    </kit.KitRow>
+  );
+}
+
 function FormBody({ form, density }: { form: Form; density: Density }) {
-  const { lang, words: { formFiller: words } } = kit.useWords(paperworkWordsFor);
-  const state = kit.useComponentState(), loading = state === "loading", inactive = state === "error";
-  const scope = kit.usePartContext(), { interactive, controller } = kit.useKit();
-  const preview = !interactive || controller?.actionsAt(c.formatAddress({ ...scope, part: "preview" })).includes("press");
-  const progress = formProgress(form.fields), amount = formCount(progress, lang);
+  const {
+    lang,
+    words: { formFiller: words },
+  } = kit.useWords(paperworkWordsFor);
+  const state = kit.useComponentState();
+  const loading = state === "loading";
+  const inactive = state === "error";
+  const scope = kit.usePartContext();
+  const { interactive, controller } = kit.useKit();
+  const preview =
+    !interactive || controller?.actionsAt(c.formatAddress({ ...scope, part: "preview" })).includes("press");
+  const progress = formProgress(form.fields);
+  const amount = formCount(progress, lang);
   const fields = form.fields.filter(({ shown }) => shown);
-  return <>
-    <kit.KitHeader {...{ density }} title={{ part: "title", text: form.title }} />
-    <FormProgress label={words.progress} {...{ amount, density }} ratio={progress.ratio} />
-    {!inactive && <kit.KitRow part={!loading && preview ? "preview" : null} role={!loading && preview ? "button" : "text"}
-      label={words.preview} lineRole="label" inline inset="none" {...{ density }}
-      leading={<kit.KitIcon name="file_text" decorative tone={preview ? "accent" : "muted"} {...{ loading }} />}>
-      <kit.KitLayoutText {...{ density }} line={{ text: words.preview, role: "meta", tone: preview ? "accent" : "muted" }} />
-    </kit.KitRow>}
-    <kit.KitRowGroup {...{ density }} separators={false} spacing="groups">
-      {fields.map((row) => <FormField key={row.id} {...{ row, density }} />)}
-    </kit.KitRowGroup>
-    {!fields.length && <kit.KitLayoutText {...{ density }} line={{ text: words.noneRequired, role: "meta", tone: "muted" }} />}
-    {!inactive && <kit.KitActionFooter {...{ density }}>
-      <kit.KitAction part={loading ? null : "save"} label={words.save} disabled={!form.canSave} contentParts={{}} />
-      <kit.KitAction part={loading ? null : "clear"} label={words.clear} kind="danger" disabled={!form.canClear} contentParts={{}} />
-    </kit.KitActionFooter>}
-  </>;
+  return (
+    <>
+      <kit.KitHeader {...{ density }} title={{ part: "title", text: form.title }} />
+      <FormProgress label={words.progress} {...{ amount, density }} ratio={progress.ratio} />
+      {!inactive && FormPreview(words.preview, preview, density, loading)}
+      <kit.KitRowGroup {...{ density }} separators={false} spacing="groups">
+        {fields.map((row) => (
+          <FormField key={row.id} {...{ row, density }} />
+        ))}
+      </kit.KitRowGroup>
+      {!fields.length && (
+        <kit.KitLayoutText
+          {...{ density }}
+          line={{ text: words.noneRequired, role: "meta", tone: "muted" }}
+        />
+      )}
+      {!inactive && (
+        <kit.KitActionFooter {...{ density }}>
+          <kit.KitAction
+            part={loading ? null : "save"}
+            label={words.save}
+            disabled={!form.canSave}
+            contentParts={{}}
+          />
+          <kit.KitAction
+            part={loading ? null : "clear"}
+            label={words.clear}
+            kind="danger"
+            disabled={!form.canClear}
+            contentParts={{}}
+          />
+        </kit.KitActionFooter>
+      )}
+    </>
+  );
 }
 
-// prettier-ignore
 export function FormFiller(input: View) {
-  const scope = kit.usePartContext(), { state } = scope;
-  const { words: { formFiller: words } } = kit.useWords(paperworkWordsFor);
+  const scope = kit.usePartContext(),
+    { state } = scope;
+  const {
+    words: { formFiller: words },
+  } = kit.useWords(paperworkWordsFor);
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const form = kit.useLiveControls(meta, { ...input, detail }) as Form;
@@ -211,13 +324,36 @@ export function FormFiller(input: View) {
   const failed = operation?.status === "rejected";
   const display = saving ? "loading" : accepted ? "success" : failed ? "error" : state;
   const previewFailure = formFailure(kit.useDeviceData(), scope.component);
-  const message = display === "success" ? words.saved : display === "error" ?
-    (failed ? save ? words.failed : words.previewFailed : previewFailure ? words.previewFailed : words.failed) : words.empty;
-  const body = <kit.PartScope {...scope} state={saving ? "loading" : state}><FormBody {...{ form, density }} /></kit.PartScope>;
-  return <kit.KitCard part="root" padded density={density}>
-    <kit.PartScope {...scope} state={display}>
-      <kit.KitState {...{ density, message }} part="status" icon={display === "empty" ? "file_text" : undefined}
-        retain={display === "error" || accepted} loading={body}>{body}</kit.KitState>
+  const message =
+    display === "success"
+      ? words.saved
+      : display === "error"
+        ? failed
+          ? save
+            ? words.failed
+            : words.previewFailed
+          : previewFailure
+            ? words.previewFailed
+            : words.failed
+        : words.empty;
+  const body = (
+    <kit.PartScope {...scope} state={saving ? "loading" : state}>
+      <FormBody {...{ form, density }} />
     </kit.PartScope>
-  </kit.KitCard>;
+  );
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.PartScope {...scope} state={display}>
+        <kit.KitState
+          {...{ density, message }}
+          part="status"
+          icon={display === "empty" ? "file_text" : undefined}
+          retain={display === "error" || accepted}
+          loading={body}
+        >
+          {body}
+        </kit.KitState>
+      </kit.PartScope>
+    </kit.KitCard>
+  );
 }

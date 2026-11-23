@@ -23,10 +23,22 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["category", "tags"] } },
   parts: ["root", "empty", "error"],
   deviceData: ["currency"],
-  // prettier-ignore
   items: {
     key: "items",
-    parts: ["root", "payee", "date", "amount", "category", "file", "allocation", "allocated_amount", "reviewed", "tags", "remove", "remove_icon"],
+    parts: [
+      "root",
+      "payee",
+      "date",
+      "amount",
+      "category",
+      "file",
+      "allocation",
+      "allocated_amount",
+      "reviewed",
+      "tags",
+      "remove",
+      "remove_icon",
+    ],
   },
   states: ["filled", "empty", "loading", "error"],
   live: { checks: { reviewed: "reviewed" } },
@@ -56,14 +68,20 @@ const receipt = z
   })
   .overwrite((row) => ({ ...row, can_open: Boolean(row.file || row.goto) }));
 
-// prettier-ignore
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
-  items: z.array(receipt).min(1).max(6),
-  style: z.enum(["cards"]).optional(),
-}).overwrite((value) => value.detail === "brief" ? {
-  ...value, items: value.items.map((row) => ({ ...row, category: undefined, tags: [] })),
-} : value);
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    items: z.array(receipt).min(1).max(6),
+    style: z.enum(["cards"]).optional(),
+  })
+  .overwrite((value) =>
+    value.detail === "brief"
+      ? {
+          ...value,
+          items: value.items.map((row) => ({ ...row, category: undefined, tags: [] })),
+        }
+      : value,
+  );
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -77,18 +95,33 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     items: [
-      { payee: "Fern Nursery", date: "2026-11-19", amount: 24.5, category: "Supplies",
-        file: "lib:ledge_supplies", allocation: 50, reviewed: false, tags: ["pots"], goto: "pots" },
+      {
+        payee: "Fern Nursery",
+        date: "2026-11-19",
+        amount: 24.5,
+        category: "Supplies",
+        file: "lib:ledge_supplies",
+        allocation: 50,
+        reviewed: false,
+        tags: ["pots"],
+        goto: "pots",
+      },
     ],
   },
   {
     style: "cards",
     items: [
-      { payee: "Walk Supply", date: "2026-11-05", amount: 36, file: "lib:trot_supplies", reviewed: true, tags: ["expenses"] },
+      {
+        payee: "Walk Supply",
+        date: "2026-11-05",
+        amount: 36,
+        file: "lib:trot_supplies",
+        reviewed: true,
+        tags: ["expenses"],
+      },
       { payee: "Park Permit Office", date: "2026-11-12", amount: 12, reviewed: false, tags: ["fees"] },
     ],
   },
@@ -114,65 +147,161 @@ export const probes = [
 
 type ReceiptsProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function ReceiptItem({ row, density, surface, currency }: {
-  row: ReceiptsProps["items"][number]; density: c.ThemeDensity; surface: "card" | "plain" | undefined; currency: c.Currency;
-}) {
-  const { lang, words: { receipts: words } } = kit.useWords(paperworkWordsFor);
-  const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
-  const [amount, ...details] = receiptDetails(row, currency, lang);
-  const skeleton = <kit.KitSkeleton shape="control" kind="quiet" />;
-  const groups = [["date", "category"], ["allocation", "allocated_amount"]]
-    .map((parts) => details.filter(({ part }) => parts.includes(part)));
-  const evidence = ["tags", "file"].flatMap((part) => details.filter((detail) => detail.part === part))
-    .map(({ part, line }) => <kit.KitLayoutText key={part}
-      line={{ part, text: line, role: "caption", tone: "muted" }} {...{ density }} />);
-  const draw = (group: (typeof groups)[number]) => {
-    if (!group.length) return null;
-    const key = group[0]!.part;
-    if (loading) return <kit.KitLayoutText key={key} {...{ density }}
-      line={{ role: "caption", text: group.map(({ line }) => line).join(words.separator) }} />;
-    return <kit.KitText key={key} part={null} role="caption" tone="muted" density={density}>
-      {group.map(({ part, line }, index) => <kit.KitText key={part} {...{ part, density }} role="caption" tone="muted">
-        {index ? words.separator : undefined}{line}
-      </kit.KitText>)}
-    </kit.KitText>;
-  };
-  return <kit.KitRow item={row.id} part={null} label="" {...{ density, surface }}
-    trailing={loading ? <>{skeleton}{skeleton}</> : <>
-      <kit.KitCheck part="reviewed" label={words.review(row.payee)} done={row.reviewed} />
-      <kit.KitAction kind="quiet" icon="close" part="remove" a11y={words.remove(row.payee)} />
-    </>}>
-    <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.payee}
-      goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
-      leading={<kit.KitIcon name={row.file ? "paperclip" : row.goto ? "chevron_right" : "file_text"}
-        tone={canOpen ? "accent" : "muted"} decorative loading={loading} />}>
-      <kit.KitContent density={density}>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitLayoutText line={{ part: "payee", text: row.payee }} {...{ density }} />
-          <kit.KitLayoutText line={{ part: "amount", text: amount?.line, role: "figure", compact: true, tabular: true }}
-            align="end" {...{ density }} />
-        </kit.KitGrid>
-        <kit.KitContent rhythm="flush" density={density}>
-          {groups.map(draw)}
-          {evidence.length === 2 ? <kit.KitGrid fitLast density={density}>{evidence}</kit.KitGrid> : evidence}
-        </kit.KitContent>
-      </kit.KitContent>
-    </kit.KitRow>
-  </kit.KitRow>;
+type ReceiptLine = ReturnType<typeof receiptDetails>[number];
+type ReceiptWords = ReturnType<typeof paperworkWordsFor>["receipts"];
+
+function ReceiptGroup(group: ReceiptLine[], separator: string, density: c.ThemeDensity, loading: boolean) {
+  if (!group.length) return null;
+  const key = group[0]!.part;
+  if (loading)
+    return (
+      <kit.KitLayoutText
+        key={key}
+        {...{ density }}
+        line={{ role: "caption", text: group.map(({ line }) => line).join(separator) }}
+      />
+    );
+  return (
+    <kit.KitText key={key} part={null} role="caption" tone="muted" density={density}>
+      {group.map(({ part, line }, index) => (
+        <kit.KitText key={part} {...{ part, density }} role="caption" tone="muted">
+          {index ? separator : undefined}
+          {line}
+        </kit.KitText>
+      ))}
+    </kit.KitText>
+  );
 }
 
-// prettier-ignore
+function ReceiptBreakdown(
+  details: ReceiptLine[],
+  separator: string,
+  density: c.ThemeDensity,
+  loading: boolean,
+) {
+  const groups = [
+    ["date", "category"],
+    ["allocation", "allocated_amount"],
+  ].map((parts) => details.filter(({ part }) => parts.includes(part)));
+  const evidence = ["tags", "file"]
+    .flatMap((part) => details.filter((detail) => detail.part === part))
+    .map(({ part, line }) => (
+      <kit.KitLayoutText
+        key={part}
+        line={{ part, text: line, role: "caption", tone: "muted" }}
+        {...{ density }}
+      />
+    ));
+
+  return (
+    <kit.KitContent rhythm="flush" density={density}>
+      {groups.map((group) => ReceiptGroup(group, separator, density, loading))}
+      {evidence.length === 2 ? (
+        <kit.KitGrid fitLast density={density}>
+          {evidence}
+        </kit.KitGrid>
+      ) : (
+        evidence
+      )}
+    </kit.KitContent>
+  );
+}
+
+function ReceiptActions(row: ReceiptsProps["items"][number], words: ReceiptWords, loading: boolean) {
+  const skeleton = <kit.KitSkeleton shape="control" kind="quiet" />;
+  return loading ? (
+    <>
+      {skeleton}
+      {skeleton}
+    </>
+  ) : (
+    <>
+      <kit.KitCheck part="reviewed" label={words.review(row.payee)} done={row.reviewed} />
+      <kit.KitAction kind="quiet" icon="close" part="remove" a11y={words.remove(row.payee)} />
+    </>
+  );
+}
+
+function ReceiptItem({
+  row,
+  density,
+  surface,
+  currency,
+}: {
+  row: ReceiptsProps["items"][number];
+  density: c.ThemeDensity;
+  surface: "card" | "plain" | undefined;
+  currency: c.Currency;
+}) {
+  const {
+    lang,
+    words: { receipts: words },
+  } = kit.useWords(paperworkWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const canOpen = Boolean(row.file || row.goto);
+  const [amount, ...details] = receiptDetails(row, currency, lang);
+
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={null}
+      label=""
+      {...{ density, surface }}
+      trailing={ReceiptActions(row, words, loading)}
+    >
+      <kit.KitRow
+        part={loading ? null : "root"}
+        inline
+        surface="plain"
+        label={loading ? "" : row.payee}
+        goto={loading ? undefined : row.goto}
+        role={!loading && row.file ? "button" : "text"}
+        density={density}
+        leading={
+          <kit.KitIcon
+            name={row.file ? "paperclip" : row.goto ? "chevron_right" : "file_text"}
+            tone={canOpen ? "accent" : "muted"}
+            decorative
+            loading={loading}
+          />
+        }
+      >
+        <kit.KitContent density={density}>
+          <kit.KitGrid fitLast density={density}>
+            <kit.KitLayoutText line={{ part: "payee", text: row.payee }} {...{ density }} />
+            <kit.KitLayoutText
+              line={{ part: "amount", text: amount?.line, role: "figure", compact: true, tabular: true }}
+              align="end"
+              {...{ density }}
+            />
+          </kit.KitGrid>
+          {ReceiptBreakdown(details, words.separator, density, loading)}
+        </kit.KitContent>
+      </kit.KitRow>
+    </kit.KitRow>
+  );
+}
+
 export function Receipts({ items, style }: ReceiptsProps) {
   const surface = "card";
   const density = kit.useKit().density;
-  const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
-  const currency = receiptCurrency(kit.useDeviceData()), cards = style === "cards";
-  return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="file_text" decorativeIcon />
-      : state === "error" ? <kit.KitEmpty part="error" icon="file_text" decorativeIcon title={words.receipts.unavailable} />
-      : <kit.KitGrid list arrange="rows" listRowGap={cards ? "cards" : undefined} density={density}>
-        {items.map((row) => <ReceiptItem key={row.id} {...{ row, density, currency }} surface={cards ? surface : undefined} />)}
-      </kit.KitGrid>}
-  </kit.KitCard>;
+  const state = kit.useComponentState(),
+    { words } = kit.useWords(paperworkWordsFor);
+  const currency = receiptCurrency(kit.useDeviceData()),
+    cards = style === "cards";
+  return (
+    <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" icon="file_text" decorativeIcon />
+      ) : state === "error" ? (
+        <kit.KitEmpty part="error" icon="file_text" decorativeIcon title={words.receipts.unavailable} />
+      ) : (
+        <kit.KitGrid list arrange="rows" listRowGap={cards ? "cards" : undefined} density={density}>
+          {items.map((row) => (
+            <ReceiptItem key={row.id} {...{ row, density, currency }} surface={cards ? surface : undefined} />
+          ))}
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

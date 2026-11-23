@@ -51,27 +51,28 @@ export const meta = {
     ];
   },
 } as const satisfies Meta;
-// prettier-ignore
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  title: text(32),
-  stages: z
-    .array(
-      z.strictObject({
-        label: text(20),
-        count: z.number().min(0),
-        value: z.number().min(0).optional(),
-        goto: screenId.optional(),
-      }),
-    )
-    .min(2)
-    .max(6),
-  unit: text(12).optional(),
-  style: z.enum(["bars", "summary"]).default("bars"),
-}).overwrite((input) => ({
-  ...input,
-  stages: input.stages.map((stage) => ({ ...stage, linked: Boolean(stage.goto) })),
-}));
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    title: text(32),
+    stages: z
+      .array(
+        z.strictObject({
+          label: text(20),
+          count: z.number().min(0),
+          value: z.number().min(0).optional(),
+          goto: screenId.optional(),
+        }),
+      )
+      .min(2)
+      .max(6),
+    unit: text(12).optional(),
+    style: z.enum(["bars", "summary"]).default("bars"),
+  })
+  .overwrite((input) => ({
+    ...input,
+    stages: input.stages.map((stage) => ({ ...stage, linked: Boolean(stage.goto) })),
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -131,38 +132,90 @@ export const probes = [
 type FunnelProps = Props<typeof props, typeof meta>;
 type StageLine = ReturnType<typeof funnelLines>["stages"][number];
 
-// prettier-ignore
-function FunnelStage({ stage, line, compact, first, density, loading }: {
-  stage: FunnelProps["stages"][number]; line: StageLine; compact: boolean;
-  first: boolean; density: ThemeDensity; loading: boolean;
-}) {
-  const count = { text: line.count, part: "count", role: "figure", compact: true, tabular: true } as const;
-  const value = { text: line.value, part: "value", role: compact ? "meta" : "caption", tabular: true } as const;
-  const step = { text: line.step, part: "step", role: "caption" } as const;
-  const title = { text: stage.label, part: "label", ...(stage.goto && { tone: "accent" as const }) };
-  return <kit.KitContent density={density}>
-    <kit.KitRow item={stage.id} label={stage.label} goto={loading ? undefined : stage.goto}
-      density={density} inset="none" inline={!compact || first} fitContent
-      trailing={!compact && <kit.KitLayoutText line={count} align="end" density={density} />}>
-      {compact ? <kit.KitContent density={density}>
-        <kit.KitRow part={null} label={stage.label} inline fitContent density={density}
-          trailing={line.step && <kit.KitTrail kind="badge" value={line.step} part="step" density={density} tone="muted" />}>
-          <kit.KitLayoutText line={title} density={density} />
-        </kit.KitRow>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitLayoutText line={count} density={density} />
-          <kit.KitLayoutText line={{ ...value, tone: "muted" }} align="end" density={density} />
-        </kit.KitGrid>
-      </kit.KitContent> : line.step && line.value ? <kit.KitContent density={density}>
+function CompactStage(
+  label: string,
+  step: StageLine["step"],
+  title: Parameters<typeof kit.KitLayoutText>[0]["line"],
+  count: Parameters<typeof kit.KitLayoutText>[0]["line"],
+  value: Parameters<typeof kit.KitLayoutText>[0]["line"],
+  density: ThemeDensity,
+) {
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitRow
+        part={null}
+        label={label}
+        inline
+        fitContent
+        density={density}
+        trailing={
+          step && <kit.KitTrail kind="badge" value={step} part="step" density={density} tone="muted" />
+        }
+      >
         <kit.KitLayoutText line={title} density={density} />
-        <kit.KitFigure value={{ ...step, tone: "muted" }} unit={value} density={density} />
-      </kit.KitContent> : <kit.KitMetaLine {...{ title, density }} meta={[step, value]} />}
-    </kit.KitRow>
-    {!compact && <kit.KitMeter label="" amount="" ratio={loading ? 0 : line.ratio} slim addressed={false} />}
-  </kit.KitContent>;
+      </kit.KitRow>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitLayoutText line={count} density={density} />
+        <kit.KitLayoutText line={{ ...value, tone: "muted" }} align="end" density={density} />
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
+function FunnelStage({
+  stage,
+  line,
+  compact,
+  first,
+  density,
+  loading,
+}: {
+  stage: FunnelProps["stages"][number];
+  line: StageLine;
+  compact: boolean;
+  first: boolean;
+  density: ThemeDensity;
+  loading: boolean;
+}) {
+  const count = { text: line.count, part: "count", role: "figure", compact: true, tabular: true } as const;
+  const value = {
+    text: line.value,
+    part: "value",
+    role: compact ? "meta" : "caption",
+    tabular: true,
+  } as const;
+  const step = { text: line.step, part: "step", role: "caption" } as const;
+  const title = { text: stage.label, part: "label", ...(stage.goto && { tone: "accent" as const }) };
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitRow
+        item={stage.id}
+        label={stage.label}
+        goto={loading ? undefined : stage.goto}
+        density={density}
+        inset="none"
+        inline={!compact || first}
+        fitContent
+        trailing={!compact && <kit.KitLayoutText line={count} align="end" density={density} />}
+      >
+        {compact ? (
+          CompactStage(stage.label, line.step, title, count, value, density)
+        ) : line.step && line.value ? (
+          <kit.KitContent density={density}>
+            <kit.KitLayoutText line={title} density={density} />
+            <kit.KitFigure value={{ ...step, tone: "muted" }} unit={value} density={density} />
+          </kit.KitContent>
+        ) : (
+          <kit.KitMetaLine {...{ title, density }} meta={[step, value]} />
+        )}
+      </kit.KitRow>
+      {!compact && (
+        <kit.KitMeter label="" amount="" ratio={loading ? 0 : line.ratio} slim addressed={false} />
+      )}
+    </kit.KitContent>
+  );
+}
+
 export function Funnel(input: FunnelProps) {
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
@@ -171,18 +224,34 @@ export function Funnel(input: FunnelProps) {
   const currency = kit.useAppCurrency();
   const { rate, stages } = funnelLines({ ...input, detail }, lang, currency);
   const compact = input.style === "summary";
-  const content = <>
-    <kit.KitContent density={density}>
-      <kit.KitHeader title={{ text: input.title, part: "title" }} density={density} />
-      <kit.KitFigure value={{ text: rate, part: "overall", compact: true }}
-        unit={{ text: words.funnelOverall, role: compact ? "meta" : "caption" }} density={density} />
-    </kit.KitContent>
-    <kit.KitRowGroup density={density} separators={compact} spacing={compact ? "rows" : "groups"}>
-      {input.stages.map((stage, index) =>
-        <FunnelStage key={stage.id} stage={stage} line={stages[index]!} first={index === 0} {...{ compact, loading, density }} />)}
-    </kit.KitRowGroup>
-  </>;
-  return <kit.KitCard padded surface="card" density={density}>
-    <kit.KitState part="empty" loading={content} density={density}>{content}</kit.KitState>
-  </kit.KitCard>;
+  const content = (
+    <>
+      <kit.KitContent density={density}>
+        <kit.KitHeader title={{ text: input.title, part: "title" }} density={density} />
+        <kit.KitFigure
+          value={{ text: rate, part: "overall", compact: true }}
+          unit={{ text: words.funnelOverall, role: compact ? "meta" : "caption" }}
+          density={density}
+        />
+      </kit.KitContent>
+      <kit.KitRowGroup density={density} separators={compact} spacing={compact ? "rows" : "groups"}>
+        {input.stages.map((stage, index) => (
+          <FunnelStage
+            key={stage.id}
+            stage={stage}
+            line={stages[index]!}
+            first={index === 0}
+            {...{ compact, loading, density }}
+          />
+        ))}
+      </kit.KitRowGroup>
+    </>
+  );
+  return (
+    <kit.KitCard padded surface="card" density={density}>
+      <kit.KitState part="empty" loading={content} density={density}>
+        {content}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

@@ -27,19 +27,37 @@ export const meta = {
   select: { prop: "activePin", value: "position" },
   selections: { view: { prop: "view", choices: { prop: "viewChoices" }, runtime: true } },
   live: {
-    // prettier-ignore
     derive: ({ view, style, detail, places, activePin }) => {
       const options = style !== undefined;
       const words = placesWordsFor();
-      const viewChoices = options ? [{ value: "split", label: words.mapListSplit }, { value: "map", label: words.mapListMapOnly }, { value: "list", label: words.mapListListOnly }] : ["map", "list"];
-      const activeView = view === "map" || view === "list" || (options && view === "split") ? view : (style ?? "map");
+      const viewChoices = options
+        ? [
+            { value: "split", label: words.mapListSplit },
+            { value: "map", label: words.mapListMapOnly },
+            { value: "list", label: words.mapListListOnly },
+          ]
+        : ["map", "list"];
+      const activeView =
+        view === "map" || view === "list" || (options && view === "split") ? view : (style ?? "map");
       const rowsVisible = !options || activeView !== "map";
-      const rows = Array.isArray(places) ? places as c.Values[] : undefined;
+      const rows = Array.isArray(places) ? (places as c.Values[]) : undefined;
       return {
-        activeView, ...(options && { view: activeView }), viewChoices, mapVisible: activeView !== "list", rowsVisible,
-        activePlace: !rowsVisible ? rows?.[typeof activePin === "number" ? activePin - 1 : 0]?.name : undefined,
+        activeView,
+        ...(options && { view: activeView }),
+        viewChoices,
+        mapVisible: activeView !== "list",
+        rowsVisible,
+        activePlace: !rowsVisible
+          ? rows?.[typeof activePin === "number" ? activePin - 1 : 0]?.name
+          : undefined,
         ...((detail === "brief" || !rowsVisible) && rows
-          ? { places: rows.map((place) => ({ ...place, meta: undefined, ...(!rowsVisible && { name: undefined }) })) }
+          ? {
+              places: rows.map((place) => ({
+                ...place,
+                meta: undefined,
+                ...(!rowsVisible && { name: undefined }),
+              })),
+            }
           : {}),
       };
     },
@@ -101,47 +119,177 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("MapList");
-// prettier-ignore
 export const probes = [
-  choose("Browse six dog-friendly spots as pins and matching rows. Tap a pin to highlight its row, and let me switch to list only."),
+  choose(
+    "Browse six dog-friendly spots as pins and matching rows. Tap a pin to highlight its row, and let me switch to list only.",
+  ),
   choose("Show three simple labelled pins on a map: Home, Park gate and Pond. No list-only mode.", "MapPins"),
-  write("Show a linked map and list of plant shops that can switch to list only: Riverside Nursery for outdoor plants (nursery), Greenhouse Shop for indoor plants (greenhouse), and Hilltop Market for pots (hilltop)."),
+  write(
+    "Show a linked map and list of plant shops that can switch to list only: Riverside Nursery for outdoor plants (nursery), Greenhouse Shop for indoor plants (greenhouse), and Hilltop Market for pots (hilltop).",
+  ),
   {
-    ...write("Use the usual layout with a map and matching rows for Riverside Nursery (nursery, outdoor plants), Greenhouse Shop (greenhouse, indoor plants) and Hilltop Market (hilltop, pots). Hide only the notes in the rows; keep the names, live distances and usual spacing."),
+    ...write(
+      "Use the usual layout with a map and matching rows for Riverside Nursery (nursery, outdoor plants), Greenhouse Shop (greenhouse, indoor plants) and Hilltop Market (hilltop, pots). Hide only the notes in the rows; keep the names, live distances and usual spacing.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Use the view selector to choose list only, without selecting a pin or opening a venue", { address: "m1/view", action: "select" }),
+  read("Use the view selector to choose list only, without selecting a pin or opening a venue", {
+    address: "m1/view",
+    action: "select",
+  }),
   read("Open Riverside Nursery", { address: "m1/r1", action: "press" }),
-  read("Select the Riverside Nursery pin to highlight its row without opening the venue", { address: "m1/r1/pin", action: "select" }),
+  read("Select the Riverside Nursery pin to highlight its row without opening the venue", {
+    address: "m1/r1/pin",
+    action: "select",
+  }),
   {
-    ...write("Show only the map to start, with a pin for Riverside Nursery (nursery, outdoor plants) and no visible rows."),
+    ...write(
+      "Show only the map to start, with a pin for Riverside Nursery (nursery, outdoor plants) and no visible rows.",
+    ),
     expectProps: { style: "map" },
   },
   {
-    ...write("Let me browse Riverside Nursery (nursery, outdoor plants) in a map browser, but start with only the list and hide the map."),
+    ...write(
+      "Let me browse Riverside Nursery (nursery, outdoor plants) in a map browser, but start with only the list and hide the map.",
+    ),
     expectProps: { style: "list" },
   },
-  { ...write("For Riverside Nursery (nursery, outdoor plants), use the split style. I want the three-way selector, with both the map and the rows visible at first."), expectProps: { style: "split" } },
+  {
+    ...write(
+      "For Riverside Nursery (nursery, outdoor plants), use the split style. I want the three-way selector, with both the map and the rows visible at first.",
+    ),
+    expectProps: { style: "split" },
+  },
 ] satisfies c.Probe[];
 
 type MapListProps = c.Props<typeof props, typeof meta>;
 type PlaceRow = ReturnType<typeof mapListCopy<MapListProps["places"][number]>>["places"][number];
-// prettier-ignore
-function PlaceRows({ places, activePin, density, detail }: {
-  places: PlaceRow[]; activePin: number; density: c.ThemeDensity; detail: "full" | "brief";
+function PlaceRows({
+  places,
+  activePin,
+  density,
+  detail,
+}: {
+  places: PlaceRow[];
+  activePin: number;
+  density: c.ThemeDensity;
+  detail: "full" | "brief";
 }) {
   return places.map(({ id, name, meta, distance, goto }, index) => (
-    <kit.KitRow key={id} item={id} label={name} {...{ goto, density }} surface="plain" selected={index + 1 === activePin}
-      trailing={distance
-        ? <kit.KitText part="distance" role="number" numberScale="compact" tabular tone="muted" density={density}>{distance}</kit.KitText>
-        : <kit.KitIcon name="chevron_right" decorative />}>
-      <kit.KitText part="name" role="body" density={density}>{name}</kit.KitText>
-      {detail === "full" && <kit.KitText part="meta" role="label" tone="muted" density={density}>{meta}</kit.KitText>}
+    <kit.KitRow
+      key={id}
+      item={id}
+      label={name}
+      {...{ goto, density }}
+      surface="plain"
+      selected={index + 1 === activePin}
+      trailing={
+        distance ? (
+          <kit.KitText
+            part="distance"
+            role="number"
+            numberScale="compact"
+            tabular
+            tone="muted"
+            density={density}
+          >
+            {distance}
+          </kit.KitText>
+        ) : (
+          <kit.KitIcon name="chevron_right" decorative />
+        )
+      }
+    >
+      <kit.KitText part="name" role="body" density={density}>
+        {name}
+      </kit.KitText>
+      {detail === "full" && (
+        <kit.KitText part="meta" role="label" tone="muted" density={density}>
+          {meta}
+        </kit.KitText>
+      )}
     </kit.KitRow>
   ));
 }
 
-// prettier-ignore
+function MapViewPicker(
+  style: MapListProps["style"],
+  activeView: unknown,
+  density: c.ThemeDensity,
+  words: ReturnType<typeof placesWordsFor>,
+  loading: boolean,
+) {
+  const choices =
+    style === undefined
+      ? ([
+          [words.mapListMap, "map"],
+          [words.mapListList, "list"],
+        ] as const)
+      : ([
+          [words.mapListSplit, "split"],
+          [words.mapListMapOnly, "map"],
+          [words.mapListListOnly, "list"],
+        ] as const);
+  return (
+    <kit.KitTrack part="view" look="segments" role="radiogroup" label={words.mapListView}>
+      <kit.KitGrid density={density} columns={style === undefined ? 2 : 3}>
+        {choices.map(([label, value]) => (
+          <kit.KitChip
+            key={value}
+            item={null}
+            look="segment"
+            role="radio"
+            {...{ label, value }}
+            on={activeView === value}
+            disabled={loading || undefined}
+          />
+        ))}
+      </kit.KitGrid>
+    </kit.KitTrack>
+  );
+}
+
+type MapPlaceRowsProps = {
+  places: PlaceRow[];
+  activePin: number;
+  detail: MapListProps["detail"];
+  density: c.ThemeDensity;
+  loading: boolean;
+  listOnly: boolean;
+  more: string | undefined;
+};
+
+function MapPlaceRows({ places, activePin, detail, density, loading, listOnly, more }: MapPlaceRowsProps) {
+  return (
+    <kit.KitContent density={density} group={listOnly ? "content" : "response"}>
+      {loading ? (
+        <kit.KitSkeleton
+          rows={places.length}
+          lead="none"
+          inset="md"
+          density={density}
+          items={places.map(({ name, meta, distance }) => ({
+            title: name,
+            meta: detail === "full" ? meta : undefined,
+            trail: distance ? "value" : "chevron",
+          }))}
+        />
+      ) : (
+        <>
+          <PlaceRows {...{ places, activePin, detail, density }} />
+          {more && (
+            <kit.KitRow part={null} label={more} density={density}>
+              <kit.KitText part="more" role="label" tone="muted" density={density}>
+                {more}
+              </kit.KitText>
+            </kit.KitRow>
+          )}
+        </>
+      )}
+    </kit.KitContent>
+  );
+}
+
 export function MapList(input: MapListProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
@@ -153,39 +301,40 @@ export function MapList(input: MapListProps) {
   const listOnly = live.activeView === "list";
   const { lang, words } = kit.useWords(placesWordsFor);
   const { places, more } = mapListCopy(input.places, kit.useDeviceData(), lang);
-  const choices = input.style === undefined
-    ? [[words.mapListMap, "map"], [words.mapListList, "list"]] as const
-    : [[words.mapListSplit, "split"], [words.mapListMapOnly, "map"], [words.mapListListOnly, "list"]] as const;
   const pins = places.map(({ id, name, position }, index) => ({
-    id, ...position, label: words.mapListPin(name), selected: index + 1 === activePin,
+    id,
+    ...position,
+    label: words.mapListPin(name),
+    selected: index + 1 === activePin,
     target: { item: id, part: "pin" },
   }));
   return (
     <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-      {state === "empty" ? <kit.KitEmpty icon="pin" part="empty" decorativeIcon /> : <kit.KitContent density={density}>
-        <kit.KitTrack part="view" look="segments" role="radiogroup" label={words.mapListView}>
-          <kit.KitGrid density={density} columns={input.style === undefined ? 2 : 3}>
-            {choices.map(([label, value]) => <kit.KitChip key={value} item={null} look="segment" role="radio"
-              {...{ label, value }} on={live.activeView === value} disabled={loading || undefined} />)}
-          </kit.KitGrid>
-        </kit.KitTrack>
-        <kit.KitContent density={density} group="response">
-          {!listOnly && (loading ? <kit.KitCard part="map" style="plain">
-            <kit.KitSkeleton shape="media" inset="none" content={[]} />
-          </kit.KitCard> : <kit.KitMapTile pins={pins} part="map" />)}
-          {typeof live.activePlace === "string" && <kit.KitLayoutText density={density}
-            line={{ text: live.activePlace, part: "active_place", role: "meta", strong: true }} />}
-          {live.rowsVisible !== false && <kit.KitContent density={density} group={listOnly ? "content" : "response"}>
-            {loading ? <kit.KitSkeleton rows={places.length} lead="none" inset="md" density={density}
-              items={places.map(({ name, meta, distance }) => ({ title: name, meta: detail === "full" ? meta : undefined, trail: distance ? "value" : "chevron" }))} /> : <>
-              <PlaceRows {...{ places, activePin, detail, density }} />
-              {more && <kit.KitRow part={null} label={more} density={density}>
-                <kit.KitText part="more" role="label" tone="muted" density={density}>{more}</kit.KitText>
-              </kit.KitRow>}
-            </>}
-          </kit.KitContent>}
+      {state === "empty" ? (
+        <kit.KitEmpty icon="pin" part="empty" decorativeIcon />
+      ) : (
+        <kit.KitContent density={density}>
+          {MapViewPicker(input.style, live.activeView, density, words, loading)}
+          <kit.KitContent density={density} group="response">
+            {!listOnly &&
+              (loading ? (
+                <kit.KitCard part="map" style="plain">
+                  <kit.KitSkeleton shape="media" inset="none" content={[]} />
+                </kit.KitCard>
+              ) : (
+                <kit.KitMapTile pins={pins} part="map" />
+              ))}
+            {typeof live.activePlace === "string" && (
+              <kit.KitLayoutText
+                density={density}
+                line={{ text: live.activePlace, part: "active_place", role: "meta", strong: true }}
+              />
+            )}
+            {live.rowsVisible !== false &&
+              MapPlaceRows({ places, activePin, detail, density, loading, listOnly, more })}
+          </kit.KitContent>
         </kit.KitContent>
-      </kit.KitContent>}
+      )}
     </kit.KitCard>
   );
 }

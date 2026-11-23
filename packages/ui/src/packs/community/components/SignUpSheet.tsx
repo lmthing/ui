@@ -26,9 +26,22 @@ export const meta = {
   parts: ["root", "title", "status"],
   items: {
     key: "slots",
-    // prettier-ignore
-    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label",
-      "release", "release_label", "retry_claim", "retry_claim_label", "retry_release", "retry_release_label"],
+    parts: [
+      "root",
+      "title",
+      "meta",
+      "capacity",
+      "remaining",
+      "claimants",
+      "claim",
+      "claim_label",
+      "release",
+      "release_label",
+      "retry_claim",
+      "retry_claim_label",
+      "retry_release",
+      "retry_release_label",
+    ],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
@@ -137,41 +150,87 @@ export const probes = [
 type SheetProps = c.Props<typeof props, typeof meta>;
 type Row = SheetProps["slots"][number] & SignUpRow;
 type Finish = { density: c.ThemeDensity; detail: SheetProps["detail"]; state: c.StateName };
-// prettier-ignore
+function SlotsRemaining(
+  capacity: string,
+  remaining: string,
+  separator: string,
+  density: c.ThemeDensity,
+  loading: boolean,
+) {
+  return loading ? (
+    <kit.KitLayoutText
+      density={density}
+      line={{ text: `${capacity}${separator}${remaining}`, role: "meta" }}
+    />
+  ) : (
+    <kit.KitText part={null} role="label" tone="muted" density={density}>
+      <kit.KitText part="capacity" role="number" numberScale="compact" tabular density={density}>
+        {capacity}
+      </kit.KitText>
+      {separator}
+      <kit.KitText part="remaining" role="label" tone="muted" density={density}>
+        {remaining}
+      </kit.KitText>
+    </kit.KitText>
+  );
+}
+
 function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
   const scope = kit.usePartContext();
-  const { lang, words: { signUp: words } } = kit.useWords(communityWordsFor);
+  const {
+    lang,
+    words: { signUp: words },
+  } = kit.useWords(communityWordsFor);
   const { capacity, remaining, claimants, action, retry } = signUpRowCopy(row, detail, lang);
   const control = state === "error" ? retry : state === "filled" || state === "loading" ? action : undefined;
   const kind = control === "release" || control === "retry_release" ? "danger" : "secondary";
   const loading = state === "loading";
   const disclosure = detail === "brief" && (state === "filled" || loading);
-  return <kit.PartScope {...scope} item={row.id}>
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitRow part={loading ? null : "root"} label={row.title} inline fitContent={!disclosure} density={density}
-        {...(disclosure && !loading ? { role: "button", expanded: row.expanded === true } as const : {})}
-        trailing={disclosure ? <kit.KitIcon name={row.expanded ? "minus" : "plus"} decorative loading={loading} /> : null}>
-        <kit.KitContent density={density} rhythm="flush">
-          <kit.KitMetaLine density={density} title={{ text: row.title, part: "title", strong: true }}
-            meta={{ text: row.meta, part: "meta" }} />
-          {loading ? <kit.KitLayoutText density={density}
-            line={{ text: `${capacity}${words.separator}${remaining}`, role: "meta" }} /> :
-          <kit.KitText part={null} role="label" tone="muted" density={density}>
-            <kit.KitText part="capacity" role="number" numberScale="compact" tabular density={density}>{capacity}</kit.KitText>
-            {words.separator}
-            <kit.KitText part="remaining" role="label" tone="muted" density={density}>{remaining}</kit.KitText>
-          </kit.KitText>}
-          {claimants && <kit.KitContent density={density} lineRole="body" lead={<kit.KitIcon name="user" scale="sm" decorative loading={loading} />}>
-            <kit.KitLayoutText density={density} line={{ text: claimants, part: "claimants", role: "meta", tone: "muted" }} />
-          </kit.KitContent>}
-        </kit.KitContent>
-      </kit.KitRow>
-      {control ? <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} /> : null}
-    </kit.KitGrid>
-  </kit.PartScope>;
+  return (
+    <kit.PartScope {...scope} item={row.id}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitRow
+          part={loading ? null : "root"}
+          label={row.title}
+          inline
+          fitContent={!disclosure}
+          density={density}
+          {...(disclosure && !loading ? ({ role: "button", expanded: row.expanded === true } as const) : {})}
+          trailing={
+            disclosure ? (
+              <kit.KitIcon name={row.expanded ? "minus" : "plus"} decorative loading={loading} />
+            ) : null
+          }
+        >
+          <kit.KitContent density={density} rhythm="flush">
+            <kit.KitMetaLine
+              density={density}
+              title={{ text: row.title, part: "title", strong: true }}
+              meta={{ text: row.meta, part: "meta" }}
+            />
+            {SlotsRemaining(capacity, remaining, words.separator, density, loading)}
+            {claimants && (
+              <kit.KitContent
+                density={density}
+                lineRole="body"
+                lead={<kit.KitIcon name="user" scale="sm" decorative loading={loading} />}
+              >
+                <kit.KitLayoutText
+                  density={density}
+                  line={{ text: claimants, part: "claimants", role: "meta", tone: "muted" }}
+                />
+              </kit.KitContent>
+            )}
+          </kit.KitContent>
+        </kit.KitRow>
+        {control ? (
+          <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} />
+        ) : null}
+      </kit.KitGrid>
+    </kit.PartScope>
+  );
 }
 
-// prettier-ignore
 export function SignUpSheet(input: SheetProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
@@ -179,16 +238,27 @@ export function SignUpSheet(input: SheetProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };
-  const rows = <kit.KitContent density={density}>
-    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-      {slots.map((row) => <SlotRow key={row.id} {...{ row, density, detail, state }} />)}
-    </kit.KitRowGroup>
-  </kit.KitContent>;
-  return <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
-    {state !== "empty" && <kit.KitHeader density={density} title={{ text: input.title, part: "title" }} />}
-    <kit.KitState retain part={state === "empty" ? "title" : "status"}
-      message={signUpStatus(state, lang)} loading={rows} density={density}>
-      {rows}
-    </kit.KitState>
-  </kit.KitCard>;
+  const rows = (
+    <kit.KitContent density={density}>
+      <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+        {slots.map((row) => (
+          <SlotRow key={row.id} {...{ row, density, detail, state }} />
+        ))}
+      </kit.KitRowGroup>
+    </kit.KitContent>
+  );
+  return (
+    <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
+      {state !== "empty" && <kit.KitHeader density={density} title={{ text: input.title, part: "title" }} />}
+      <kit.KitState
+        retain
+        part={state === "empty" ? "title" : "status"}
+        message={signUpStatus(state, lang)}
+        loading={rows}
+        density={density}
+      >
+        {rows}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

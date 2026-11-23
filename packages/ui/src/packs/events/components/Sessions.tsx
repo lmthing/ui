@@ -114,22 +114,70 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     tracks: ["Main stage", "Workshops"],
     sessions: [
-      { id: "welcome", title: "Opening keynote", track: "Main stage", start: "09:00", end: "09:45", room: "Harbour Hall", speaker: "Ruth Shah", saved: false, goto: "keynote" },
-      { id: "studio", title: "Design by hand", track: "Workshops", start: "09:30", end: "10:15", room: "North Studio", speaker: "Imani Cole", capacity: 18, booked: 14, saved: true },
-      { id: "panel", title: "Ask the makers", track: "Main stage", start: "10:30", end: "11:15", room: "Harbour Hall", capacity: 60, booked: 60, saved: false },
+      {
+        id: "welcome",
+        title: "Opening keynote",
+        track: "Main stage",
+        start: "09:00",
+        end: "09:45",
+        room: "Harbour Hall",
+        speaker: "Ruth Shah",
+        saved: false,
+        goto: "keynote",
+      },
+      {
+        id: "studio",
+        title: "Design by hand",
+        track: "Workshops",
+        start: "09:30",
+        end: "10:15",
+        room: "North Studio",
+        speaker: "Imani Cole",
+        capacity: 18,
+        booked: 14,
+        saved: true,
+      },
+      {
+        id: "panel",
+        title: "Ask the makers",
+        track: "Main stage",
+        start: "10:30",
+        end: "11:15",
+        room: "Harbour Hall",
+        capacity: 60,
+        booked: 60,
+        saved: false,
+      },
     ],
   },
   {
-    style: "mine", selectedTrack: "Talks",
+    style: "mine",
+    selectedTrack: "Talks",
     tracks: ["Talks", "Demos"],
     sessions: [
-      { id: "lighting", title: "Lighting on location", track: "Talks", start: "13:00", end: "13:45", room: "Elm Room", speaker: "Hugo Wells", saved: true },
-      { id: "editing", title: "Editing live", track: "Demos", start: "13:30", end: "14:00", room: "Studio 2", saved: true },
+      {
+        id: "lighting",
+        title: "Lighting on location",
+        track: "Talks",
+        start: "13:00",
+        end: "13:45",
+        room: "Elm Room",
+        speaker: "Hugo Wells",
+        saved: true,
+      },
+      {
+        id: "editing",
+        title: "Editing live",
+        track: "Demos",
+        start: "13:30",
+        end: "14:00",
+        room: "Studio 2",
+        saved: true,
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];

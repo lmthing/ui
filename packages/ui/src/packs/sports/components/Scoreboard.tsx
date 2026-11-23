@@ -28,10 +28,26 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["period"] } },
-  // prettier-ignore
-  parts: ["root", "scores", "home", "away", "home_score", "away_score",
-    "clock", "clock_icon", "clock_value", "period", "status", "sport", "periods", "possession",
-    "outs", "balls", "strikes", "bases"],
+  parts: [
+    "root",
+    "scores",
+    "home",
+    "away",
+    "home_score",
+    "away_score",
+    "clock",
+    "clock_icon",
+    "clock_value",
+    "period",
+    "status",
+    "sport",
+    "periods",
+    "possession",
+    "outs",
+    "balls",
+    "strikes",
+    "bases",
+  ],
   states: ["filled", "loading"],
   signature: "count_up",
   actions: {
@@ -204,7 +220,6 @@ export const probes = [
 
 type ScoreView = c.Props<typeof props, typeof meta> & { elapsed?: number; running?: boolean };
 
-// prettier-ignore
 function ScoreCenter({ input, lang }: { input: ScoreView; lang: string }) {
   const { status, clock } = scoreboardCopy(input, lang);
   const density = kit.useKit().density;
@@ -212,12 +227,27 @@ function ScoreCenter({ input, lang }: { input: ScoreView; lang: string }) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitContent align="center" density={density}>
-      <kit.KitText part="status" role="label" align="center" {...{ density, emphasis }}
-        tone={input.status === "live" && emphasis !== "quiet" ? "good" : "muted"}>
+      <kit.KitText
+        part="status"
+        role="label"
+        align="center"
+        {...{ density, emphasis }}
+        tone={input.status === "live" && emphasis !== "quiet" ? "good" : "muted"}
+      >
         {status}
       </kit.KitText>
-      {clock && <kit.KitText part={input.style === "keeper" ? "clock_value" : "clock"}
-        role="number" numberScale="compact" align="center" density={density} tabular>{clock}</kit.KitText>}
+      {clock && (
+        <kit.KitText
+          part={input.style === "keeper" ? "clock_value" : "clock"}
+          role="number"
+          numberScale="compact"
+          align="center"
+          density={density}
+          tabular
+        >
+          {clock}
+        </kit.KitText>
+      )}
       {input.period && detail === "full" && (
         <kit.KitText part="period" role="caption" tone="muted" align="center" density={density}>
           {input.period}
@@ -291,15 +321,29 @@ export function Scoreboard(seed: c.Props<typeof props, typeof meta>) {
   const density = kit.useKit().density;
   const { home, away } = scoreboardCopy(input, lang);
   const clockLabel = input.running ? scoreboard.stop : scoreboard.start;
-  // prettier-ignore
   const side = (part: "home" | "away", value: string) => {
     const label = input[part];
-    return { label, value, valuePart: `${part}_score`, controls: input.style === "keeper" && (loading ? (
-      <><kit.KitSkeleton shape="control" /><kit.KitSkeleton shape="control" /></>
-    ) : (
-      <kit.KitStepper part={part} value={input[`${part}Score`]} min={0} max={Number.MAX_SAFE_INTEGER}
-        labels={{ less: scoreboard.undo(label), more: scoreboard.add(label) }} />
-    )) };
+    return {
+      label,
+      value,
+      valuePart: `${part}_score`,
+      controls:
+        input.style === "keeper" &&
+        (loading ? (
+          <>
+            <kit.KitSkeleton shape="control" />
+            <kit.KitSkeleton shape="control" />
+          </>
+        ) : (
+          <kit.KitStepper
+            part={part}
+            value={input[`${part}Score`]}
+            min={0}
+            max={Number.MAX_SAFE_INTEGER}
+            labels={{ less: scoreboard.undo(label), more: scoreboard.add(label) }}
+          />
+        )),
+    };
   };
   return (
     <kit.KitCard part="root" padded density={density} {...(loading ? { label: loadingLabel } : {})}>
@@ -318,16 +362,32 @@ export function Scoreboard(seed: c.Props<typeof props, typeof meta>) {
   );
 }
 
-// prettier-ignore
-function ScoreClock({ density, loading, clockLabel, running }: {
-  density: c.ThemeDensity; loading: boolean; clockLabel: string; running: boolean;
+function ScoreClock({
+  density,
+  loading,
+  clockLabel,
+  running,
+}: {
+  density: c.ThemeDensity;
+  loading: boolean;
+  clockLabel: string;
+  running: boolean;
 }) {
-  return <kit.KitContent align="center" density={density} group={density === "compact" ? "content" : "response"}>
-    <kit.KitRow inline part={null} label={clockLabel} density={density}>
-      {loading ? <kit.KitSkeleton shape="control" kind="secondary" /> : (
-        <kit.KitAction part="clock" kind="secondary" icon={running ? "pause" : "play"}
-          action={running ? "stop" : "start"} a11y={clockLabel} />
-      )}
-    </kit.KitRow>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent align="center" density={density} group={density === "compact" ? "content" : "response"}>
+      <kit.KitRow inline part={null} label={clockLabel} density={density}>
+        {loading ? (
+          <kit.KitSkeleton shape="control" kind="secondary" />
+        ) : (
+          <kit.KitAction
+            part="clock"
+            kind="secondary"
+            icon={running ? "pause" : "play"}
+            action={running ? "stop" : "start"}
+            a11y={clockLabel}
+          />
+        )}
+      </kit.KitRow>
+    </kit.KitContent>
+  );
 }
