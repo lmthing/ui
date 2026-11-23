@@ -22,6 +22,11 @@ it("keeps solid bands separate from the card's readable foreground and backgroun
     elevationAndroid: elevation.sheet.elevation,
   });
   expect(surfaceOf("editorial")).toMatchObject({ backgroundColor: "$bg", borderColor: "$line" });
+  expect(surfaceOf("editorial", "overlay")).toMatchObject({
+    backgroundColor: "$surface",
+    borderColor: "$line",
+  });
+  expect(surfaceOf("raised", "overlay").backgroundColor).toBe("$raised");
   expect(surfaceOf("flat")).not.toHaveProperty("shadowColor");
 });
 it("derives surfaces from roles and tokens, not preset names", () => {

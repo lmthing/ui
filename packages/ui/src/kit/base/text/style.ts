@@ -34,13 +34,13 @@ export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiu
   return radius[steps[index]!];
 }
 /** How an inset surface sits on the screen, independent of its content. */
-export function surfaceOf(treatment: KitStyle["surface"]) {
+export function surfaceOf(treatment: KitStyle["surface"], layer: "card" | "overlay" = "card") {
   const tokens = variants.surface.card[treatment];
   const { fill, rule, border, elevation: depth } = tokens;
   const band = "band" in tokens ? tokens.band : undefined;
   const shadow = elevation[depth];
   return {
-    backgroundColor: `$${fill}`,
+    backgroundColor: `$${layer === "overlay" && fill === "bg" ? "surface" : fill}`,
     ...(rule ? { borderColor: `$${rule}` as const } : {}),
     borderWidth: component.base[border],
     ...(band ? { borderTopColor: `$${band}` as const, borderTopWidth: space.sm } : {}),
