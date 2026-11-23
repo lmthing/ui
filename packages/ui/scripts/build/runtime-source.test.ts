@@ -42,6 +42,21 @@ it("drops the renderer and its private dependencies only for the data entry", ()
   expect(data).toContain("fallback");
 });
 
+it("initializes with preview-only records stripped from a live projector", async () => {
+  const source = `
+    export const examples = [{ distributions: [10] }];
+    const exampleStatements = [{ distributions: examples[0]!.distributions }];
+    export const meta = {
+      previewDeviceData: () => exampleStatements,
+      project: (rows: unknown[]) => rows.some((row) => exampleStatements.includes(row as never)),
+    };
+  `;
+  const { code } = await transform(runtimeSource("Example.tsx", source), { loader: "tsx", format: "esm" });
+  const { meta } = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`);
+  expect(meta.previewDeviceData).toBeUndefined();
+  expect(meta.project([{ distributions: [10] }])).toBe(false);
+});
+
 it("keeps runtime pack data while excluding worked examples and archetype probes", () => {
   const door = runtimeSource(
     "index.ts",

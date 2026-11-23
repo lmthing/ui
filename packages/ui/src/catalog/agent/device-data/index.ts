@@ -4,7 +4,7 @@ import { stampItemIds } from "../../lines";
 import type { ScreenLike, Values } from "../index";
 import { hasRecordClock, hasTimestampClock } from "../clocks";
 
-const deviceTime = Symbol("deviceTime");
+const deviceTime = Symbol.for("@lmthing/ui/deviceTime");
 
 /** Host-owned record snapshots, keyed by kind. Components narrow the records they consume. */
 export type DeviceData = Readonly<Partial<Record<string, readonly unknown[]>>> & {

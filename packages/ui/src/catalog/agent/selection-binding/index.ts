@@ -21,7 +21,7 @@ export type BoundSelection = Readonly<{
 }>;
 
 /** Host-only eligibility, carried through screen projections but never serialized. */
-export const disabledSelectionChecks = Symbol("disabledSelectionChecks");
+export const disabledSelectionChecks = Symbol.for("@lmthing/ui/disabledSelectionChecks");
 type DisabledChecks = Pick<ReadonlySet<string>, "size" | "has">;
 export function withDisabledSelectionChecks(screen: ScreenLike, disabled?: DisabledChecks): ScreenLike {
   return disabled?.size ? { ...screen, [disabledSelectionChecks]: disabled } : screen;

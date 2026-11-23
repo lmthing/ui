@@ -19,7 +19,7 @@ async function kitEntries(root: string) {
   };
 }
 
-export async function buildKit() {
+export async function buildKit(emitDeclarations = true) {
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const entries = await kitEntries(root);
   const config = {
@@ -49,7 +49,7 @@ export async function buildKit() {
       name === "renderers/core" ? undefined : name.split("/")[1],
     );
   }
-  await emitTypes(root, { ...entries, ...tamagui });
+  if (emitDeclarations) await emitTypes(root, { ...entries, ...tamagui });
   console.log("Built kit, core and pack renderer entries with shared chunks and external peers.");
 }
 

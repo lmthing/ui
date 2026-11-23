@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from "node:url";
 import { build, type Plugin } from "esbuild";
 import ts from "typescript";
 import { gzipSync } from "node:zlib";
+import type { Definition } from "../../src/catalog";
 import { assertRuntimeBundle, runtimeBundle } from "./runtime-bundle";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
@@ -160,15 +161,16 @@ function checkBrowserCatalog(
   browser: typeof import("../../src/entry/catalog-browser"),
 ) {
   const input = { cast: { things: [], items: [] } };
+  const fullDefs: Record<string, Definition> = catalog.components;
+  const slimDefs: Record<string, Definition> = browser.components;
   assert.deepEqual(Object.keys(browser.components), Object.keys(catalog.components));
   assert.deepEqual(browser.packOf, catalog.packOf);
   for (const options of [{}, { packs: catalog.packIds }, { packs: catalog.packIds, includeDrafts: true }]) {
     assert.deepEqual(browser.createRegistry(options).ids, catalog.createRegistry(options).ids);
   }
   for (const id of catalog.packIds) assert.equal(browser.packReady(id), catalog.packReady(id), id);
-  for (const id of Object.keys(catalog.components) as (keyof typeof catalog.components)[]) {
-    const full = catalog.components[id];
-    const slim = browser.components[id];
+  for (const [id, full] of Object.entries(fullDefs)) {
+    const slim = slimDefs[id]!;
     assert.equal(slim.meta.purpose, "", id);
     assert.equal(slim.meta.pick, "", id);
     assert.equal(slim.meta.realPath, "", id);
@@ -183,16 +185,18 @@ function checkBrowserCatalog(
   }
 }
 
-export async function bundleCheck() {
+export async function bundleCheck(emitDeclarations = true) {
   await mkdir(resolve(root, "dist"), { recursive: true });
   const full = await buildCatalog("catalog");
   const catalog = await import(new URL("../../dist/catalog.js", import.meta.url).href);
   const slim = await buildCatalog("catalog-browser", catalog.packIds.filter(catalog.packReady));
   const browser = await import(new URL("../../dist/catalog-browser.js", import.meta.url).href);
   checkBrowserCatalog(catalog, browser);
-  emitTypes();
-  for (const name of ["catalog", "catalog-browser"])
-    await writeFile(resolve(root, `dist/${name}.d.ts`), `export * from "./types/entry/${name}";\n`);
+  if (emitDeclarations) {
+    emitTypes();
+    for (const name of ["catalog", "catalog-browser"])
+      await writeFile(resolve(root, `dist/${name}.d.ts`), `export * from "./types/entry/${name}";\n`);
+  }
   const variantIssues = Object.values(catalog.components).flatMap(catalog.checkVariantDeclarations);
   if (variantIssues.length) throw new Error(variantIssues.join("\n"));
   const registry = catalog.createRegistry({ includeDrafts: true });

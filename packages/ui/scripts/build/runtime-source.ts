@@ -1,6 +1,13 @@
 import ts from "typescript";
 
-const fixtureArrays = new Set(["examples", "probes", "deviceExamples", "deviceProbes"]);
+const fixtureArrays = new Set([
+  "examples",
+  "probes",
+  "deviceExamples",
+  "deviceProbes",
+  // Investment projectors use these arrays only to recognize their own preview records by identity.
+  "exampleStatements",
+]);
 const modelMaps = new Set(["packArchetypes", "packArchetypeOverrides", "packComposeProbes", "packExamples"]);
 const prose = new Set(["purpose", "pick", "realPath"]);
 const printer = ts.createPrinter();

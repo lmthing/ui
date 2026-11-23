@@ -5,5 +5,5 @@ export * from "./prompt";
 export * from "./format";
 export * from "./probes";
 export * from "./agent";
-export * from "./rules/model";
+export * from "./rules";
 export * from "./archetypes";

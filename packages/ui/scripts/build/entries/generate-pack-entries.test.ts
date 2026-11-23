@@ -121,7 +121,7 @@ it("keeps all generated files and doors bounded with 50 core components and all 
   await generateEntries(root);
   const metrics = { maxLines: 0, maxFiles: 0 };
   const files = await auditEntries(join(root, "src/entry"), metrics);
-  for (const folder of ["packs", "views"])
+  for (const folder of ["packs", "pack-views"])
     expect(
       files.filter((file) => new RegExp(`/${folder}/group-\\d+/(?!index)[a-z]+\\.ts$`).test(file)),
     ).toHaveLength(packIds.length);
@@ -181,7 +181,8 @@ it("prunes obsolete pack files and groups during overlapping rebuilds of a small
   const ids = [...packIds].sort().slice(0, 10);
   const names = await Promise.all(ids.map((id) => scaffold(root, id)));
   await generateEntries(root);
-  expect(await readdir(join(root, "src/entry/views"))).toContain("group-2");
+  expect(await readdir(join(root, "src/entry/views"))).toContain("group-2.ts");
+  expect(await readdir(join(root, "src/entry/pack-views"))).toContain("group-2");
   await put(root, "entry/packs/group-1.ts", "// Obsolete flat group\n");
   await rm(join(root, "src/packs", ids[0]!), { recursive: true });
   const rebuildAndRead = async () => {
@@ -194,9 +195,17 @@ it("prunes obsolete pack files and groups during overlapping rebuilds of a small
   expect((await readdir(join(root, "src/entry/packs/group-1"))).sort()).toEqual(
     ["README.md", "index.ts", ...ids.slice(1).map((id) => `${id}.ts`)].sort(),
   );
-  expect((await readdir(join(root, "src/entry/views"))).sort()).toEqual(["README.md", "group-1", "index.ts"]);
-  expect((await readdir(join(root, "src/entry/views/group-1"))).sort()).toEqual(
-    ["index.ts", ...ids.slice(1).map((id) => `${id}.ts`)].sort(),
+  expect((await readdir(join(root, "src/entry/views"))).sort()).toEqual([
+    "README.md",
+    "group-1.ts",
+    "index.ts",
+  ]);
+  expect((await readdir(join(root, "src/entry/pack-views"))).sort()).toEqual(["README.md", "group-1"]);
+  expect((await readdir(join(root, "src/entry/pack-views/group-1"))).sort()).toEqual(
+    ids
+      .slice(1)
+      .map((id) => `${id}.ts`)
+      .sort(),
   );
   expect(await checkRules(root)).toEqual([]);
 });
