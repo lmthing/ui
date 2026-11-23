@@ -105,8 +105,7 @@ function MediaProgressScreen({
       <Text fontSize={12} data-look-label>{`${theme.preset} · ${screen.id.replaceAll("_", " ")}`}</Text>
       <YStack width={width} backgroundColor="$bg" data-look-frame={`${theme.preset}/${screen.id}`}>
         <PhoneScreen
-          defs={components}
-          {...{ screen, theme, renderers }}
+          {...{ screen, theme }}
           resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
           interactive={screen.id === "garden_gallery"}
           reduceMotion
