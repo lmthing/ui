@@ -67,7 +67,7 @@ function dataViewBindings(screen: ScreenLike, defs: Record<string, Definition>) 
     if (!def || !key || !Array.isArray(raw[key])) return [];
     if (!raw.filter && !(raw[key] as Option[]).some((option) => option?.view)) return [];
     const { parsed } = safeParseItemProps(def, raw);
-    return parsed.success ? [{ id, state, key, meta: def.meta, props: parsed.data }] : [];
+    return parsed.success ? [{ id, c, state, key, meta: def.meta, props: parsed.data }] : [];
   });
 }
 
@@ -95,11 +95,14 @@ export function resolveDataViews(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   local: Values = {},
+  visible?: (component: string) => boolean,
 ): DataViews {
   const result: DataViews = { hidden: new Set(), empty: new Map(), lists: new Map() };
-  const siblings = panelCandidates(screen, defs);
-  for (const { id, state, meta, key, props } of dataViewBindings(screen, defs)) {
-    if (state && state !== "filled") continue;
+  const bindings = dataViewBindings(screen, defs);
+  if (!bindings.length) return result;
+  const siblings = panelCandidates(screen, defs).filter(({ c }) => visible?.(c) !== false);
+  for (const { id, c, state, meta, key, props } of bindings) {
+    if ((state && state !== "filled") || visible?.(c) === false) continue;
     const get = (part: string) => local[`${id}/${part}`];
     const selected = projectLegacySelection(meta, props, get);
     const options = selected[key] as Option[];

@@ -162,16 +162,7 @@ export function readScreen(
   const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = localValues(screen.id, values);
   const { values: safe, addresses } = redactPrivateMarks(local);
-  const views = resolveDataViews(
-    {
-      ...migrated,
-      components: migrated.components.filter(
-        ({ c }) => !defs[c] || isDeviceDataVisible(defs[c]!.meta, snapshot),
-      ),
-    },
-    defs,
-    safe,
-  );
+  const views = resolveDataViews(migrated, defs, safe, (c) => isDeviceDataVisible(defs[c]!.meta, snapshot));
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     if (views.hidden.has(id)) return [];

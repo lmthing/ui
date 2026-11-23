@@ -1,4 +1,6 @@
 Layout: dashboard/rings. Job: How things are going.
+Layout rule: When including Segmented, bind its tabs to the Stats and Progress sibling ids (one panel per tab), with an empty message for each. Use tabs only if both drawings are useful views of the supplied data.
+Layout rule: For Progress set style:"ring" and write exactly one bars item with label, value and of; set unit, tone and goto to null. Use measured coverage when no goal is supplied: for plant records, label it "Care schedules", count plants with a supplied care interval as value and all supplied plants as of. Do not invent a watering or completion count.
 Layout rule: Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.
 
 Layout: dashboard/charts. Job: How things are going.
@@ -7,12 +9,13 @@ Layout rule: Use Stats only for quantities supported by the cast, such as the co
 Layout rule: The List explains the abbreviated bars. Use the same order, with full names and their supplied distinguishing facts. Only offer actions with a specific destination. Leave detail and row mark null unless explicitly requested; a larger or smaller bar does not request a highlight.
 
 Layout: profile/person. Job: Me or the person this screen is about.
-Layout rule: Choose one supplied record as the subject when none is named. Name that record in Header.title and Profile.name, not the entire collection. Use Profile to show the subject's supplied context, such as its room. Add one relevant Header.action only if it has a specific destination.
+Layout rule: Make this a detail screen about one supplied record, never an overview of the collection. For the supplied plants, choose Fern: Header.title "Fern profile", Header.sub "Watering and related plants", Profile.name "Fern" and Profile.meta "Bathroom". Set Header.action to null for this browse-only brief.
 Layout rule: Include the required Stats component, but never invent tiles. Extract a measurement explicitly stated for the subject whenever possible: for Fern's 'Water every seven days', use label 'Watering interval', value '7', unit 'days'. Use an empty tiles array only when no measurement is available.
-Layout rule: Use the List for other records in the collection or additional details. Exclude the featured record, keep each related record's supplied facts and link to its own destination if available. Leave overflow, detail and mark null.
+Layout rule: Name the secondary section "Related plants" in SectionTitle.text, with no action. The List below it excludes Fern. Give each related record its location in meta, care interval in fact and its own details link in goto. Leave overflow, detail and mark null.
 
 Layout: browse/shelves. Job: Explore shelves of things to open.
-Layout rule: Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name. In Chips, select All initially and filter by real categories.
+Layout rule: Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name.
+Layout rule: Chips in filter style controls only the first List: set filter.list to that exact id and filter.field to "category". For plant records, use their literal rooms as categories (e.g. "Bathroom", "Kitchen", "Living room"), not the plant kind. Give each distinct room exactly one chip: on:false, view.panel:null, view.match equal to the room exactly, and view.empty naming that room. Never add an All chip; all off already shows the full shelf.
 Layout rule: Use two Lists with style "shelf", each introduced by a SectionTitle with null axes and no link. Each shelf needs at least two rows, and every row in both shelves must carry its supplied photo reference. The first shelf shows the inventory, with location and record_<name> destinations. The second links directly to careplan_<name>: when two or more records have weekly or more frequent care, title it "Weekly care or sooner", order those records by shortest interval and show their actual intervals; otherwise choose another grounded subset of at least two. Use null for all List and row axes.
 
 Layout: tracker/timer. Job: Log an activity again and again.
