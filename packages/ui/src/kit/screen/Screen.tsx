@@ -1,7 +1,7 @@
 import { useWords, useKit } from "../provider";
 import { useCallback, useEffect, useContext } from "react";
 import { YStack } from "tamagui";
-import { checkScreen, filterDeviceDataScreen, type Issue } from "../../catalog";
+import { checkScreen, filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
@@ -43,6 +43,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
         controller={controller}
         renderers={renderers}
         screen={visible}
+        views={resolveDataViews(visible, components)}
         covered={Boolean(sheet || confirmation)}
       />
       {sheet && !confirmation && (

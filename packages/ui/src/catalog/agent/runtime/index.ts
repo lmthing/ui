@@ -1,4 +1,12 @@
 export {
+  checkDataViewTargets,
+  dataViewFilter,
+  dataViewOption,
+  projectDataViewList,
+  resolveDataViews,
+  validDataView,
+} from "../data-view";
+export {
   affordancesOf,
   formatAffordance,
   isAdjustOnlyItem,

@@ -148,7 +148,7 @@ describe("Segmented metadata and probes", () => {
       weight: 1,
       tier: "phone",
       items: { key: "options", parts: ["root", "label"] },
-      parts: ["root"],
+      parts: ["root", "results"],
       states: ["filled"],
       actions: { items: { root: ["select"] } },
     });

@@ -17,7 +17,7 @@ export const meta = {
     group: ["none", "sections"], overflow: ["all", "peek"],
     lead: ["icon", "none", "thumb", "number"], trail: trails,
   },
-  parts: ["root", "more", "more_label", "count"],
+  parts: ["root", "more", "more_label", "count", "results"],
   items: {
     key: "rows",
     parts: ["root", "title", "meta", "fact", "icon", "trail", "body", "rank", "badge", "unread", "pinned"],
@@ -42,7 +42,7 @@ const rowProps = z.strictObject({
   icon: c.icon.optional(), photo: c.photo.optional(),
   ...c.itemVariantProps(meta.items.variants, { inheritTrail: true }),
   value: c.text(10).optional(), goto: c.screenId.optional(), body: c.text(200).optional(),
-  me: z.boolean().optional(), section: c.text(24).optional(),
+  me: z.boolean().optional(), section: c.text(24).optional(), category: c.text(24).meta({ read: false }).optional(),
   progress: z.number().min(0).max(1).optional(), badge: c.text(24).optional(),
   unread: z.boolean().optional(), pinned: z.boolean().optional(),
 });

@@ -1,4 +1,3 @@
-import { allLabel } from "../copy";
 import type { CastLike } from "../types";
 import type { Definition } from "../probes";
 import type { ScreenLike } from "../agent";
@@ -159,11 +158,7 @@ export function defaultLines(
     counts: Record<string, number> = {};
   const grouped = coreLayout && meta.id === "list" && layout === "grouped" ? groupedRecords(cast) : [];
   if (grouped.length)
-    recipe = [
-      { c: "Header" },
-      { c: "Chips" },
-      ...grouped.flatMap(() => [{ c: "SectionTitle" }, { c: "List" }]),
-    ];
+    recipe = [{ c: "Header" }, ...grouped.flatMap(() => [{ c: "SectionTitle" }, { c: "List" }])];
   let fieldIndex = 0,
     groupIndex = -1;
   const components = recipe.map((line) => {
@@ -174,11 +169,6 @@ export function defaultLines(
     const input = inputOf(line, defs, lineCast);
     if (shelfBrowse && line.c === "List") browseMedia(input, lineCast);
     if (grouped.length && line.c === "SectionTitle") input.text = clip(grouped[groupIndex]![0], 24);
-    if (grouped.length && line.c === "Chips")
-      input.items = [
-        { label: allLabel, on: true },
-        ...grouped.map(([label]) => ({ label: clip(label, 16), on: false })),
-      ];
     if (line.c === "Field" && !line.variant)
       input.label = clip(thingOf(cast)?.fields[fieldIndex++] ?? placeholderTitle(fieldIndex), 24);
     // Label supporting defaults without pretending to know a domain field.

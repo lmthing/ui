@@ -1,6 +1,14 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { type Definition, type ScreenLike, privateMarkKey, readScreen, text } from "@lmthing/ui/catalog";
+import {
+  archetypes,
+  components,
+  type Definition,
+  type ScreenLike,
+  privateMarkKey,
+  readScreen,
+  text,
+} from "@lmthing/ui/catalog";
 import { selectionFixture } from "../../../catalog/probes/fixtures";
 import { readControls } from "./read-controls";
 
@@ -53,6 +61,25 @@ it("projects drafts for only the matching component instance and item", () => {
   expect(read).toContain("second Fixture 4\n");
   expect(read).toContain("other Unknown (unknown)");
   expect(screen.components[0]!.rows).toEqual([{ value: 2 }, { value: 3 }]);
+});
+
+it("filters the screen reading while keeping public keypad drafts", () => {
+  const list = archetypes.list.dataViewExample;
+  const screen = {
+    ...list,
+    components: [...list.components, { id: "entry", c: "Fixture", rows: [{ value: 3 }] }],
+  };
+  const read = readControls(
+    screen,
+    { ...components, Fixture: def },
+    {
+      "plant_list/rooms/r1": true,
+      "plant_list/entry/r1/amount": "3.",
+    },
+  );
+  expect(read).toContain('r2 "Basil"');
+  expect(read).toContain('[entry/r1/amount type = "3."]');
+  expect(read).not.toMatch(/Fern|plants\/r1 press/);
 });
 
 it("hides only the disabled row's action and preserves the amount and quoted content", () => {

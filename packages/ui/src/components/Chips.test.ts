@@ -109,7 +109,7 @@ describe("Chips metadata and probes", () => {
     expect(meta).toMatchObject({ id: "Chips", group: "input", region: "body", weight: 1, tier: "phone" });
     expect(meta.items).toEqual({ key: "items", parts: ["root", "label", "icon"] });
     expect(meta.variantParts["lead.none"]).toEqual({ hides: ["icon"] });
-    expect(meta.parts).toEqual(["root"]);
+    expect(meta.parts).toEqual(["root", "results"]);
     expect(meta.states).toEqual(["filled"]);
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
