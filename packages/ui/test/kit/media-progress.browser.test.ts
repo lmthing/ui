@@ -24,7 +24,7 @@ async function look(id: string, omitHidden = false) {
   await page.locator("[data-look-frame]").first().waitFor();
 }
 
-const frame = (name: string) => page.locator(`[data-look-frame="calm/${name}"]`);
+const frame = (name: string) => page.locator(`[data-look-frame$="_calm_light_fixture_${name}"]`);
 
 async function expectLoaded(address: string) {
   const media = page.getByTestId(address);

@@ -32,6 +32,10 @@ function screenCells(id: ComponentName): Cell[] {
   return folders ? [...cells, { ...folders, state: "loading" }] : cells;
 }
 
+function lookFrameId(id: ComponentName, preset: string, mode: "light" | "dark", name: string) {
+  return `${id.toLowerCase()}_${preset}_${mode}_${name}`;
+}
+
 function LookFrame({ screen, width, children }: { screen: string; width: number; children: ReactNode }) {
   return (
     <YStack
@@ -63,7 +67,7 @@ function Screen({
   const View = renderers[id as keyof typeof renderers] as ((props: object) => React.ReactNode) | undefined;
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
-  const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
+  const screen = lookFrameId(id, preset, mode, cellKey(cell));
   const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   const view = View ? <View {...props} /> : <DraftPreview id={id} />;
@@ -92,10 +96,12 @@ function Screen({
 }
 
 function MediaProgressScreen({
+  id,
   screen,
   theme,
   width,
 }: {
+  id: ComponentName;
   screen: ScreenLike;
   theme: ThemeChoice;
   width: number;
@@ -103,7 +109,11 @@ function MediaProgressScreen({
   return (
     <YStack gap={space.xs}>
       <Text fontSize={12} data-look-label>{`${theme.preset} · ${screen.id.replaceAll("_", " ")}`}</Text>
-      <YStack width={width} backgroundColor="$bg" data-look-frame={`${theme.preset}/${screen.id}`}>
+      <YStack
+        width={width}
+        backgroundColor="$bg"
+        data-look-frame={lookFrameId(id, theme.preset, theme.mode, `fixture_${screen.id}`)}
+      >
         <PhoneScreen
           {...{ screen, theme }}
           resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
@@ -147,6 +157,7 @@ export function Screens({
             {mediaProgressFixtures[id]?.map((screen) => (
               <MediaProgressScreen
                 key={screen.id}
+                id={id}
                 screen={omitHidden ? withoutHiddenFixtureSlots(screen) : screen}
                 width={width}
                 theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
