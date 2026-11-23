@@ -49,6 +49,25 @@ it("keeps a wrapping record title, both facts, and the deadline visible at phone
   expect(await frame.getByRole("link").count()).toBe(1);
 });
 
+it("paints the List monogram without adding row text or an accessible name", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?c=List&w=390&preset=calm&mode=light`);
+  const title = "WHEN WE BUILD WITH HARD WOOD";
+  const facts = [
+    "Second edition, reference copy",
+    "West reading room · upper shelf",
+    "Available after Thursday",
+  ];
+  const row = page.getByRole("link", { name: [title, ...facts].join(" "), exact: true });
+  await row.waitFor();
+  const tile = row.locator('[data-testid$="/icon"]');
+  expect(await tile.getAttribute("aria-hidden")).toBe("true");
+  expect(await tile.textContent()).toBe("");
+  const initial = tile.locator("[data-kit-photo-initial]");
+  expect(await initial.isVisible()).toBe(true);
+  expect(await initial.evaluate((node) => getComputedStyle(node, "::before").content)).toBe('"W"');
+  expect(await row.textContent()).toBe([title, ...facts].join(""));
+});
+
 describe("human and agent control paths", () => {
   it("selects and toggles real options", async () => {
     await open("choice");

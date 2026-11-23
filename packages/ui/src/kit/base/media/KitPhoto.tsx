@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { YStack, styled } from "tamagui";
+import { YStack, isWeb, styled } from "tamagui";
 import { component, radius, size, variants, type AxisValue, type ContentBleed } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
@@ -47,18 +47,27 @@ function PhotoInitials({
   value,
   avatar,
   decorative,
+  hasPhoto,
 }: {
   value: string;
   avatar: boolean;
   decorative: boolean;
+  hasPhoto: boolean;
 }) {
+  const painted = decorative && isWeb;
   const text = (
     <KitText role={avatar ? "heading" : "label"} tone="text" align="center" part={null} lines={1}>
-      {value}
+      {painted ? <span data-kit-photo-initial={value} /> : value}
     </KitText>
   );
-  return decorative ? (
+  return decorative || hasPhoto ? (
     <YStack aria-hidden accessibilityElementsHidden>
+      {/* React hoists the shared rule out of the row. The glyph isn't a DOM text node. */}
+      {painted && (
+        <style href="kit-photo-initial" precedence="default">
+          {"[data-kit-photo-initial]::before { content: attr(data-kit-photo-initial); }"}
+        </style>
+      )}
       {text}
     </YStack>
   ) : (
@@ -98,6 +107,7 @@ export function KitPhoto(props: PhotoProps) {
       {...(circle ? {} : { borderRadius: corners })}
       aria-hidden={loading || decorative || undefined}
       accessibilityElementsHidden={decorative || undefined}
+      importantForAccessibility={decorative && !isWeb ? "no-hide-descendants" : undefined}
       accessibilityRole={loading || decorative ? undefined : "image"}
       accessibilityLabel={
         loading || decorative
@@ -117,7 +127,8 @@ export function KitPhoto(props: PhotoProps) {
         <PhotoInitials
           value={initials}
           avatar={shape === "avatar"}
-          decorative={decorative || Boolean(photo)}
+          decorative={decorative}
+          hasPhoto={Boolean(photo)}
         />
       )}
       {layer && <PhotoLayer {...layer} />}

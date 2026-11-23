@@ -91,7 +91,8 @@ it.each(["rows", "grid"] as const)("keeps record identity, facts and route separ
   for (const part of ["r2/icon", "r2/badge", "r3/icon"]) expect(elements.has(`home/c1/${part}`)).toBe(true);
   for (const part of ["r2/trail", "r3/trail"]) expect(elements.has(`home/c1/${part}`)).toBe(false);
   expect(html.match(/role="link"/g)).toHaveLength(1);
-  expect(html).toContain(">G</span>");
+  expect(elements.get("home/c1/r2/icon")?.attributes).toContain('aria-hidden="true"');
+  expect(html).toContain('<span data-kit-photo-initial="G"></span>');
   expect(readComponent(components.List, input, "c1").join()).toContain('"Second edition" · "Upper shelf"');
   const brief = addressedElements(renderInstance("List", { ...input, detail: "brief" }, "filled", theme));
   expect(brief.has("home/c1/r1/fact")).toBe(false);
