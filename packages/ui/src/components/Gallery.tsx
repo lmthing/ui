@@ -149,11 +149,7 @@ function GalleryItem({
   const { lang, words } = useWords();
   const cue = entry.goto && entry.caption && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && (
-    <KitText
-      role={shape === "tall" ? "body" : "caption"}
-      tone={shape === "tall" ? "text" : "muted"}
-      part="caption"
-    >
+    <KitText role="caption" tone="muted" part="caption">
       {entry.caption}
     </KitText>
   );
@@ -198,9 +194,16 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
     return (
       <KitCard style="plain" part="root">
         {state === "empty" ? (
-          <KitEmpty part={null} />
+          <KitEmpty part={null} decorativeIcon />
         ) : (
-          <KitEmpty title={words.photoUnavailable} icon="alert" tone="bad" announce="status" part={null} />
+          <KitEmpty
+            title={words.photoUnavailable}
+            icon="alert"
+            tone="bad"
+            announce="status"
+            part={null}
+            decorativeIcon
+          />
         )}
       </KitCard>
     );
@@ -217,7 +220,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
           aspect={shape}
           inset="none"
           contentGap="xs"
-          content={entry.caption ? [[shape === "tall" ? "body" : "caption", entry.caption]] : []}
+          content={entry.caption ? [["caption", entry.caption]] : []}
         />
       </KitRow>
     ) : (
@@ -229,7 +232,9 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
       {cells.length === 1 ? (
         cells[0]
       ) : style === "carousel" ? (
-        <KitStrip pages>{cells}</KitStrip>
+        <KitStrip pages fullPages>
+          {cells}
+        </KitStrip>
       ) : (
         <KitGrid arrange={arrange} columns={cells.length === 3 || cells.length === 6 ? 3 : 2}>
           {cells}

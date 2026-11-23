@@ -42,7 +42,7 @@ it("renders supplied thumbnails and keeps a real record readable when its local 
   await expectLoaded("browse_thumbnails/records/r2/icon");
   const fallback = page.getByTestId("browse_thumbnails/records/r3/icon");
   expect(await fallback.locator("img").count()).toBe(0);
-  expect(await fallback.locator('[data-kit-photo-initial="WN"]').count()).toBe(1);
+  expect(await fallback.locator('[data-kit-photo-initial="W"]').count()).toBe(1);
   expect(await frame("browse_thumbnails").getByText("Watering notes").isVisible()).toBe(true);
 });
 
@@ -54,7 +54,7 @@ it("collapses unresolved media and replaces a failed decode with compact status,
   expect(await fallback.getByTestId("media_fallback/missing/root").count()).toBe(0);
   expect(await fallback.getByTestId("media_fallback/unavailable/root").count()).toBe(0);
   expect(await fallback.getByRole("img").count()).toBe(0);
-  expect(await fallback.getByText("Morning park walk").isVisible()).toBe(true);
+  expect(await fallback.getByText("Morning park walk").count()).toBe(0);
   expect(await fallback.getByText("The walk notes are still available.").isVisible()).toBe(true);
 });
 
@@ -66,6 +66,26 @@ it("loads only the available gallery images and retains their original part addr
   expect(await gallery.getByRole("img").count()).toBe(2);
   expect(await gallery.getByTestId("garden_gallery/photos/r2/root").count()).toBe(0);
   expect(await gallery.getByText("Missing local sample").count()).toBe(0);
+  const unavailable = await page.evaluate(() =>
+    window.__lmthingUI?.act({ address: "photos/r2", action: "press" }, { dryRun: true }),
+  );
+  expect(unavailable).toMatchObject({ ok: false, code: "not_mounted" });
+});
+
+it("draws a full-width carousel page and advances to the next original address", async () => {
+  await look("Gallery");
+  const first = page.getByTestId("gallery_calm_light_1_filled/c1/r1/photo");
+  const second = page.getByTestId("gallery_calm_light_1_filled/c1/r2/photo");
+  await first.waitFor();
+  const start = await first.evaluate((node) => {
+    const scroll = node.closest('[style*="scroll-snap-type"]') as HTMLElement;
+    if (!scroll) throw new Error("Carousel is not a snapping scroller");
+    const box = node.getBoundingClientRect();
+    return { width: box.width, viewport: scroll.clientWidth, left: box.left };
+  });
+  expect(start.width).toBeCloseTo(start.viewport, 0);
+  await second.evaluate((node) => node.scrollIntoView({ inline: "start", block: "nearest" }));
+  await expect.poll(async () => Math.round((await second.boundingBox())!.x)).toBe(Math.round(start.left));
 });
 
 it("shows completed/total, due date, remaining work and the next milestone without another headline", async () => {

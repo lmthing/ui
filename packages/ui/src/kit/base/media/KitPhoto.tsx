@@ -15,6 +15,7 @@ const Frame = styled(YStack, {
       thumb: { width: size.avatar.md, height: size.avatar.md },
       round: { width: size.avatar.md, height: size.avatar.md, borderRadius: radius.pill },
       wide: { width: "100%", aspectRatio: variants.aspect.wide },
+      panorama: { width: "100%", aspectRatio: component.base.panoramaRatio },
       square: { width: "100%", aspectRatio: variants.aspect.square },
       tall: { width: "100%", aspectRatio: variants.aspect.tall },
       avatar: {
@@ -29,7 +30,7 @@ const Frame = styled(YStack, {
 
 type PhotoProps = {
   photo?: string | undefined;
-  shape?: "thumb" | "round" | "wide" | "square" | "tall" | "avatar";
+  shape?: "thumb" | "round" | "wide" | "panorama" | "square" | "tall" | "avatar";
   /** `auto` keeps the caller's usual shape; explicit ratios stay in place even without a photo. */
   aspect?: AxisValue<"aspect">;
   /** Edge media lets its enclosing frame own the outer corners. */
@@ -43,6 +44,8 @@ type PhotoProps = {
   loading?: boolean;
   /** Replace the image frame on decode/load failure. Thumbnails keep their normal fallback. */
   error?: ReactNode;
+  /** Content after the frame, but never after an image error. */
+  caption?: ReactNode;
 };
 
 function PhotoInitials({
@@ -77,6 +80,14 @@ function PhotoInitials({
   );
 }
 
+function ringOf(ring: NonNullable<PhotoProps["ring"]>, loading: boolean) {
+  if (ring === "none") return {};
+  return {
+    borderWidth: component.base.strongBorder,
+    borderColor: loading ? "$line" : ring === "accent" ? "$accent" : "$muted",
+  } as const;
+}
+
 /**
  * A photo by reference (`lib:<tag>` or `local:<n>`), resolved by the host. `thumb` and `round` sit
  * beside text; `wide` fills the width at 16:9 for a hero or card image. A tinted block until loaded.
@@ -102,7 +113,7 @@ export function KitPhoto(props: PhotoProps) {
       ? component.base.none
       : shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift);
   if (failed && props.error !== undefined) return props.error;
-  return (
+  const frame = (
     <Frame
       {...(addressed ? address : {})}
       shape={shape}
@@ -117,12 +128,7 @@ export function KitPhoto(props: PhotoProps) {
           ? undefined
           : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
       }
-      {...(ring !== "none"
-        ? {
-            borderWidth: component.base.strongBorder,
-            borderColor: loading ? "$line" : ring === "accent" ? "$accent" : "$muted",
-          }
-        : {})}
+      {...ringOf(ring, loading)}
       alignItems="center"
       justifyContent="center"
     >
@@ -136,5 +142,13 @@ export function KitPhoto(props: PhotoProps) {
       )}
       {layer && <PhotoLayer {...layer} />}
     </Frame>
+  );
+  return props.caption ? (
+    <>
+      {frame}
+      {props.caption}
+    </>
+  ) : (
+    frame
   );
 }

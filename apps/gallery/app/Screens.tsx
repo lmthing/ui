@@ -103,8 +103,9 @@ function MediaProgressScreen({
           defs={components}
           {...{ screen, theme, renderers }}
           resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
-          interactive={false}
+          interactive={screen.id === "garden_gallery"}
           reduceMotion
+          agentMode
         />
       </YStack>
     </YStack>

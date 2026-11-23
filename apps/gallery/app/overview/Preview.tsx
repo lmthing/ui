@@ -6,6 +6,7 @@ import { drawPreviewEnvironment, galleryParts, previewComponent, resolvePhoto } 
 import { createPreviewController, SignaturePreview } from "../draw";
 import { cellKey, cellLabel, type Cell, type modes } from "./gallery-data";
 import { DraftPreview } from "./DraftPreview";
+import { lookPhoto } from "../media-progress";
 
 const responsiveCard = {
   flexBasis: component.Gallery.variantWidth,
@@ -54,7 +55,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
       <KitProvider
         theme={theme}
         parts={galleryParts}
-        resolvePhoto={(ref) => resolvePhoto(ref, theme)}
+        resolvePhoto={(ref) => (variant?.sheet ? lookPhoto(ref, theme, cell.id) : resolvePhoto(ref, theme))}
         interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >

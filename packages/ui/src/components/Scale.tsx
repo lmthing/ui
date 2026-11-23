@@ -19,6 +19,7 @@ import { prompt } from "../entry/prompt-Scale.generated";
 
 export const meta = {
   id: "Scale",
+  status: "ready",
   group: "input",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -92,15 +93,13 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-const checkIn = { label: "Watering check-in", style: "dots", value: 3 } as const;
 const rated = { label: "Rated by walkers", style: "stars", value: 4.5, readonly: true } as const;
 export const examples = [
   { label: "How healthy does it look?", style: "mood", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4 },
-  { label: "How did it go? 1 low, 5 high", style: "dots", value: 0 },
+  { label: "How did it go?", style: "dots", value: 0 },
   { ...rated, meta: "212 reviews" },
-  checkIn,
-  { ...checkIn },
+  { label: "Watering check-in", style: "dots", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "quiet" },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "hero" },
   { ...rated, meta: "212 reviews", detail: "brief" },

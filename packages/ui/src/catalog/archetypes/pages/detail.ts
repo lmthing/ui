@@ -21,7 +21,7 @@ export const meta = createMeta(
     ],
     progress: [
       "Use the project name in Header and one total-project measurement in Progress, not progress for a selected piece. Copy the completed amount, total, unit and any supplied due date; Progress calculates what remains. In KeyValue include the supplied next milestone and other useful facts, without repeating the figures. Do not add a Hero when Progress already leads.",
-      "If the source has no progress measurement, use the facts layout in production. If this layout is mandated, leave Progress bars empty and use only the supplied record facts. Never count filled fields, invent progress or guess a deadline.",
+      'If no completed amount and target are supplied, leave Progress.style "ring" with bars: [] and sub null. In the supplied plant sample, care intervals are schedules, not watering logs, and the number of plants is not progress. Show only Fern, with Header.title "Fern", contextual back, and its Room and Care schedule in KeyValue. Do not repeat its name in KeyValue or invent Add/Edit actions, a goal or a deadline.',
       action,
     ],
   },

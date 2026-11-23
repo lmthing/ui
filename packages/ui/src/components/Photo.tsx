@@ -26,6 +26,7 @@ import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
   id: "Photo",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -56,7 +57,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-const fern = { photo: "lib:plants", caption: "Fern catching the morning light" };
+const fern = { photo: "lib:fern", caption: "Fern catching the morning light" };
 const clover = { photo: "lib:dogs", caption: "Clover after her morning park walk" };
 export const examples = [
   fern,
@@ -94,7 +95,14 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
   }
   if (state !== "error" && !resolvePhoto?.(photo)) return null;
   const error = (
-    <KitEmpty title={words.photoUnavailable} icon="alert" tone="bad" announce="status" part={null} />
+    <KitEmpty
+      layout="inline"
+      title={words.photoUnavailable}
+      icon="alert"
+      tone="bad"
+      announce="status"
+      part={null}
+    />
   );
   const line = caption && (
     <KitText role="caption" tone="muted" part="caption">
@@ -103,8 +111,11 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
   );
   return (
     <KitCard style="plain" part="root" padded inset="md">
-      {state === "error" ? error : <KitPhoto photo={photo} aspect={aspect} part="photo" error={error} />}
-      {line}
+      {state === "error" ? (
+        error
+      ) : (
+        <KitPhoto photo={photo} aspect={aspect} part="photo" error={error} caption={line} />
+      )}
     </KitCard>
   );
 }

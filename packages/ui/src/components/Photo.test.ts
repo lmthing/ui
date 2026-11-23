@@ -203,6 +203,6 @@ it("collapses an unknown reference and shows an inline error for an explicitly f
   expect(absent).not.toContain("Morning light");
   const failed = renderInstance("Photo", input, "error", theme);
   expect(failed).toContain("Image unavailable");
-  expect(failed).toContain("Morning light");
+  expect(failed).not.toContain("Morning light");
   expect(failed).not.toContain('role="img"');
 });

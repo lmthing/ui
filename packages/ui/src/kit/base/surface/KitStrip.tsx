@@ -6,6 +6,8 @@ import { useVariantDensity } from "../../provider";
 type StripProps = {
   children: ReactNode;
   pages?: boolean;
+  /** A centred carousel uses the entire viewport for each slide. */
+  fullPages?: boolean;
   /** `page` uses snapping pages; `all` exposes every cell in a continuous strip. */
   overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined;
   density?: ThemeDensity | undefined;
@@ -31,15 +33,21 @@ function StripPosition({ count, at }: { count: number; at: number }) {
 /**
  * A horizontal strip of cells, each `stripShare` (about 40%) of the strip's width so the third one is
  * partly visible and invites a swipe. With `pages`, each cell is nearly the full width, snaps into
- * place and a dot per cell shows where you are (a carousel). No visible scrollbar; token gap between cells.
+ * place and a dot per cell shows where you are. `fullPages` centres the carousel at full width.
  */
-export function KitStrip({ children, pages = false, overflow, density, list = false }: StripProps) {
+export function KitStrip(props: StripProps) {
+  const { children, pages = false, fullPages = false, overflow, density, list = false } = props;
   const [width, setWidth] = useState(0);
   const [at, setAt] = useState(0);
   const cells = Children.toArray(children);
   const paged = overflow === undefined ? pages : overflow === "page";
   const gap = space[useVariantDensity(density).stripGap];
-  const cell = Math.round(width * (paged ? component.base.pageShare : component.base.stripShare));
+  const share = paged
+    ? fullPages
+      ? component.base.bodyFlex
+      : component.base.pageShare
+    : component.base.stripShare;
+  const cell = Math.round(width * share);
   const multiplePages = paged && cells.length > 1;
   const pageGap = multiplePages ? Math.max(gap, width - cell) : gap;
   const webSnap = isWeb && multiplePages;

@@ -21,7 +21,7 @@ const mediaExamples = new Set<ComponentName>(["Photo", "Gallery", "Hero"]);
 /** The fixture host returns bytes only for known sample references, never personal media. */
 export function resolveMediaFixture(ref: string, theme: ThemeChoice) {
   if (ref === "lib:damaged_sample") return "data:image/png;base64,AA==";
-  return demoPhotos.has(ref) ? resolvePhoto(ref, theme) : undefined;
+  return demoPhotos.has(ref) ? resolvePhoto(ref, theme, undefined, true) : undefined;
 }
 
 export function lookPhoto(ref: string, theme: ThemeChoice, id: ComponentName) {
@@ -41,8 +41,8 @@ const project = {
       c: "KeyValue",
       id: "facts",
       pairs: [
-        { label: "Next milestone", value: "Join the quilt top" },
-        { label: "Status", value: "Waiting for backing fabric", status: true, tone: "warn" },
+        { label: "Next milestone", value: "Join the quilt top", mark: "highlight" },
+        { label: "Status", value: "Waiting for backing fabric", mark: "muted" },
       ],
     },
   ],
@@ -52,7 +52,7 @@ const sketch = {
   id: "sketch_review",
   components: [
     { c: "Header", id: "header", title: "Fern jacket sketch" },
-    { c: "Photo", id: "image", photo: "lib:fern_shelf", caption: "Fern motif on the front cover" },
+    { c: "Photo", id: "image", photo: "lib:fern", caption: "Fern motif for the front cover" },
     {
       c: "KeyValue",
       id: "facts",
@@ -117,7 +117,7 @@ const gallery = {
       id: "photos",
       photos: [
         { photo: "lib:fern", caption: "Fern" },
-        { photo: "local:46", caption: "Missing local sample" },
+        { photo: "local:46", caption: "Missing local sample", goto: "local_detail" },
         { photo: "lib:basil", caption: "Basil" },
       ],
     },

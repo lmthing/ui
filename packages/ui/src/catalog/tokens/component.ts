@@ -27,6 +27,7 @@ export const component = {
     skeletonOpacity: 0.4,
     disabledOpacity: 0.5,
     wideRatio: 16 / 9,
+    panoramaRatio: 3,
     tallRatio: 3 / 4,
     stripShare: 0.4,
     pageShare: 0.9,

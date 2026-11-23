@@ -2,7 +2,15 @@ import { allLabel } from "../copy";
 import type { CastLike } from "../types";
 import type { Definition } from "../probes";
 import type { ScreenLike } from "../agent";
-import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
+import {
+  itemsOf,
+  placeholderDetail,
+  placeholderTitle,
+  placeholderValue,
+  thingOf,
+  titleOf,
+  clip,
+} from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
 import { photo } from "../props";
@@ -48,11 +56,14 @@ function inputOf(
   if (line.c === "List" && ["shelf", "toggle"].includes(variant)) {
     const rows = [...(input.rows as Record<string, unknown>[])];
     if (variant === "shelf") {
+      const thing = thingOf(cast);
+      // Match List's fallback, which takes the first three records of this type and skips untitled ones.
+      const items = itemsOf(cast, 3).filter((item) => titleOf(item, 28, thing));
       while (rows.length < 2) rows.push({ title: placeholderTitle(rows.length) });
-      const fallback = (defs.Photo!.fallback({ cast: { ...cast, items: [] } }) as { photo: string }).photo;
+      const fallback = (defs.Photo!.fallback({ cast: { things: [], items: [] } }) as { photo: string }).photo;
       input.style = "shelf";
       input.rows = rows.map((row, index) => {
-        const supplied = photo.safeParse(row.photo ?? cast.items[index]?.photo);
+        const supplied = photo.safeParse(row.photo ?? items[index]?.photo);
         return { ...row, photo: supplied.success ? supplied.data : fallback };
       });
     } else

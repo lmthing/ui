@@ -101,6 +101,24 @@ describe("optional task actions", () => {
   );
 });
 
+it("keeps each shelf thumbnail with its source record, even when earlier records are skipped", () => {
+  const cast: CastLike = {
+    things: [{ type: "plant", fields: ["name"] }],
+    items: [
+      { id: "dog", type: "dog", sample: true, name: "Clover", photo: "lib:dogs" },
+      { id: "untitled", type: "plant", sample: true, photo: "lib:plants" },
+      { id: "fern", type: "plant", sample: true, name: "Fern", photo: "lib:fern" },
+      { id: "basil", type: "plant", sample: true, name: "Basil", photo: "lib:basil" },
+    ],
+  };
+  const screen = createRegistry().defaultLines("browse", "shelves", cast);
+  for (const shelf of screen.components.filter((entry) => entry.c === "List"))
+    expect(shelf.rows).toEqual([
+      { title: "Fern", photo: "lib:fern" },
+      { title: "Basil", photo: "lib:basil" },
+    ]);
+});
+
 const barsDefault: CoreArchetypeMeta = {
   id: "bars_default",
   purpose: "Compare amounts",
