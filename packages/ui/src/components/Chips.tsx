@@ -1,5 +1,7 @@
 import { z } from "zod";
 import {
+  dataViewFilter,
+  dataViewOption,
   probesFor,
   icon,
   itemsOf,
@@ -8,6 +10,7 @@ import {
   thingOf,
   titleOf,
   variantProps,
+  validDataView,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -18,6 +21,7 @@ import { prompt } from "../entry/prompt-Chips.generated";
 
 export const meta = {
   id: "Chips",
+  status: "ready",
   group: "input",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -28,7 +32,8 @@ export const meta = {
   realPath: "Filter flags or a selected value stored in the on-device database.",
   items: { key: "items", parts: ["root", "label", "icon"] },
   select: { prop: "on", value: "index", mode: "flags" },
-  parts: ["root"],
+  parts: ["root", "results"],
+  dataView: "items",
   variants: { lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon"] } },
   states: ["filled"],
@@ -42,12 +47,14 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["filter", "choose"]).default("filter"),
+    filter: dataViewFilter.optional(),
     items: z
       .array(
         z.strictObject({
           label: text(16),
           on: z.boolean().default(false),
           icon: icon.optional(),
+          view: dataViewOption.optional(),
         }),
       )
       .min(2)
@@ -56,6 +63,10 @@ export const props = z
   .refine((value) => value.style !== "choose" || value.items.filter((item) => item.on).length <= 1, {
     path: ["items"],
     message: "Choose allows at most one selected item",
+  })
+  .refine(({ items, filter, style }) => validDataView(items, filter, style === "filter"), {
+    path: ["items"],
+    message: "Bind every option to the same kind of data view",
   });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -80,12 +91,14 @@ export const examples = [
       { label: "All rooms", on: true },
       { label: "Bathroom" },
       { label: "Kitchen" },
-      { label: "Living room" },
+      { label: "Sun room" },
+      { label: "Balcony" },
+      { label: "Hallway shelves" },
     ],
   },
   {
     style: "choose",
-    items: [{ label: "30 min", on: true, icon: "clock" }, { label: "45 min" }, { label: "60 min" }],
+    items: [{ label: "30 min", on: true }, { label: "45 min" }, { label: "60 min" }],
   },
   { items: walkFilters },
   { lead: "none", items: walkFilters },
@@ -108,9 +121,11 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Chips({ style, items, lead }: Props<typeof props, typeof meta>) {
+  const choice = style === "choose";
+  const selected = items.findIndex(({ on }) => on);
   return (
-    <KitTrack look="pills">
-      {items.map((item) => (
+    <KitTrack look="pills" scroll keyboard={choice} {...(choice ? { role: "radiogroup" } : {})}>
+      {items.map((item, index) => (
         <KitChip
           key={item.id}
           item={item.id}
@@ -118,7 +133,9 @@ export function Chips({ style, items, lead }: Props<typeof props, typeof meta>) 
           on={item.on}
           icon={lead === "icon" ? item.icon : undefined}
           look="pill"
-          role={style === "filter" ? "checkbox" : "radio"}
+          role={choice ? "radio" : "checkbox"}
+          roving={choice}
+          focusable={selected < 0 && index === 0}
         />
       ))}
     </KitTrack>

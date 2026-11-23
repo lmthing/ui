@@ -1,31 +1,37 @@
 import { z } from "zod";
 import {
+  dataViewFilter,
+  dataViewOption,
   probesFor,
   itemsOf,
   placeholderTitle,
   text,
   thingOf,
   titleOf,
+  validDataView,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitChip, KitRow, KitTrack } from "../kit";
+import { KitChip, KitTrack } from "../kit";
 import { prompt } from "../entry/prompt-Segmented.generated";
 
 export const meta = {
   id: "Segmented",
+  status: "ready",
   group: "input",
   purpose: prompt.purpose,
   pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "A local selection changes which view of the screen's data is shown.",
   items: { key: "options", parts: ["root", "label"] },
   select: { prop: "at", value: "index" },
-  parts: ["root"],
+  parts: ["root", "results"],
+  dataView: "options",
   states: ["filled"],
   actions: { items: { root: ["select"] } },
 } as const satisfies Meta;
@@ -33,14 +39,19 @@ export const meta = {
 export const props = z
   .strictObject({
     options: z
-      .array(z.strictObject({ label: text(14) }))
+      .array(z.strictObject({ label: text(14), view: dataViewOption.optional() }))
       .min(2)
       .max(4),
     at: z.int().min(0).default(0),
+    filter: dataViewFilter.optional(),
   })
   .refine(({ options, at }) => at < options.length, {
     path: ["at"],
     message: "Must index an available option",
+  })
+  .refine(({ options, filter }) => validDataView(options, filter), {
+    path: ["options"],
+    message: "Bind every option to the same kind of data view",
   });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -68,9 +79,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Segmented({ options, at }: Props<typeof props, typeof meta>) {
-  const look = "plain";
-  const track = (
-    <KitTrack look="segments">
+  return (
+    <KitTrack look="segments" keyboard>
       {options.map((option, index) => (
         <KitChip
           key={option.id}
@@ -79,15 +89,9 @@ export function Segmented({ options, at }: Props<typeof props, typeof meta>) {
           look="segment"
           role="tab"
           on={index === at}
+          roving
         />
       ))}
     </KitTrack>
-  );
-  return look === "plain" ? (
-    track
-  ) : (
-    <KitRow label={options[at]!.label} surface={look}>
-      {track}
-    </KitRow>
   );
 }

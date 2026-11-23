@@ -1,11 +1,14 @@
 import { createMeta, composeProbes } from "../recipe";
 import type { ArchetypeMeta } from "../recipe";
+import type { ScreenLike } from "../../agent";
 export const meta = createMeta(
   "dashboard",
   "How things are going",
-  { rings: "Header Stats Progress:ring List", charts: "Header Stats Bars List" },
+  { rings: "Header Segmented? Stats Progress:ring List", charts: "Header Stats Bars List" },
   {
     rings: [
+      "When including Segmented, bind its tabs to the Stats and Progress sibling ids (one panel per tab), with an empty message for each. Use tabs only if both drawings are useful views of the supplied data.",
+      'For Progress set style:"ring" and write exactly one bars item with label, value and of; set unit, tone and goto to null. Use measured coverage when no goal is supplied: for plant records, label it "Care schedules", count plants with a supplied care interval as value and all supplied plants as of. Do not invent a watering or completion count.',
       "Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.",
     ],
     charts: [
@@ -17,3 +20,36 @@ export const meta = createMeta(
 ) satisfies ArchetypeMeta;
 export const defaults = meta.defaults;
 export const probes = composeProbes(meta);
+
+export const dataViewExample = {
+  id: "walk_dashboard",
+  components: [
+    { id: "heading", c: "Header", title: "This week's walks" },
+    {
+      id: "view",
+      c: "Segmented",
+      options: [
+        { label: "Summary", view: { panel: "summary", empty: "No walk measures yet" } },
+        { label: "Weekly goal", view: { panel: "goal", empty: "No goal set for this week" } },
+        { label: "Last week", view: { empty: "No walks logged last week" } },
+      ],
+    },
+    {
+      id: "summary",
+      c: "Stats",
+      tiles: [
+        { label: "Completed", value: "2" },
+        { label: "Target", value: "5" },
+      ],
+    },
+    { id: "goal", c: "Progress", style: "ring", bars: [{ label: "Weekly walk goal", value: 2, of: 5 }] },
+    {
+      id: "walks",
+      c: "List",
+      rows: [
+        { title: "Park walk", meta: "Monday", goto: "park_walk" },
+        { title: "River walk", meta: "Wednesday", goto: "river_walk" },
+      ],
+    },
+  ],
+} satisfies ScreenLike;

@@ -12,6 +12,7 @@ import { hostOnlyAddresses, isPrivateMark } from "../private-controls";
 import type { ScreenLike } from "../read";
 import { reportEditWire } from "../report-edits";
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
+import { projectDataViewList, resolveDataViews } from "../data-view";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -67,6 +68,7 @@ type OfferOptions = {
   includeBlocked: boolean;
   planner?: true;
   canDrive?: CanDrive;
+  views?: ReturnType<typeof resolveDataViews>;
 };
 
 /** Project once and build the same declarations for the detached planner and mounted kit. */
@@ -76,18 +78,28 @@ export function componentOffers(
   { id, c, state, ...raw }: ScreenLike["components"][number],
   values: Values,
   local: Values,
-  { data, now, host, includeBlocked, planner, canDrive }: OfferOptions,
+  {
+    data,
+    now,
+    host,
+    includeBlocked,
+    planner,
+    canDrive,
+    views = resolveDataViews(screen, defs, local),
+  }: OfferOptions,
 ) {
   const def = defs[c]!;
   const selection = selectionBindingFor(screen, defs, def.meta, id, local, data);
   const live = projectLiveInput(def, raw, id, local, data, now);
   const target = driveTarget(def.meta, screen, defs, local, data, canDrive);
-  const props = projectDriveObservation(
+  const observed = projectDriveObservation(
     def.meta,
     projectSelectionBinding(def.meta, live, selection?.view),
     id,
     target,
   );
+  const { props, empty } = projectDataViewList(views, id, observed, state);
+  if (empty || views.hidden.has(id)) return { props, target, offered: [], selection };
   const get = (part: string) => local[`${id}/${part}`];
   const clock = recordClockOffer(def, raw, props, get, data, now, values);
   const wire = reportEditWire(def, raw, get);
@@ -114,6 +126,7 @@ export function affordancesOfScreen(
   host?: Pick<ActStep, "address" | "action">,
 ) {
   const local = localValues(screen.id, values);
+  const views = resolveDataViews(screen, defs, local);
   return screen.components.flatMap((entry) => {
     const { id, c } = entry;
     const def = defs[c];
@@ -124,6 +137,7 @@ export function affordancesOfScreen(
       host: screen[hostActionPolicy],
       includeBlocked: true,
       planner: true,
+      views,
     });
     const hostOnly = hostOnlyAddresses(def, id, offered);
     const allowed = offered.filter(

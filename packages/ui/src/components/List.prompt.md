@@ -6,7 +6,7 @@ Several things of the same kind, each one tappable.
 
 ## Pick
 
-The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).
+The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).
 
 ## Writer
 

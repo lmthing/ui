@@ -1,8 +1,6 @@
 import {
   atDeviceTime,
   buzzTarget,
-  captureDeviceTime,
-  driveTarget,
   hostActionPolicy,
   isDeviceDataVisible,
   isKeypadPart,
@@ -11,12 +9,8 @@ import {
   parseAddress,
   planAct,
   projectDeviceData,
-  readComponent,
   readScreen,
-  redactPrivateMarks,
-  selectionBindingFor,
   withDisabledSelectionChecks,
-  withRecordScreen,
   type AppCurrency,
   type CanDrive,
   type Definition,
@@ -119,9 +113,7 @@ export function readControls(
 ): string {
   const source = readPolicy(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
-  const read = migrated.components.some(({ c }) => hasKeypads(defs[c]))
-    ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
-    : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
+  const read = readScreen(source, defs, values, lang, deviceData, currency, canDrive, withKeypadDrafts);
   return disabled?.size || privateMarks?.size || canDrive
     ? read.replace(controlTokens, (token, address, action) => {
         if (action === "set" && privateMarks?.has(address)) return "";
@@ -130,46 +122,6 @@ export function readControls(
         return token;
       })
     : read;
-}
-
-function readKeypads(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  lang?: string,
-  deviceData?: DeviceData,
-  currency?: AppCurrency,
-  canDrive?: CanDrive,
-) {
-  deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), screen);
-  const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
-  const local = Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
-  );
-  const header = readScreen({ ...screen, components: [] }, defs, values, lang);
-  const { values: safe, addresses } = redactPrivateMarks(local);
-  return [
-    header,
-    ...screen.components.flatMap(({ id, c, state, ...props }) => {
-      const def = defs[c];
-      if (!def) return [`${id} ${c} (unknown)`];
-      const selection = selectionBindingFor(screen, defs, def.meta, id, safe, snapshot, addresses);
-      const target = driveTarget(def.meta, screen, defs, safe, snapshot, canDrive, addresses);
-      return readComponent(
-        withKeypadDrafts(def, id, safe),
-        props,
-        id,
-        state,
-        local,
-        lang,
-        deviceData,
-        currency,
-        selection?.view,
-        target,
-        screen[hostActionPolicy],
-      );
-    }),
-  ].join("\n");
 }
 
 function hasKeypads(def?: Definition) {

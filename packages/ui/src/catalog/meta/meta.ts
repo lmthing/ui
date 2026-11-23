@@ -53,6 +53,8 @@ export type Meta = {
   weight: 0 | 1 | 2 | 3;
   weightByStyle?: Readonly<Record<string, 0 | 1 | 2 | 3>>;
   signatureByStyle?: Readonly<Record<string, string>>;
+  /** Option collection whose selection controls a sibling data view. */
+  dataView?: "options" | "items";
   tier: Tier;
   /** A part that needs more than the component does (a reply that reaches other people) carries its own tier. */
   partTiers?: Readonly<Record<string, Tier>>;
