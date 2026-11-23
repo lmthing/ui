@@ -126,38 +126,95 @@ export const probes = [
 type SquadProps = c.Props<typeof props, typeof meta>;
 const answerTones = { yes: "good", maybe: "warn", no: "bad", none: "muted" } as const;
 
-// prettier-ignore
+type SquadWords = ReturnType<typeof sportsWordsFor>["squad"];
+type Density = c.ThemeDensity;
+
+function SquadRows(squad: SquadProps, detail: SquadProps["detail"], density: Density, words: SquadWords) {
+  return squad.players.map((row, index) => (
+    <kit.KitRow key={row.id} item={row.id} label={row.name} inline>
+      <kit.KitRow
+        part={null}
+        label={row.name}
+        density={density}
+        inset="none"
+        leadingAlign="row"
+        leading={<kit.KitPhoto photo={row.photo} shape="round" part="photo" label={row.name} />}
+        trailing={
+          squad.coach || row.picked ? (
+            <kit.KitCheck
+              part="picked"
+              done={row.picked}
+              label={squad.coach ? words.selection(row.name) : words.picked}
+              readonly={!squad.coach}
+            />
+          ) : undefined
+        }
+      >
+        <kit.KitText part="name" lines={1} density={density}>
+          {row.name}
+        </kit.KitText>
+        <kit.KitText
+          part={index === 0 ? null : "answer"}
+          role="label"
+          density={density}
+          tone={answerTones[row.answer]}
+        >
+          {words.answers[row.answer]}
+        </kit.KitText>
+        {detail === "full" && row.reason && (
+          <kit.KitText part="reason" role="label" tone="muted" lines={1} density={density}>
+            {row.reason}
+          </kit.KitText>
+        )}
+      </kit.KitRow>
+      {index === 0 && (
+        <kit.KitTrack part="answer" role="radiogroup" look="segments" label={words.reply}>
+          {replies.map((value) => (
+            <kit.KitChip
+              key={value}
+              item={null}
+              role="radio"
+              look="segment"
+              label={words.answers[value]}
+              value={value}
+              on={row.answer === value}
+            />
+          ))}
+        </kit.KitTrack>
+      )}
+    </kit.KitRow>
+  ));
+}
+
 export function Squad(input: SquadProps) {
-  const { lang, words: { squad: words } } = kit.useWords(sportsWordsFor);
+  const {
+    lang,
+    words: { squad: words },
+  } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const squad = kit.useLiveControls(meta, input) as SquadProps;
   const amount = squadSummary(squad, lang);
-  return <kit.KitCard part="root" padded density={density}>
-    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : <>
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitText part={null} role="heading" density={density}>{words.available}</kit.KitText>
-        <kit.KitText part="available" role="number" tabular density={density}>{amount}</kit.KitText>
-      </kit.KitGrid>
-      <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
-        {squad.players.map((row, index) => <kit.KitRow key={row.id} item={row.id} label={row.name} inline>
-          <kit.KitRow part={null} label={row.name} density={density} inset="none" leadingAlign="row"
-            leading={<kit.KitPhoto photo={row.photo} shape="round" part="photo" label={row.name} />}
-            trailing={squad.coach || row.picked ? <kit.KitCheck part="picked" done={row.picked}
-              label={squad.coach ? words.selection(row.name) : words.picked} readonly={!squad.coach} /> : undefined}>
-            <kit.KitText part="name" lines={1} density={density}>{row.name}</kit.KitText>
-            <kit.KitText part={index === 0 ? null : "answer"} role="label" density={density}
-              tone={answerTones[row.answer]}>{words.answers[row.answer]}</kit.KitText>
-            {detail === "full" && row.reason && <kit.KitText part="reason" role="label" tone="muted"
-              lines={1} density={density}>{row.reason}</kit.KitText>}
-          </kit.KitRow>
-          {index === 0 && <kit.KitTrack part="answer" role="radiogroup" look="segments" label={words.reply}>
-            {replies.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment"
-              label={words.answers[value]} value={value} on={row.answer === value} />)}
-          </kit.KitTrack>}
-        </kit.KitRow>)}
-      </kit.KitGrid>
-    </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" decorativeIcon />
+      ) : (
+        <>
+          <kit.KitGrid fitLast density={density}>
+            <kit.KitText part={null} role="heading" density={density}>
+              {words.available}
+            </kit.KitText>
+            <kit.KitText part="available" role="number" tabular density={density}>
+              {amount}
+            </kit.KitText>
+          </kit.KitGrid>
+          <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
+            {SquadRows(squad, detail, density, words)}
+          </kit.KitGrid>
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

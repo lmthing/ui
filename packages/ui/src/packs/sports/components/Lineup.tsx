@@ -173,22 +173,43 @@ export const probes = [
 type LineupProps = c.Props<typeof props, typeof meta>;
 type Player = LineupProps["players"][number];
 
-// prettier-ignore
 function PlayerList({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
-  const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
-  return <kit.KitRowGroup density={density}>{players.map((player) => {
-    const shirt = c.numberLine(player.number, lang);
-    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inline inset="none"
-      label={lineup.player(player.name, shirt)} leading={
-        <kit.KitTrail kind="value" part="number" value={shirt} density={density} />
-      }>
-      <kit.KitMetaLine title={{ text: player.name, part: "name" }} density={density} />
-      {hasPlayerBadges(player) && <kit.KitText part={null} role="label" tone="muted" density={density}>
-        {playerBadges(player, lang).map(({ part, text, tone }, index) =>
-          <PlayerBadge key={part} {...{ part, text, tone, density }} separator={index ? lineup.badgeSeparator : ""} />)}
-      </kit.KitText>}
-    </kit.KitRow>;
-  })}</kit.KitRowGroup>;
+  const {
+    lang,
+    words: { lineup },
+  } = kit.useWords(sportsWordsFor);
+  return (
+    <kit.KitRowGroup density={density}>
+      {players.map((player) => {
+        const shirt = c.numberLine(player.number, lang);
+        return (
+          <kit.KitRow
+            key={player.id}
+            item={player.id}
+            role="button"
+            density={density}
+            inline
+            inset="none"
+            label={lineup.player(player.name, shirt)}
+            leading={<kit.KitTrail kind="value" part="number" value={shirt} density={density} />}
+          >
+            <kit.KitMetaLine title={{ text: player.name, part: "name" }} density={density} />
+            {hasPlayerBadges(player) && (
+              <kit.KitText part={null} role="label" tone="muted" density={density}>
+                {playerBadges(player, lang).map(({ part, text, tone }, index) => (
+                  <PlayerBadge
+                    key={part}
+                    {...{ part, text, tone, density }}
+                    separator={index ? lineup.badgeSeparator : ""}
+                  />
+                ))}
+              </kit.KitText>
+            )}
+          </kit.KitRow>
+        );
+      })}
+    </kit.KitRowGroup>
+  );
 }
 
 function PlayerBadge({
@@ -208,69 +229,164 @@ function PlayerBadge({
   );
 }
 
-// prettier-ignore
 function BadgedLineup({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
-  const { words: { lineup } } = kit.useWords(sportsWordsFor);
-  return <kit.KitCard part="formation" style="plain" density={density}>
-    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-    {playerGroups(players).map(([line, players]) => line === undefined ? (
-      <kit.KitCard key="bench" part="bench_list" style="plain" density={density}>
-        <kit.KitContent density={density}>
-          <kit.KitHeader title={{ text: lineup.bench, part: "bench", role: "meta", tone: "muted" }} density={density} />
-          <PlayerList {...{ players, density }} />
-        </kit.KitContent>
-      </kit.KitCard>
-    ) : <PlayerList key={line} {...{ players, density }} />)}
-    </kit.KitRowGroup>
-  </kit.KitCard>;
+  const {
+    words: { lineup },
+  } = kit.useWords(sportsWordsFor);
+  return (
+    <kit.KitCard part="formation" style="plain" density={density}>
+      <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+        {playerGroups(players).map(([line, players]) =>
+          line === undefined ? (
+            <kit.KitCard key="bench" part="bench_list" style="plain" density={density}>
+              <kit.KitContent density={density}>
+                <kit.KitHeader
+                  title={{ text: lineup.bench, part: "bench", role: "meta", tone: "muted" }}
+                  density={density}
+                />
+                <PlayerList {...{ players, density }} />
+              </kit.KitContent>
+            </kit.KitCard>
+          ) : (
+            <PlayerList key={line} {...{ players, density }} />
+          ),
+        )}
+      </kit.KitRowGroup>
+    </kit.KitCard>
+  );
 }
 
-// prettier-ignore
-function Bench({ players, density, style }: {
-  players: LineupProps["players"]; density: c.ThemeDensity; style: LineupProps["style"];
-}) {
-  const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
-  if (!players.length) return null;
-  const label = <kit.KitText part="bench" role="label" tone="muted" density={density}>{lineup.bench}</kit.KitText>;
-  if (style === "list") return <kit.KitContent density={density}>
-    {label}
-    <kit.KitPitch part="bench_list" style="list" lines={pitchLines(players.map((player) => ({ ...player, line: 0 })), lang)} />
-  </kit.KitContent>;
-  const rows = players.map(({ id, name, number }) => {
+function BenchRows(
+  players: LineupProps["players"],
+  density: c.ThemeDensity,
+  lang: string,
+  lineup: ReturnType<typeof sportsWordsFor>["lineup"],
+) {
+  return players.map(({ id, name, number }) => {
     const shirt = c.numberLine(number, lang);
-    return <kit.KitRow key={id} item={id} role="button" label={lineup.player(name, shirt)}
-      density={density} leading={<kit.KitText part="number" role="number" numberScale="compact"
-        tabular tone="muted" density={density}>{shirt}</kit.KitText>}>
-      <kit.KitText part="name" lines={2} density={density}>{name}</kit.KitText>
-    </kit.KitRow>;
+    return (
+      <kit.KitRow
+        key={id}
+        item={id}
+        role="button"
+        label={lineup.player(name, shirt)}
+        density={density}
+        leading={
+          <kit.KitText
+            part="number"
+            role="number"
+            numberScale="compact"
+            tabular
+            tone="muted"
+            density={density}
+          >
+            {shirt}
+          </kit.KitText>
+        }
+      >
+        <kit.KitText part="name" lines={2} density={density}>
+          {name}
+        </kit.KitText>
+      </kit.KitRow>
+    );
   });
-  return <kit.KitContent density={density}>
-    {label}
-    {players.length === 1 ? rows : <kit.KitStrip list density={density}>{rows}</kit.KitStrip>}
-  </kit.KitContent>;
 }
 
-// prettier-ignore
+function Bench({
+  players,
+  density,
+  style,
+}: {
+  players: LineupProps["players"];
+  density: c.ThemeDensity;
+  style: LineupProps["style"];
+}) {
+  const {
+    lang,
+    words: { lineup },
+  } = kit.useWords(sportsWordsFor);
+  if (!players.length) return null;
+  const label = (
+    <kit.KitText part="bench" role="label" tone="muted" density={density}>
+      {lineup.bench}
+    </kit.KitText>
+  );
+  if (style === "list")
+    return (
+      <kit.KitContent density={density}>
+        {label}
+        <kit.KitPitch
+          part="bench_list"
+          style="list"
+          lines={pitchLines(
+            players.map((player) => ({ ...player, line: 0 })),
+            lang,
+          )}
+        />
+      </kit.KitContent>
+    );
+  const rows = BenchRows(players, density, lang, lineup);
+
+  return (
+    <kit.KitContent density={density}>
+      {label}
+      {players.length === 1 ? (
+        rows
+      ) : (
+        <kit.KitStrip list density={density}>
+          {rows}
+        </kit.KitStrip>
+      )}
+    </kit.KitContent>
+  );
+}
+
 export function Lineup(input: LineupProps) {
-  const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
+  const {
+    lang,
+    words: { lineup },
+  } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const title = <kit.KitText part="title" role="heading" density="comfortable">{lineup.title}</kit.KitText>;
-  const titleRow = detail === "brief" || state === "empty" ? title : <kit.KitGrid fitLast density={density}>
-    {title}
-    <kit.KitText part="shape" role="label" tone="muted" tabular density={density}>
-      {formationLabel(input.lines, lang)}
+  const title = (
+    <kit.KitText part="title" role="heading" density="comfortable">
+      {lineup.title}
     </kit.KitText>
-  </kit.KitGrid>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {titleRow}
-    <kit.KitState part="formation" icon="users" density={density}>
-      {input.style === "list" && input.players.some(hasPlayerBadges) ?
-        <BadgedLineup players={input.players} density={density} /> :
-        <kit.KitPitch part="formation" style={input.style} lines={pitchLines(input.players, lang)}
-          substitutes={<Bench players={input.players.filter(({ line }) => line === undefined)} {...{ density }} style={input.style} />} />}
-    </kit.KitState>
-  </kit.KitCard>;
+  );
+  const titleRow =
+    detail === "brief" || state === "empty" ? (
+      title
+    ) : (
+      <kit.KitGrid fitLast density={density}>
+        {title}
+        <kit.KitText part="shape" role="label" tone="muted" tabular density={density}>
+          {formationLabel(input.lines, lang)}
+        </kit.KitText>
+      </kit.KitGrid>
+    );
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {titleRow}
+      <kit.KitState part="formation" icon="users" density={density}>
+        {input.style === "list" && input.players.some(hasPlayerBadges) ? (
+          <BadgedLineup players={input.players} density={density} />
+        ) : (
+          <kit.KitPitch
+            part="formation"
+            style={input.style}
+            lines={pitchLines(input.players, lang)}
+            substitutes={
+              <Bench
+                players={input.players.filter(({ line }) => line === undefined)}
+                {...{ density }}
+                style={input.style}
+              />
+            }
+          />
+        )}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }
