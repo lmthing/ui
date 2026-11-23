@@ -64,7 +64,9 @@ describe("Gallery loading geometry", () => {
       const theme = { preset, mode, accent: "moss" } as const;
       const input = { ...(layout === "carousel" ? { style: layout } : { arrange: layout }), photos };
       const html = renderInstance("Gallery", input, "loading", theme);
-      const filled = renderInstance("Gallery", input, "filled", theme);
+      const filled = renderInstance("Gallery", input, "filled", theme, {
+        resolvePhoto: (ref) => (ref === "lib:entry" ? ref : undefined),
+      });
       const root = elementAt(html, "home/c1/root");
       expect(styleAt(html, root)).toContain("padding-left:0px");
       expect(styleAt(html, root)).toContain("padding-right:0px");
