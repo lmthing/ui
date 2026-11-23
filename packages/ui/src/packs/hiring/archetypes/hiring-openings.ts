@@ -8,6 +8,7 @@ export const hiring_openings = {
     hiring_roles: {
       writeHints: [
         'Use JobFeed for structured openings with employer, workplace, posting date or pay. For a flat list with only title, status and destination, use List with "style":null and "trail":"badge" at the component level. Put each status in its row value, not in the shelf-only badge field; leave row trail and badge null.',
+        "When the results use JobFeed, keep the requested chip labels with top-level filter:null and view:null on every chip. A Chips filter can target only a sibling List, never JobFeed.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

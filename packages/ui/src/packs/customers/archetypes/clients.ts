@@ -6,6 +6,9 @@ export const clients = {
   defaultLayout: "list",
   layouts: {
     list: {
+      writeHints: [
+        'With supplied client categories, bind Chips.filter to the sibling List’s id and set field:"category". Give each chip a view with panel:null, empty text and an exact category match. For an explicit All chip, use style "choose" and set its match:null. If there are no supplied categories, use top-level filter:null and view:null on every chip.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
