@@ -18,9 +18,18 @@ import {
   visibleItems,
 } from "../../../catalog";
 import * as kit from "../../../kit";
-import { activityOptions, activityFilters, activityKinds, activityLive, activityReading } from "../copy";
+import type { ThemeDensity } from "../../../catalog";
+import {
+  activityOptions,
+  activityFilters,
+  activityKinds,
+  activityLive,
+  activityReading,
+  activityDiff,
+  activityLabel,
+  type ActivityEntry,
+} from "../copy";
 import { dataWordsFor } from "../lang";
-import * as optionView from "../option-views";
 import { prompt } from "../../../entry/prompt-ActivityLog.generated";
 
 // Core first: Timeline/default lays out events or plans; it does not identify who changed a record with avatars.
@@ -53,21 +62,39 @@ export const meta = {
     state === "filled" ? activityReading(input as LogProps, lang) : [],
 } as const satisfies Meta;
 
-// prettier-ignore
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  kind: z.enum(activityFilters).optional(),
-  entries: z.array(z.strictObject({
-    who: text(20), photo, text: text(80), time: text(12), goto: screenId,
-    kind: z.enum(activityKinds).optional(),
-    diff: z.strictObject({ old: text(28), new: text(28) }).optional(),
-  })).min(1).max(6),
-}).refine(({ kind, entries }) => !kind || kind === "all" || entries.some((entry) => entry.kind === kind),
-  { path: ["kind"], message: "The starting filter must match an entry" }).overwrite((input) => {
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    kind: z.enum(activityFilters).optional(),
+    entries: z
+      .array(
+        z.strictObject({
+          who: text(20),
+          photo,
+          text: text(80),
+          time: text(12),
+          goto: screenId,
+          kind: z.enum(activityKinds).optional(),
+          diff: z.strictObject({ old: text(28), new: text(28) }).optional(),
+        }),
+      )
+      .min(1)
+      .max(6),
+  })
+  .refine(({ kind, entries }) => !kind || kind === "all" || entries.some((entry) => entry.kind === kind), {
+    path: ["kind"],
+    message: "The starting filter must match an entry",
+  })
+  .overwrite((input) => {
     const kindOptions = activityOptions(input.entries);
     return {
-      ...input, kindOptions, hasKinds: kindOptions.length > 0,
-      entries: input.entries.map((entry) => ({ ...entry, shown: !input.kind || input.kind === "all" || entry.kind === input.kind })),
+      ...input,
+      kindOptions,
+      hasKinds: kindOptions.length > 0,
+      entries: input.entries.map((entry) => ({
+        ...entry,
+        shown: !input.kind || input.kind === "all" || entry.kind === input.kind,
+      })),
     };
   });
 
@@ -167,7 +194,6 @@ export const probes = [
 
 type LogProps = Props<typeof props, typeof meta>;
 type Entry = LogProps["entries"][number];
-// prettier-ignore
 export function ActivityLog(input: LogProps) {
   const density = kit.useKit().density;
   const surface = "card";
@@ -177,19 +203,114 @@ export function ActivityLog(input: LogProps) {
   const { lang, words } = kit.useWords(dataWordsFor);
   const options = activityOptions(input.entries, lang);
   const upgraded = options.length > 0 || input.entries.some(({ diff }) => diff);
-  const rows = entries.map((entry) => <optionView.ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />);
-  const feed = <kit.KitRowGroup density={density} separators={upgraded}
-    leadingWidth={upgraded && avatar ? "avatar" : undefined}>{rows}</kit.KitRowGroup>;
-  const body = upgraded ? <kit.KitContent inset="md" density={density}>
-    {options.length > 0 && <kit.KitTrack look="segments" part="kind" role="radiogroup" label={words.activityKind}>
-      {options.map(({ value, label }) => <kit.KitChip key={value} item={null} role="radio" look="segment"
-        label={label} value={value} on={live.kind === value} />)}
-    </kit.KitTrack>}
-    {feed}
-  </kit.KitContent> : feed;
-  return <kit.KitCard part="root" surface={surface} density={density} padded={upgraded} inset={upgraded ? "none" : "md"}>
-    <kit.KitState icon="clipboard_list" part="title" loading={feed} density={density}>
-      {body}
-    </kit.KitState>
-  </kit.KitCard>;
+  const rows = entries.map((entry) => (
+    <ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />
+  ));
+  const feed = (
+    <kit.KitRowGroup
+      density={density}
+      separators={upgraded}
+      leadingWidth={upgraded && avatar ? "avatar" : undefined}
+    >
+      {rows}
+    </kit.KitRowGroup>
+  );
+  const body = upgraded ? (
+    <kit.KitContent inset="md" density={density}>
+      {options.length > 0 && (
+        <kit.KitTrack look="segments" part="kind" role="radiogroup" label={words.activityKind}>
+          {options.map(({ value, label }) => (
+            <kit.KitChip
+              key={value}
+              item={null}
+              role="radio"
+              look="segment"
+              label={label}
+              value={value}
+              on={live.kind === value}
+            />
+          ))}
+        </kit.KitTrack>
+      )}
+      {feed}
+    </kit.KitContent>
+  ) : (
+    feed
+  );
+  return (
+    <kit.KitCard
+      part="root"
+      surface={surface}
+      density={density}
+      padded={upgraded}
+      inset={upgraded ? "none" : "md"}
+    >
+      <kit.KitState icon="clipboard_list" part="title" loading={feed} density={density}>
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}
+
+type RowProps = {
+  entry: ActivityEntry;
+  density: ThemeDensity | undefined;
+  avatar: boolean;
+  upgraded: boolean;
+};
+
+function ActivityRow({ entry, density, avatar, upgraded }: RowProps) {
+  const { lang } = kit.useWords(dataWordsFor);
+  const { resolvePhoto } = kit.useKit();
+  const loading = kit.useComponentState() === "loading";
+  const { id, who, photo, text, time, goto } = entry;
+  // The library's generic people placeholder is not an actor's portrait.
+  const portrait =
+    avatar && photo !== "lib:people" && resolvePhoto?.(photo) ? { photo } : { initials: Array.from(who)[0]! };
+  return (
+    <kit.KitRow
+      item={id}
+      part={loading ? null : "root"}
+      goto={loading ? undefined : goto}
+      label={activityLabel(entry, lang)}
+      density={density}
+      inset={upgraded ? "none" : "md"}
+      leadingAlign="row"
+      leading={
+        avatar ? (
+          <kit.KitPhoto
+            {...portrait}
+            shape="round"
+            label={who}
+            part={loading ? null : "photo"}
+            loading={loading}
+          />
+        ) : undefined
+      }
+      trailing={upgraded ? undefined : <kit.KitIcon name="chevron_right" decorative loading={loading} />}
+    >
+      <kit.KitContent density={density}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitLayoutText
+            line={{ part: "who", text: who, role: "meta", tone: "muted" }}
+            density={density}
+          />
+          <kit.KitLayoutText line={{ part: "text", text, strong: true }} density={density} />
+        </kit.KitContent>
+        <kit.KitLayoutText
+          density={density}
+          line={{
+            text: entry.diff && activityDiff(entry.diff, lang),
+            part: "diff",
+            role: "caption",
+            tone: "muted",
+          }}
+        />
+        <kit.KitLayoutText
+          density={density}
+          line={{ part: "time", text: time, role: "caption", tone: "muted", tabular: true }}
+        />
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
