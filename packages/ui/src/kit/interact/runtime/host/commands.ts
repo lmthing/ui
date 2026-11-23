@@ -202,7 +202,7 @@ export function createHostCommands(
     },
     stage: (values: Values, intent: HostIntent, source: Source) =>
       stage(slots, resolve, values, intent, source),
-    commit: slots.commit,
+    commit: (values: Values) => slots.commit(values),
     prune: slots.prune,
     reset: slots.reset,
     version: slots.version,

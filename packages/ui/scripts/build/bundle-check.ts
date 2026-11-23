@@ -1,8 +1,11 @@
+import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { build, type Plugin } from "esbuild";
 import ts from "typescript";
+import { gzipSync } from "node:zlib";
+import { assertRuntimeBundle, runtimeBundle } from "./runtime-bundle";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const forbidden = /^(react(?:-native(?:-web)?|-dom)?(?:\/|$)|tamagui(?:\/|$)|@tamagui\/)/;
@@ -109,7 +112,11 @@ function emitTypes() {
     const source = ts.createPrinter().printFile(ts.factory.updateSourceFile(ast, statements));
     return ts.createSourceFile(file, source, options.target!, true, ts.ScriptKind.TS);
   };
-  const program = ts.createProgram([resolve(root, "src/entry/catalog.ts")], options, host);
+  const program = ts.createProgram(
+    ["catalog", "catalog-browser"].map((name) => resolve(root, `src/entry/${name}.ts`)),
+    options,
+    host,
+  );
   const result = program.emit();
   const diagnostics = [...ts.getPreEmitDiagnostics(program), ...result.diagnostics];
   if (diagnostics.length)
@@ -122,29 +129,70 @@ function emitTypes() {
     );
 }
 
-export async function bundleCheck() {
-  await mkdir(resolve(root, "dist"), { recursive: true });
+async function buildCatalog(name: string, readyPacks?: readonly string[]) {
+  const browser = readyPacks !== undefined;
   const result = await build({
-    entryPoints: [resolve(root, "src/entry/catalog.ts")],
-    outfile: resolve(root, "dist/catalog.js"),
+    entryPoints: [resolve(root, `src/entry/${name}.ts`)],
+    outfile: resolve(root, `dist/${name}.js`),
     bundle: true,
     format: "esm",
-    platform: "node",
+    platform: browser ? "browser" : "node",
     target: "es2022",
     packages: "bundle",
     external: ["zod"],
-    plugins: [stubs],
+    plugins: browser ? [runtimeBundle(root, true), stubs] : [stubs],
+    ...(browser ? { define: { READY_PACKS: JSON.stringify(readyPacks) } } : {}),
     metafile: true,
     minify: true,
     treeShaking: true,
+    logOverride: { "import-is-undefined": "silent" },
   });
-  const source = await readFile(resolve(root, "dist/catalog.js"), "utf8");
+  const source = await readFile(resolve(root, `dist/${name}.js`), "utf8");
   if (hasCatalogLeak(source, Object.keys(result.metafile.inputs))) {
-    throw new Error("React or Tamagui leaked into the catalog bundle");
+    throw new Error(`React or Tamagui leaked into ${name}`);
   }
-  emitTypes();
-  await writeFile(resolve(root, "dist/catalog.d.ts"), 'export * from "./types/entry/catalog";\n');
+  if (browser) assertRuntimeBundle(result.metafile);
+  return { bytes: Buffer.byteLength(source), gzip: gzipSync(source).byteLength };
+}
+
+function checkBrowserCatalog(
+  catalog: typeof import("../../src/entry/catalog"),
+  browser: typeof import("../../src/entry/catalog-browser"),
+) {
+  const input = { cast: { things: [], items: [] } };
+  assert.deepEqual(Object.keys(browser.components), Object.keys(catalog.components));
+  assert.deepEqual(browser.packOf, catalog.packOf);
+  for (const options of [{}, { packs: catalog.packIds }, { packs: catalog.packIds, includeDrafts: true }]) {
+    assert.deepEqual(browser.createRegistry(options).ids, catalog.createRegistry(options).ids);
+  }
+  for (const id of catalog.packIds) assert.equal(browser.packReady(id), catalog.packReady(id), id);
+  for (const id of Object.keys(catalog.components) as (keyof typeof catalog.components)[]) {
+    const full = catalog.components[id];
+    const slim = browser.components[id];
+    assert.equal(slim.meta.purpose, "", id);
+    assert.equal(slim.meta.pick, "", id);
+    assert.equal(slim.meta.realPath, "", id);
+    assert.equal(slim.meta.writeHints, undefined, id);
+    assert.equal(slim.meta.previewDeviceData, undefined, id);
+    assert.deepEqual(slim.examples, [], id);
+    assert.deepEqual(slim.probes, [], id);
+    const fallback = full.fallback(input);
+    assert.deepEqual(slim.fallback(input), fallback, id);
+    for (const value of [...full.examples, fallback])
+      assert.deepEqual(slim.props.safeParse(value), full.props.safeParse(value), id);
+  }
+}
+
+export async function bundleCheck() {
+  await mkdir(resolve(root, "dist"), { recursive: true });
+  const full = await buildCatalog("catalog");
   const catalog = await import(new URL("../../dist/catalog.js", import.meta.url).href);
+  const slim = await buildCatalog("catalog-browser", catalog.packIds.filter(catalog.packReady));
+  const browser = await import(new URL("../../dist/catalog-browser.js", import.meta.url).href);
+  checkBrowserCatalog(catalog, browser);
+  emitTypes();
+  for (const name of ["catalog", "catalog-browser"])
+    await writeFile(resolve(root, `dist/${name}.d.ts`), `export * from "./types/entry/${name}";\n`);
   const variantIssues = Object.values(catalog.components).flatMap(catalog.checkVariantDeclarations);
   if (variantIssues.length) throw new Error(variantIssues.join("\n"));
   const registry = catalog.createRegistry({ includeDrafts: true });
@@ -154,7 +202,8 @@ export async function bundleCheck() {
     def.props.parse(def.fallback({ cast: { things: [], items: [] } }));
   }
   console.log(
-    `Catalog bundle passed: ${Buffer.byteLength(source)} bytes, ${registry.ids.length} component(s), no React/Tamagui.`,
+    `Catalog bundles passed: full ${full.bytes} bytes (${full.gzip} gzip), browser ${slim.bytes} bytes ` +
+      `(${slim.gzip} gzip), ${Object.keys(browser.components).length} matching definitions, no React/Tamagui.`,
   );
 }
 
