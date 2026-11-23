@@ -86,7 +86,9 @@ function preserveHostRecordIds(def: Definition, input: Values, patch: Values) {
     ...patch,
     [key]: edited.map((row: Values) => {
       const record = recordKey(row, keys);
-      return record !== undefined && byRecord.has(record) ? { ...row, id: byRecord.get(record) } : row;
+      // Only the current host payload can reserve an address during mixed-ID replay.
+      const { id: _savedId, ...fields } = row;
+      return record !== undefined && byRecord.has(record) ? { ...fields, id: byRecord.get(record) } : fields;
     }),
   };
 }

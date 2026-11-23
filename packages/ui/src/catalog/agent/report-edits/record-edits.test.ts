@@ -92,30 +92,38 @@ it("retains host addresses through confirmed record edits and removal", () => {
   }
 });
 
-it("prefers incoming host ids to saved positional ids while replaying an edit", () => {
-  const store = createInteractionStore();
-  const previous = createScreenController({ screen, defs, now, store });
-  try {
-    expect(previous.act([check, confirm]).ok).toBe(true);
-  } finally {
-    previous.dispose();
-  }
-  const rows = [
-    { ...seed.rows[1]!, id: "r1" },
-    { ...seed.rows[0]!, id: "r7" },
-  ];
-  const host = { ...screen, components: [{ ...screen.components[0]!, rows }] };
-  const runtime = createScreenController({ screen: host, defs, now, store });
-  try {
-    expect(runtime.snapshotScreen().components[0]?.rows).toEqual(
-      expect.arrayContaining([{ ...rows[1], date: "2026-03-07" }, rows[0]]),
-    );
-    expect(runtime.read()).toContain("[b1/r7/accept check:done]");
-    expect(runtime.read()).toContain("[b1/r1/accept check:todo]");
-  } finally {
-    runtime.dispose();
-  }
-});
+it.each([
+  { previousId: undefined, incomingId: "r7", current: "r7" },
+  { previousId: "r1", incomingId: undefined, current: "r2" },
+])(
+  "prefers incoming ids to saved ids while replaying an edit at $current",
+  ({ previousId, incomingId, current }) => {
+    const store = createInteractionStore();
+    const first = previousId ? { ...seed.rows[0]!, id: previousId } : seed.rows[0]!;
+    const before = { ...screen, components: [{ ...screen.components[0]!, rows: [first, seed.rows[1]!] }] };
+    const previous = createScreenController({ screen: before, defs, now, store });
+    try {
+      expect(previous.act([check, confirm]).ok).toBe(true);
+    } finally {
+      previous.dispose();
+    }
+    const rows = [
+      { ...seed.rows[1]!, id: "r1" },
+      incomingId ? { ...seed.rows[0]!, id: incomingId } : seed.rows[0]!,
+    ];
+    const host = { ...screen, components: [{ ...screen.components[0]!, rows }] };
+    const runtime = createScreenController({ screen: host, defs, now, store });
+    try {
+      expect(runtime.snapshotScreen().components[0]?.rows).toEqual(
+        expect.arrayContaining([{ ...rows[1], date: "2026-03-07" }, rows[0]]),
+      );
+      expect(runtime.read()).toContain(`[b1/${current}/accept check:done]`);
+      expect(runtime.read()).toContain("[b1/r1/accept check:todo]");
+    } finally {
+      runtime.dispose();
+    }
+  },
+);
 
 it("records or clears a local date, revision and shared snapshot in the same store notification", () => {
   const store = createInteractionStore();
