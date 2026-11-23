@@ -1,8 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { groupGuests, guestFacts, guestListReading, guestStats, guestStatuses, hideGuestDiets } from "../copy";
+import {
+  groupGuests,
+  guestFacts,
+  guestListReading,
+  guestStats,
+  guestStatuses,
+  hideGuestDiets,
+} from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
 import { prompt } from "../../../entry/prompt-GuestList.generated";
@@ -25,8 +31,18 @@ export const meta = {
   parts: ["root", "counts", "remind", "remind_label", "empty"],
   items: {
     key: "guests",
-    // prettier-ignore
-    parts: ["root", "name", "party", "status", "plus", "diet", "approve", "approve_label", "decline", "decline_label"],
+    parts: [
+      "root",
+      "name",
+      "party",
+      "status",
+      "plus",
+      "diet",
+      "approve",
+      "approve_label",
+      "decline",
+      "decline_label",
+    ],
   },
   partTiers: { remind: "service" },
   confirmParts: ["decline"],
@@ -35,8 +51,11 @@ export const meta = {
     parts: { remind: ["press"] },
     items: { root: ["press"], approve: ["press"], decline: ["press"] },
     noGoto: { items: ["approve", "decline"] },
-    // prettier-ignore
-    when: { remind: { hasWaiting: true }, approve: { status: "pending_approval" }, decline: { status: "pending_approval" } },
+    when: {
+      remind: { hasWaiting: true },
+      approve: { status: "pending_approval" },
+      decline: { status: "pending_approval" },
+    },
   },
   live: { derive: hideGuestDiets },
   read: (input, state, lang): string[] => guestListReading(input as z.output<typeof props>, state, lang),
@@ -50,8 +69,8 @@ const guest = z.strictObject({
   diet: c.text(16).optional(),
   goto: c.screenId,
 });
-// prettier-ignore
-export const props = z.strictObject({ ...c.variantProps(meta.variants), guests: z.array(guest).min(1).max(30) })
+export const props = z
+  .strictObject({ ...c.variantProps(meta.variants), guests: z.array(guest).min(1).max(30) })
   .overwrite((input) => ({ ...input, hasWaiting: input.guests.some(({ status }) => status === "waiting") }));
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
@@ -78,12 +97,14 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("GuestList");
-// prettier-ignore
 export const probes = [
   choose(
     "As the party organiser, show everyone invited in household groups, their reply status, extra guests and dietary needs. Let me remind those still waiting.",
   ),
-  choose("Show the hosts as a simple roster with names, portraits and roles, with no invitations or replies.", "People"),
+  choose(
+    "Show the hosts as a simple roster with names, portraits and roles, with no invitations or replies.",
+    "People",
+  ),
   write(
     "Track gala invites for the Shah household: Ruth Shah said yes with one extra guest and needs vegetarian food, open ruth; Deepa Shah is waiting, no extra guests, open deepa.",
   ),
@@ -94,11 +115,15 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   {
-    ...write("Lee Ortiz submitted an RSVP and is awaiting host approval. Give the host Approve and Decline on Lee's row. Lee has no plus-ones; link to lee."),
+    ...write(
+      "Lee Ortiz submitted an RSVP and is awaiting host approval. Give the host Approve and Decline on Lee's row. Lee has no plus-ones; link to lee.",
+    ),
     expectProps: { guests: [{ name: "Lee Ortiz", status: "pending_approval" }] },
   },
   {
-    ...write("List Mara Chen on the event waitlist, not yet invited or accepted. Mara has no plus-ones; link to mara."),
+    ...write(
+      "List Mara Chen on the event waitlist, not yet invited or accepted. Mara has no plus-ones; link to mara.",
+    ),
     expectProps: { guests: [{ name: "Mara Chen", status: "waitlisted" }] },
   },
   read("Send a reminder to everyone who hasn't replied yet.", { address: "g1/remind", action: "press" }),
@@ -108,88 +133,187 @@ type View = c.Props<typeof props, typeof meta>;
 type Row = View["guests"][number];
 type Density = c.ThemeDensity;
 
-// prettier-ignore
-function GuestRow({ row, density, detail, loading }: { row: Row; density: Density; detail: View["detail"]; loading: boolean }) {
-  const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
-  const { plus, diet, status, tone } = guestFacts(row, detail, lang);
-  const badge = loading ? <kit.KitChip item={null} part={null} look="segment" role="radio" label={status} on={false} disabled={false} />
-    : <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />;
-  const target = loading ? { part: null } : { item: row.id, goto: row.goto };
-  return <kit.KitContent density={density} rhythm="flush">
-    <kit.KitRow {...target} label={row.name} inline lineRole="body" trailing={badge} density={density}>
-    <kit.KitContent density={density} rhythm="flush">
-      <kit.KitMetaLine title={{ part: "name", text: row.name }} density={density} />
-      {loading ? <kit.KitLayoutText density={density} line={{ role: "meta", text: [plus, diet].filter(Boolean).join(guestList.separator) }} />
-        : (plus || diet) && <kit.KitText part={null} role="label" tone="muted" density={density}>
-        {plus && <kit.KitText part="plus" role="label" tone="muted" density={density}>{plus}</kit.KitText>}
-        {plus && diet && guestList.separator}
-        {diet && <kit.KitText part="diet" role="label" tone="muted" density={density}>{diet}</kit.KitText>}
-      </kit.KitText>}
-    </kit.KitContent>
-    </kit.KitRow>
-    {row.status === "pending_approval" && <GuestDecisions {...{ row, density, loading }} />}
-  </kit.KitContent>;
+function GuestBadge(
+  status: string,
+  tone: ReturnType<typeof guestFacts>["tone"],
+  density: Density,
+  loading: boolean,
+) {
+  return loading ? (
+    <kit.KitChip
+      item={null}
+      part={null}
+      look="segment"
+      role="radio"
+      label={status}
+      on={false}
+      disabled={false}
+    />
+  ) : (
+    <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />
+  );
 }
 
-// prettier-ignore
+function GuestRow({
+  row,
+  density,
+  detail,
+  loading,
+}: {
+  row: Row;
+  density: Density;
+  detail: View["detail"];
+  loading: boolean;
+}) {
+  const {
+    lang,
+    words: { guestList },
+  } = kit.useWords(eventsWordsFor);
+  const { plus, diet, status, tone } = guestFacts(row, detail, lang);
+  const badge = GuestBadge(status, tone, density, loading);
+
+  const target = loading ? { part: null } : { item: row.id, goto: row.goto };
+  return (
+    <kit.KitContent density={density} rhythm="flush">
+      <kit.KitRow {...target} label={row.name} inline lineRole="body" trailing={badge} density={density}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitMetaLine title={{ part: "name", text: row.name }} density={density} />
+          {loading ? (
+            <kit.KitLayoutText
+              density={density}
+              line={{ role: "meta", text: [plus, diet].filter(Boolean).join(guestList.separator) }}
+            />
+          ) : (
+            (plus || diet) && (
+              <kit.KitText part={null} role="label" tone="muted" density={density}>
+                {plus && (
+                  <kit.KitText part="plus" role="label" tone="muted" density={density}>
+                    {plus}
+                  </kit.KitText>
+                )}
+                {plus && diet && guestList.separator}
+                {diet && (
+                  <kit.KitText part="diet" role="label" tone="muted" density={density}>
+                    {diet}
+                  </kit.KitText>
+                )}
+              </kit.KitText>
+            )
+          )}
+        </kit.KitContent>
+      </kit.KitRow>
+      {row.status === "pending_approval" && <GuestDecisions {...{ row, density, loading }} />}
+    </kit.KitContent>
+  );
+}
+
 function GuestDecisions({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
   const context = kit.usePartContext();
-  const { words: { guestList } } = kit.useWords(eventsWordsFor);
-  return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-    <kit.KitActionFooter density={density}>
-      <kit.KitAction part={loading ? null : "approve"} label={guestList.approve} />
-      <kit.KitAction part={loading ? null : "decline"} kind="danger" label={guestList.decline} />
-    </kit.KitActionFooter>
-  </kit.PartContext.Provider>;
+  const {
+    words: { guestList },
+  } = kit.useWords(eventsWordsFor);
+  return (
+    <kit.PartContext.Provider value={{ ...context, item: row.id }}>
+      <kit.KitActionFooter density={density}>
+        <kit.KitAction part={loading ? null : "approve"} label={guestList.approve} />
+        <kit.KitAction part={loading ? null : "decline"} kind="danger" label={guestList.decline} />
+      </kit.KitActionFooter>
+    </kit.PartContext.Provider>
+  );
 }
 
-// prettier-ignore
-function GuestGroups({ guests, density, detail, loading }: Pick<View, "guests" | "detail"> & { density: Density; loading: boolean }) {
+function GuestGroups({
+  guests,
+  density,
+  detail,
+  loading,
+}: Pick<View, "guests" | "detail"> & { density: Density; loading: boolean }) {
   const groups = groupGuests(guests);
-  return groups.map(({ rows, party }, index) => <kit.KitContent key={rows[0]!.id}
-    group={index && (party || groups[index - 1]?.party || groups[index - 1]?.rows.at(-1)?.status === "pending_approval") ? "response" : "content"}>
-    {party && (loading ? <kit.KitLayoutText line={{ text: party, role: "meta" }} density={density} />
-      : <kit.KitText item={rows[0]!.id} part="party" role="label" tone="muted" density={density}>{party}</kit.KitText>)}
-    <kit.KitRowGroup spacing="groups" separators={false} density={density}>
-      {rows.map((row) => <GuestRow key={row.id} {...{ row, density, detail, loading }} />)}
-    </kit.KitRowGroup>
-  </kit.KitContent>);
+  return groups.map(({ rows, party }, index) => (
+    <kit.KitContent
+      key={rows[0]!.id}
+      group={
+        index &&
+        (party || groups[index - 1]?.party || groups[index - 1]?.rows.at(-1)?.status === "pending_approval")
+          ? "response"
+          : "content"
+      }
+    >
+      {party &&
+        (loading ? (
+          <kit.KitLayoutText line={{ text: party, role: "meta" }} density={density} />
+        ) : (
+          <kit.KitText item={rows[0]!.id} part="party" role="label" tone="muted" density={density}>
+            {party}
+          </kit.KitText>
+        ))}
+      <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+        {rows.map((row) => (
+          <GuestRow key={row.id} {...{ row, density, detail, loading }} />
+        ))}
+      </kit.KitRowGroup>
+    </kit.KitContent>
+  ));
 }
 
-// prettier-ignore
 export function GuestList(input: View) {
   const loading = kit.useComponentState() === "loading";
   const { thing } = kit.usePartContext();
-  const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
+  const {
+    lang,
+    words: { guestList },
+  } = kit.useWords(eventsWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const stats = guestStats(input.guests, lang);
-  const roster = <>
-        <kit.KitRow part={loading ? null : "counts"} label={guestList.counts} inline density={density}>
-          <kit.KitGrid density={density}>
-            {stats.map(({ key, line, count }) => loading
-              ? <kit.KitLayoutText key={key} density={density} line={{ text: line, role: "meta" }} />
-              : <GuestCount key={key} {...{ line, count, density }} />)}
-          </kit.KitGrid>
-        </kit.KitRow>
-        <kit.KitContent group="response"><GuestGroups guests={input.guests} {...{ density, detail, loading }} /></kit.KitContent>
-        {input.guests.some((row) => row.status === "waiting") && <kit.KitContent group="response" density={density}>
+  const roster = (
+    <>
+      <kit.KitRow part={loading ? null : "counts"} label={guestList.counts} inline density={density}>
+        <kit.KitGrid density={density}>
+          {stats.map(({ key, line, count }) =>
+            loading ? (
+              <kit.KitLayoutText key={key} density={density} line={{ text: line, role: "meta" }} />
+            ) : (
+              <GuestCount key={key} {...{ line, count, density }} />
+            ),
+          )}
+        </kit.KitGrid>
+      </kit.KitRow>
+      <kit.KitContent group="response">
+        <GuestGroups guests={input.guests} {...{ density, detail, loading }} />
+      </kit.KitContent>
+      {input.guests.some((row) => row.status === "waiting") && (
+        <kit.KitContent group="response" density={density}>
           <kit.KitAction part={loading ? null : "remind"} kind="secondary" label={guestList.remind} full />
-        </kit.KitContent>}
-      </>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState part="empty" icon="users" message={thing ? undefined : guestList.empty} loading={roster} density={density}>
-      {roster}
-    </kit.KitState>
-  </kit.KitCard>;
+        </kit.KitContent>
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState
+        part="empty"
+        icon="users"
+        message={thing ? undefined : guestList.empty}
+        loading={roster}
+        density={density}
+      >
+        {roster}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }
 
-// prettier-ignore
 function GuestCount({ line, count, density }: { line: string; count: string; density: Density }) {
   const at = line.indexOf(count);
-  return <kit.KitText part={null} role="label" tone="muted" density={density}>
-    {line.slice(0, at)}<kit.KitText part={null} role="number" numberScale="compact" tabular
-      density={density}>{count}</kit.KitText>{line.slice(at + count.length)}
-  </kit.KitText>;
+  return (
+    <kit.KitText part={null} role="label" tone="muted" density={density}>
+      {line.slice(0, at)}
+      <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+        {count}
+      </kit.KitText>
+      {line.slice(at + count.length)}
+    </kit.KitText>
+  );
 }

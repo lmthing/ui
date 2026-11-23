@@ -7,23 +7,40 @@ import * as optionView from "../option-views";
 import { prompt } from "../../../entry/prompt-Table.generated";
 
 // Core first: List/rows cannot align typed fields across records or sort by a column.
-// prettier-ignore
 export const meta = {
   id: "Table",
-  status: "ready", group: "data",
+  status: "ready",
+  group: "data",
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  region: "body", weight: 3, dense: true, tier: "phone",
+  region: "body",
+  weight: 3,
+  dense: true,
+  tier: "phone",
   realPath: "A query over records on the device.",
   variants: { detail: ["full", "brief"], group: ["none", "sections"] },
   variantParts: { "detail.brief": { hides: ["count"] }, "group.sections": { adds: ["group_heading"] } },
   parts: ["root", "header", "matrix", "summary", "count", "empty", "export", "export_label", "export_status"],
-  items: { key: "rows", parts: ["root", "pick", "group_heading", "status_1", "status_2", "status_3", "status_4", "status_5", "status_6"] },
+  items: {
+    key: "rows",
+    parts: [
+      "root",
+      "pick",
+      "group_heading",
+      "status_1",
+      "status_2",
+      "status_3",
+      "status_4",
+      "status_5",
+      "status_6",
+    ],
+  },
   states: ["filled", "empty", "loading"],
   partTiers: { export: "service" },
   actions: {
-    parts: { header: ["select"], export: ["press"] }, items: { root: ["press"], pick: ["check"] },
+    parts: { header: ["select"], export: ["press"] },
+    items: { root: ["press"], pick: ["check"] },
     when: { "root.press": { linked: true }, pick: { selectable: true }, export: { exportable: true } },
   },
   hostCommands: { parts: { "export.press": { kind: "command", name: "data.exportTable" } } },
@@ -32,23 +49,37 @@ export const meta = {
   read: (input, state, lang): string[] => (state === "filled" ? tableReading(input as ViewProps, lang) : []),
 } as const satisfies c.Meta;
 
-// prettier-ignore
-const column = z.strictObject({ label: c.text(14), kind: z.enum(["text", "number", "money", "date", "status"]) });
+const column = z.strictObject({
+  label: c.text(14),
+  kind: z.enum(["text", "number", "money", "date", "status"]),
+});
 const isoDate = z.iso.date();
-// prettier-ignore
-const row = z.strictObject({ cells: z.array(z.union([c.text(24), z.number()])).min(2).max(6), goto: c.screenId.optional() });
-// prettier-ignore
-export const props = z.strictObject({
+const row = z.strictObject({
+  cells: z
+    .array(z.union([c.text(24), z.number()]))
+    .min(2)
+    .max(6),
+  goto: c.screenId.optional(),
+});
+export const props = z
+  .strictObject({
     ...c.variantProps(meta.variants),
-    columns: z.array(column).min(2).max(6), rows: z.array(row).min(1).max(20),
-    sort: z.int().min(0).max(5).optional(), selectable: z.boolean(),
-    summaryRow: z.enum(tableSummaryModes).optional(), exportable: z.boolean().optional(),
+    columns: z.array(column).min(2).max(6),
+    rows: z.array(row).min(1).max(20),
+    sort: z.int().min(0).max(5).optional(),
+    selectable: z.boolean(),
+    summaryRow: z.enum(tableSummaryModes).optional(),
+    exportable: z.boolean().optional(),
   })
   .superRefine(({ columns, rows, sort, summaryRow }, ctx) => {
     if (sort !== undefined && sort >= columns.length)
       ctx.addIssue({ code: "custom", path: ["sort"], message: "Sort must name an existing column index" });
     if (summaryRow && summaryRow !== "count" && !columns.some(({ kind }) => numericKind(kind)))
-      ctx.addIssue({ code: "custom", path: ["summaryRow"], message: "A sum or average requires a numeric or money column" });
+      ctx.addIssue({
+        code: "custom",
+        path: ["summaryRow"],
+        message: "A sum or average requires a numeric or money column",
+      });
     rows.forEach(({ cells }, r) => {
       if (cells.length !== columns.length)
         ctx.addIssue({ code: "custom", path: ["rows", r, "cells"], message: "Write one cell per column" });
@@ -71,11 +102,14 @@ export const props = z.strictObject({
     rows: input.rows.map((row) => ({ ...row, linked: Boolean(row.goto), checked: false })),
   }));
 
-// prettier-ignore
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
-  const detail = c.wordsFor(lang).placeholderDetail, thing = c.thingOf(cast);
+  const detail = c.wordsFor(lang).placeholderDetail,
+    thing = c.thingOf(cast);
   const rows = c.itemsOf(cast, 20, thing?.type).map((item, index) => ({
-    cells: [c.titleOf(item, 24, thing) ?? c.placeholderTitle(index, lang), c.detailOf(item, 24, thing) ?? detail],
+    cells: [
+      c.titleOf(item, 24, thing) ?? c.placeholderTitle(index, lang),
+      c.detailOf(item, 24, thing) ?? detail,
+    ],
   }));
   return {
     columns: [0, 1].map((i) => ({ label: c.placeholderTitle(i, lang), kind: "text" })),
@@ -84,50 +118,88 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
-    columns: [{ label: "Plant", kind: "text" }, { label: "Tag", kind: "status" }, { label: "Pots", kind: "number" }],
-    rows: [{ cells: ["Boston fern", "Good", 3], goto: "fern" }, { cells: ["Rubber fig", "Check", 2], goto: "rubber" }],
-    sort: 1, selectable: true,
+    columns: [
+      { label: "Plant", kind: "text" },
+      { label: "Tag", kind: "status" },
+      { label: "Pots", kind: "number" },
+    ],
+    rows: [
+      { cells: ["Boston fern", "Good", 3], goto: "fern" },
+      { cells: ["Rubber fig", "Check", 2], goto: "rubber" },
+    ],
+    sort: 1,
+    selectable: true,
   },
   {
     selectable: false,
-    columns: [{ label: "Route", kind: "text" }, { label: "Walks", kind: "number" }, { label: "Takings", kind: "money" }],
+    columns: [
+      { label: "Route", kind: "text" },
+      { label: "Walks", kind: "number" },
+      { label: "Takings", kind: "money" },
+    ],
     rows: [{ cells: ["Canal loop", 8, 96] }, { cells: ["Hill circuit", 5, 75] }],
   },
   {
-    group: "sections", summaryRow: "sum", exportable: true, selectable: true,
-    columns: [{ label: "Route", kind: "text" }, { label: "Status", kind: "status" }, { label: "Walks", kind: "number" }],
-    rows: [{ cells: ["Canal loop", "Booked", 8] }, { cells: ["Hill circuit", "Open", 5] }, { cells: ["Park loop", "Booked", 3] }],
+    group: "sections",
+    summaryRow: "sum",
+    exportable: true,
+    selectable: true,
+    columns: [
+      { label: "Route", kind: "text" },
+      { label: "Status", kind: "status" },
+      { label: "Walks", kind: "number" },
+    ],
+    rows: [
+      { cells: ["Canal loop", "Booked", 8] },
+      { cells: ["Hill circuit", "Open", 5] },
+      { cells: ["Park loop", "Booked", 3] },
+    ],
   },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Table");
-// prettier-ignore
 export const probes = [
-  choose("Compare 15 register records in sortable columns for code, quantity, cost and status, with a checkbox on each row."),
-  choose("Show a short vertical list of plants with a name and one note on each row, no shared columns or sorting.", "List"),
-  write("Show one selectable row for Boston fern, watered on 2026-11-20, health Thriving. Name the columns Plant, Watered, Health; sort by Watered."),
+  choose(
+    "Compare 15 register records in sortable columns for code, quantity, cost and status, with a checkbox on each row.",
+  ),
+  choose(
+    "Show a short vertical list of plants with a name and one note on each row, no shared columns or sorting.",
+    "List",
+  ),
+  write(
+    "Show one selectable row for Boston fern, watered on 2026-11-20, health Thriving. Name the columns Plant, Watered, Health; sort by Watered.",
+  ),
   {
-    ...write("Compare Boston fern and Rubber plant in Plant and Watered columns, with their dates 2026-11-20 and 2026-11-18. Keep both rows and columns but leave out the row count below them. No checkboxes."),
+    ...write(
+      "Compare Boston fern and Rubber plant in Plant and Watered columns, with their dates 2026-11-20 and 2026-11-18. Keep both rows and columns but leave out the row count below them. No checkboxes.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Tick the checkbox beside Boston fern.", { address: "s1/r1/pick", action: "check" }),
   {
-    ...write("Show a table of route names and walk counts: Canal 8, Hill 5. No checkboxes. Tighten the spacing only; keep the standard row count footer and do not group the rows."),
+    ...write(
+      "Show a table of route names and walk counts: Canal 8, Hill 5. No checkboxes. Tighten the spacing only; keep the standard row count footer and do not group the rows.",
+    ),
     variant: { axis: "detail", value: null },
   },
   {
-    ...write("Put Boston fern (Ready), Rubber plant (Review), and Aloe (Ready) in Plant and Status table columns, with no checkboxes. Group the entries into sections under status headings."),
+    ...write(
+      "Put Boston fern (Ready), Rubber plant (Review), and Aloe (Ready) in Plant and Status table columns, with no checkboxes. Group the entries into sections under status headings.",
+    ),
     variant: { axis: "group", value: "sections" },
   },
   {
-    ...write("Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Add a footer row that computes the average of the walk counts."),
+    ...write(
+      "Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Add a footer row that computes the average of the walk counts.",
+    ),
     expectProps: { summaryRow: "avg" },
   },
   {
-    ...write("Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Include the button to export the table."),
+    ...write(
+      "Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Include the button to export the table.",
+    ),
     expectProps: { exportable: true },
   },
 ] satisfies c.Probe[];
@@ -135,36 +207,63 @@ export const probes = [
 type ViewProps = c.Props<typeof props, typeof meta>;
 const numericKind = (kind: ViewProps["columns"][number]["kind"]) => kind === "number" || kind === "money";
 
-// prettier-ignore
 export function Table(input: ViewProps) {
   const scope = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(dataWordsFor);
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const loading = state === "loading", count = tableCount(input.rows.length, lang);
+  const loading = state === "loading",
+    count = tableCount(input.rows.length, lang);
   const status = kit.useHostOperations().find(({ name }) => name === "data.exportTable")?.status;
   const pending = status === "pending";
   const feedback = status && status !== "pending" ? status : undefined;
   const matrix = <optionView.TableMatrix {...{ input, density, loading, lang, pending }} />;
-  const body = <>
-    {loading ? matrix :
-      <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>
-        {matrix}
-      </kit.KitTrack>}
-    {detail === "full" && <kit.KitContent inset={input.group === "sections" ? "md" : "none"} density={density}>
-      <kit.KitLayoutText line={{ text: count, role: "caption", tone: "muted", part: "count" }} density={density} />
-    </kit.KitContent>}
-    {input.exportable && <kit.KitActionFooter density={density}>
-      <kit.KitAction part="export" action="press" label={pending ? words.tableExportPending : words.tableExport} kind="secondary"
-        contentParts={{ label: "export_label" }} />
-    </kit.KitActionFooter>}
-    {input.exportable && !loading && feedback &&
-      <kit.PartScope {...scope} state={feedback === "accepted" ? "success" : "error"}>
-        <kit.KitState retain part="export_status" message={words.tableExportResult[feedback]} density={density} />
-      </kit.PartScope>}
-  </>;
-  return <kit.KitCard padded density={density}>
-    <kit.KitState part="empty" loading={body} density={density}>{body}</kit.KitState>
-  </kit.KitCard>;
+  const body = (
+    <>
+      {loading ? (
+        matrix
+      ) : (
+        <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>
+          {matrix}
+        </kit.KitTrack>
+      )}
+      {detail === "full" && (
+        <kit.KitContent inset={input.group === "sections" ? "md" : "none"} density={density}>
+          <kit.KitLayoutText
+            line={{ text: count, role: "caption", tone: "muted", part: "count" }}
+            density={density}
+          />
+        </kit.KitContent>
+      )}
+      {input.exportable && (
+        <kit.KitActionFooter density={density}>
+          <kit.KitAction
+            part="export"
+            action="press"
+            label={pending ? words.tableExportPending : words.tableExport}
+            kind="secondary"
+            contentParts={{ label: "export_label" }}
+          />
+        </kit.KitActionFooter>
+      )}
+      {input.exportable && !loading && feedback && (
+        <kit.PartScope {...scope} state={feedback === "accepted" ? "success" : "error"}>
+          <kit.KitState
+            retain
+            part="export_status"
+            message={words.tableExportResult[feedback]}
+            density={density}
+          />
+        </kit.PartScope>
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard padded density={density}>
+      <kit.KitState part="empty" loading={body} density={density}>
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

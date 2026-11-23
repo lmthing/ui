@@ -14,7 +14,6 @@ export const meta = {
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  // prettier-ignore
   region: "body",
   weight: 3,
   dense: true,
@@ -26,50 +25,67 @@ export const meta = {
   parts: ["root", "label", "from", "to", "due", "receipt_total", "allocation_total", "empty", "success"],
   items: { key: "requirements", parts: ["root", "label", "meta", "matched", "needed", "missing"] },
   deviceData: ["paperwork_evidence", "currency"],
-  // prettier-ignore
   previewDeviceData: ({ input, state }): c.DeviceData => {
     const { from, to, requirements } = input as z.output<typeof props>;
     if (state === "empty") return {};
-    return { paperwork_evidence: requirements.flatMap(({ source, tag, needed }, index) =>
-      Array.from({ length: state === "success" ? needed : index + 1 }, (_, n) => ({
-        period: { from, to }, source, tags: [tag], file: `lib:preview_evidence_${index}_${n}`,
-        date: from, reviewed: true, amount: 24.5, allocation: 50,
-      })),
-    ) };
+    return {
+      paperwork_evidence: requirements.flatMap(({ source, tag, needed }, index) =>
+        Array.from({ length: state === "success" ? needed : index + 1 }, (_, n) => ({
+          period: { from, to },
+          source,
+          tags: [tag],
+          file: `lib:preview_evidence_${index}_${n}`,
+          date: from,
+          reviewed: true,
+          amount: 24.5,
+          allocation: 50,
+        })),
+      ),
+    };
   },
   states: ["filled", "empty", "loading", "success"],
   emptyActions: ["root.press"],
   successActions: ["root.press"],
   readSuccess: true,
   actions: { items: { root: ["press"] }, when: { root: { can_open: true } } },
-  // prettier-ignore
   read: (input, state, lang, data): string[] => {
     const period = input as z.output<typeof props>;
-    const words = paperworkWordsFor(lang).taxYear, evidence = taxEvidence(period, data, lang);
+    const words = paperworkWordsFor(lang).taxYear,
+      evidence = taxEvidence(period, data, lang);
     if (state === "empty") return [words.empty];
     return [
       ...taxYearLines(period, evidence, data, lang).map(({ line }) => line),
-      words.progress, evidence.progress,
+      words.progress,
+      evidence.progress,
       ...(evidence.complete ? [words.success] : !evidence.hasEvidence ? [words.empty] : []),
-      ...evidence.rows.flatMap((row) => [row.metaLine, words.rowReading(row.requirement.label, row.matchedLine, row.neededLine, row.missingLine)]),
+      ...evidence.rows.flatMap((row) => [
+        row.metaLine,
+        words.rowReading(row.requirement.label, row.matchedLine, row.neededLine, row.missingLine),
+      ]),
     ];
   },
 } as const satisfies c.Meta;
 
-// prettier-ignore
-const requirement = z.strictObject({
-  label: c.text(32),
-  source: z.enum(["documents", "receipts"]),
-  tag: c.text(16),
-  needed: z.int().min(1).max(12),
-  goto: c.screenId.optional(),
-}).overwrite((row) => ({ ...row, can_open: Boolean(row.goto) }));
+const requirement = z
+  .strictObject({
+    label: c.text(32),
+    source: z.enum(["documents", "receipts"]),
+    tag: c.text(16),
+    needed: z.int().min(1).max(12),
+    goto: c.screenId.optional(),
+  })
+  .overwrite((row) => ({ ...row, can_open: Boolean(row.goto) }));
 
-// prettier-ignore
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants), label: c.text(24), from: c.isoDate, to: c.isoDate,
-  due: c.isoDate.optional(), requirements: z.array(requirement).min(1).max(8),
-}).refine(({ from, to }) => from <= to, { path: ["to"], message: "End date must be on or after start date" });
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    label: c.text(24),
+    from: c.isoDate,
+    to: c.isoDate,
+    due: c.isoDate.optional(),
+    requirements: z.array(requirement).min(1).max(8),
+  })
+  .refine(({ from, to }) => from <= to, { path: ["to"], message: "End date must be on or after start date" });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   const rows = seedRows(input, 32, 16);
@@ -86,11 +102,12 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     label: "Ledge archive 2026",
-    from: "2026-01-01", to: "2026-12-31", due: "2027-02-15",
+    from: "2026-01-01",
+    to: "2026-12-31",
+    due: "2027-02-15",
     requirements: [
       { label: "Greenhouse permits", source: "documents", tag: "permits", needed: 1, goto: "permits" },
       { label: "Pot purchase proof", source: "receipts", tag: "pots", needed: 3, goto: "pots" },
@@ -98,7 +115,8 @@ export const examples = [
   },
   {
     label: "Trot tax evidence",
-    from: "2026-04-06", to: "2027-04-05",
+    from: "2026-04-06",
+    to: "2027-04-05",
     requirements: [
       { label: "Account statements", source: "documents", tag: "statements", needed: 12, goto: "vault" },
       { label: "Expense evidence", source: "receipts", tag: "expenses", needed: 6, goto: "tax_receipts" },
@@ -107,13 +125,21 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("TaxYear");
-// prettier-ignore
 export const probes = [
-  choose("For my filing period, match the attached documents and reviewed receipts I've collected to each required category and tell me which evidence is missing."),
-  choose("Give me independent tasks I can tick by hand: tidy the folder, call the accountant, and make a backup. No matches or files.", "Checklist"),
-  write("Call this Ledge archive 2026, from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots."),
+  choose(
+    "For my filing period, match the attached documents and reviewed receipts I've collected to each required category and tell me which evidence is missing.",
+  ),
+  choose(
+    "Give me independent tasks I can tick by hand: tidy the folder, call the accountant, and make a backup. No matches or files.",
+    "Checklist",
+  ),
+  write(
+    "Call this Ledge archive 2026, from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots.",
+  ),
   {
-    ...write("For Ledge archive 2026, from 2026-01-01 to 2026-12-31, require one document tagged permits. Hide the deadline and receipt totals; keep the date range and evidence categories."),
+    ...write(
+      "For Ledge archive 2026, from 2026-01-01 to 2026-12-31, require one document tagged permits. Hide the deadline and receipt totals; keep the date range and evidence categories.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the evidence for Pot purchase proof.", { address: "t1/r2", action: "press" }),
@@ -121,70 +147,158 @@ export const probes = [
 
 type TaxYearProps = c.Props<typeof props, typeof meta>;
 type EvidenceRow = ReturnType<typeof taxEvidence<TaxYearProps["requirements"][number]>>["rows"][number];
-// prettier-ignore
-function TaxCategory({ row, density, loading }: { row: EvidenceRow; density: c.ThemeDensity; loading: boolean }) {
+function TaxCategory({
+  row,
+  density,
+  loading,
+}: {
+  row: EvidenceRow;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
   const { requirement, matchedLine, neededLine, missingLine } = row;
-  return <kit.KitRow {...(!loading ? { item: requirement.id, goto: requirement.goto } : {})}
-    part={loading ? null : "root"} label={loading ? "" : requirement.label} density={density}
-    trailing={requirement.goto && <kit.KitIcon name="chevron_right" decorative loading={loading} />}>
-    <kit.KitLayoutText line={{ part: "label", text: requirement.label }} {...{ density }} />
-    <kit.KitLayoutText line={{ part: "meta", role: "caption", text: row.metaLine, tone: "muted" }} {...{ density }} />
-    <kit.KitContent density={density}>
-      {loading ? <kit.KitLayoutText line={{ role: "caption", text: `${matchedLine}${neededLine}` }} {...{ density }} /> :
-        <kit.KitText part={null} role="caption" tone="muted" density={density}>
-          <kit.KitText part="matched" role="caption" tone="muted" density={density}>{matchedLine}</kit.KitText>
-          <kit.KitText part="needed" role="caption" tone="muted" density={density}>{neededLine}</kit.KitText>
-        </kit.KitText>}
-      <kit.KitLayoutText line={{ part: "missing", role: "caption", text: missingLine, tone: "warn" }} {...{ density }} />
-    </kit.KitContent>
-  </kit.KitRow>;
+  return (
+    <kit.KitRow
+      {...(!loading ? { item: requirement.id, goto: requirement.goto } : {})}
+      part={loading ? null : "root"}
+      label={loading ? "" : requirement.label}
+      density={density}
+      trailing={requirement.goto && <kit.KitIcon name="chevron_right" decorative loading={loading} />}
+    >
+      <kit.KitLayoutText line={{ part: "label", text: requirement.label }} {...{ density }} />
+      <kit.KitLayoutText
+        line={{ part: "meta", role: "caption", text: row.metaLine, tone: "muted" }}
+        {...{ density }}
+      />
+      <kit.KitContent density={density}>
+        {loading ? (
+          <kit.KitLayoutText
+            line={{ role: "caption", text: `${matchedLine}${neededLine}` }}
+            {...{ density }}
+          />
+        ) : (
+          <kit.KitText part={null} role="caption" tone="muted" density={density}>
+            <kit.KitText part="matched" role="caption" tone="muted" density={density}>
+              {matchedLine}
+            </kit.KitText>
+            <kit.KitText part="needed" role="caption" tone="muted" density={density}>
+              {neededLine}
+            </kit.KitText>
+          </kit.KitText>
+        )}
+        <kit.KitLayoutText
+          line={{ part: "missing", role: "caption", text: missingLine, tone: "warn" }}
+          {...{ density }}
+        />
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
-// prettier-ignore
-function TaxSummary({ input, evidence, data, density, loading, lang }: {
-  input: TaxYearProps; evidence: ReturnType<typeof taxEvidence>; data: c.DeviceData;
-  density: c.ThemeDensity; loading: boolean; lang: string;
+function TaxSummary({
+  input,
+  evidence,
+  data,
+  density,
+  loading,
+  lang,
+}: {
+  input: TaxYearProps;
+  evidence: ReturnType<typeof taxEvidence>;
+  data: c.DeviceData;
+  density: c.ThemeDensity;
+  loading: boolean;
+  lang: string;
 }) {
   const lines = taxYearLines(input, evidence, data, lang);
   const heading = density === "compact" ? "title" : "heading";
-  const dates = lines.filter(({ number }) => number === undefined), totals = lines.filter(({ number }) => number !== undefined);
-  return <kit.KitRow part={null} label="" lineRole={heading} {...{ density }}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} emphasis="hero"
-      content={[[heading, input.label]]} /> :
-      <kit.KitText part="label" role={heading} emphasis="hero" {...{ density }}>{input.label}</kit.KitText>}
-    {dates.map(({ part, line }) => <kit.KitLayoutText key={part}
-      line={{ part, role: "caption", text: line, tone: "muted" }} {...{ density }} />)}
-    {totals.length > 0 && <kit.KitContent group="response" density={density}>
-      <kit.KitGrid density={density}>{totals.map(({ part, label, number }) =>
-        <kit.KitContent key={part} density={density}>
-          <kit.KitLayoutText line={{ role: "caption", text: label, tone: "muted" }} {...{ density }} />
-          <kit.KitLayoutText line={{ part, role: "figure", text: number, compact: true, tabular: true }} {...{ density }} />
-        </kit.KitContent>)}</kit.KitGrid>
-    </kit.KitContent>}
-  </kit.KitRow>;
+  const dates = lines.filter(({ number }) => number === undefined),
+    totals = lines.filter(({ number }) => number !== undefined);
+  return (
+    <kit.KitRow part={null} label="" lineRole={heading} {...{ density }}>
+      {loading ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          emphasis="hero"
+          content={[[heading, input.label]]}
+        />
+      ) : (
+        <kit.KitText part="label" role={heading} emphasis="hero" {...{ density }}>
+          {input.label}
+        </kit.KitText>
+      )}
+      {dates.map(({ part, line }) => (
+        <kit.KitLayoutText
+          key={part}
+          line={{ part, role: "caption", text: line, tone: "muted" }}
+          {...{ density }}
+        />
+      ))}
+      {totals.length > 0 && (
+        <kit.KitContent group="response" density={density}>
+          <kit.KitGrid density={density}>
+            {totals.map(({ part, label, number }) => (
+              <kit.KitContent key={part} density={density}>
+                <kit.KitLayoutText line={{ role: "caption", text: label, tone: "muted" }} {...{ density }} />
+                <kit.KitLayoutText
+                  line={{ part, role: "figure", text: number, compact: true, tabular: true }}
+                  {...{ density }}
+                />
+              </kit.KitContent>
+            ))}
+          </kit.KitGrid>
+        </kit.KitContent>
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function TaxYear(input: TaxYearProps) {
   const density = kit.useKit().density;
-  const state = kit.useComponentState(), { lang, words: { taxYear: words } } = kit.useWords(paperworkWordsFor);
-  const data = kit.useDeviceData(), evidence = taxEvidence(input, data, lang);
-  const loading = state === "loading", complete = evidence.complete;
-  return <kit.KitCard surface={"card"} density={density}>
-    <TaxSummary {...{ input, evidence, data, density, loading, lang }} />
-    {!loading && !evidence.hasEvidence && <kit.KitEmpty part="empty" icon="file_text" decorativeIcon title={words.empty} />}
-    <kit.KitRow part={null} label="" {...{ density }}>
-      <kit.KitContent {...{ density }} rhythm={loading ? "flush" : "close"}>
-        {loading && <kit.KitGrid fitLast density={density}>
-          <kit.KitLayoutText line={{ role: "meta", text: words.progress }} />
-          <kit.KitLayoutText line={{ role: "caption", text: evidence.progress }} align="end" />
-        </kit.KitGrid>}
-        <kit.KitMeter label={loading ? "" : words.progress} amount={loading ? "" : evidence.progress}
-          ratio={loading ? 0 : evidence.ratio} tone={complete ? "good" : "accent"} slim addressed={false} />
-        {!loading && complete && <kit.KitText part="success" role="label" tone="good">{words.success}</kit.KitText>}
-      </kit.KitContent>
-    </kit.KitRow>
-    <kit.KitGrid list arrange="rows" density={density}>
-      {evidence.rows.map((row) => <TaxCategory key={row.requirement.id} {...{ row, density, loading }} />)}
-    </kit.KitGrid>
-  </kit.KitCard>;
+  const state = kit.useComponentState(),
+    {
+      lang,
+      words: { taxYear: words },
+    } = kit.useWords(paperworkWordsFor);
+  const data = kit.useDeviceData(),
+    evidence = taxEvidence(input, data, lang);
+  const loading = state === "loading",
+    complete = evidence.complete;
+  return (
+    <kit.KitCard surface={"card"} density={density}>
+      <TaxSummary {...{ input, evidence, data, density, loading, lang }} />
+      {!loading && !evidence.hasEvidence && (
+        <kit.KitEmpty part="empty" icon="file_text" decorativeIcon title={words.empty} />
+      )}
+      <kit.KitRow part={null} label="" {...{ density }}>
+        <kit.KitContent {...{ density }} rhythm={loading ? "flush" : "close"}>
+          {loading && (
+            <kit.KitGrid fitLast density={density}>
+              <kit.KitLayoutText line={{ role: "meta", text: words.progress }} />
+              <kit.KitLayoutText line={{ role: "caption", text: evidence.progress }} align="end" />
+            </kit.KitGrid>
+          )}
+          <kit.KitMeter
+            label={loading ? "" : words.progress}
+            amount={loading ? "" : evidence.progress}
+            ratio={loading ? 0 : evidence.ratio}
+            tone={complete ? "good" : "accent"}
+            slim
+            addressed={false}
+          />
+          {!loading && complete && (
+            <kit.KitText part="success" role="label" tone="good">
+              {words.success}
+            </kit.KitText>
+          )}
+        </kit.KitContent>
+      </kit.KitRow>
+      <kit.KitGrid list arrange="rows" density={density}>
+        {evidence.rows.map((row) => (
+          <TaxCategory key={row.requirement.id} {...{ row, density, loading }} />
+        ))}
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
 }

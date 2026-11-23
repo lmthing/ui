@@ -128,45 +128,133 @@ type RegistryProps = c.Props<typeof props, typeof meta>;
 type Finish = Pick<RegistryProps, "lead"> & { density: c.ThemeDensity };
 type GiftRow = RegistryProps["gifts"][number];
 
-// prettier-ignore
+function GiftContent(
+  row: GiftRow,
+  density: Finish["density"],
+  { price, owner, status }: Pick<ReturnType<typeof registryGift>, "price" | "owner" | "status">,
+) {
+  const title = (
+    <kit.KitText
+      part="title"
+      role="heading"
+      tone={row.claimed ? "muted" : "text"}
+      density="compact"
+      emphasis="quiet"
+    >
+      {row.title}
+    </kit.KitText>
+  );
+  const detail = (
+    <kit.KitContent lineRole="body" density={density}>
+      {price && (
+        <kit.KitText
+          part="price"
+          role="number"
+          numberScale="compact"
+          tabular
+          tone={row.claimed ? "muted" : "text"}
+          density={density}
+        >
+          {price}
+        </kit.KitText>
+      )}
+      {row.where && (
+        <kit.KitText part="where" role="caption" tone="muted" density={density}>
+          {row.where}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
+  const claimed = row.claimed && (
+    <kit.KitText part="claimed" role="caption" tone="muted" density={density}>
+      {status}
+      {owner && (
+        <kit.KitText part="by" role="caption" tone="muted" density={density}>
+          {owner}
+        </kit.KitText>
+      )}
+    </kit.KitText>
+  );
+  return { title, detail, claimed };
+}
+
 function RegistryGiftRow({ row, host, density, lead }: Finish & { row: GiftRow; host: boolean }) {
   const { lang } = kit.useWords(eventsWordsFor);
   const { price, owner, status, action: label } = registryGift(row, host, lang);
-  const photo = lead === "thumb" && row.photo
-    ? <kit.KitPhoto part="photo" shape="thumb" photo={row.photo} label={row.title} /> : undefined;
-  const action = label && <kit.KitAction part={host ? "unclaim" : "claim"} kind={host ? "danger" : "primary"} label={label} />;
-  const title = <kit.KitText part="title" role="heading" tone={row.claimed ? "muted" : "text"}
-    density="compact" emphasis="quiet">{row.title}</kit.KitText>;
-  const detail = <kit.KitContent lineRole="body" density={density}>
-    {price && <kit.KitText part="price" role="number" numberScale="compact" tabular
-      tone={row.claimed ? "muted" : "text"} density={density}>{price}</kit.KitText>}
-    {row.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{row.where}</kit.KitText>}
-  </kit.KitContent>;
-  const claimed = row.claimed && <kit.KitText part="claimed" role="caption" tone="muted" density={density}>
-    {status}{owner && <kit.KitText part="by" role="caption" tone="muted" density={density}>{owner}</kit.KitText>}
-  </kit.KitText>;
-  const details = <kit.KitContent lineRole="heading" density={density}>{title}{detail}{claimed}</kit.KitContent>;
-  return <kit.KitRow item={row.id} label={row.title} leading={photo} leadingAlign="row"
-    density="comfortable" lineRole="heading" mark={row.claimed ? "muted" : "none"}>
-    {host && action ? <kit.KitContent lineRole="heading" density={density}>
-      {title}<kit.KitGrid fitLast density="compact">{detail}{action}</kit.KitGrid>{claimed}
-    </kit.KitContent> : action ? <kit.KitGrid fitLast density="compact">{details}{action}</kit.KitGrid> : details}
-  </kit.KitRow>;
+  const photo =
+    lead === "thumb" && row.photo ? (
+      <kit.KitPhoto part="photo" shape="thumb" photo={row.photo} label={row.title} />
+    ) : undefined;
+  const action = label && (
+    <kit.KitAction part={host ? "unclaim" : "claim"} kind={host ? "danger" : "primary"} label={label} />
+  );
+  const { title, detail, claimed } = GiftContent(row, density, { price, owner, status });
+
+  const details = (
+    <kit.KitContent lineRole="heading" density={density}>
+      {title}
+      {detail}
+      {claimed}
+    </kit.KitContent>
+  );
+  return (
+    <kit.KitRow
+      item={row.id}
+      label={row.title}
+      leading={photo}
+      leadingAlign="row"
+      density="comfortable"
+      lineRole="heading"
+      mark={row.claimed ? "muted" : "none"}
+    >
+      {host && action ? (
+        <kit.KitContent lineRole="heading" density={density}>
+          {title}
+          <kit.KitGrid fitLast density="compact">
+            {detail}
+            {action}
+          </kit.KitGrid>
+          {claimed}
+        </kit.KitContent>
+      ) : action ? (
+        <kit.KitGrid fitLast density="compact">
+          {details}
+          {action}
+        </kit.KitGrid>
+      ) : (
+        details
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function Registry(input: RegistryProps) {
   const state = kit.useComponentState();
-  const { words: { registry } } = kit.useWords(eventsWordsFor);
+  const {
+    words: { registry },
+  } = kit.useWords(eventsWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
-  return <kit.KitCard part="root" style="plain" {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="gift" decorativeIcon />
-      : state === "success" ? <kit.KitEmpty part="success" icon="check"
-        title={input.host ? registry.released : registry.success} tone="good" decorativeIcon />
-      : <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
-        {input.gifts.map((row) => <RegistryGiftRow key={row.id} {...{ row, density, lead }} host={input.host} />)}
-      </kit.KitGrid>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" style="plain" {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" icon="gift" decorativeIcon />
+      ) : state === "success" ? (
+        <kit.KitEmpty
+          part="success"
+          icon="check"
+          title={input.host ? registry.released : registry.success}
+          tone="good"
+          decorativeIcon
+        />
+      ) : (
+        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+          {input.gifts.map((row) => (
+            <RegistryGiftRow key={row.id} {...{ row, density, lead }} host={input.host} />
+          ))}
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

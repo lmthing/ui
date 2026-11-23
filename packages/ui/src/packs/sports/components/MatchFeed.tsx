@@ -123,30 +123,59 @@ const kindIcons = {
   note: { name: "file_text", tone: "muted" },
 } as const;
 
-// prettier-ignore
-function IncidentRow({ event, density, detail }: {
-  event: Incident; density: c.ThemeDensity; detail: c.AxisValue<"detail">;
+function IncidentRow({
+  event,
+  density,
+  detail,
+}: {
+  event: Incident;
+  density: c.ThemeDensity;
+  detail: c.AxisValue<"detail">;
 }) {
-  const { lang, words: { matchFeed } } = kit.useWords(sportsWordsFor);
+  const {
+    lang,
+    words: { matchFeed },
+  } = kit.useWords(sportsWordsFor);
   const { id, minute, side, kind, text } = event;
   const readableMinute = matchMinute(minute, lang);
   const description = (
     <kit.KitContent density={density}>
-      <kit.KitText part="text" density={density}>{text}</kit.KitText>
-      <kit.KitText part="side" role="label" tone="muted" density={density}>{matchFeed.sides[side]}</kit.KitText>
+      <kit.KitText part="text" density={density}>
+        {text}
+      </kit.KitText>
+      <kit.KitText part="side" role="label" tone="muted" density={density}>
+        {matchFeed.sides[side]}
+      </kit.KitText>
     </kit.KitContent>
   );
   return (
-    <kit.KitRow item={id} label={matchFeed.event(readableMinute, matchFeed.sides[side], matchFeed.kinds[kind], text)}
-      inline density={density}>
+    <kit.KitRow
+      item={id}
+      label={matchFeed.event(readableMinute, matchFeed.sides[side], matchFeed.kinds[kind], text)}
+      inline
+      density={density}
+    >
       <kit.KitGrid columns={3} density={density}>
         {side === "home" ? description : <></>}
         <kit.KitContent align="center" density={density}>
-          <kit.KitText part="minute" role="number" numberScale="compact" tone="muted" tabular align="center"
-            lines={1} density={density}>{readableMinute}</kit.KitText>
+          <kit.KitText
+            part="minute"
+            role="number"
+            numberScale="compact"
+            tone="muted"
+            tabular
+            align="center"
+            lines={1}
+            density={density}
+          >
+            {readableMinute}
+          </kit.KitText>
           <kit.KitIcon part="kind" scale="sm" {...kindIcons[kind]} />
-          {detail === "full" && <kit.KitText part="kind_label" align="center" role="label" tone="muted"
-            density={density}>{matchFeed.kinds[kind]}</kit.KitText>}
+          {detail === "full" && (
+            <kit.KitText part="kind_label" align="center" role="label" tone="muted" density={density}>
+              {matchFeed.kinds[kind]}
+            </kit.KitText>
+          )}
         </kit.KitContent>
         {side === "away" ? description : <></>}
       </kit.KitGrid>

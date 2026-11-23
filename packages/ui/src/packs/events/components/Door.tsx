@@ -103,28 +103,49 @@ type DoorReading = ReturnType<typeof projectDoor> & { detail?: c.AxisValue<"deta
 type View = c.Props<typeof props, typeof meta>;
 type Density = c.ThemeDensity;
 
-// prettier-ignore
 function ManualCheckIn({ live, density }: { live: DoorReading; density: Density }) {
-  const { words: { door } } = kit.useWords(eventsWordsFor);
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitInput part="search" kind="search" hint={door.search} value={live.query} />
-    <kit.KitRowGroup density={density} separators={false}>
-    {live.results.map(({ id, name, available }) => (
-      <kit.KitRow item={id} key={id} label={name} inline density={density}
-        trailing={available ? <kit.KitAction part="checkin" kind="quiet" label={door.checkin} />
-          : <kit.KitText part="admitted" role="label" tone="muted">{door.admitted}</kit.KitText>}>
-        <kit.KitMetaLine title={{ part: "name", text: name }} density={density} />
-      </kit.KitRow>
-    ))}
-    </kit.KitRowGroup>
-    {Boolean(live.query.trim()) && !live.results.length &&
-      <kit.KitText part="no_match" role="label" tone="muted">{door.noMatch}</kit.KitText>}
-  </kit.KitContent>;
+  const {
+    words: { door },
+  } = kit.useWords(eventsWordsFor);
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitInput part="search" kind="search" hint={door.search} value={live.query} />
+      <kit.KitRowGroup density={density} separators={false}>
+        {live.results.map(({ id, name, available }) => (
+          <kit.KitRow
+            item={id}
+            key={id}
+            label={name}
+            inline
+            density={density}
+            trailing={
+              available ? (
+                <kit.KitAction part="checkin" kind="quiet" label={door.checkin} />
+              ) : (
+                <kit.KitText part="admitted" role="label" tone="muted">
+                  {door.admitted}
+                </kit.KitText>
+              )
+            }
+          >
+            <kit.KitMetaLine title={{ part: "name", text: name }} density={density} />
+          </kit.KitRow>
+        ))}
+      </kit.KitRowGroup>
+      {Boolean(live.query.trim()) && !live.results.length && (
+        <kit.KitText part="no_match" role="label" tone="muted">
+          {door.noMatch}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 export function Door(input: View) {
-  const { lang, words: { door } } = kit.useWords(eventsWordsFor);
+  const {
+    lang,
+    words: { door },
+  } = kit.useWords(eventsWordsFor);
   const state = kit.useComponentState();
   const { screen, component } = kit.usePartContext();
   const density = kit.useKit().density;
@@ -133,20 +154,38 @@ export function Door(input: View) {
   const query = kit.useControlValue(`${screen}/${component}/$type/search`, "");
   const live = projectDoor({ query }, component, kit.useDeviceData());
   const summary = doorSummary({ ...live, detail }, state, lang);
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState part="feedback" retain message={summary.feedback} density={density}>
-    <kit.KitFigure value={{ part: "arrivals", text: summary.arrivals, role: live.expected ? "figure" : "body" }}
-      unit={{ text: door.arrivals }} density={density}
-      caption={<kit.KitLayoutText line={{ part: "recent", text: summary.recent, role: "meta", tone: "muted" }} density={density} />} />
-    {state !== "error" && <>
-      <kit.KitContent group="response" density={density}>
-        <kit.KitViewfinder kind="scan" hint={input.hint} hintPart="hint" />
-        <kit.KitContent group="response" density={density}>
-          <kit.KitAction part="scan" action="scan" label={door.scan} disabled={!live.scannerReady} full />
-        </kit.KitContent>
-      </kit.KitContent>
-      <ManualCheckIn {...{ live, density }} />
-    </>}
-    </kit.KitState>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState part="feedback" retain message={summary.feedback} density={density}>
+        <kit.KitFigure
+          value={{ part: "arrivals", text: summary.arrivals, role: live.expected ? "figure" : "body" }}
+          unit={{ text: door.arrivals }}
+          density={density}
+          caption={
+            <kit.KitLayoutText
+              line={{ part: "recent", text: summary.recent, role: "meta", tone: "muted" }}
+              density={density}
+            />
+          }
+        />
+        {state !== "error" && (
+          <>
+            <kit.KitContent group="response" density={density}>
+              <kit.KitViewfinder kind="scan" hint={input.hint} hintPart="hint" />
+              <kit.KitContent group="response" density={density}>
+                <kit.KitAction
+                  part="scan"
+                  action="scan"
+                  label={door.scan}
+                  disabled={!live.scannerReady}
+                  full
+                />
+              </kit.KitContent>
+            </kit.KitContent>
+            <ManualCheckIn {...{ live, density }} />
+          </>
+        )}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

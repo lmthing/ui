@@ -134,55 +134,113 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function TableGuests({ table, lang }: { table: ReturnType<typeof groupSeating>["tables"][number]; lang: string }) {
+function TableGuests({
+  table,
+  lang,
+}: {
+  table: ReturnType<typeof groupSeating>["tables"][number];
+  lang: string;
+}) {
   const { seating: words } = eventsWordsFor(lang);
-  return <kit.KitContent group="response" inset="md">
-    <kit.KitRow item={table.id} part={null} label={table.label} inline fitContent>
-      <kit.KitHeader title={{ part: "label", text: table.label }}
-        meta={{ part: "seats", text: seatingCount(table.guests.length, table.seats, lang) }} />
-    </kit.KitRow>
-    {table.guests.length ? table.guests.map(({ id, name }) =>
-      <kit.KitText key={id} item={id} part="name" role="body">{name}</kit.KitText>,
-    ) : <kit.KitText part={null} role="body" tone="muted">{words.noGuests}</kit.KitText>}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group="response" inset="md">
+      <kit.KitRow item={table.id} part={null} label={table.label} inline fitContent>
+        <kit.KitHeader
+          title={{ part: "label", text: table.label }}
+          meta={{ part: "seats", text: seatingCount(table.guests.length, table.seats, lang) }}
+        />
+      </kit.KitRow>
+      {table.guests.length ? (
+        table.guests.map(({ id, name }) => (
+          <kit.KitText key={id} item={id} part="name" role="body">
+            {name}
+          </kit.KitText>
+        ))
+      ) : (
+        <kit.KitText part={null} role="body" tone="muted">
+          {words.noGuests}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
+function seatTables(
+  tables: ReturnType<typeof groupSeating>["tables"],
+  guest: (row: ReturnType<typeof groupSeating>["unseated"][number]) => {
+    id: string;
+    label: string;
+    target: { part: string };
+    move: { destinations: readonly string[]; label: ReturnType<typeof eventsWordsFor>["seating"]["move"] };
+  },
+  freeSeat: string,
+  lang: string,
+) {
+  return tables.map(({ id, label, shape, seats, guests }) => ({
+    id,
+    label,
+    shape,
+    target: { part: "root" },
+    seats: Array.from({ length: seats }, (_, index) => {
+      const row = guests[index];
+      return row
+        ? { ...guest(row), initials: seatInitials(row.name, lang) }
+        : { id: `${id}-${index}`, label: freeSeat };
+    }),
+  }));
+}
+
 export function Seating(input: View) {
-  const { lang, words: { seating: words } } = kit.useWords(eventsWordsFor);
+  const {
+    lang,
+    words: { seating: words },
+  } = kit.useWords(eventsWordsFor);
   const { state, screen, component } = kit.usePartContext();
   const open = kit.useControlValue<string | undefined>(`${screen}/${component}/${c.pickerKey}`, undefined);
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as View;
-  if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
-    <kit.KitState part="empty" icon="users" density={density} />
-  </kit.KitCard>;
+  if (state === "empty")
+    return (
+      <kit.KitCard part="root" {...{ density, surface }}>
+        <kit.KitState part="empty" icon="users" density={density} />
+      </kit.KitCard>
+    );
   const { tables, unseated } = groupSeating(live.entries);
   const table = tables.find(({ id }) => id === open);
-  const guest = (row: typeof unseated[number]) => ({
-    id: row.id, label: row.name, target: { part: "root" },
+  const guest = (row: (typeof unseated)[number]) => ({
+    id: row.id,
+    label: row.name,
+    target: { part: "root" },
     move: { destinations: c.itemMoveOffer(meta, live, row)?.choices ?? [], label: words.move },
   });
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent density={density} align="center">
-      <kit.KitHeader title={{ text: words.title }} align="center" density={density} />
-      {detail === "full" && <kit.KitFigure align="center" density={density}
-        value={{ part: "summary", text: seatingFigures(...seatingTotals(tables), lang), compact: true }}
-        unit={{ text: words.filled }} />}
-    </kit.KitContent>
-    {table && <TableGuests table={table} lang={lang} />}
-    <SeatPlan kind="tables" part="map" tables={tables.map(({ id, label, shape, seats, guests }) => ({
-      id, label, shape, target: { part: "root" },
-      seats: Array.from({ length: seats }, (_, index) => {
-        const row = guests[index];
-        return row
-          ? { ...guest(row), initials: seatInitials(row.name, lang) }
-          : { id: `${id}-${index}`, label: words.freeSeat };
-      }),
-    }))} tray={{ part: "tray", text: words.tray(c.numberLine(unseated.length, lang)), role: "meta", tone: "muted" }}
-      trayGuests={unseated.map(guest)} />
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent density={density} align="center">
+        <kit.KitHeader title={{ text: words.title }} align="center" density={density} />
+        {detail === "full" && (
+          <kit.KitFigure
+            align="center"
+            density={density}
+            value={{ part: "summary", text: seatingFigures(...seatingTotals(tables), lang), compact: true }}
+            unit={{ text: words.filled }}
+          />
+        )}
+      </kit.KitContent>
+      {table && <TableGuests table={table} lang={lang} />}
+      <SeatPlan
+        kind="tables"
+        part="map"
+        tables={seatTables(tables, guest, words.freeSeat, lang)}
+        tray={{
+          part: "tray",
+          text: words.tray(c.numberLine(unseated.length, lang)),
+          role: "meta",
+          tone: "muted",
+        }}
+        trayGuests={unseated.map(guest)}
+      />
+    </kit.KitCard>
+  );
 }

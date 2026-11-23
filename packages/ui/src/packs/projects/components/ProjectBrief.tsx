@@ -10,7 +10,6 @@ const sectionParts = ["section_1", "section_2", "section_3"] as const;
 const sectionBodies = ["section_1_body", "section_2_body", "section_3_body"] as const;
 
 // Core first: KeyValue[rows] shows owner and dates but cannot frame a charter with pinned prose and independently actionable resources.
-// prettier-ignore
 export const meta = {
   id: "ProjectBrief",
   status: "ready",
@@ -21,9 +20,27 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
-  realPath: "The charter and internal resource links live on the device. The host hands approved HTTPS links off to the device browser.",
-  parts: ["root", "title", "objective", "owner", "window", ...sectionParts, ...sectionBodies, "resources", "edit", "edit_label", "edit_trail", "empty"],
-  items: { key: "links", parts: ["root", "label", "trail", "open", "open_icon"], visibleWhen: { detail: "full" } },
+  realPath:
+    "The charter and internal resource links live on the device. The host hands approved HTTPS links off to the device browser.",
+  parts: [
+    "root",
+    "title",
+    "objective",
+    "owner",
+    "window",
+    ...sectionParts,
+    ...sectionBodies,
+    "resources",
+    "edit",
+    "edit_label",
+    "edit_trail",
+    "empty",
+  ],
+  items: {
+    key: "links",
+    parts: ["root", "label", "trail", "open", "open_icon"],
+    visibleWhen: { detail: "full" },
+  },
   actions: {
     parts: { edit: ["press"] },
     items: { root: ["press"], open: ["press"] },
@@ -32,16 +49,36 @@ export const meta = {
   },
   partTiers: { open: "service" },
   hostCommands: {
-    items: { "open.press": { kind: "external", uri: ({ row }) => typeof row?.goto === "string" ? row.goto : undefined } },
-    identity: ({ props, row }) => row?.kind === "url" ? `${props.projectRef}:${row.goto}` : undefined,
+    items: {
+      "open.press": {
+        kind: "external",
+        uri: ({ row }) => (typeof row?.goto === "string" ? row.goto : undefined),
+      },
+    },
+    identity: ({ props, row }) => (row?.kind === "url" ? `${props.projectRef}:${row.goto}` : undefined),
   },
   states: ["filled", "empty", "loading"],
   emptyActions: [],
   deviceData: ["project_briefs"],
-  previewDeviceData: ({ state }): c.DeviceData => state === "empty" ? { project_briefs: [] } : {},
+  previewDeviceData: ({ state }): c.DeviceData => (state === "empty" ? { project_briefs: [] } : {}),
   variants: { detail: ["full", "brief"] },
   variantParts: {
-    "detail.brief": { hides: ["window", ...sectionParts, ...sectionBodies, "resources", "root", "label", "trail", "open", "open_icon", "edit", "edit_label", "edit_trail"] },
+    "detail.brief": {
+      hides: [
+        "window",
+        ...sectionParts,
+        ...sectionBodies,
+        "resources",
+        "root",
+        "label",
+        "trail",
+        "open",
+        "open_icon",
+        "edit",
+        "edit_label",
+        "edit_trail",
+      ],
+    },
   },
   read: projectBriefReading,
 } as const satisfies c.Meta;
@@ -95,12 +132,14 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return { projectRef: "project_1", title, objective: detail, sections: [], links: [] };
 }
 
-// prettier-ignore
 export const examples = [
   {
-    projectRef: "folio", title: "Folio website",
+    projectRef: "folio",
+    title: "Folio website",
     objective: "Bring in enquiries from new clients.",
-    owner: "Jo Lee", start: "2026-11-16", target: "2026-11-27",
+    owner: "Jo Lee",
+    start: "2026-11-16",
+    target: "2026-11-27",
     sections: [
       { heading: "Audience", body: "Small teams looking for a freelance designer." },
       { heading: "Launch criteria", body: "Mobile pages and a working enquiry form." },
@@ -113,22 +152,32 @@ export const examples = [
     editGoto: "projects_brief_edit",
   },
   {
-    projectRef: "exhibit", title: "Opening night exhibit",
+    projectRef: "exhibit",
+    title: "Opening night exhibit",
     objective: "Install and light six prints for the opening, with an accessible route through the gallery.",
-    owner: "Ari Lane", target: "2026-12-04",
+    owner: "Ari Lane",
+    target: "2026-12-04",
     sections: [{ heading: "Setup", body: "Use the existing rails and leave a clear path to the exit." }],
     links: [{ label: "Gallery layout", kind: "file", goto: "gallery_layout" }],
   },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("ProjectBrief");
-// prettier-ignore
 export const probes = [
-  choose("Give this project a charter: its objective, owner, delivery window, pinned launch notes, and links to the spec and design files."),
-  choose("Show five plain labelled facts about an item: material, origin, size, colour and weight. No overview or links.", "KeyValue"),
-  write("Project folio: title Folio website, objective Launch a three-page portfolio, owner Jo Lee, from 2026-11-16 to 2026-11-27. Pin Audience: Small design teams. Link Agreed scope to screen projects_scope, Design files to file route folio_design_files, Preview site to https://example.org/folio, and Edit brief to projects_brief_edit. Show the pinned section and all links, with no shared variant overrides."),
+  choose(
+    "Give this project a charter: its objective, owner, delivery window, pinned launch notes, and links to the spec and design files.",
+  ),
+  choose(
+    "Show five plain labelled facts about an item: material, origin, size, colour and weight. No overview or links.",
+    "KeyValue",
+  ),
+  write(
+    "Project folio: title Folio website, objective Launch a three-page portfolio, owner Jo Lee, from 2026-11-16 to 2026-11-27. Pin Audience: Small design teams. Link Agreed scope to screen projects_scope, Design files to file route folio_design_files, Preview site to https://example.org/folio, and Edit brief to projects_brief_edit. Show the pinned section and all links, with no shared variant overrides.",
+  ),
   {
-    ...write("For project exhibit, show a short charter titled Opening night exhibit with the objective Install and light six prints, owned by Ari Lane and due 2026-12-04. Save the Setup section (Use the existing rails) and Gallery layout file route gallery_layout, but display only the title, objective, owner and target date. Keep the app's spacing and surface unchanged."),
+    ...write(
+      "For project exhibit, show a short charter titled Opening night exhibit with the objective Install and light six prints, owned by Ari Lane and due 2026-12-04. Save the Setup section (Use the existing rails) and Gallery layout file route gallery_layout, but display only the title, objective, owner and target date. Keep the app's spacing and surface unchanged.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the agreed scope screen.", { address: "p1/r1", action: "press" }),
@@ -149,23 +198,34 @@ function RouteTrail({ density, loading, part }: { density: c.ThemeDensity; loadi
   );
 }
 
-// prettier-ignore
 function Resource({ link, density, words }: { link: Link; density: c.ThemeDensity; words: Words }) {
   const loading = kit.useComponentState() === "loading";
   const scope = kit.usePartContext();
   const external = link.kind === "url";
   const trailing = external ? (
     <kit.PartScope {...scope} item={link.id}>
-      <kit.KitAction kind="quiet" icon="external_link" part="open" a11y={words.open(link.label)}
-        contentParts={{ icon: "open_icon" }} />
+      <kit.KitAction
+        kind="quiet"
+        icon="external_link"
+        part="open"
+        a11y={words.open(link.label)}
+        contentParts={{ icon: "open_icon" }}
+      />
     </kit.PartScope>
-  ) : <kit.PartScope {...scope} item={link.id}>
-    <RouteTrail {...{ density, loading }} part="trail" />
-  </kit.PartScope>;
+  ) : (
+    <kit.PartScope {...scope} item={link.id}>
+      <RouteTrail {...{ density, loading }} part="trail" />
+    </kit.PartScope>
+  );
   return (
-    <kit.KitRow item={link.id} label={link.label} inset="none" goto={!loading && !external ? link.goto : undefined}
+    <kit.KitRow
+      item={link.id}
+      label={link.label}
+      inset="none"
+      goto={!loading && !external ? link.goto : undefined}
       leading={<kit.KitIcon name={icons[link.kind]} scale="sm" tone="muted" decorative loading={loading} />}
-      {...{ trailing, density }}>
+      {...{ trailing, density }}
+    >
       <kit.KitLayoutText line={{ text: link.label, part: "label" }} density={density} />
     </kit.KitRow>
   );
@@ -196,19 +256,30 @@ function Resources({
   );
 }
 
-// prettier-ignore
 function EditBrief({ label, goto, density }: { label: string; goto: string; density: c.ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
-  return <kit.KitRow part="edit" {...{ label, density }} inset="none" goto={loading ? undefined : goto}
-    leading={<kit.KitIcon name="pencil" tone="accent" scale="sm" decorative loading={loading} />}
-    trailing={<RouteTrail {...{ density, loading }} part="edit_trail" />}>
-    <kit.KitLayoutText line={{ text: label, part: "edit_label", tone: "accent", strong: true }} density={density} />
-  </kit.KitRow>;
+  return (
+    <kit.KitRow
+      part="edit"
+      {...{ label, density }}
+      inset="none"
+      goto={loading ? undefined : goto}
+      leading={<kit.KitIcon name="pencil" tone="accent" scale="sm" decorative loading={loading} />}
+      trailing={<RouteTrail {...{ density, loading }} part="edit_trail" />}
+    >
+      <kit.KitLayoutText
+        line={{ text: label, part: "edit_label", tone: "accent", strong: true }}
+        density={density}
+      />
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function ProjectBrief(input: View) {
-  const { lang, words: { projectBrief: words } } = kit.useWords(projectsWordsFor);
+  const {
+    lang,
+    words: { projectBrief: words },
+  } = kit.useWords(projectsWordsFor);
   const { density } = kit.useKit();
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = projectBriefCopy({ ...input, detail }, lang);
@@ -216,23 +287,34 @@ export function ProjectBrief(input: View) {
     { text: copy.owner, part: "owner", role: "meta", tone: "muted" },
     { text: copy.window, part: "window", role: "meta", tone: "muted" },
   ];
-  const content = <>
-    <kit.KitHeader title={{ text: input.title, part: "title" }} meta={[
-      { text: input.objective, part: "objective", role: "body", tone: "text" }, ...facts,
-    ]} density={density} />
-    {detail === "full" && <>
-      {input.sections.map(({ heading, body }, index) => (
-        <kit.KitMetaLine key={sectionParts[index]} density={density}
-          title={{ text: heading, part: sectionParts[index]!, role: "body", strong: true }}
-          meta={{ text: body, part: sectionBodies[index]!, role: "body" }} />
-      ))}
-      <Resources links={input.links} {...{ density, words }} />
-      {input.editGoto && <EditBrief label={words.edit} goto={input.editGoto} density={density} />}
-    </>}
-  </>;
-  return <kit.KitCard padded density={density}>
-    <kit.KitState part="empty" icon="file_text" message={words.empty} density={density} loading={content}>
-      {content}
-    </kit.KitState>
-  </kit.KitCard>;
+  const content = (
+    <>
+      <kit.KitHeader
+        title={{ text: input.title, part: "title" }}
+        meta={[{ text: input.objective, part: "objective", role: "body", tone: "text" }, ...facts]}
+        density={density}
+      />
+      {detail === "full" && (
+        <>
+          {input.sections.map(({ heading, body }, index) => (
+            <kit.KitMetaLine
+              key={sectionParts[index]}
+              density={density}
+              title={{ text: heading, part: sectionParts[index]!, role: "body", strong: true }}
+              meta={{ text: body, part: sectionBodies[index]!, role: "body" }}
+            />
+          ))}
+          <Resources links={input.links} {...{ density, words }} />
+          {input.editGoto && <EditBrief label={words.edit} goto={input.editGoto} density={density} />}
+        </>
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard padded density={density}>
+      <kit.KitState part="empty" icon="file_text" message={words.empty} density={density} loading={content}>
+        {content}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }
