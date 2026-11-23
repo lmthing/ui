@@ -212,34 +212,29 @@ function hasWireId(schema: z.ZodType | undefined, array = true): boolean {
 
 /** Separate host addresses before strict wire validation; declared domain ids are still wire fields. */
 export function hostItemInput(def: Definition, input: Values) {
-  const { items, collections } = def.meta;
-  const lists = [
-    ...(items ? [{ key: items.key, valid: (id: unknown) => validItemId(id, items.prefix ?? "r") }] : []),
-    ...Object.values(collections ?? {}).map(({ key, prefix }) => ({
-      key,
-      valid: (id: unknown) => validNamedId(id, prefix),
-    })),
+  const keys = [
+    ...(def.meta.items ? [def.meta.items.key] : []),
+    ...Object.values(def.meta.collections ?? {}).map(({ key }) => key),
   ];
   const ids = new Map<string, unknown[]>();
   let wire = input;
-  for (const { key, valid } of lists) {
+  for (const key of keys) {
     const rows = input[key];
     if (
       !Array.isArray(rows) ||
-      !rows.some((row) => row && typeof row === "object" && Object.hasOwn(row, "id"))
+      !rows.some((row) => row && typeof row === "object" && Object.hasOwn(row, "id")) ||
+      hasWireId(def.props.shape[key])
     )
       continue;
-    const declared = hasWireId(def.props.shape[key]);
     const supplied: unknown[] = [];
     const stripped = rows.map((row, index) => {
       if (!row || typeof row !== "object" || !Object.hasOwn(row, "id")) return row;
       const { id, ...fields } = row as Values;
-      // A declared id remains domain data unless it also matches this collection's address grammar.
-      if (!declared || valid(id)) supplied[index] = id;
-      return declared ? row : fields;
+      supplied[index] = id;
+      return fields;
     });
-    if (supplied.length) ids.set(key, supplied);
-    if (!declared) wire = { ...wire, [key]: stripped };
+    ids.set(key, supplied);
+    wire = { ...wire, [key]: stripped };
   }
   return { wire, ids };
 }
@@ -266,7 +261,14 @@ function traceHostRows(def: Definition, ids: RowIds["ids"]) {
 }
 
 export function safeParseItemProps(def: Definition, input: Values, onRow?: RowIds["onRow"]) {
-  const { wire, ids } = hostItemInput(def, input);
+  return parseHostRows(def, hostItemInput(def, input), onRow);
+}
+
+function parseHostRows(
+  def: Definition,
+  { wire, ids }: ReturnType<typeof hostItemInput>,
+  onRow?: RowIds["onRow"],
+) {
   const parsed = traceHostRows(def, ids).safeParse(wire);
   const report = onRow ? { onRow } : {};
   if (parsed.success)
@@ -279,6 +281,19 @@ export function safeParseItemProps(def: Definition, input: Values, onRow?: RowId
     };
   if (onRow) stampItemIds(def.meta, wire, undefined, { ids, invalidProps: true, ...report });
   return { wire, parsed };
+}
+
+/** Return allocated primary ids in source order for wire projections that edit rows by index. */
+export function hostWireItemIds(def: Definition, input: Values): readonly (string | undefined)[] | undefined {
+  const key = def.meta.items?.key;
+  if (!key) return;
+  const prepared = hostItemInput(def, input);
+  if (!prepared.ids.has(key)) return;
+  const rows: string[] = [];
+  parseHostRows(def, prepared, (collection, index, id) => {
+    if (collection === key) rows[index] = id;
+  });
+  return rows;
 }
 
 export function parseItemProps(def: Definition, input: unknown): Values {

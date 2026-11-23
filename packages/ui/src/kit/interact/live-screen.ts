@@ -5,7 +5,7 @@ import {
   projectAdjustments,
   liveProps,
   hostItemInput,
-  stampItemIds,
+  hostWireItemIds,
   parseControlProps,
   drawStatus,
   buzzStatus,
@@ -51,24 +51,29 @@ export function projectScreen(
 }
 
 type Entry = ScreenLike["components"][number];
-function projectItems(entry: Entry, parsed: Values, get: (part: string) => unknown, result: Entry) {
+function projectItems(
+  entry: Entry,
+  parsed: Values,
+  get: (part: string) => unknown,
+  result: Entry,
+  ids?: readonly (string | undefined)[],
+) {
   const raw = (key: string) => entry[key] as Record<string, unknown>[];
-  const item = (key: string, index: number) =>
-    (parsed[key] as Values[] | undefined)?.[index]?.id ?? `r${index + 1}`;
+  const item = (index: number) => ids?.[index] ?? `r${index + 1}`;
   if (entry.c === "Choice" && parsed.multi)
     result.options = raw("options").map((row, index) => ({
       ...row,
-      on: get(String(item("options", index))) ?? row.on ?? false,
+      on: get(item(index)) ?? row.on ?? false,
     }));
   if (entry.c === "List")
     result.rows = raw("rows").map((row, index) => {
-      const on = get(`${String(item("rows", index))}/trail`);
+      const on = get(`${item(index)}/trail`);
       return row.trail === "toggle" && typeof on === "boolean" ? { ...row, value: on ? "on" : "off" } : row;
     });
   if (entry.c === "Checklist")
     result.items = raw("items").map((row, index) => ({
       ...row,
-      done: get(`${String(item("items", index))}/check`) ?? row.done ?? false,
+      done: get(`${item(index)}/check`) ?? row.done ?? false,
     }));
 }
 
@@ -100,23 +105,24 @@ function projectEntry(
   const def = defs[entry.c];
   if (!def) return result;
   const { meta } = def;
-  const { wire, ids } = hostItemInput(def, input);
+  const { wire } = hostItemInput(def, input);
+  const ids = hostWireItemIds(def, input);
   const parsed = def.props.parse(wire);
   if (meta.draw)
     for (const key of Object.keys(def.props.shape))
       if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
-  Object.assign(result, projectControlInput(def, input, get));
+  Object.assign(result, projectControlInput(def, input, get, ids));
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  Object.assign(result, projectControls(meta, result, get, "wire"));
+  Object.assign(result, projectControls(meta, result, get, "wire", ids));
   omitDerivedSelection(def, result);
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
-  projectItems(entry, ids.size ? stampItemIds(meta, parsed, undefined, { ids }) : parsed, get, result);
-  Object.assign(result, projectAdjustments(meta, result, get));
+  projectItems(entry, parsed, get, result, ids);
+  Object.assign(result, projectAdjustments(meta, result, get, false, ids));
   if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now, "legacy"));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
   // Playback seconds and running state reach views through liveControls, not through wire props.

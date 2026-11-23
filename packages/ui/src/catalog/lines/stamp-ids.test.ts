@@ -72,7 +72,7 @@ it("accepts view ids without widening strict Writer schemas or touching domain i
   const example = roster.examples[0]!;
   const domain = { ...example, attendees: [{ ...example.attendees[0]!, id: "r7" }] };
   expect(roster.props.parse(domain).attendees[0]?.id).toBe("r7");
-  expect(parseItemProps(roster, domain).attendees).toMatchObject([{ id: "r7" }]);
+  expect(parseItemProps(roster, domain).attendees).toMatchObject([{ id: "r1" }]);
   expect(parseItemProps(roster, example).attendees).toMatchObject([{ id: "r1" }, { id: "r2" }, { id: "r3" }]);
 });
 

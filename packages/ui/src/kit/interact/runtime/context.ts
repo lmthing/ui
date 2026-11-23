@@ -5,6 +5,7 @@ import {
   resolveDefinition,
   hostItemInput,
   parseItemProps,
+  safeParseItemProps,
   stampItemIds,
   type ActStep,
   type Definition,
@@ -79,14 +80,14 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
     const def = defs[c];
     if (!def) continue;
     const { wire, ids } = hostItemInput(def, raw);
-    const input = def.props.safeParse(wire);
+    const input = ids.size ? safeParseItemProps(def, raw).parsed : def.props.safeParse(wire);
     if (!input.success) continue;
     const value = input.data as Values;
     initial[valueKey(screen.id, id, "$runtime")] = true;
     for (const [part, clock] of Object.entries(initialClocks(def.meta, value, now())))
       initial[valueKey(screen.id, id, part)] = clock;
     if (c === "List" && value.style === "expand")
-      (stampItemIds(def.meta, value, undefined, { ids }).rows as Values[]).forEach((row) => {
+      ((ids.size ? value : stampItemIds(def.meta, value)).rows as Values[]).forEach((row) => {
         initial[valueKey(screen.id, id, String(row.id))] = false;
       });
   }

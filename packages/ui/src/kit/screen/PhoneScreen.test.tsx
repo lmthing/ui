@@ -27,6 +27,46 @@ import { exampleDeviceData } from "../../catalog/probes/fixtures";
 import { PhoneScreen } from "./PhoneScreen";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
+
+it("applies quantity edits to the correct host row after reordering", () => {
+  const { Things } = components;
+  const items = [
+    { id: "r3", name: "Second", qty: 5, goto: "second" },
+    { id: "r7", name: "First", qty: 2, goto: "first" },
+  ];
+  const controller = createScreenController({
+    defs: { Things },
+    screen: { id: "home", components: [{ id: "t1", c: "Things", items }] },
+  });
+  try {
+    expect(controller.act({ address: "t1/r7/qty", action: "increment" })).toMatchObject({ ok: true });
+    expect(controller.snapshotScreen().components[0]?.items).toEqual([items[0], { ...items[1], qty: 3 }]);
+  } finally {
+    controller.dispose();
+  }
+});
+
+it("revalidates and moves only the addressed host card after reordering", () => {
+  const { Board } = components;
+  const { columns, cards } = Board.examples[0]!;
+  const rows = [
+    { ...cards[1]!, id: "r4" },
+    { ...cards[0]!, id: "r7" },
+  ];
+  const controller = createScreenController({
+    defs: { Board },
+    screen: { id: "home", components: [{ id: "b1", c: "Board", columns, cards: rows }] },
+  });
+  try {
+    expect(controller.act({ address: "b1/r7", action: "move", value: "Recovered" })).toMatchObject({
+      ok: true,
+    });
+    expect(controller.snapshotScreen().components[0]?.cards).toEqual([rows[0], { ...rows[1], column: 2 }]);
+  } finally {
+    controller.dispose();
+  }
+});
+
 const records = [{ value: 7 }];
 const previewDeviceData = vi.fn<NonNullable<Definition["meta"]["previewDeviceData"]>>(({ input, state }) => ({
   readings: state === "filled" ? [{ value: input.value }] : [],

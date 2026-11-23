@@ -77,14 +77,19 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
 }
 
 /** Flags belong to rows; single selections belong to the declared component prop. */
-export function projectLegacySelection(meta: Meta, props: Values, get: GetValue): Values {
+export function projectLegacySelection(
+  meta: Meta,
+  props: Values,
+  get: GetValue,
+  ids?: readonly (string | undefined)[],
+): Values {
   const select = meta.select;
   if (!select) return props;
   if (select.mode === "flags" && meta.items?.key) {
     if (select.runtime && !Array.isArray(props[meta.items.key])) return props;
     const rows = rowsOf(meta, props).map((row, index) => ({
       ...row,
-      [select.prop]: get(idOf(meta, row, index)) ?? row[select.prop] ?? false,
+      [select.prop]: get(ids?.[index] ?? idOf(meta, row, index)) ?? row[select.prop] ?? false,
     }));
     return { ...props, [meta.items.key]: rows };
   }
@@ -92,8 +97,15 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
 
-export function projectSelection(meta: Meta, props: Values, get: GetValue, mode?: "live" | "wire"): Values {
-  const selected = mode === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get);
+export function projectSelection(
+  meta: Meta,
+  props: Values,
+  get: GetValue,
+  mode?: "live" | "wire",
+  ids?: readonly (string | undefined)[],
+): Values {
+  const selected =
+    mode === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get, ids);
   return projectNamedSelections(meta, selected, get, "wire");
 }
 
@@ -141,7 +153,13 @@ export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Va
 }
 
 /** Keep wire data immutable while replacing only declared sub-item props. */
-export function projectNested(meta: Meta, props: Values, get: GetValue, choiceSeed?: Values): Values {
+export function projectNested(
+  meta: Meta,
+  props: Values,
+  get: GetValue,
+  choiceSeed?: Values,
+  ids?: readonly (string | undefined)[],
+): Values {
   const items = meta.items;
   const nested = items?.nested;
   if (!items || !nested || !Array.isArray(props[items.key])) return props;
@@ -151,7 +169,7 @@ export function projectNested(meta: Meta, props: Values, get: GetValue, choiceSe
     const choiceChildren = choiceParent[nested.key] as Values[] | undefined;
     const children = row[nested.key] ?? choiceChildren;
     if (!Array.isArray(children)) return row;
-    const id = idOf(meta, row, index);
+    const id = ids?.[index] ?? idOf(meta, row, index);
     const projected = (children as Values[]).map((item, at) => {
       for (const [part, spec] of Object.entries(nested.parts)) {
         if (spec.action === "press") continue;
