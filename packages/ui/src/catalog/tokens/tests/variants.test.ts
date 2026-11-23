@@ -21,7 +21,9 @@ it.each(presets)("maps density, emphasis and surfaces for the $id preset", (pres
   );
   expect(variants.emphasis.hero[preset.weight].heading).toBe("700");
   const surface = variants.surface.card[preset.surface];
-  expect(surface.fill).toBe("surface");
-  expect(surface.elevation).toBe(preset.surface === "soft" ? "card" : "flat");
-  expect(surface.rule).toBe(preset.surface === "hairline" ? "line" : null);
+  for (const mode of ["light", "dark"] as const) {
+    expect(preset.roles[mode][surface.fill]).toMatch(/^#[0-9a-f]{6}$/i);
+    if (surface.rule) expect(preset.roles[mode][surface.rule]).toMatch(/^#[0-9a-f]{6}$/i);
+  }
+  expect(["flat", "card", "sheet"]).toContain(surface.elevation);
 });

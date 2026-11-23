@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { ScrollView, YStack } from "tamagui";
 import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
-import { useKit } from "../provider";
+import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import {
   space,
@@ -79,6 +79,7 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
   const { environment } = useKit();
+  const gutter = space[useKitStyle().frame.gutter];
   const bodyOrder = props.screen.components
     .filter(({ c }) => (props.controller.defs[c]?.meta.region ?? "body") === "body")
     .map(({ id }) => id);
@@ -86,8 +87,8 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
         <YStack
-          paddingLeft={Math.max(space.gutter, environment.insets.left)}
-          paddingRight={Math.max(space.gutter, environment.insets.right)}
+          paddingLeft={Math.max(gutter, environment.insets.left)}
+          paddingRight={Math.max(gutter, environment.insets.right)}
           paddingTop={Math.max(space.lg, environment.insets.top)}
           gap={space.md}
         >
@@ -97,14 +98,14 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
           flex={1}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={{ padding: space.gutter }}
+          contentContainerStyle={{ paddingVertical: space.gutter, paddingHorizontal: gutter }}
         >
           <ScreenBottomSource>
             <ScreenRegion {...props} name="body" />
           </ScreenBottomSource>
         </ScrollView>
         <YStack
-          paddingHorizontal={space.gutter}
+          paddingHorizontal={gutter}
           paddingBottom={Math.max(space.lg, environment.keyboardHeight ? 0 : environment.insets.bottom)}
           gap={space.md}
         >

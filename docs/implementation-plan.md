@@ -1,6 +1,6 @@
 # lmthing/ui: technical implementation plan
 
-This repository holds the component system as one package, `@lmthing/ui`, with two entry points: the **catalog** (`@lmthing/ui/catalog`: every token, theme, component, pack, archetype and rule, as data, with no React) and the **kit** (`@lmthing/ui/kit`: the Tamagui views that draw it). Each component is one file that holds its data and its view. lmthing loads this repo as a git submodule at `packages/ui`. Other projects can use it later as a git submodule or as a published package.
+This repository holds the component system as one package, `@lmthing/ui`. The **catalog** (`@lmthing/ui/catalog`) holds the complete data and model tools, with no React. The **kit** (`@lmthing/ui/kit`) holds the Tamagui views that draw it. Smaller built entries let browser hosts load validation data and renderers separately. Each component is one file that holds its data and its view. lmthing loads this repo as a git submodule at `packages/ui`. Other projects can use it later as a git submodule or as a published package.
 
 The product context lives in the lmthing build spec (`docs/spec.md` in the lmthing repo). This plan covers current code and the requirements still to build here. Where the two disagree on something inside this repo, this plan wins.
 
@@ -26,8 +26,8 @@ The scope table is the full requirement, not a claim that each row is complete.
 **Consumers.**
 
 - The lmthing **agent** imports `@lmthing/ui/catalog` only, the built data-only entry with no React in it.
-- The lmthing **app** imports `@lmthing/ui/catalog` and `@lmthing/ui/kit`.
-- **Future projects** import either entry and supply their own host (theme choice, link handling, photo resolution, part registry).
+- A browser **app** can use `@lmthing/ui/catalog-browser` for validation and supply `@lmthing/ui/kit/runtime`'s `PhoneScreen` with definitions and renderer maps. `@lmthing/ui/renderers/core` exports the core `renderers` map. Import `@lmthing/ui/renderers/<pack-id>` for the selected pack, using literal subpaths for bundlers. `@lmthing/ui/kit/tamagui` exposes the styling config data without any renderers.
+- **Future projects** supply their own host (theme choice, link handling, photo resolution, part registry). The existing full `catalog` and `kit` imports still work.
 - **Agents** (browser agents, test runners, lmthing's Critic and evals) read screens as compact text and act on them by address, through the host's hook (sections 4.12 and 5.9).
 
 ## 2. Principles
@@ -111,6 +111,13 @@ declarations. Kit builds ESM with peers external. Both exports have a `source` c
 TypeScript and gallery use it. Node model callers use `dist/catalog.js`, never component source.
 
 ## 4. The catalog entry (`@lmthing/ui/catalog`)
+
+`@lmthing/ui/catalog-browser` is the data-only runtime subset. It keeps component schemas, fallbacks,
+rendering metadata, validation and interaction helpers, pack membership and screen validators. Its
+`createRegistry()` scopes component lookup and validation just like the full catalog, including pack
+readiness, but does not expose composition or archetypes. Prompt fields and example/probe arrays are
+empty for structural compatibility with the shared validators. No prompt text, examples, probes or
+preview fixtures are included. Use `@lmthing/ui/catalog` for authoring, composition, model prompts or probes.
 
 ### 4.1 Types
 
@@ -382,9 +389,14 @@ text on background must reach 7:1, muted text and text on accent must reach 4.5:
 tints must retain their existing contrast.
 
 **Shapes.** Presets are plain data: id, mood, font, optional heading font, numbers, weight, shape, density, surface and
-light/dark base roles. Current surfaces are `soft`, `solid`, `hairline`; `weight` is `regular` or
-`strong`. Accents supply `accent`, `accentSoft` and `onAccent`. Generated themes merge those role sets.
-Raw colours belong only in tokens and themes.
+light/dark base roles. The surface treatment selects a shared card recipe and may set the screen gutter, field
+chrome, action shape or shadow, and row rules. `strong` increases weight; the display-title treatment enlarges
+normal titles outside cards without competing with the figures and headings inside. Accents supply `accent`,
+`accentSoft` and `onAccent`. The no-tint treatments use a distinct neutral state fill
+instead of a decorative accent tint, while retaining semantic status colours and the chosen solid accent.
+Raw colours belong only in tokens and themes. Night works in either explicit mode, with raised surfaces and an
+accent glow on enabled primary actions.
+Wider screen gutters fall back to the default inset when the available width cannot hold seven calendar targets.
 
 `KitStyle` is everything a preset changes that is not a colour, derived from the preset by a pure function and handed to `KitProvider`:
 
@@ -394,11 +406,22 @@ export type KitStyle = {
   radiusShift: -1 | 0 | 1; // steps along sm, md, lg, xl (sharp, soft, round)
   fonts: { text: FontName; heading: FontName; number: FontName };
   density: { gap: SpaceToken; rowPad: SpaceToken; cardPad: SpaceToken };
-  surface: "soft" | "solid" | "hairline";
-  strong: boolean; // bold preset increases text weight
+  surface: PresetMeta["surface"];
+  strong: boolean;
+  frame: {
+    gutter: SpaceToken;
+    field: "filled" | "outlined" | "ruled" | "serifRule" | "ink";
+    action: "standard" | "block" | "pill" | "glow";
+    corner: "md" | "lg";
+    displayTitle: boolean;
+    rowRule: boolean;
+  };
 };
 export function kitStyleOf(preset: PresetMeta): KitStyle;
 ```
+
+`pnpm look --theme-reference` draws the same list, dashboard and form at 390px in every preset in light
+and dark mode. It keeps the accent fixed so the contact sheets show what the presets change.
 
 ### 4.4 Components, packs and archetypes
 
@@ -1309,8 +1332,10 @@ measurement or an import-time gate. RAF animation support is not evidence of dev
 - **Vitest:** catalog, static kit tests, controller/motion tests and Chrome integration through
   `scripts/build/check.ts`. Task checks use related mode and set `UI_TEST_COMPONENTS` and
   `UI_TEST_PACKS`; the merge runs the unfiltered suite.
-- **Build:** esbuild for catalog/kit ESM and TypeScript declarations (3). Both entry exports have
-  `source` and built conditions; no `./kit/tamagui` subpath, tsup or catalog watch.
+- **Build:** esbuild for catalog/kit ESM and TypeScript declarations (3). `pnpm build:catalog` builds
+  both data entries. `pnpm --filter @lmthing/ui build` also builds the kit, Tamagui config and core
+  and pack renderers, sharing chunks so renderers use the same kit context. The new subpaths resolve
+  to built files; the existing `source` conditions on `catalog` and `kit` are unchanged.
 - **Rules audit:** `pnpm rules` fails functions over 60 lines. It warns, without failing, on files
   over 400 lines and folders over 12 immediate files outside the existing exemptions.
 - **Pending ESLint:** flat config with no default exports except gallery

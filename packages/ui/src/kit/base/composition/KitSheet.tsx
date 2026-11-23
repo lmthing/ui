@@ -55,10 +55,10 @@ export function KitSheet({ title, sub, closeLabel, children }: SheetProps) {
     <YStack
       y={swipe.offset}
       {...usePart("root")}
-      {...surfaceOf(ks.surface)}
+      {...surfaceOf(ks.surface, "overlay")}
       zIndex={zIndex.sheet}
-      borderTopLeftRadius={shifted("md", ks.radiusShift)}
-      borderTopRightRadius={shifted("md", ks.radiusShift)}
+      borderTopLeftRadius={shifted(ks.frame.corner, ks.radiusShift)}
+      borderTopRightRadius={shifted(ks.frame.corner, ks.radiusShift)}
       paddingHorizontal={space.lg}
       paddingTop={space.xl}
       paddingBottom={Math.max(space.xl, kit.environment.insets.bottom)}

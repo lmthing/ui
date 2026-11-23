@@ -1,7 +1,7 @@
 import { Children, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
-import { useVariantDensity } from "../../provider";
+import { useKitStyle, useVariantDensity } from "../../provider";
 import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
 
@@ -24,12 +24,20 @@ type GridProps = {
   | { arrange: "strip"; overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined }
 );
 
-function ListRows({ cells, gap }: { cells: ReactNode[]; gap?: number | undefined }) {
+function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | undefined; ruled: boolean }) {
   return (
     <YStack accessibilityRole="list" gap={gap}>
       {cells.map((cell, index) => (
         <YStack key={index} accessibilityRole="listitem">
           {cell}
+          {ruled && index < cells.length - 1 && (
+            <YStack
+              height={component.base.borderWidth}
+              backgroundColor="$line"
+              marginHorizontal={space.md}
+              aria-hidden
+            />
+          )}
         </YStack>
       ))}
     </YStack>
@@ -43,6 +51,7 @@ function ListRows({ cells, gap }: { cells: ReactNode[]; gap?: number | undefined
 export function KitGrid(props: GridProps) {
   const { columns = 2, fitLast = false, density, children, group = "none", groups, list } = props;
   const spacing = useVariantDensity(density);
+  const { rowRule } = useKitStyle().frame;
   if (group !== "none" && groups?.length) {
     return (
       <YStack width="100%" gap={space[spacing.gap]}>
@@ -64,7 +73,11 @@ export function KitGrid(props: GridProps) {
   const listGaps = { cards: space[spacing.gap], group: space.xs };
   if (props.arrange === "rows")
     return listRole ? (
-      <ListRows cells={cells} gap={props.listRowGap && listGaps[props.listRowGap]} />
+      <ListRows
+        cells={cells}
+        gap={props.listRowGap && listGaps[props.listRowGap]}
+        ruled={rowRule && props.listRowGap !== "cards"}
+      />
     ) : (
       <>{children}</>
     );

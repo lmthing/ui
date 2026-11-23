@@ -8,7 +8,7 @@ export const sport = {
   weight: "regular",
   shape: "sharp",
   density: "compact",
-  surface: "solid",
+  surface: "highContrast",
   roles: {
     light: {
       bg: "#eef2f7",
