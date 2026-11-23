@@ -1,11 +1,11 @@
-import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
-import type { Browser, Locator, Page } from "playwright-core";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
+import type { Browser, BrowserContext, Locator, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { size, space, type as typography } from "@lmthing/ui/catalog";
 import { launchChrome } from "../../../scripts";
 import { galleryConfig } from "../../../scripts/look";
 
-let server: ViteDevServer, browser: Browser, page: Page;
+let server: ViteDevServer, browser: Browser, context: BrowserContext, page: Page;
 const path = "/kit-layout-recipes";
 const file = new URL("./layout.fixture.tsx", import.meta.url).pathname;
 const errors: string[] = [];
@@ -29,9 +29,8 @@ beforeAll(async () => {
   });
   await server.listen();
   browser = await launchChrome();
-  page = await browser.newPage({ viewport: { width: 390, height: 750 }, reducedMotion: "reduce" });
-  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
-  page.on("pageerror", (error) => errors.push(error.message));
+  context = await browser.newContext({ viewport: { width: 390, height: 750 }, reducedMotion: "reduce" });
+  await context.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
 }, 60000);
 
 const recipe = (part: string) => page.getByTestId(`fixture/recipes/${part}`);
@@ -40,6 +39,9 @@ const state = (name: string) => page.getByRole("button", { name, exact: true }).
 
 beforeEach(async () => {
   errors.length = 0;
+  // Reloading the same page across cases can abort Vite's module requests.
+  page = await context.newPage();
+  page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(new URL(path, server.resolvedUrls!.local[0]).href);
   try {
     await recipe("root").waitFor({ timeout: 15000 });
@@ -47,6 +49,10 @@ beforeEach(async () => {
     throw new Error(`Kit fixture did not mount: ${errors.join("; ")}`, { cause: error });
   }
 }, 40000);
+
+afterEach(async () => {
+  await page?.close();
+});
 
 afterAll(async () => {
   await browser?.close();
