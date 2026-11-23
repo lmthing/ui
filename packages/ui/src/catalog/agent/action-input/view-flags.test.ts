@@ -77,20 +77,20 @@ it.each(["wire", "parsed", "live"] as const)("keeps %s flag rows out of wire sna
     { id: "r1", expanded: false },
     { id: "r2", expanded: false },
   ]);
-  expect(controller.read()).toContain("[f1/r2 toggle:off]");
+  expect(controller.read()).toContain("[f1/r2/root toggle:off]");
   expect(controller.act(details)).toMatchObject({ ok: false, code: "not_actionable" });
   expect(controller.act([toggle, details], { dryRun: true })).toMatchObject({ ok: true });
   expect(onChange).not.toHaveBeenCalled();
   expect(controller.press(second).ok).toBe(true);
   expect(view()).toMatchObject([{ expanded: false }, { expanded: true }]);
   expect(controller.read()).toContain("opened r2");
-  expect(controller.read()).toContain("[f1/r2 toggle:on]");
+  expect(controller.read()).toContain("[f1/r2/root toggle:on] [f1/r2/details press]");
   expect(controller.actionsAt(details.address)).toEqual(["press"]);
   controller.registerPart(details.address);
   expect(controller.act(details).ok).toBe(true);
   expect(controller.snapshotScreen()).toEqual(screen);
   expect(onChange.mock.calls.map(([snapshot]) => snapshot)).toEqual([screen, screen]);
-  expect(controller.act(toggle).ok).toBe(true);
+  expect(controller.act({ ...toggle, address: `${second}/root` }).ok).toBe(true);
   expect(controller.read()).not.toContain("opened r2");
   expect(controller.act(details)).toMatchObject({ ok: false, code: "not_actionable" });
   expect(controller.snapshotScreen()).toEqual(screen);

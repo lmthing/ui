@@ -42,8 +42,8 @@ export function expectTarget(
   offer: Affordance,
   meta?: Meta,
 ) {
-  const { address, action, part } = offer;
-  expect(read, `${address} is missing from the read`).toContain(`[${address} ${action}`);
+  const { address, readAddress = address, action, part } = offer;
+  expect(read, `${readAddress} is missing from the read`).toContain(`[${readAddress} ${action}`);
   const element = addressed.get(`home/${address}${part === "root" ? "/root" : ""}`);
   expect(element, `${address} offers ${action} but is not on screen`).toBeDefined();
   if (

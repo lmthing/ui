@@ -168,17 +168,24 @@ describe("Review live actions", () => {
     const screen = { id: "home", components: [{ id: "c1", c: "Review", ...input }] };
     const runtime = createScreenController({ screen, defs: components });
     const read = () => runtime.read().replaceAll("\u00a0", " ");
-    expect(read()).toContain("[c1/r1 toggle:off]");
+    expect(read()).toContain("[c1/r1/root toggle:off]");
     expect(read()).not.toContain(row.text);
-    expect(runtime.press("c1/r1").ok).toBe(true);
+    expect(runtime.act({ address: "c1/r1/root", action: "toggle" }).ok).toBe(true);
     expect(read()).toContain(`r1 — 5 of 5 — ${row.date} — Hide spoiler — Reply — "${row.text}"`);
     expect(read()).toContain("photo:ending");
+    expect(read()).toContain("[c1/r1/root toggle:on]");
     expect(read()).toContain("[c1/r1/reply press !needs-people]");
     expect(read()).not.toContain(reviews[1]!.text);
     expect(runtime.press("c1/r1").ok).toBe(true);
     expect(read()).not.toContain(row.text);
     expect(runtime.snapshotScreen()).toEqual(screen);
     runtime.dispose();
+  });
+  it("keeps the closed spoiler toggle at the row address beside the reply action", () => {
+    const lines = readComponent(components.Review, examples[3], "r1");
+    expect(lines.find((line) => line.includes("Ana Reed"))).toBe(
+      '  r2 "Ana Reed" [r1/r2/root toggle:off] [r1/r2/reply press !needs-people]',
+    );
   });
   it.each([list, summary, { ...list, state: "empty" as const }])(
     "dispatches only visible replies",
