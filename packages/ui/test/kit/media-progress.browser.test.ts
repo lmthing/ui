@@ -17,8 +17,10 @@ afterAll(async () => {
   await server?.close();
 });
 
-async function look(id: string) {
-  await page.goto(`${server.resolvedUrls!.local[0]}?c=${id}&w=390&preset=calm&mode=light`);
+async function look(id: string, omitHidden = false) {
+  await page.goto(
+    `${server.resolvedUrls!.local[0]}?c=${id}&w=390&preset=calm&mode=light${omitHidden ? "&omit-hidden" : ""}`,
+  );
   await page.locator("[data-look-frame]").first().waitFor();
 }
 
@@ -111,4 +113,18 @@ it("does not draw read-only stars or a rating label when there is no score", asy
   expect(await unscored.getByTestId("unscored_rating/rating/root").count()).toBe(0);
   expect(await unscored.getByText("Walker rating").count()).toBe(0);
   expect(await page.getByLabel("4.5 of 5").first().isVisible()).toBe(true);
+});
+
+it.each([
+  ["Photo", "media_fallback", "damaged", "Image unavailable"],
+  ["Scale", "unscored_rating", "note", "The east gate opens onto the riverside path."],
+])("%s leaves exactly the spacing of an omitted line", async (id, screen, next, ready) => {
+  async function measure(omitHidden: boolean) {
+    await look(id, omitHidden);
+    await frame(screen).getByText(ready, { exact: true }).waitFor();
+    const title = (await page.getByTestId(`${screen}/header/title`).boundingBox())!;
+    const content = (await page.getByTestId(`${screen}/${next}/root`).boundingBox())!;
+    return content.y - title.y - title.height;
+  }
+  expect(await measure(false)).toBeCloseTo(await measure(true), 0);
 });

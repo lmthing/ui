@@ -1,4 +1,5 @@
 Layout: dashboard/rings. Job: How things are going.
+Layout rule: The ring is optional and requires an actual completed amount and target for the same goal. The supplied plant sample describes intervals and locations, not logged work: omit Progress entirely. A plant count may inform Stats, but is not progress.
 Layout rule: Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.
 
 Layout: dashboard/charts. Job: How things are going.
@@ -13,7 +14,8 @@ Layout rule: Use the List for other records in the collection or additional deta
 
 Layout: browse/shelves. Job: Explore shelves of things to open.
 Layout rule: Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name. In Chips, select All initially and filter by real categories.
-Layout rule: Use two Lists with style "shelf", each introduced by a SectionTitle with null axes and no link. Each shelf needs at least two rows, and every row in both shelves must carry its supplied photo reference. The first shelf shows the inventory, with location and record_<name> destinations. The second links directly to careplan_<name>: when two or more records have weekly or more frequent care, title it "Weekly care or sooner", order those records by shortest interval and show their actual intervals; otherwise choose another grounded subset of at least two. Use null for all List and row axes.
+Layout rule: Use two Lists, each preceded by a SectionTitle. Use style "shelf" only when that list has at least two records and every row has its own supplied image reference. Otherwise use default List style with lead "thumb"; include only the references that were supplied. Never invent a local reference or use unrelated covers.
+Layout rule: The first List shows All plants with locations and record_<name> destinations. The second links to careplan_<name>. If at least two records have weekly or more frequent care, title it "Weekly care or sooner", order from shortest interval and use facts like Every 3 days and Every 7 days. Otherwise use another grounded subset. Omit Hero: the collection header already leads.
 
 Layout: tracker/timer. Job: Log an activity again and again.
 Layout rule: Name the supplied activity in Header.title, e.g. Time your care session. Header.action, detail and emphasis are null; avoid a generic subtitle. Timer counts up from the supplied current seconds. The Note gives one clear sequence using the visible control labels: Start when you begin, Stop when finished, then Save session to review the saved entry. Note.media, tone and emphasis stay null.

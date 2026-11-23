@@ -15,7 +15,12 @@ import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
-import { lookPhoto, mediaProgressFixtures, resolveMediaFixture } from "./media-progress";
+import {
+  lookPhoto,
+  mediaProgressFixtures,
+  resolveMediaFixture,
+  withoutHiddenFixtureSlots,
+} from "./media-progress";
 import type { ScreenLike, ThemeChoice } from "@lmthing/ui/catalog";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
 
@@ -117,11 +122,13 @@ export function Screens({
   width,
   mode,
   presetIds,
+  omitHidden = false,
 }: {
   id: ComponentName;
   width: number;
   mode: "light" | "dark";
   presetIds: readonly string[];
+  omitHidden?: boolean;
 }) {
   const cells = screenCells(id);
   return (
@@ -141,7 +148,8 @@ export function Screens({
             {mediaProgressFixtures[id]?.map((screen) => (
               <MediaProgressScreen
                 key={screen.id}
-                {...{ screen, width }}
+                screen={omitHidden ? withoutHiddenFixtureSlots(screen) : screen}
+                width={width}
                 theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
               />
             ))}

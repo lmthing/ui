@@ -121,10 +121,26 @@ function amountLine({ value, of, unit }: Goal, figures: "exact" | "short", lang?
   return `${display(value)} ${wordsFor(lang).goal(display(of))}${unit ? ` ${unit}` : ""}`;
 }
 
+function decimalParts(value: number) {
+  const [digits, exponent = "0"] = value.toString().split("e");
+  const [whole, fraction = ""] = digits!.split(".");
+  return { coefficient: BigInt(`${whole}${fraction}`), exponent: Number(exponent) - fraction.length };
+}
+
+/** Subtract the authored decimal quantities, rather than their binary approximations. */
+function remainingAmount(value: number, total: number) {
+  if (value >= total) return 0;
+  const used = decimalParts(value);
+  const target = decimalParts(total);
+  const exponent = Math.min(used.exponent, target.exponent);
+  const atScale = (part: typeof used) => part.coefficient * 10n ** BigInt(part.exponent - exponent);
+  return Number(`${atScale(target) - atScale(used)}e${exponent}`);
+}
+
 function deadlineLine({ due, unit, value, of }: Goal, lang?: string) {
   if (!due || !unit) return undefined;
   const words = wordsFor(lang);
-  const remaining = numberLine(Math.max(0, of - value), lang);
+  const remaining = numberLine(remainingAmount(value, of), lang);
   return `${words.progressDue(appointmentDate(due, lang))} · ${words.progressRemaining(remaining, unit)}`;
 }
 

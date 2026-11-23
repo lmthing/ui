@@ -17,6 +17,9 @@ import {
 import { z } from "zod";
 import { prompt } from "../entry/prompt-Scale.generated";
 
+const visibleScore: NonNullable<Meta["viewVisible"]> = ({ readonly, value }) =>
+  readonly !== true || (typeof value === "number" && value > 0);
+
 export const meta = {
   id: "Scale",
   status: "ready",
@@ -35,6 +38,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["meta"] } },
   parts: ["root", "label", "meta", "l1", "l2", "l3", "l4", "l5"],
   states: ["filled"],
+  viewVisible: visibleScore,
   actions: {
     parts: { l1: ["select"], l2: ["select"], l3: ["select"], l4: ["select"], l5: ["select"] },
     // A rating that is only shown has no targets to act on.
@@ -48,7 +52,7 @@ export const meta = {
   },
   read: (input: unknown, _state, lang?: string): string[] => {
     const { value, readonly, label, meta: note } = props.parse(input);
-    if (readonly && value === 0) return [];
+    if (!visibleScore({ readonly, value })) return [];
     return [
       `${numberLine(value, lang)} ${goalLine(5, lang)}`,
       ...(note ? [JSON.stringify(note)] : []),
@@ -127,7 +131,7 @@ export function Scale(input: Props<typeof props, typeof meta>) {
   const { style, label, value, readonly, emphasis, detail, meta: note } = input;
   const density = useKit().density;
   const { lang } = useWords();
-  if (readonly && value === 0) return null;
+  if (!meta.viewVisible(input)) return null;
   const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,
     string,

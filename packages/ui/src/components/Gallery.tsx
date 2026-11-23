@@ -46,6 +46,9 @@ export const meta = {
   variants: { arrange: ["grid", "strip"], aspect: ["auto", "wide", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
   states: ["filled", "empty", "loading", "error"],
+  viewVisible: ({ photos }, resolvePhoto) =>
+    Array.isArray(photos) &&
+    photos.some((entry) => typeof entry?.photo === "string" && resolvePhoto?.(entry.photo)),
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
 } as const satisfies Meta;
 

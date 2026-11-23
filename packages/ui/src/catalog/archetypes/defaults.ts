@@ -56,16 +56,10 @@ function inputOf(
   if (line.c === "List" && ["shelf", "toggle"].includes(variant)) {
     const rows = [...(input.rows as Record<string, unknown>[])];
     if (variant === "shelf") {
-      const thing = thingOf(cast);
-      // Match List's fallback, which takes the first three records of this type and skips untitled ones.
-      const items = itemsOf(cast, 3).filter((item) => titleOf(item, 28, thing));
       while (rows.length < 2) rows.push({ title: placeholderTitle(rows.length) });
-      const fallback = (defs.Photo!.fallback({ cast: { things: [], items: [] } }) as { photo: string }).photo;
+      const reference = (defs.Photo!.fallback({ cast }) as { photo: string }).photo;
       input.style = "shelf";
-      input.rows = rows.map((row, index) => {
-        const supplied = photo.safeParse(row.photo ?? items[index]?.photo);
-        return { ...row, photo: supplied.success ? supplied.data : fallback };
-      });
+      input.rows = rows.map((row) => ({ ...row, photo: row.photo ?? reference }));
     } else
       input.rows = rows.map((row, index) => {
         const item = cast.items[index],
@@ -100,6 +94,19 @@ function inputOf(
   return input;
 }
 
+function browseMedia(input: Record<string, unknown>, cast: CastLike) {
+  const thing = thingOf(cast);
+  // Match List's fallback, which takes the first three records of this type and skips untitled ones.
+  const items = itemsOf(cast, 3).filter((item) => titleOf(item, 28, thing));
+  const rows = (input.rows as Record<string, unknown>[]).map((row, index) => {
+    const supplied = photo.safeParse(row.photo ?? items[index]?.photo);
+    return supplied.success ? { ...row, photo: supplied.data } : row;
+  });
+  input.rows = rows;
+  if (rows.length >= 2 && rows.every((row) => row.photo)) input.style = "shelf";
+  else input.lead = "thumb";
+}
+
 function copySeed(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(copySeed);
   if (value && typeof value === "object")
@@ -122,6 +129,17 @@ function finishInput(def: Definition, line: DefaultLine, input: Record<string, u
   def.props.parse(input);
 }
 
+function groupedRecords(cast: CastLike) {
+  const category = thingOf(cast)?.fields[1];
+  if (!category) return [];
+  const groups = new Map<string, CastLike["items"]>();
+  for (const item of cast.items) {
+    const name = item[category];
+    if (typeof name === "string" && name.trim()) groups.set(name, [...(groups.get(name) ?? []), item]);
+  }
+  return [...groups.entries()].slice(0, 3);
+}
+
 /** A finished, validated default from neutral catalog fallbacks and the caller's cast. */
 export function defaultLines(
   meta: ArchetypeMeta,
@@ -132,16 +150,14 @@ export function defaultLines(
 ): ScreenLike {
   let recipe = meta.defaults[layout];
   if (!recipe) throw new Error(`Unknown layout ${meta.id}/${layout}`);
+  const coreLayout = !meta.layouts[layout]?.packOverride;
+  const shelfBrowse = coreLayout && meta.id === "browse" && layout === "shelves";
+  const detailMedia = coreLayout && meta.id === "detail" && layout === "media";
+  if (detailMedia && !photo.safeParse(cast.items[0]?.photo).success)
+    recipe = recipe.map((line) => (line.c === "Photo" ? { c: "Note" } : line));
   const defs = definitionsOf(registry),
     counts: Record<string, number> = {};
-  const category = thingOf(cast)?.fields[1];
-  const groups = new Map<string, CastLike["items"]>();
-  if (meta.id === "list" && layout === "grouped" && !meta.layouts[layout]?.packOverride && category)
-    for (const item of cast.items) {
-      const name = item[category];
-      if (typeof name === "string" && name.trim()) groups.set(name, [...(groups.get(name) ?? []), item]);
-    }
-  const grouped = [...groups.entries()].slice(0, 3);
+  const grouped = coreLayout && meta.id === "list" && layout === "grouped" ? groupedRecords(cast) : [];
   if (grouped.length)
     recipe = [
       { c: "Header" },
@@ -156,6 +172,7 @@ export function defaultLines(
     if (grouped.length && line.c === "SectionTitle") groupIndex++;
     const lineCast = grouped.length && line.c === "List" ? { ...cast, items: grouped[groupIndex]![1] } : cast;
     const input = inputOf(line, defs, lineCast);
+    if (shelfBrowse && line.c === "List") browseMedia(input, lineCast);
     if (grouped.length && line.c === "SectionTitle") input.text = clip(grouped[groupIndex]![0], 24);
     if (grouped.length && line.c === "Chips")
       input.items = [

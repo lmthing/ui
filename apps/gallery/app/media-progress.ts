@@ -141,3 +141,16 @@ export const mediaProgressFixtures: Partial<Record<ComponentName, readonly Scree
   ],
   Scale: [unscored],
 };
+
+const ignoredSlots: Partial<Record<string, string[]>> = {
+  [fallback.id]: ["missing", "unavailable"],
+  [unscored.id]: ["rating"],
+};
+
+/** Comparison screens remove the authored lines instead of exercising view visibility. */
+export function withoutHiddenFixtureSlots(screen: ScreenLike): ScreenLike {
+  const ignored = ignoredSlots[screen.id];
+  return ignored
+    ? { ...screen, components: screen.components.filter(({ id }) => !ignored.includes(id)) }
+    : screen;
+}

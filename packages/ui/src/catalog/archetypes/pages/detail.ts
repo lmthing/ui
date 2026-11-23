@@ -7,7 +7,7 @@ export const meta = createMeta(
   "One thing, fully",
   {
     facts: "Header KeyValue Note Button?",
-    media: "Header Photo KeyValue Button?",
+    media: "Header Photo|Note KeyValue Button?",
     progress: "Header Progress:ring KeyValue Button?",
   },
   {
@@ -16,7 +16,7 @@ export const meta = createMeta(
       action,
     ],
     media: [
-      "Use the record name in Header and its supplied image in Photo. Never substitute generic or invented imagery. If no usable image is supplied use the facts layout instead. KeyValue adds facts that are not in the caption. Do not add a Hero: the record name and image already lead.",
+      "Use the record name in Header and its supplied image in Photo. Never substitute generic or invented imagery. If no image is supplied, use Note instead of Photo for one grounded contextual detail; KeyValue shows other actual fields without repeating the caption or Note. Do not add a Hero: the record name already leads.",
       action,
     ],
     progress: [

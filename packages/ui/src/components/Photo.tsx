@@ -39,6 +39,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["caption"] } },
   parts: ["root", "photo", "caption"],
   states: ["filled", "loading", "error"],
+  viewVisible: ({ photo }, resolvePhoto) => typeof photo === "string" && Boolean(resolvePhoto?.(photo)),
 } as const satisfies Meta;
 
 export const props = z
@@ -93,7 +94,7 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
       </KitCard>
     );
   }
-  if (state !== "error" && !resolvePhoto?.(photo)) return null;
+  if (state !== "error" && !meta.viewVisible({ photo }, resolvePhoto)) return null;
   const error = (
     <KitEmpty
       layout="inline"

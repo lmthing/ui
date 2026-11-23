@@ -35,6 +35,7 @@ export function Gallery() {
         width={width}
         mode={mode === "dark" ? "dark" : "light"}
         presetIds={query.getAll("preset")}
+        omitHidden={query.has("omit-hidden")}
       />
     );
   }

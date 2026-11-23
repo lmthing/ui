@@ -6,6 +6,7 @@ import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
+import { filterVisibleContent } from "./visible-content";
 
 export type RendererMap = Record<string, (props: never) => React.ReactNode>;
 type ScreenProps = {
@@ -16,7 +17,7 @@ type ScreenProps = {
 export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
-  const { environment } = useKit();
+  const { environment, resolvePhoto } = useKit();
   const screen = controller.snapshotScreen();
   const fingerprint = JSON.stringify(screen);
   useEffect(() => {
@@ -25,7 +26,8 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   }, [fingerprint, components, onReport]);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
   const confirmation = controller.confirmationFor(data);
-  const visible = filterDeviceDataScreen(screen, components, data);
+  const permitted = filterDeviceDataScreen(screen, components, data);
+  const visible = filterVisibleContent(permitted, components, resolvePhoto);
   const sheet = visible.components.find((entry) => entry.id === controller.openSheet);
   const dismiss = useCallback(() => {
     controller.act(

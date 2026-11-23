@@ -183,20 +183,22 @@ describe("Progress ring", () => {
 });
 
 it.each(["bars", "ring"])("renders and reads the supplied units, target, and deadline for %s", (style) => {
-  for (const [value, remaining] of [
-    [8, 4],
-    [12, 0],
-    [15, 0],
-    [11.5, 0.5],
-  ]) {
+  for (const [value, total, remaining] of [
+    [8, 12, 4],
+    [12, 12, 0],
+    [15, 12, 0],
+    [11.5, 12, 0.5],
+    [0.1, 0.3, 0.2],
+    [2e-8, 3e-8, 1e-8],
+  ] as const) {
     const input = {
       style,
-      bars: [{ label: "Blocks sewn", value, of: 12, unit: "blocks", due: "2026-12-05" }],
+      bars: [{ label: "Material used", value, of: total, unit: "m", due: "2026-12-05" }],
     };
     const html = renderInstance("Progress", input, "filled", theme);
     const reading = readComponent(components.Progress, input, "p1").join(" ");
-    expect(reading).toContain(`${value} of 12 blocks`);
-    for (const text of ["of 12 blocks", `Due 5 Dec 2026 · ${remaining} blocks remaining`]) {
+    expect(reading).toContain(`${value} of ${total} m`);
+    for (const text of [`of ${total} m`, `Due 5 Dec 2026 · ${remaining} m remaining`]) {
       expect(html).toContain(text);
       expect(reading).toContain(text);
     }

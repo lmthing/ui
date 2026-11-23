@@ -978,6 +978,87 @@
       "{\"c\":\"Photo\",\"aspect\":null,\"detail\":\"brief\",\"photo\":\"lib:plants\",\"caption\":\"Fern in morning light\"}"
     ]
   },
+  "Photo%2Fwrite%2FShow%20just%20one%20picture%20of%20the%20fern.%20Save%20the%20caption%20%22Fern%20in%20morning%20light%22%20but%20hide%20it%20from%20the%20screen./9d4ea0212810ef3c/6c4c61c1834867b2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPhoto: Show one picture, with an optional caption.\nprops: { aspect?: wide|square|tall=\"wide\", detail?: full|brief=\"full\", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }\nRule: Use the record's supplied photo reference. Never invent a local reference or substitute another record's photo.\nRule: Use aspect only when explicitly asked for a square, wide or tall crop. Otherwise leave aspect null.\nRule: When asked to keep a supplied caption but not show it, set only detail \"brief\" and fill caption. If there is no caption to keep, leave both null.\nexample: {\"c\":\"Photo\",\"photo\":\"lib:fern\",\"caption\":\"Fern catching the morning light\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show just one picture of the fern. Save the caption \"Fern in morning light\" but hide it from the screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Photo",
+              "enum": [
+                "Photo"
+              ]
+            },
+            "aspect": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "wide",
+                    "square",
+                    "tall"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "caption": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "aspect",
+            "detail",
+            "photo",
+            "caption"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Photo\",\"aspect\":null,\"detail\":\"brief\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
+    "replies": [
+      "{\"c\":\"Photo\",\"aspect\":null,\"detail\":\"brief\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
+      "{\"c\":\"Photo\",\"aspect\":null,\"detail\":\"brief\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
+      "{\"c\":\"Photo\",\"aspect\":null,\"detail\":\"brief\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}"
+    ]
+  },
   "Photo%2Fwrite%2FShow%20one%20shot%20of%20my%20fern%20in%20a%20landscape%20crop%2C%20with%20Fern%20in%20morning%20light%20underneath/16826b221b99f38e/b513c8273e9be46c": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPhoto: Show one picture, with an optional caption.\nprops: { aspect?: wide|square|tall=\"wide\", detail?: full|brief=\"full\", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }\nRule: Use aspect only when explicitly asked for a square, wide or tall crop. Otherwise leave aspect null.\nRule: When asked to keep a supplied caption but not show it, set only detail \"brief\" and fill caption. If there is no caption to keep, leave both null.\nexample: {\"c\":\"Photo\",\"photo\":\"lib:plants\",\"caption\":\"Fern catching the morning light\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show one shot of my fern in a landscape crop, with Fern in morning light underneath",
     "format": {
@@ -1153,6 +1234,87 @@
       "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"brief\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
       "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"full\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
       "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"brief\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}"
+    ]
+  },
+  "Photo%2Fwrite%2FShow%20one%20shot%20of%20my%20fern%20in%20a%20landscape%20crop%2C%20with%20Fern%20in%20morning%20light%20underneath/a5ba75f7958aad03/69f68e264935ab36": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPhoto: Show one picture, with an optional caption.\nprops: { aspect?: wide|square|tall=\"wide\", detail?: full|brief=\"full\", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }\nRule: Use the record's supplied photo reference. Never invent a local reference or substitute another record's photo.\nRule: Use aspect only when explicitly asked for a square, wide or tall crop. Otherwise leave aspect null.\nRule: When asked to keep a supplied caption but not show it, set only detail \"brief\" and fill caption. If there is no caption to keep, leave both null.\nexample: {\"c\":\"Photo\",\"photo\":\"lib:fern\",\"caption\":\"Fern catching the morning light\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show one shot of my fern in a landscape crop, with Fern in morning light underneath",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Photo",
+              "enum": [
+                "Photo"
+              ]
+            },
+            "aspect": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "wide",
+                    "square",
+                    "tall"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "caption": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "aspect",
+            "detail",
+            "photo",
+            "caption"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Photo\",\"aspect\":\"wide\",\"detail\":null,\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
+    "replies": [
+      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"detail\":null,\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
+      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"detail\":null,\"photo\":\"lib:fern\",\"caption\":\"Fern catching the morning light\"}",
+      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"detail\":null,\"photo\":\"lib:fern\",\"caption\":\"Fern catching the morning light\"}"
     ]
   },
   "Photo%2Fwrite%2FShow%20one%20shot%20of%20my%20fern%20in%20a%20landscape%20crop%2C%20with%20Fern%20in%20morning%20light%20underneath/bf56cc4cbf223cb2/089f84fdd8d84d2d": {
