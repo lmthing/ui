@@ -98,8 +98,7 @@ export function componentOffers(
     id,
     target,
   );
-  const { props, empty } =
-    !state || state === "filled" ? projectDataViewList(views, id, observed) : { props: observed };
+  const { props, empty } = projectDataViewList(views, id, observed, state);
   if (empty || views.hidden.has(id)) return { props, target, offered: [], selection };
   const get = (part: string) => local[`${id}/${part}`];
   const clock = recordClockOffer(def, raw, props, get, data, now, values);

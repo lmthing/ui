@@ -3,6 +3,7 @@ import { screenId, text } from "../props";
 import { peekLimit } from "../lang";
 import { safeParseItemProps } from "../lines";
 import type { Definition } from "../probes";
+import type { StateName } from "../types";
 import type { ScreenLike } from "./read";
 import type { Values } from "./act";
 import { projectLegacySelection } from "./selection";
@@ -21,7 +22,7 @@ export const dataViewOption = z
 
 type View = z.output<typeof dataViewOption>;
 type Filter = z.output<typeof dataViewFilter>;
-type Option = { view?: View | undefined; on?: boolean };
+type Option = { id?: string; view?: View | undefined; on?: boolean };
 type Entry = ScreenLike["components"][number];
 type ListView = { filter: Filter; active: View[]; empty: string };
 type DataViews = { hidden: Set<string>; empty: Map<string, string>; lists: Map<string, ListView[]> };
@@ -52,6 +53,43 @@ function bindPanels(
   for (const target of targets) if (target.state === "empty") result.hidden.add(target.id);
 }
 
+function panelCandidates(screen: ScreenLike, defs: Record<string, Definition>) {
+  return screen.components.filter(({ c }) => {
+    const meta = defs[c]?.meta;
+    return meta && (meta.group === "content" || meta.group === "data") && meta.region === "body";
+  });
+}
+
+function dataViewBindings(screen: ScreenLike, defs: Record<string, Definition>) {
+  return screen.components.flatMap(({ id, c, state, ...raw }) => {
+    const def = defs[c];
+    const key = def?.meta.dataView;
+    if (!def || !key || !Array.isArray(raw[key])) return [];
+    if (!raw.filter && !(raw[key] as Option[]).some((option) => option?.view)) return [];
+    const { parsed } = safeParseItemProps(def, raw);
+    return parsed.success ? [{ id, state, key, meta: def.meta, props: parsed.data }] : [];
+  });
+}
+
+export function checkDataViewTargets(screen: ScreenLike, defs: Record<string, Definition>) {
+  const targets = new Map(panelCandidates(screen, defs).map(({ id, c }) => [id, c]));
+  return dataViewBindings(screen, defs).flatMap(({ id, key, props }) => {
+    const filter = props.filter as Filter | undefined;
+    const issue = (part: string, message: string) => ({
+      code: "S.data_view",
+      address: `${screen.id}/${id}/${part}`,
+      message,
+    });
+    if (filter)
+      return targets.get(filter.list) === "List" ? [] : [issue("filter", "Filter must name a sibling List")];
+    return (props[key] as Option[]).flatMap(({ id, view }) =>
+      view?.panel && !targets.has(view.panel)
+        ? [issue(`${id}/root`, "Option panel must name a sibling body content or data component")]
+        : [],
+    );
+  });
+}
+
 /** Resolve presentation from the original screen and staged or committed selection values. */
 export function resolveDataViews(
   screen: ScreenLike,
@@ -59,23 +97,15 @@ export function resolveDataViews(
   local: Values = {},
 ): DataViews {
   const result: DataViews = { hidden: new Set(), empty: new Map(), lists: new Map() };
-  const siblings = screen.components.filter(({ c }) => {
-    const meta = defs[c]?.meta;
-    return meta && (meta.group === "content" || meta.group === "data") && meta.region === "body";
-  });
-  for (const { id, c, state, ...raw } of screen.components) {
-    const def = defs[c];
-    const binding = def?.meta.dataView;
-    if (!binding || (state && state !== "filled") || !Array.isArray(raw[binding])) continue;
-    if (!raw.filter && !(raw[binding] as Option[]).some((option) => option?.view)) continue;
-    const { parsed } = safeParseItemProps(def, raw);
-    if (!parsed.success) continue;
+  const siblings = panelCandidates(screen, defs);
+  for (const { id, state, meta, key, props } of dataViewBindings(screen, defs)) {
+    if (state && state !== "filled") continue;
     const get = (part: string) => local[`${id}/${part}`];
-    const selected = projectLegacySelection(def.meta, parsed.data, get);
-    const options = selected[binding] as Option[];
+    const selected = projectLegacySelection(meta, props, get);
+    const options = selected[key] as Option[];
     const views = options.map(({ view }) => view!);
     const active = options.flatMap(({ view, on }, index) =>
-      view && (binding === "options" ? selected.at === index : on) ? [view] : [],
+      view && (key === "options" ? selected.at === index : on) ? [view] : [],
     );
     const filter = selected.filter as Filter | undefined;
     if (!filter) bindPanels(result, siblings, id, views, active);
@@ -95,9 +125,16 @@ export function projectDataViewList(
   views: DataViews,
   id: string,
   props: Values,
+  state: StateName = "filled",
 ): { props: Values; empty?: string } {
   const filters = views.lists.get(id);
   if (!filters || !Array.isArray(props.rows)) return { props };
+  if (state === "empty")
+    return {
+      props: { ...props, rows: [], more: undefined },
+      empty: (filters.find(({ active }) => active.length) ?? filters[0]!).empty,
+    };
+  if (state !== "filled") return { props };
   let rows = props.rows as Values[];
   let empty: string | undefined;
   for (const { active, filter, empty: message } of filters) {

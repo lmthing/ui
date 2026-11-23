@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
 import { afterAll, afterEach, beforeAll, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
@@ -83,12 +83,22 @@ it("scrolls many Chips on one line and filters by keyboard, including empty and 
   });
   expect(new Set(geometry.tops).size).toBe(1);
   expect(geometry.overflowing).toBe(true);
+  const lastChipFits = () =>
+    chips.last().evaluate((node) => {
+      const bounds = node.getBoundingClientRect();
+      const viewport = node.parentElement!.parentElement!.parentElement!.getBoundingClientRect();
+      return bounds.left >= viewport.left && bounds.right <= viewport.right;
+    });
+  await chips.first().hover();
+  await page.mouse.wheel(400, 0);
+  await expect.poll(lastChipFits).toBe(true);
   await chips.first().press("Space");
   await fern.waitFor({ state: "detached" });
   expect(await basil.textContent()).toBe("Basil");
   await chips.first().press("Space");
   await fern.waitFor();
   await chips.last().focus();
+  await expect.poll(lastChipFits).toBe(true);
   await page.keyboard.press("Enter");
   await results.waitFor();
   expect(await results.textContent()).toBe("No plants in the bedroom");
@@ -106,4 +116,16 @@ it("filters the named browse shelf without changing the independent care-plan sh
   await page.getByRole("checkbox", { name: "Kitchen" }).click();
   await inInventory.waitFor({ state: "detached" });
   expect(await inCare.textContent()).toBe("Fern");
+});
+
+it("updates the visible and readable message for a List already in the empty state", async () => {
+  await open("empty");
+  const message = page.getByTestId("plant_list/plants/results");
+  await message.waitFor();
+  expect(await message.textContent()).toBe("No plants in the kitchen");
+  await page.getByRole("checkbox", { name: "Bathroom" }).click();
+  await expect.poll(() => message.textContent()).toBe("No plants in the bathroom");
+  expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain(
+    'plants List (empty) "No plants in the bathroom"',
+  );
 });

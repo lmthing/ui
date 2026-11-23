@@ -14,12 +14,20 @@ import { config } from "../../../apps/gallery";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const example = new URLSearchParams(location.search).get("example");
+const list = archetypes.list.dataViewExample;
 const screen =
   example === "browse"
     ? archetypes.browse.dataViewExample
     : example === "list"
-      ? archetypes.list.dataViewExample
-      : archetypes.dashboard.dataViewExample;
+      ? list
+      : example === "empty"
+        ? {
+            ...list,
+            components: list.components.map((entry) =>
+              entry.c === "List" ? { ...entry, state: "empty" as const } : entry,
+            ),
+          }
+        : archetypes.dashboard.dataViewExample;
 
 createRoot(document.body).render(
   <TamaguiProvider config={config} defaultTheme={themeName(theme)}>

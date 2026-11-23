@@ -7,7 +7,8 @@ export const meta = createMeta(
   { shelves: "Header Search Chips SectionTitle List:shelf SectionTitle List:shelf" },
   {
     shelves: [
-      'Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name. Bind Chips.filter to the first List id and field category. Tag each row on that shelf with its category. Supply view.match and view.empty for each real category chip, all off initially. Leave the care-plan shelf independent.',
+      'Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name.',
+      'Chips in filter style controls only the first List: set filter.list to that exact id and filter.field to "category". For plant records, use their literal rooms as categories (e.g. "Bathroom", "Kitchen", "Living room"), not the plant kind. Give each distinct room exactly one chip: on:false, view.panel:null, view.match equal to the room exactly, and view.empty naming that room. Never add an All chip; all off already shows the full shelf.',
       'Use two Lists with style "shelf", each introduced by a SectionTitle with null axes and no link. Each shelf needs at least two rows, and every row in both shelves must carry its supplied photo reference. The first shelf shows the inventory, with location and record_<name> destinations. The second links directly to careplan_<name>: when two or more records have weekly or more frequent care, title it "Weekly care or sooner", order those records by shortest interval and show their actual intervals; otherwise choose another grounded subset of at least two. Use null for all List and row axes.',
     ],
   },

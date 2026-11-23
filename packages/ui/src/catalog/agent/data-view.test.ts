@@ -143,3 +143,33 @@ it("intersects two controls and unions selections within one filter", () => {
   expect(narrowed).toContain("Proofread");
   expect(narrowed).not.toMatch(/Check sources|Draft notes/);
 });
+
+it("rejects invalid sibling references while allowing explicit empty options", () => {
+  const valid = archetypes.dashboard.dataViewExample;
+  const bad = {
+    ...valid,
+    components: valid.components.map((entry) =>
+      entry.c === "Segmented"
+        ? {
+            ...entry,
+            options: [
+              { label: "Summary", view: { panel: "heading", empty: "No summary" } },
+              { label: "Empty", view: { empty: "No data" } },
+            ],
+          }
+        : entry,
+    ),
+  };
+  expect(checkScreen(bad, components)).toContainEqual({
+    code: "S.data_view",
+    address: "walk_dashboard/view/r1/root",
+    message: "Option panel must name a sibling body content or data component",
+  });
+  const list = archetypes.list.dataViewExample;
+  const badList = { ...list, components: list.components.filter(({ c }) => c !== "List") };
+  expect(checkScreen(badList, components)).toContainEqual({
+    code: "S.data_view",
+    address: "plant_list/rooms/filter",
+    message: "Filter must name a sibling List",
+  });
+});

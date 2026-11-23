@@ -6,7 +6,7 @@ import {
   checkCore,
   checkVariants,
 } from "./checks";
-import type { ScreenLike } from "../agent";
+import { checkDataViewTargets, type ScreenLike } from "../agent";
 import type { PackId, PackMeta } from "../meta";
 import { migrateScreen } from "../migrations";
 import type { Definition } from "../probes";
@@ -105,6 +105,7 @@ export function checkScreen(
   const limits = checkLimits(canonical, defs, render?.rowAddress);
   return [
     ...limits,
+    ...checkDataViewTargets(migrated, defs),
     ...checkWeight(canonical, defs),
     ...checkNeighbours(canonical, defs),
     ...checkCore(canonical, defs, options.flowOpensSheet),

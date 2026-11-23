@@ -1,4 +1,5 @@
 export {
+  checkDataViewTargets,
   dataViewFilter,
   dataViewOption,
   projectDataViewList,

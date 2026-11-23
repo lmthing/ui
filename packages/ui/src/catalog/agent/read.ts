@@ -35,6 +35,48 @@ import { projectDataViewList, resolveDataViews } from "./data-view";
 type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
+
+function formatReading(
+  meta: Definition["meta"],
+  schema: Json,
+  content: Parameters<typeof readContent>[2],
+  copy: Parameters<typeof readContent>[3],
+  head: string,
+  affordances: ReturnType<typeof readAffordances>,
+  operations: string[],
+  get: (part: string) => unknown,
+) {
+  const { state, props, session, draw, instance, summaryOnly } = content;
+  const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
+  const successContent = state === "success" && (draw || session || meta.readSuccess);
+  if (state !== "filled" && !feedback && !summaryOnly && !successContent) {
+    const summary =
+      state === "empty"
+        ? readDraw(draw)
+        : state === "error" && meta.readError
+          ? readContent(meta, schema, content, copy).own
+          : [];
+    return [[head, ...summary, ...affordances.map(formatAffordance)].join(" "), ...operations];
+  }
+  const { key, own } = readContent(meta, schema, content, copy);
+  const nested = visibleNestedProps(meta, props, get);
+  return [
+    ...readItems(
+      meta,
+      schema,
+      nested,
+      instance,
+      key,
+      head,
+      own,
+      affordances,
+      get("more") === true,
+      copy.lang,
+    ),
+    ...operations,
+  ];
+}
+
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -65,10 +107,7 @@ export function readComponent(
     instance,
     target,
   );
-  const presentation =
-    views && (!state || state === "filled")
-      ? projectDataViewList(views, instance, observed)
-      : { props: observed };
+  const presentation = views ? projectDataViewList(views, instance, observed, state) : { props: observed };
   const { props, empty } = presentation;
   if (empty) return [`${instance} ${meta.id} (empty) ${quote(empty)}`];
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
@@ -81,12 +120,12 @@ export function readComponent(
   const offered = readOffers(def, migrated, instance, props, state, values, options);
   const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
-  const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const optedIn = (state === "empty" || state === "success") && meta.readInState?.(props, state);
-  const successContent = state === "success" && (draw || session || meta.readSuccess);
   const content = {
     props,
-    validated: views?.lists.has(instance) ? projectDataViewList(views, instance, validated).props : validated,
+    validated: views?.lists.has(instance)
+      ? projectDataViewList(views, instance, validated, state).props
+      : validated,
     instance,
     values,
     state,
@@ -95,21 +134,7 @@ export function readComponent(
     summaryOnly: !!optedIn,
   };
   const copy = { lang, deviceData, currency };
-  if (state !== "filled" && !feedback && !optedIn && !successContent) {
-    const summary =
-      state === "empty"
-        ? readDraw(draw)
-        : state === "error" && meta.readError
-          ? readContent(meta, schema, content, copy).own
-          : [];
-    return [[head, ...summary, ...affordances.map(formatAffordance)].join(" "), ...operations];
-  }
-  const { key, own } = readContent(meta, schema, content, copy);
-  const nested = visibleNestedProps(meta, props, get);
-  return [
-    ...readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang),
-    ...operations,
-  ];
+  return formatReading(meta, schema, content, copy, head, affordances, operations, get);
 }
 
 export type ScreenLike = {
@@ -129,6 +154,7 @@ export function readScreen(
   deviceData?: DeviceData,
   currency?: AppCurrency,
   canDrive?: CanDrive,
+  decorate?: (def: Definition, id: string, values: Props) => Definition,
 ): string {
   const appCurrency = parseAppCurrency(currency);
   const migrated = migrateScreen(screen, { variantOnly: true, includeSavedRing: true });
@@ -154,7 +180,7 @@ export function readScreen(
     const selection = selectionBindingFor(migrated, defs, def.meta, id, safe, snapshot, addresses)?.view;
     const target = driveTarget(def.meta, migrated, defs, safe, snapshot, canDrive, addresses);
     const lines = readComponent(
-      def,
+      decorate?.(def, id, safe) ?? def,
       props,
       id,
       state,

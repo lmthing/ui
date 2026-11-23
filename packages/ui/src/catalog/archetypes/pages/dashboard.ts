@@ -8,6 +8,7 @@ export const meta = createMeta(
   {
     rings: [
       "When including Segmented, bind its tabs to the Stats and Progress sibling ids (one panel per tab), with an empty message for each. Use tabs only if both drawings are useful views of the supplied data.",
+      'For Progress set style:"ring" and write exactly one bars item with label, value and of; set unit, tone and goto to null. Use measured coverage when no goal is supplied: for plant records, label it "Care schedules", count plants with a supplied care interval as value and all supplied plants as of. Do not invent a watering or completion count.',
       "Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.",
     ],
     charts: [

@@ -45,8 +45,7 @@ function ScreenEntry({
   const live = projectAdjustments(def.meta, parsed, (part) =>
     controller.store.get(`${screen.id}/${id}/${part}`),
   );
-  const { props, empty } =
-    views && state === "filled" ? projectDataViewList(views, id, live) : { props: live };
+  const { props, empty } = views ? projectDataViewList(views, id, live, state) : { props: live };
   const emptyPanel = views?.empty.get(id);
   const signature = def.meta.signatureByStyle?.[String(input.style)] ?? def.meta.signature;
   return (

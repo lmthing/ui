@@ -8,7 +8,7 @@ export const meta = createMeta(
   "All things of one kind",
   {
     plain: "Header Chips List Button?",
-    grouped: "Header Chips SectionTitle List SectionTitle? List? SectionTitle? List? Button?",
+    grouped: "Header SectionTitle List SectionTitle? List? SectionTitle? List? Button?",
     gallery: "Header Chips Gallery Button?",
   },
   {
@@ -18,9 +18,9 @@ export const meta = createMeta(
     ],
     grouped: [
       "Group every supplied record by its category field, once each, with no duplicates and no invented due dates. Use one SectionTitle and one List per group, up to three groups.",
-      "Name the collection in Header.title. Keep Header.action and its axes null. Make Header.sub a complete instruction within 40 characters, e.g. “Filter rooms, then tap a plant”. Select All in Chips, add one unselected filter for each real category, and leave Chips.lead and every chip icon null. Use each SectionTitle as a plain category label, with no link and null axes.",
-      "Keep each row’s supplied detail visible and link the row to that record. Leave detail, overflow, group and mark null; the SectionTitle already names the group.",
-      action,
+      "Name the collection in Header.title. Keep Header.action and its axes null. Make Header.sub a complete instruction within 40 characters, e.g. “Open a plant from its room”. Use each SectionTitle as a plain category label, with no link and null axes. Do not add a filter control to these separate groups; use the plain layout for a filterable List.",
+      'With plant records, use Header.title "Plants by room" and Header.sub "Open a plant from its room". Use SectionTitle.text for each literal room. Under it set the row title to the plant name, meta to the actual care interval, and goto to that plant only. Do not repeat the room in the row. Leave unrequested axes null.',
+      "This browse-only brief does not ask to add records. Set Header.action to null and omit Button. The row links are the only actions.",
     ],
     gallery: [action],
   },
