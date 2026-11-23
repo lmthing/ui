@@ -11,6 +11,7 @@ import {
   KitStrip,
   KitText,
   useComponentState,
+  useKit,
 } from "../kit";
 import { z } from "zod";
 import {
@@ -44,7 +45,7 @@ export const meta = {
   parts: ["root"],
   variants: { arrange: ["grid", "strip"], aspect: ["auto", "wide", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
-  states: ["filled", "empty", "loading"],
+  states: ["filled", "empty", "loading", "error"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
 } as const satisfies Meta;
 
@@ -79,7 +80,7 @@ function neutralPhoto(index: number, lang?: string) {
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const photos = cast.items.slice(0, 6).map((item, index) => {
-    const reference = photo.safeParse(`lib:${item.type}`);
+    const reference = photo.safeParse(item.photo ?? `lib:${item.type}`);
     return {
       photo: reference.success ? reference.data : neutralPhoto(index, lang).photo,
       caption: titleOf(item, 24, thingOf(cast, item.type)) || placeholderTitle(index, lang),
@@ -97,14 +98,7 @@ const plantPhotos = [
 ];
 
 export const examples = [
-  {
-    photos: [
-      { photo: "lib:plants", caption: "Fern", goto: "fern" },
-      { photo: "lib:plants", caption: "Monstera", goto: "monstera" },
-      { photo: "lib:plants", caption: "Basil" },
-      { photo: "lib:plants", caption: "Aloe" },
-    ],
-  },
+  { photos: plantPhotos },
   {
     style: "carousel",
     photos: [
@@ -152,7 +146,7 @@ function GalleryItem({
   index: number;
   shape: "wide" | "square" | "tall";
 }) {
-  const { lang } = useWords();
+  const { lang, words } = useWords();
   const cue = entry.goto && entry.caption && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && (
     <KitText
@@ -175,6 +169,11 @@ function GalleryItem({
           photo={entry.photo}
           shape={shape}
           part="photo"
+          error={
+            <KitText role="caption" tone="bad" part={null}>
+              {words.photoUnavailable}
+            </KitText>
+          }
           {...(entry.caption ? { label: entry.caption } : {})}
         />
         {cue ? (
@@ -191,17 +190,26 @@ function GalleryItem({
 }
 
 export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, typeof meta>) {
-  const { lang } = useWords();
+  const { lang, words } = useWords();
+  const { resolvePhoto } = useKit();
   const state = useComponentState();
   const shape = aspect === "tall" ? "tall" : style === "carousel" || aspect === "wide" ? "wide" : "square";
-  if (state === "empty") {
+  if (state === "empty" || state === "error") {
     return (
       <KitCard style="plain" part="root">
-        <KitEmpty part="caption" />
+        {state === "empty" ? (
+          <KitEmpty part={null} />
+        ) : (
+          <KitEmpty title={words.photoUnavailable} icon="alert" tone="bad" announce="status" part={null} />
+        )}
       </KitCard>
     );
   }
-  const cells = photos.map((entry, index) =>
+  const available = photos
+    .map((entry, index) => ({ entry, index }))
+    .filter(({ entry }) => state === "loading" || Boolean(resolvePhoto?.(entry.photo)));
+  if (!available.length) return null;
+  const cells = available.map(({ entry, index }) =>
     state === "loading" ? (
       <KitRow key={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} inset="none">
         <KitSkeleton
@@ -218,10 +226,12 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
   );
   return (
     <KitCard style="plain" part="root" padded inset="none">
-      {style === "carousel" ? (
+      {cells.length === 1 ? (
+        cells[0]
+      ) : style === "carousel" ? (
         <KitStrip pages>{cells}</KitStrip>
       ) : (
-        <KitGrid arrange={arrange} columns={photos.length === 3 || photos.length === 6 ? 3 : 2}>
+        <KitGrid arrange={arrange} columns={cells.length === 3 || cells.length === 6 ? 3 : 2}>
           {cells}
         </KitGrid>
       )}

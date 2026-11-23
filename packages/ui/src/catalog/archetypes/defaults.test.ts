@@ -43,11 +43,13 @@ describe("core archetype defaults", () => {
       expect(readScreen(screen, components)).toContain(`screen ${screen.id}`);
       for (const { id: _id, c, state: _state, ...input } of screen.components)
         expect(
-          renderInstance(c as keyof typeof components, input, "filled", {
-            preset: "calm",
-            mode: "light",
-            accent: "moss",
-          }),
+          renderInstance(
+            c as keyof typeof components,
+            input,
+            "filled",
+            { preset: "calm", mode: "light", accent: "moss" },
+            { resolvePhoto: (reference) => reference },
+          ),
         ).toContain('data-testid="home/c1/root"');
     }
   });

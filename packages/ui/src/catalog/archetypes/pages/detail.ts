@@ -15,9 +15,13 @@ export const meta = createMeta(
       "Choose one supplied record and use its name as the Header title. KeyValue shows that record's actual fields, not facts about other records. The Note can explain a supplied fact such as a recurring care interval; it is not a generic sample-data disclaimer. A recurring interval does not mean the action is due today.",
       action,
     ],
-    media: [action],
+    media: [
+      "Use the record name in Header and its supplied image in Photo. Never substitute generic or invented imagery. If no usable image is supplied use the facts layout instead. KeyValue adds facts that are not in the caption. Do not add a Hero: the record name and image already lead.",
+      action,
+    ],
     progress: [
-      "Choose one supplied record. Use its name as the Header title and show only its actual fields in KeyValue. If no measured progress is supplied, use the circular Progress goal to count that record's filled detail fields out of the supplied field list, labelled Details recorded. Do not count records or invent completed care.",
+      "Use the project name in Header and one total-project measurement in Progress, not progress for a selected piece. Copy the completed amount, total, unit and any supplied due date; Progress calculates what remains. In KeyValue include the supplied next milestone and other useful facts, without repeating the figures. Do not add a Hero when Progress already leads.",
+      "If the source has no progress measurement, use the facts layout in production. If this layout is mandated, leave Progress bars empty and use only the supplied record facts. Never count filled fields, invent progress or guess a deadline.",
       action,
     ],
   },

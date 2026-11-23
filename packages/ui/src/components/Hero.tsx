@@ -68,7 +68,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 }
 
 export const examples = [
-  { title: "Plant care", sub: "Check the ferns before watering", photo: "lib:plants" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", photo: "lib:plants" },
   {
     media: "cover",
     title: "Morning walk",
@@ -81,9 +81,9 @@ export const examples = [
   { title: "Watered", tone: "good", sub: "Next check on Friday" },
   { title: "Watered", sub: "Next check on Friday" },
   { title: "Cancelled", tone: "bad" },
-  { title: "Plant care", sub: "Check the ferns before watering", emphasis: "quiet" },
-  { title: "Plant care", sub: "Check the ferns before watering", detail: "brief" },
-  { title: "Plant care", sub: "Check the ferns before watering" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", emphasis: "quiet" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", detail: "brief" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Hero");
@@ -123,7 +123,7 @@ export function Hero(input: Props<typeof props, typeof meta>) {
   const copy = (
     <>
       <KitText
-        role={number ? "number" : media === "cover" ? "title" : "display"}
+        role={number ? "number" : "title"}
         tone={tone === "neutral" ? (number ? "accent" : "text") : tone}
         {...{ density, emphasis, align }}
         part="title"
@@ -141,7 +141,7 @@ export function Hero(input: Props<typeof props, typeof meta>) {
     <KitCard style="cards" density={density} align={align} part="root">
       {hasPhoto && photo ? (
         <>
-          <KitPhoto photo={photo} shape="wide" part="photo" />
+          <KitPhoto photo={photo} shape="wide" part="photo" error={null} />
           <KitContent {...{ density, align }}>{copy}</KitContent>
         </>
       ) : (

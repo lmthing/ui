@@ -12,6 +12,13 @@ import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Scale;
 
+it.each([undefined, 0])("does not render or read a placeholder read-only score (%s)", (value) => {
+  const input = { value, readonly: true, style: "stars", label: "Park rating", meta: "No reviews" };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  expect(renderInstance("Scale", input, "filled", theme)).not.toContain("home/c1/");
+  expect(readComponent(components.Scale, input, "s1").join(" ")).not.toMatch(/0 of 5|Park rating|No reviews/);
+});
+
 describe("Scale schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),

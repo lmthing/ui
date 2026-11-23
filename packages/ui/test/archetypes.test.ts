@@ -9,7 +9,7 @@ const layouts =
   only ?? metas.flatMap((meta) => Object.keys(meta.layouts).map((layout) => `${meta.id}/${layout}`));
 
 describe.each(probeModels.filter((model) => model.required))("archetype composition on $id", (model) => {
-  expect(layouts).toHaveLength(only?.length ?? 35);
+  expect(layouts).toHaveLength(only?.length ?? 36);
   if (!layouts.length) {
     it.skip("has no selected layouts", () => {});
     return;

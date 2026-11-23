@@ -12,7 +12,16 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import {
+  KitCard,
+  KitEmpty,
+  KitPhoto,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+  useKit,
+  useWords,
+} from "../kit";
 import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
@@ -28,7 +37,7 @@ export const meta = {
   variants: { aspect: ["wide", "square", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
   parts: ["root", "photo", "caption"],
-  states: ["filled", "loading"],
+  states: ["filled", "loading", "error"],
 } as const satisfies Meta;
 
 export const props = z
@@ -38,7 +47,7 @@ export const props = z
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = cast.items[0];
-  const reference = photo.safeParse(thing && `lib:${thing.type}`);
+  const reference = photo.safeParse(item?.photo ?? (thing && `lib:${thing.type}`));
   return {
     photo: reference.success
       ? reference.data
@@ -74,6 +83,8 @@ export const probes = [
 
 export function Photo({ aspect, photo, caption }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const { resolvePhoto } = useKit();
+  const { words } = useWords();
   if (state === "loading") {
     return (
       <KitCard style="plain" part="root">
@@ -81,6 +92,10 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
       </KitCard>
     );
   }
+  if (state !== "error" && !resolvePhoto?.(photo)) return null;
+  const error = (
+    <KitEmpty title={words.photoUnavailable} icon="alert" tone="bad" announce="status" part={null} />
+  );
   const line = caption && (
     <KitText role="caption" tone="muted" part="caption">
       {caption}
@@ -88,7 +103,7 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
   );
   return (
     <KitCard style="plain" part="root" padded inset="md">
-      <KitPhoto photo={photo} aspect={aspect} part="photo" />
+      {state === "error" ? error : <KitPhoto photo={photo} aspect={aspect} part="photo" error={error} />}
       {line}
     </KitCard>
   );

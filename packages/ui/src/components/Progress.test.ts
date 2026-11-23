@@ -32,7 +32,6 @@ describe("Progress schema", () => {
   });
   it.each([
     {},
-    { bars: [] },
     { bars: Array.from({ length: 6 }, () => bar) },
     { bars: [{ ...bar, label: "" }] },
     { bars: [{ ...bar, label: "a".repeat(21) }] },
@@ -41,7 +40,9 @@ describe("Progress schema", () => {
     { bars: [{ ...bar, of: -5 }] },
     { bars: [{ ...bar, value: "3" }] },
     { bars: [{ ...bar, value: NaN }] },
-    { bars: [{ ...bar, unit: "a".repeat(9) }] },
+    { bars: [{ ...bar, unit: "a".repeat(17) }] },
+    { bars: [{ ...bar, due: "2026-02-30" }] },
+    { bars: [{ ...bar, unit: undefined, due: "2026-12-05" }] },
     { bars: [{ ...bar, over: "warn" }] },
     { bars: [{ ...bar, tone: "neutral" }] },
     { bars: [bar], density: "thin" },
@@ -49,7 +50,6 @@ describe("Progress schema", () => {
     { bars: [{ ...bar, goto: "Bad ID" }] },
     { bars: [{ ...bar, root: "x" }] },
     { bars: [{ ...bar, color: "red" }] },
-    { style: "ring", bars: [bar] },
     { bars: [bar], pixels: 4 },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts one to five bars at the exact limits, including a bar past its target", () => {
@@ -80,15 +80,14 @@ describe("Progress fallback and metadata", () => {
     ];
     for (const cast of casts) {
       expect(props.safeParse(fallback({ cast })).success).toBe(true);
-      for (const row of fallback({ cast }).bars) expect(row.value).toBe(0);
+      expect(fallback({ cast })).toEqual({ bars: [] });
     }
-    expect(fallback({ cast: casts[1]! }).bars[0]?.label).toBe("Fern");
   });
   it("declares item parts, states and press only on linked bars", () => {
     expect(meta).toMatchObject({ id: "Progress", group: "data", region: "body", weight: 2, tier: "phone" });
     expect(meta.items).toMatchObject({
       key: "bars",
-      parts: ["root", "label", "amount"],
+      parts: ["root", "label", "amount", "deadline"],
       variants: { tone: ["warn", "good", "bad"] },
     });
     expect(meta.states).toEqual(["filled", "empty", "loading"]);
@@ -152,7 +151,6 @@ describe("Progress ring", () => {
     for (const bars of [
       [goal, goal],
       [{ ...goal, goto: "details" }],
-      [{ ...goal, unit: "km" }],
       [{ ...goal, tone: "good" }],
       [{ ...goal, label: "A".repeat(25) }],
     ]) {
@@ -182,6 +180,30 @@ describe("Progress ring", () => {
     expect(renderInstance("Progress", input, "empty", theme)).not.toMatch(/role="link"/);
     expect(readComponent(components.Progress, input, "p1", "empty")).toEqual(["p1 Progress (empty)"]);
   });
+});
+
+it.each(["bars", "ring"])("renders and reads the supplied units, target, and deadline for %s", (style) => {
+  for (const [value, remaining] of [
+    [8, 4],
+    [12, 0],
+    [15, 0],
+    [11.5, 0.5],
+  ]) {
+    const input = {
+      style,
+      bars: [{ label: "Blocks sewn", value, of: 12, unit: "blocks", due: "2026-12-05" }],
+    };
+    const html = renderInstance("Progress", input, "filled", theme);
+    const reading = readComponent(components.Progress, input, "p1").join(" ");
+    expect(reading).toContain(`${value} of 12 blocks`);
+    for (const text of ["of 12 blocks", `Due 5 Dec 2026 · ${remaining} blocks remaining`]) {
+      expect(html).toContain(text);
+      expect(reading).toContain(text);
+    }
+  }
+  const empty = { style, bars: [] };
+  expect(renderInstance("Progress", empty, "filled", theme)).toContain("No progress recorded");
+  expect(readComponent(components.Progress, empty, "p1").join(" ")).not.toContain("0 of 1");
 });
 
 describe("Progress rendering", () => {

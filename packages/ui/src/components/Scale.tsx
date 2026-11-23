@@ -46,8 +46,13 @@ export const meta = {
     },
   },
   read: (input: unknown, _state, lang?: string): string[] => {
-    const { value, meta: note } = props.parse(input);
-    return [`${numberLine(value, lang)} ${goalLine(5, lang)}`, ...(note ? [JSON.stringify(note)] : [])];
+    const { value, readonly, label, meta: note } = props.parse(input);
+    if (readonly && value === 0) return [];
+    return [
+      `${numberLine(value, lang)} ${goalLine(5, lang)}`,
+      ...(note ? [JSON.stringify(note)] : []),
+      JSON.stringify(label),
+    ];
   },
 } as const satisfies Meta;
 
@@ -55,10 +60,10 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["mood", "stars", "dots"]).default("dots"),
-    label: text(32),
+    label: text(32).meta({ read: false }),
     value: z.number().min(0).max(5).multipleOf(0.5).default(0),
     readonly: z.boolean().default(false),
-    meta: text(24).optional(),
+    meta: text(24).optional().meta({ read: false }),
   })
   .refine(({ readonly, value }) => readonly || Number.isInteger(value), {
     path: ["value"],
@@ -123,6 +128,7 @@ export function Scale(input: Props<typeof props, typeof meta>) {
   const { style, label, value, readonly, emphasis, detail, meta: note } = input;
   const density = useKit().density;
   const { lang } = useWords();
+  if (readonly && value === 0) return null;
   const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,
     string,

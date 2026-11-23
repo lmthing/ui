@@ -5,6 +5,7 @@ import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
+import { photo } from "../props";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
 function fitArrays(def: Definition, input: Record<string, unknown>, seed?: DefaultLine["seed"]): void {
@@ -48,9 +49,12 @@ function inputOf(
     const rows = [...(input.rows as Record<string, unknown>[])];
     if (variant === "shelf") {
       while (rows.length < 2) rows.push({ title: placeholderTitle(rows.length) });
-      const photo = (defs.Photo!.fallback({ cast }) as { photo: string }).photo;
+      const fallback = (defs.Photo!.fallback({ cast: { ...cast, items: [] } }) as { photo: string }).photo;
       input.style = "shelf";
-      input.rows = rows.map((row) => ({ ...row, photo: row.photo ?? photo }));
+      input.rows = rows.map((row, index) => {
+        const supplied = photo.safeParse(row.photo ?? cast.items[index]?.photo);
+        return { ...row, photo: supplied.success ? supplied.data : fallback };
+      });
     } else
       input.rows = rows.map((row, index) => {
         const item = cast.items[index],

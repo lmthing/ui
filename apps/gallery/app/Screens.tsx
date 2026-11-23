@@ -10,12 +10,13 @@ import {
   type ComponentName,
   type Definition,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers, useKitStyle } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, PhoneScreen, renderers, useKitStyle } from "@lmthing/ui/kit";
 import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
-import { resolvePhoto } from "./photos";
+import { lookPhoto, mediaProgressFixtures, resolveMediaFixture } from "./media-progress";
+import type { ScreenLike, ThemeChoice } from "@lmthing/ui/catalog";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
 
 function screenCells(id: ComponentName): Cell[] {
@@ -67,7 +68,7 @@ function Screen({
       <KitProvider
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
-        resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never, id)}
+        resolvePhoto={(ref) => lookPhoto(ref, { preset, mode, accent: accents[0]!.id } as never, id)}
         interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
@@ -81,6 +82,31 @@ function Screen({
           </PartScope>
         </LookFrame>
       </KitProvider>
+    </YStack>
+  );
+}
+
+function MediaProgressScreen({
+  screen,
+  theme,
+  width,
+}: {
+  screen: ScreenLike;
+  theme: ThemeChoice;
+  width: number;
+}) {
+  return (
+    <YStack gap={space.xs}>
+      <Text fontSize={12} data-look-label>{`${theme.preset} · ${screen.id.replaceAll("_", " ")}`}</Text>
+      <YStack width={width} backgroundColor="$bg" data-look-frame={`${theme.preset}/${screen.id}`}>
+        <PhoneScreen
+          defs={components}
+          {...{ screen, theme, renderers }}
+          resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
+          interactive={false}
+          reduceMotion
+        />
+      </YStack>
     </YStack>
   );
 }
@@ -110,6 +136,13 @@ export function Screens({
           <YStack key={preset.id} gap={space.lg}>
             {cells.map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
+            ))}
+            {mediaProgressFixtures[id]?.map((screen) => (
+              <MediaProgressScreen
+                key={screen.id}
+                {...{ screen, width }}
+                theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
+              />
             ))}
           </YStack>
         ))}

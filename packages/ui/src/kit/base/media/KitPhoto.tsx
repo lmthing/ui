@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, type ReactNode } from "react";
 import { YStack, isWeb, styled } from "tamagui";
 import { component, radius, size, variants, type AxisValue, type ContentBleed } from "../../../catalog";
 import { useKitStyle } from "../../provider";
@@ -41,6 +41,8 @@ type PhotoProps = {
   decorative?: boolean;
   ring?: "none" | "accent" | "muted";
   loading?: boolean;
+  /** Replace the image frame on decode/load failure. Thumbnails keep their normal fallback. */
+  error?: ReactNode;
 };
 
 function PhotoInitials({
@@ -84,7 +86,7 @@ export function KitPhoto(props: PhotoProps) {
   const { label, initials, ring = "none", loading = false, decorative = false } = props;
   const inheritedBleed = useContext(EdgeMediaContext);
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
-  const { layer } = usePhotoLayer(loading ? undefined : photo);
+  const { layer, failed } = usePhotoLayer(loading ? undefined : photo);
   const ks = useKitStyle();
   const addressed = part !== null;
   const address = usePart(part ?? undefined, addressed);
@@ -99,6 +101,7 @@ export function KitPhoto(props: PhotoProps) {
     edge && shape !== "thumb"
       ? component.base.none
       : shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift);
+  if (failed && props.error !== undefined) return props.error;
   return (
     <Frame
       {...(addressed ? address : {})}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   KitCard,
+  KitContent,
   KitFigure,
   KitHeader,
   KitLayoutText,
@@ -9,21 +10,21 @@ import {
   KitRow,
   KitSkeleton,
   KitState,
+  KitText,
+  useComponentState,
   useKit,
   useWords,
 } from "../kit";
 import {
   probesFor,
+  appointmentDate,
   goalLine,
+  isoDate,
   itemVariantProps,
   localeOf,
   numberLine,
-  itemsOf,
-  placeholderTitle,
   screenId,
   text,
-  thingOf,
-  titleOf,
   variantProps,
   wordsFor,
   type FallbackInput,
@@ -49,11 +50,11 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
-    parts: ["root", "label", "amount"],
+    parts: ["root", "label", "amount", "deadline"],
     addressedWhen: { style: "bars" },
     variants: { tone: ["warn", "good", "bad"] },
   },
-  parts: ["root", "ring", "value", "label", "sub"],
+  parts: ["root", "ring", "value", "label", "sub", "deadline"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
   read: (input, state, lang): string[] => {
@@ -65,11 +66,12 @@ export const meta = {
       sub?: string;
       detail: "full" | "brief";
     };
-    if (style !== "ring") return bars.map((bar) => amountLine(bar, figures, lang));
+    if (!bars.length) return [wordsFor(lang).progressUnavailable];
+    if (style !== "ring") return bars.flatMap((bar) => goalReading(bar, figures, lang));
     const goal = bars[0];
     return goal
       ? [
-          amountLine(goal, "exact", lang),
+          ...goalReading(goal, "exact", lang),
           JSON.stringify(goal.label),
           ...(sub && detail !== "brief" ? [JSON.stringify(sub)] : []),
         ]
@@ -84,19 +86,22 @@ export const props = z
     // prettier-ignore
     bars: z.array(z.strictObject({
       label: text(24), value: z.number().min(0), of: z.number().positive(),
-      unit: text(8).optional(), ...itemVariantProps(meta.items.variants), goto: screenId.optional(),
-    })).min(1).max(5),
+      unit: text(16).optional(), due: isoDate.optional().meta({ read: false }),
+      ...itemVariantProps(meta.items.variants), goto: screenId.optional(),
+    })).min(0).max(5),
     sub: text(48).optional().meta({ read: false }),
   })
   .superRefine((input, ctx) => {
     const { style, bars, sub } = input;
     const issue = (path: (string | number)[], message: string) =>
       ctx.addIssue({ code: "custom", path, message });
+    for (const [index, { due, unit }] of bars.entries())
+      if (due && !unit) issue(["bars", index, "unit"], "A dated goal needs a unit");
     if (style === "ring") {
-      if (bars.length !== 1) issue(["bars"], "A ring needs exactly one goal");
+      if (bars.length > 1) issue(["bars"], "A ring can show only one goal");
       if (input.figures !== "exact") issue(["figures"], "Only bars can abbreviate figures");
-      if (bars.some(({ unit, tone, goto }) => unit || tone !== "warn" || goto))
-        issue(["bars", 0], "A ring goal has only label, value and of");
+      if (bars.some(({ tone, goto }) => tone !== "warn" || goto))
+        issue(["bars", 0], "Only bars support custom tone and goto");
     } else {
       if (sub !== undefined) issue(["sub"], "The caption belongs to a ring");
       for (const [index, { label }] of bars.entries())
@@ -108,7 +113,7 @@ export const props = z
     bars: value.style === "ring" ? value.bars : value.bars.map((bar) => ({ ...bar, root: bar.goto })),
   }));
 
-type Goal = { value: number; of: number; unit?: string | undefined };
+type Goal = { value: number; of: number; unit?: string | undefined; due?: string | undefined };
 function amountLine({ value, of, unit }: Goal, figures: "exact" | "short", lang?: string) {
   const compact =
     figures === "short" ? new Intl.NumberFormat(localeOf(lang), { notation: "compact" }) : undefined;
@@ -116,15 +121,20 @@ function amountLine({ value, of, unit }: Goal, figures: "exact" | "short", lang?
   return `${display(value)} ${wordsFor(lang).goal(display(of))}${unit ? ` ${unit}` : ""}`;
 }
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast);
-  const bars = itemsOf(cast, 3).flatMap((item) => {
-    const label = titleOf(item, 20, thing);
-    return label ? [{ label, value: 0, of: 1 }] : [];
-  });
-  return {
-    bars: bars.length ? bars : [0, 1].map((i) => ({ label: placeholderTitle(i, lang), value: 0, of: 1 })),
-  };
+function deadlineLine({ due, unit, value, of }: Goal, lang?: string) {
+  if (!due || !unit) return undefined;
+  const words = wordsFor(lang);
+  const remaining = numberLine(Math.max(0, of - value), lang);
+  return `${words.progressDue(appointmentDate(due, lang))} · ${words.progressRemaining(remaining, unit)}`;
+}
+
+function goalReading(goal: Goal, figures: "exact" | "short", lang?: string) {
+  const deadline = deadlineLine(goal, lang);
+  return [amountLine(goal, figures, lang), ...(deadline ? [deadline] : [])];
+}
+
+export function fallback(_input: FallbackInput): z.input<typeof props> {
+  return { bars: [] };
 }
 
 const walkMeters = [
@@ -156,6 +166,8 @@ export const examples = [
   ring,
   { ...ring, emphasis: "hero" },
   { ...ring, detail: "brief" },
+  { bars: [{ label: "Blocks sewn", value: 8, of: 12, unit: "blocks", due: "2026-12-05" }] },
+  { style: "ring", bars: [{ label: "Blocks sewn", value: 8, of: 12, unit: "blocks", due: "2026-12-05" }] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Progress");
@@ -188,6 +200,16 @@ export const probes = [
 
 type ViewProps = Props<typeof props, typeof meta>;
 
+function ProgressDeadline({ goal, align }: { goal: Goal; align: "start" | "center" }) {
+  const { lang } = useWords();
+  const line = deadlineLine(goal, lang);
+  return line ? (
+    <KitText role="caption" tone="muted" part="deadline" align={align}>
+      {line}
+    </KitText>
+  ) : null;
+}
+
 function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
   const density = useKit().density;
   const goal = bars[0]!;
@@ -219,13 +241,18 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
               density={density}
             />
             <KitLayoutText
-              line={{ text: goalLine(goal.of, lang), role: "caption", tone: "muted" }}
+              line={{
+                text: goal.unit ? `${goalLine(goal.of, lang)} ${goal.unit}` : goalLine(goal.of, lang),
+                role: "caption",
+                tone: "muted",
+              }}
               align="center"
               density={density}
             />
           </KitRing>
         }
       />
+      <ProgressDeadline goal={goal} align="center" />
     </KitState>
   );
 }
@@ -233,10 +260,19 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
   const density = useKit().density;
-  const { lang } = useWords();
+  const { lang, words } = useWords();
+  const state = useComponentState();
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {style === "ring" ? (
+      {!bars.length ? (
+        <KitState density={density}>
+          {state === "filled" && (
+            <KitText role="body" tone="muted" part={null}>
+              {words.progressUnavailable}
+            </KitText>
+          )}
+        </KitState>
+      ) : style === "ring" ? (
         <ProgressRing {...input} />
       ) : (
         <KitState
@@ -252,13 +288,16 @@ export function Progress(input: ViewProps) {
               inset="none"
               density={density}
             >
-              <KitMeter
-                label={bar.label}
-                amount={amountLine(bar, figures, lang)}
-                ratio={bar.value / bar.of}
-                tone={bar.value > bar.of ? bar.tone : "accent"}
-                slim={density === "compact"}
-              />
+              <KitContent>
+                <KitMeter
+                  label={bar.label}
+                  amount={amountLine(bar, figures, lang)}
+                  ratio={bar.value / bar.of}
+                  tone={bar.value > bar.of ? bar.tone : "accent"}
+                  slim={density === "compact"}
+                />
+                <ProgressDeadline goal={bar} align="start" />
+              </KitContent>
             </KitRow>
           ))}
         </KitState>

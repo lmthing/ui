@@ -24,7 +24,7 @@ export function usePhotoLayer(reference: string | undefined) {
     source && status !== "failed"
       ? { source, onLoad: () => settle("ready"), onError: () => settle("failed") }
       : undefined;
-  return { layer, ready: status === "ready" };
+  return { layer, ready: status === "ready", failed: status === "failed" };
 }
 
 /** A decorative host image on a known rectangle, never an addressed control. */
