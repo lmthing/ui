@@ -73,6 +73,9 @@ describe("core archetype defaults", () => {
         .components.filter((entry) => entry.c === "List" && entry.style === "shelf"),
     ).toHaveLength(2);
   });
+});
+
+describe("optional task actions", () => {
   it.each(layouts.filter(([id]) => ["home", "list", "detail", "success"].includes(id)))(
     "%s/%s permits a screen-owned action but does not fill one",
     (id, layout) => {
