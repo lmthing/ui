@@ -19,13 +19,13 @@ describe("kit styles and theme names", () => {
       radiusShift: 0,
       density: { rowPad: "md" },
       fonts: { text: "humanist" },
-      surface: "soft",
+      surface: "flat",
     });
     expect(kitStyleOf(bold)).toMatchObject({ radiusShift: -1, density: { rowPad: "sm" } });
     expect(kitStyleOf(editorial)).toMatchObject({
       radiusShift: -1,
       fonts: { text: "serif", heading: "serifHeading" },
-      surface: "hairline",
+      surface: "editorial",
     });
   });
   it("uses rounded type and full corners for Playful and Soft", () => {
@@ -48,6 +48,13 @@ describe("kit styles and theme names", () => {
 });
 
 describe("theme choices", () => {
+  it("gives every preset its own surface recipe without tying the recipe to the id", () => {
+    expect(new Set(presets.map((preset) => kitStyleOf(preset).surface)).size).toBe(12);
+    for (const preset of presets) {
+      expect(kitStyleOf({ ...preset, id: "renamed" })).toEqual(kitStyleOf(preset));
+    }
+  });
+
   it("names every preset, mode and accent combination uniquely", () => {
     expect(presets.map(({ id }) => id)).toEqual([
       "calm",

@@ -11,7 +11,7 @@ import {
   type SkeletonItem,
 } from "./skeleton-content";
 import { Bar, SkeletonBars, SkeletonTrend, SkeletonRing, SkeletonMedia } from "./skeleton-shapes";
-import { inputRadius } from "../input";
+import { actionGeometry } from "../input";
 
 const Line = styled(YStack, { justifyContent: "center" });
 
@@ -212,13 +212,12 @@ function SkeletonOptions({ items = [], question, look = "cards" }: ShapeProps) {
 
 function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) {
   const { loadingLabel } = useWords().words;
-  const ks = useKitStyle();
-  const corners = label || full ? inputRadius("text", ks.radiusShift) : radius.pill;
+  const { borderRadius: corners, minHeight } = actionGeometry(useKitStyle(), kind, !label && !full);
   return (
     <YStack
       accessibilityLabel={loadingLabel}
       aria-busy
-      minHeight={size.control.md}
+      minHeight={minHeight}
       minWidth={size.control.md}
       paddingHorizontal={label ? space.lg : space.xs}
       alignSelf={full ? "stretch" : "flex-start"}

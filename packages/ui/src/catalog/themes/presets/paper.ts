@@ -9,7 +9,7 @@ export const paper = {
   weight: "regular",
   shape: "sharp",
   density: "regular",
-  surface: "hairline",
+  surface: "ruled",
   roles: {
     light: {
       bg: "#f7f5e6",

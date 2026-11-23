@@ -8,7 +8,7 @@ async function pruneGroups(entry: string, folder: string, outputs: Outputs) {
   for (const group of await readdir(join(entry, folder), { withFileTypes: true })) {
     const path = `${folder}/${group.name}`;
     if (group.isDirectory() && /^group-\d+$/.test(group.name)) {
-      if (!Object.hasOwn(outputs, `${path}/index.ts`)) {
+      if (!Object.keys(outputs).some((name) => name.startsWith(`${path}/`))) {
         await rm(join(entry, path), { recursive: true, force: true });
         continue;
       }
@@ -63,6 +63,7 @@ export async function publishEntries(root: string, outputs: Outputs, doors: Outp
     // Callers finish generation before reading. Prune only paths the new doors no longer reference.
     await pruneGroups(entry, "packs", outputs);
     await pruneGroups(entry, "views", outputs);
+    await pruneGroups(entry, "pack-views", outputs);
   } finally {
     if (staging) await rm(staging, { recursive: true, force: true });
   }

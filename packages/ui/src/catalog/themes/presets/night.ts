@@ -8,7 +8,7 @@ export const night = {
   weight: "regular",
   shape: "soft",
   density: "regular",
-  surface: "solid",
+  surface: "raised",
   roles: {
     light: {
       bg: "#ebedf9",

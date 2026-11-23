@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useState } from "react";
 import { XStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
+  accentGlow,
   component,
   layoutType,
   motion,
@@ -10,6 +11,7 @@ import {
   type as typography,
   type ActionName,
   type IconName,
+  type KitStyle,
 } from "../../../catalog";
 import {
   useActionPress as useActionDispatch,
@@ -231,6 +233,31 @@ function ActionContent({
   );
 }
 
+/** Shared frame geometry for the real action and its neutral loading placeholder. */
+export function actionGeometry({ frame, radiusShift }: KitStyle, kind: ActionKind, standaloneIcon: boolean) {
+  return {
+    borderRadius: frame.action === "pill" || standaloneIcon ? radius.pill : shifted("md", radiusShift),
+    minHeight:
+      kind === "primary" && frame.action === "block" && !standaloneIcon
+        ? size.control.lg + space.xs
+        : size.control.md,
+  };
+}
+
+function useActionFinish(kind: ActionKind, standaloneIcon: boolean, active: boolean) {
+  const style = useKitStyle();
+  return {
+    ...actionGeometry(style, kind, standaloneIcon),
+    ...(kind === "primary" && style.frame.action === "glow" && active
+      ? {
+          ...accentGlow,
+          shadowColor: "$accent",
+          shadowOffset: { width: component.base.none, height: component.base.none },
+        }
+      : {}),
+  } as const;
+}
+
 export function KitAction(props: ActionProps) {
   const {
     label,
@@ -243,8 +270,8 @@ export function KitAction(props: ActionProps) {
     copiedLabel,
     holdToPause,
   } = props;
-  const ks = useKitStyle();
   const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
+  const finish = useActionFinish(kind, !label && !full, !inactive && !copied);
   const bare = kind === "quiet" || (kind === "danger" && !label);
   const neutral = props.tone === "neutral" || (props.tone === undefined && (!label || icon === "close"));
   const tone = kind === "quiet" && neutral ? "muted" : toneOf[kind];
@@ -260,10 +287,10 @@ export function KitAction(props: ActionProps) {
         borderColor={kind === "secondary" && inactive ? "$line" : undefined}
         borderWidth={bare ? component.base.none : undefined}
         backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        {...finish}
         loading={loading}
         iconOnly={!label}
         {...(isWeb && copy && !loading ? webCopyButton : {})}
-        borderRadius={label || full ? shifted("md", ks.radiusShift) : radius.pill}
         alignSelf={full ? "stretch" : "flex-start"}
         accessibilityRole={loading ? undefined : "button"}
         aria-busy={loading || undefined}

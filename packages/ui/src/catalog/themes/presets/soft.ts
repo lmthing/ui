@@ -8,7 +8,7 @@ export const soft = {
   weight: "regular",
   shape: "round",
   density: "airy",
-  surface: "soft",
+  surface: "pastel",
   roles: {
     light: {
       bg: "#f4eef9",

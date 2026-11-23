@@ -59,7 +59,8 @@ export type HostActionPolicy = {
   allowsCommand?: (intent: HostIntent) => boolean;
   operation?: (subject: Subject) => HostOperation | undefined;
 };
-export const hostActionPolicy = Symbol("hostActionPolicy");
+// A screen can cross from the data entry into a separately bundled kit.
+export const hostActionPolicy = Symbol.for("@lmthing/ui/hostActionPolicy");
 
 /** External handoff is not screen navigation. No credentials, relative URLs or executable schemes. */
 export function externalUri(value: unknown): string | undefined {
