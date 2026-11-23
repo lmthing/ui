@@ -63,6 +63,9 @@ describe("KitWheel", () => {
     expect(placeholders).not.toContain("Nothing here yet");
     expect(placeholders).not.toContain("NaN");
   });
+});
+
+describe("KitWheel positioning", () => {
   it("aligns every settled selection with the pointer despite stale caller rotation", () => {
     for (const option of options)
       for (const rotation of [0, 0.25, 19.7]) {
@@ -80,5 +83,22 @@ describe("KitWheel", () => {
     expect(busy).not.toContain('aria-current="true"');
     const empty = render({ options: [], rotation: 0 });
     expect(empty).not.toContain('width="232"');
+  });
+  it("centres the idle wheel on a sector without marking an outcome or snapping a busy turn", () => {
+    const html = render({ options, rotation: 0 });
+    const wheel = elementAt(html, "home/c1/root").children[0]!;
+    const third = wheel.children.find((node) =>
+      node.children[0]?.attributes.includes('data-testid="home/c1/r4/root"'),
+    )!;
+    const left = Number(styleAt(html, third).match(/left:([-\d.]+)px/)?.[1]);
+    expect(left + size.avatar.lg / 2).toBeCloseTo((component.base.ringLg + size.avatar.lg) / 2);
+    expect(html).not.toContain('aria-current="true"');
+    expect(render({ options, rotation: 0, busy: true })).not.toContain(styleAt(html, third));
+  });
+  it("softens both clipped strip edges without adding targets", () => {
+    const html = render({ options, rotation: 0, style: "strip" });
+    expect(html).toContain("linear-gradient(to left, transparent, var(--surface))");
+    expect(html).toContain("linear-gradient(to right, transparent, var(--surface))");
+    expect(html).not.toContain('role="button"');
   });
 });

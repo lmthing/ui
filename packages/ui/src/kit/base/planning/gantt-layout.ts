@@ -19,6 +19,29 @@ export function range(start: number, end: number, width: number) {
   return { left: clamp(Math.min(a, b), width - span), width: span };
 }
 
+export function timelineEdges(width: number, viewport: number, scrollX: number) {
+  const limit = Math.max(0, width - viewport);
+  const start = clamp(scrollX, limit);
+  const end = start + viewport;
+  return {
+    start,
+    end,
+    left: viewport > 0 && start > component.base.borderWidth,
+    right: viewport > 0 && width - end > component.base.borderWidth,
+  };
+}
+
+export function rangeContinuation(
+  row: { left: number; width: number },
+  edges: ReturnType<typeof timelineEdges>,
+) {
+  const end = row.left + row.width;
+  return {
+    left: edges.left && row.left < edges.start && edges.start < end,
+    right: edges.right && row.left < edges.end && edges.end < end,
+  };
+}
+
 export function hitBox(center: number, width: number, span = 0) {
   const hit = Math.max(size.control.md, span);
   return { left: clamp(center - hit / 2, width - hit), width: hit };

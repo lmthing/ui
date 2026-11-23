@@ -7,6 +7,8 @@ import {
   minimumColumn,
   milestone,
   range,
+  rangeContinuation,
+  timelineEdges,
   timelineWidth,
 } from "./gantt-layout";
 
@@ -16,6 +18,22 @@ it("fills the window with whole columns at both scroll limits", () => {
   expect(timelineWidth(5, width / 2 + space.md)).toBe((width / 2 + space.md) * 2.5);
   expect(timelineWidth(3, width)).toBe(width);
   expect(timelineWidth(5, 0)).toBe(minimumColumn * 5);
+});
+
+it("indicates only directions with more dates, and only bars intersecting a viewport edge", () => {
+  const viewport = width / 2;
+  const bar = range(0.1, 0.9, width);
+  const start = timelineEdges(width, viewport, 0);
+  expect(start).toMatchObject({ left: false, right: true });
+  expect(rangeContinuation(bar, start)).toEqual({ left: false, right: true });
+  expect(rangeContinuation(range(0.6, 0.9, width), start)).toEqual({ left: false, right: false });
+  expect(rangeContinuation(range(0, 0.5, width), start)).toEqual({ left: false, right: false });
+  const middle = timelineEdges(width, viewport, width / 4);
+  expect(rangeContinuation(bar, middle)).toEqual({ left: true, right: true });
+  const end = timelineEdges(width, viewport, width);
+  expect(end).toMatchObject({ left: true, right: false, end: width });
+  expect(rangeContinuation(bar, end)).toEqual({ left: true, right: false });
+  expect(timelineEdges(width, width, width)).toMatchObject({ left: false, right: false });
 });
 
 it("preserves normalized endpoints, clips out-of-range data and keeps zero-length bars visible", () => {

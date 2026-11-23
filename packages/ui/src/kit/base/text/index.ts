@@ -4,6 +4,7 @@ export { useTextStep, type TextFinish, type TextRole } from "./text-step";
 export { KitIcon, type IconTone } from "./KitIcon";
 export {
   CardStyleContext,
+  EdgeMediaContext,
   outlined,
   shifted,
   surfaceOf,

@@ -109,7 +109,7 @@ function Ring({ nodes, at, loading, reverse, namePart = false }: LayoutProps) {
   });
   const height =
     Math.max(centre + r + component.base.strongBorder, ...positions.map(({ top }) => top + nodeHeight)) +
-    space.lg;
+    space.sm;
   const Direction = reverse ? RotateCcw : RotateCw;
   const iconStart = centre - size.icon.lg / 2;
   const ringLayout = { "data-look-twoedge": true };

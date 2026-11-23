@@ -28,6 +28,7 @@ export const outlined = {
   borderWidth: component.base[variants.surface.outlined.border],
 } as const;
 export const CardStyleContext = createContext<CardStyle | undefined>(undefined);
+export const EdgeMediaContext = createContext(false);
 export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiusShift"]) {
   const steps = ["sm", "md", "lg", "xl"] as const;
   const index = Math.max(0, Math.min(steps.length - 1, steps.indexOf(token) + shift));
