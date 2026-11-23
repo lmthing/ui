@@ -57,7 +57,7 @@ export const meta = {
   realPath: "Reviews left by clients in a shared app.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bars", "response"] } },
-  items: { key: "reviews", parts: [
+  items: { key: "reviews", readRoot: true, parts: [
     "root", "stars", "name", "date", "text", "response", "reply", "reply_label",
     "verified", "fit", "spoiler_label", "photo_1", "photo_2", "photo_3",
   ] },
