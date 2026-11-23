@@ -13,7 +13,14 @@ import {
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
-import { CardStyleContext, shifted, variantSurfaceOf, type CardStyle, type SurfaceTone } from "../text";
+import {
+  CardStyleContext,
+  EdgeMediaContext,
+  shifted,
+  variantSurfaceOf,
+  type CardStyle,
+  type SurfaceTone,
+} from "../text";
 
 const Frame = styled(YStack, {
   variants: {
@@ -112,7 +119,7 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
   return {
     ...variantSurfaceOf(finish ?? "card", ks.surface, tone ?? "neutral"),
     borderRadius: shifted(ks.frame.corner, ks.radiusShift),
-    padding: padded && !flush ? space.md : style === "inset" ? space.xs : component.base.none,
+    padding: padded && !flush ? space.md : style === "inset" && !gutter ? space.xs : component.base.none,
     ...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {}),
     gap:
       style === "cards"
@@ -165,8 +172,10 @@ export function KitCard(props: CardProps) {
             />
           )}
           <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
-            <CardEdgeContext.Provider value={style === "inset" && !props.padded}>
-              <CardChildren loading={loading}>{children}</CardChildren>
+            <CardEdgeContext.Provider value={style === "inset" && finish.padding === space.xs}>
+              <EdgeMediaContext.Provider value={props.bleed === "edge" && !props.padded}>
+                <CardChildren loading={loading}>{children}</CardChildren>
+              </EdgeMediaContext.Provider>
             </CardEdgeContext.Provider>
           </CardGutterContext.Provider>
         </Frame>

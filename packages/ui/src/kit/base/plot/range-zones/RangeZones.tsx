@@ -23,7 +23,7 @@ export function placeZones(zones: readonly RangeZone[] | undefined, ratio: (n: n
 export function ZoneTrack({ zones, loading }: { zones: PlacedZone[]; loading: boolean }) {
   return (
     <YStack height={component.base.meter} borderRadius={radius.pill} overflow="hidden">
-      {zones.map(({ left, width, tone }, i) => (
+      {zones.map(({ left, width, tone, from }, i) => (
         <YStack
           key={i}
           position="absolute"
@@ -31,7 +31,7 @@ export function ZoneTrack({ zones, loading }: { zones: PlacedZone[]; loading: bo
           width={`${width * 100}%`}
           height={component.base.meter}
           backgroundColor={loading ? "$line" : `$${tone}`}
-          {...(i > 0 && !loading
+          {...(!loading && zones[i - 1]?.tone === tone && zones[i - 1]?.to === from
             ? { borderLeftWidth: component.base.borderWidth, borderLeftColor: "$bg", borderStyle: "solid" }
             : {})}
         />
@@ -40,33 +40,45 @@ export function ZoneTrack({ zones, loading }: { zones: PlacedZone[]; loading: bo
   );
 }
 
-export function ZoneLegend({ zones, loading }: { zones: PlacedZone[]; loading: boolean }) {
+function LegendEntry({ zone: { label, from, to, tone }, loading }: { zone: PlacedZone; loading: boolean }) {
   const { lang } = useWords();
   return (
-    zones.length > 0 && (
-      <XStack flexWrap="wrap" gap={space.sm} aria-hidden={loading} accessibilityElementsHidden={loading}>
-        {zones.map(({ label, from, to, tone }, i) => (
-          <XStack key={i} gap={space.xs} alignItems="center" maxWidth="100%">
-            <YStack
-              width={space.xs}
-              height={space.xs}
-              flexShrink={component.base.none}
-              borderRadius={radius.pill}
-              backgroundColor={loading ? "$line" : `$${tone}`}
-              aria-hidden
-              accessibilityElementsHidden
-            />
-            <YStack flexShrink={1} minWidth={component.base.none}>
-              <PlotLabel
-                label={`${label} (${numberLine(from, lang)}–${numberLine(to, lang)})`}
-                role="caption"
-                tone="text"
-                loading={loading}
-              />
-            </YStack>
-          </XStack>
-        ))}
-      </XStack>
-    )
+    <XStack flex={1} minWidth={component.base.none} gap={space.xs} alignItems="center">
+      <YStack
+        width={space.xs}
+        height={space.xs}
+        flexShrink={component.base.none}
+        borderRadius={radius.pill}
+        backgroundColor={loading ? "$line" : `$${tone}`}
+        aria-hidden
+        accessibilityElementsHidden
+      />
+      <YStack flexShrink={1} minWidth={component.base.none}>
+        <PlotLabel
+          label={`${label} (${numberLine(from, lang)}–${numberLine(to, lang)})`}
+          role="caption"
+          tone="text"
+          loading={loading}
+        />
+      </YStack>
+    </XStack>
+  );
+}
+
+export function ZoneLegend({ zones, loading }: { zones: PlacedZone[]; loading: boolean }) {
+  if (!zones.length) return null;
+  return (
+    <YStack gap={space.sm} aria-hidden={loading} accessibilityElementsHidden={loading}>
+      {Array.from({ length: Math.ceil(zones.length / 2) }, (_, i) => (
+        <XStack key={i} gap={space.sm}>
+          <LegendEntry zone={zones[i * 2]!} loading={loading} />
+          {zones[i * 2 + 1] ? (
+            <LegendEntry zone={zones[i * 2 + 1]!} loading={loading} />
+          ) : zones.length > 1 ? (
+            <YStack flex={1} />
+          ) : null}
+        </XStack>
+      ))}
+    </YStack>
   );
 }

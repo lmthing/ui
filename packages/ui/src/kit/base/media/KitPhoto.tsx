@@ -1,8 +1,10 @@
-import { Image, YStack, styled } from "tamagui";
-import { component, radius, size, variants, type AxisValue } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
+import { useContext } from "react";
+import { YStack, styled } from "tamagui";
+import { component, radius, size, variants, type AxisValue, type ContentBleed } from "../../../catalog";
+import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
-import { KitText, shifted } from "../text";
+import { EdgeMediaContext, KitText, shifted } from "../text";
+import { PhotoLayer, usePhotoLayer } from "./photo-layer";
 
 const Frame = styled(YStack, {
   overflow: "hidden",
@@ -30,12 +32,37 @@ type PhotoProps = {
   shape?: "thumb" | "round" | "wide" | "square" | "tall" | "avatar";
   /** `auto` keeps the caller's usual shape; explicit ratios stay in place even without a photo. */
   aspect?: AxisValue<"aspect">;
+  /** Edge media lets its enclosing frame own the outer corners. */
+  bleed?: ContentBleed;
   part?: string | null;
   label?: string;
   initials?: string | undefined;
   ring?: "none" | "accent" | "muted";
   loading?: boolean;
 };
+
+function PhotoInitials({
+  value,
+  avatar,
+  decorative,
+}: {
+  value: string;
+  avatar: boolean;
+  decorative: boolean;
+}) {
+  const text = (
+    <KitText role={avatar ? "heading" : "label"} tone="text" align="center" part={null} lines={1}>
+      {value}
+    </KitText>
+  );
+  return decorative ? (
+    <YStack aria-hidden accessibilityElementsHidden>
+      {text}
+    </YStack>
+  ) : (
+    text
+  );
+}
 
 /**
  * A photo by reference (`lib:<tag>` or `local:<n>`), resolved by the host. `thumb` and `round` sit
@@ -44,19 +71,29 @@ type PhotoProps = {
 export function KitPhoto(props: PhotoProps) {
   const { photo, shape: fallbackShape = "thumb", aspect = "auto", part = "icon" } = props;
   const { label, initials, ring = "none", loading = false } = props;
-  const kit = useKit();
-  const source = photo && !loading ? kit.resolvePhoto?.(photo) : undefined;
+  const inheritedBleed = useContext(EdgeMediaContext);
+  const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
+  const { layer } = usePhotoLayer(loading ? undefined : photo);
   const ks = useKitStyle();
   const addressed = part !== null;
   const address = usePart(part ?? undefined, addressed);
-  const shape = aspect !== "auto" ? aspect : !photo && fallbackShape !== "avatar" ? "round" : fallbackShape;
+  const shape =
+    aspect !== "auto"
+      ? aspect
+      : !photo && !edge && !loading && fallbackShape !== "avatar"
+        ? "round"
+        : fallbackShape;
   const circle = shape === "round" || shape === "avatar";
+  const corners =
+    edge && shape !== "thumb"
+      ? component.base.none
+      : shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift);
   return (
     <Frame
       {...(addressed ? address : {})}
       shape={shape}
-      {...(loading ? { backgroundColor: "$line" } : !photo || !source ? { backgroundColor: "$raised" } : {})}
-      {...(circle ? {} : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
+      {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
+      {...(circle ? {} : { borderRadius: corners })}
       aria-hidden={loading || undefined}
       accessibilityRole={loading ? undefined : "image"}
       accessibilityLabel={
@@ -68,32 +105,13 @@ export function KitPhoto(props: PhotoProps) {
             borderColor: loading ? "$line" : ring === "accent" ? "$accent" : "$muted",
           }
         : {})}
-      {...(!photo ? { alignItems: "center", justifyContent: "center" } : {})}
+      alignItems="center"
+      justifyContent="center"
     >
-      {!loading && !photo && initials && (
-        <KitText
-          role={shape === "avatar" ? "heading" : "label"}
-          tone="text"
-          align="center"
-          part={null}
-          lines={1}
-        >
-          {initials}
-        </KitText>
+      {!loading && !layer && initials && (!photo || circle) && (
+        <PhotoInitials value={initials} avatar={shape === "avatar"} decorative={Boolean(photo)} />
       )}
-      {source && (
-        <Image
-          source={{ uri: source }}
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          width="100%"
-          height="100%"
-          objectFit="cover"
-        />
-      )}
+      {layer && <PhotoLayer {...layer} />}
     </Frame>
   );
 }

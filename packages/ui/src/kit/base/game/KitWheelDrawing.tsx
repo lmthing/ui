@@ -90,7 +90,8 @@ function Sector({
               ? theme.raised?.val
               : theme.surface?.val
       }
-      stroke={loading ? theme.line?.val : at === option.id ? theme.accent?.val : theme.muted?.val}
+      stroke={!loading && at === option.id ? theme.accent?.val : theme.muted?.val}
+      strokeOpacity={loading ? component.base.disabledOpacity : 1}
       strokeWidth={component.base.borderWidth}
     />
   );
@@ -117,7 +118,8 @@ export function WheelDrawing(props: WheelDrawingProps) {
                   ? theme.accentSoft?.val
                   : theme.surface?.val
             }
-            stroke={loading ? theme.line?.val : theme.muted?.val}
+            stroke={theme.muted?.val}
+            strokeOpacity={loading ? component.base.disabledOpacity : 1}
             strokeWidth={component.base.strongBorder}
           />
           {options.length > 1 &&
@@ -144,7 +146,7 @@ export function WheelDrawing(props: WheelDrawingProps) {
         );
       })}
       <YStack position="absolute" top={component.base.none} alignSelf="center" aria-hidden>
-        <ChevronDown size={size.icon.lg} color="$text" />
+        <ChevronDown size={size.icon.lg} color={loading ? "$muted" : "$text"} />
       </YStack>
     </YStack>
   );

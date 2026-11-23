@@ -78,6 +78,7 @@ function LaneHit(props: { entry: Range | Gate; loading: boolean; width: number; 
             outlineColor: "$accent",
             outlineStyle: "solid",
             outlineWidth: component.base.strongBorder,
+            outlineOffset: -component.base.strongBorder,
           }}
         />
       )}

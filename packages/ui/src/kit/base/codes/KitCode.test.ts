@@ -58,6 +58,7 @@ it("uses the same footprint for empty, used and loading, with no QR matrix", () 
   const filledFrame = styleAt(render(input), "home/c1/root");
   const edge = component.base.ringLg + space.md * 2;
   expect(filledFrame).toContain(`height:${edge}px`);
+  expect(filledFrame).not.toMatch(/background-color|shadow/);
   for (const props of [
     { ...input, value: "" },
     { ...input, used: true },

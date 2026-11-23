@@ -68,10 +68,12 @@ function RangeDrawing({ min, max, low, high, value, tone, loading = false, zones
               position="absolute"
               left={`${ratio(value) * 100}%`}
               top={-space.xs}
-              marginLeft={-component.base.strongBorder}
+              marginLeft={-space.xs}
               height={space.lg}
-              width={component.base.strongBorder * 2}
+              width={space.xs * 2}
               borderRadius={radius.pill}
+              borderWidth={component.base.strongBorder}
+              borderColor={loading ? "$line" : "$surface"}
               backgroundColor={loading ? "$line" : tone === "warn" ? "$warn" : "$text"}
             />
           )}
