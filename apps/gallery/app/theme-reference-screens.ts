@@ -48,7 +48,7 @@ export const themeReferenceScreens = [
   {
     id: "form",
     components: [
-      { id: "header", c: "Header", title: "Schedule a walk", sub: "Choose a time and place" },
+      { id: "header", c: "Header", title: "Book a walk", sub: "Choose a time and place" },
       { id: "dog", c: "Field", label: "Dog name", value: "Clover" },
       { id: "route", c: "Field", label: "Route", value: "Riverside" },
       { id: "time", c: "Field", label: "Start time", kind: "time", value: "08:30" },

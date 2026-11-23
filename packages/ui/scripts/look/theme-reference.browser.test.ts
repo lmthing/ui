@@ -1,29 +1,17 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
-import { build, preview, type PreviewServer } from "vite";
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
-import { fileURLToPath, URL } from "node:url";
-import { bundleChecks, galleryConfig, launchChrome } from ".";
-import { openThemeReference } from "./theme-reference";
+import { URL } from "node:url";
+import { bundleChecks, launchChrome } from ".";
+import { openThemeReference, startThemeReferenceGallery } from "./theme-reference";
 
-let server: PreviewServer;
+let gallery: Awaited<ReturnType<typeof startThemeReferenceGallery>>;
 let browser: Browser;
 let page: Page;
-let outDir: string | undefined;
 const errors: string[] = [];
-const base = () => server.resolvedUrls!.local[0]!;
+const base = () => gallery.base;
 
 beforeAll(async () => {
-  const shots = new URL("../../shots/", import.meta.url);
-  await mkdir(shots, { recursive: true });
-  outDir = await mkdtemp(fileURLToPath(new URL("theme-reference-", shots)));
-  const options = {
-    ...galleryConfig(0),
-    build: { outDir },
-    preview: { host: "127.0.0.1", port: 0 },
-  };
-  await build(options);
-  server = await preview(options);
+  gallery = await startThemeReferenceGallery();
   browser = await launchChrome();
   page = await browser.newPage({ viewport: { width: 1776, height: 960 } });
   page.on("pageerror", (error) => errors.push(error.message));
@@ -33,11 +21,7 @@ afterAll(async () => {
   try {
     await browser?.close();
   } finally {
-    try {
-      await server?.close();
-    } finally {
-      if (outDir) await rm(outDir, { recursive: true, force: true });
-    }
+    await gallery?.close();
   }
 });
 
@@ -116,4 +100,33 @@ it("checks alignment independently for the dashboard's stats and chart", async (
   await openThemeReference(page, base(), "light", "dashboard");
   await page.addScriptTag({ content: await bundleChecks() });
   expect(await page.evaluate(() => window.lookChecks.find())).toEqual([]);
+});
+
+it("keeps seven 40px calendar targets separate when Editorial narrows to 320px", async () => {
+  const calendar = await browser.newPage({ viewport: { width: 390, height: 700 } });
+  try {
+    await calendar.goto(new URL("?controls=calendar&preset=editorial", base()).href);
+    await calendar.addStyleTag({ content: "body { margin: 0 }" });
+    const root = calendar.getByTestId("controls/c1/root");
+    const days = root.locator('[data-testid^="controls/c1/r"][data-testid$="/root"]');
+    await days.first().waitFor();
+    const gutter = async () => (await root.boundingBox())?.x;
+    await expect.poll(gutter).toBe(32);
+    await calendar.setViewportSize({ width: 320, height: 700 });
+    await expect.poll(gutter).toBe(20);
+    const boxes = await days.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const { x, y, right, width } = node.getBoundingClientRect();
+        return { x, y, right, width };
+      }),
+    );
+    expect(boxes).toHaveLength(30);
+    for (const [index, box] of boxes.entries()) {
+      expect(box.width).toBeGreaterThanOrEqual(40);
+      const previous = boxes[index - 1];
+      if (previous?.y === box.y) expect(box.x).toBeGreaterThanOrEqual(previous.right);
+    }
+  } finally {
+    await calendar.close();
+  }
 });

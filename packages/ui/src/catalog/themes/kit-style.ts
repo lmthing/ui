@@ -16,7 +16,6 @@ export type KitStyle = {
     corner: "md" | "lg";
     displayTitle: boolean;
     rowRule: boolean;
-    neutralTint: boolean;
   };
 };
 const shifts = { sharp: -1, soft: 0, round: 1 } as const;
@@ -27,16 +26,15 @@ const frame: KitStyle["frame"] = {
   corner: "md",
   displayTitle: false,
   rowRule: false,
-  neutralTint: false,
 };
 const treatments: Partial<Record<KitStyle["surface"], Partial<KitStyle["frame"]>>> = {
-  hairline: { field: "outlined", neutralTint: true },
+  hairline: { field: "outlined" },
   accentBlock: { action: "block", displayTitle: true },
   tinted: { action: "pill", corner: "lg" },
   editorial: { gutter: "2xl", field: "ruled", displayTitle: true },
   ruled: { field: "ruled", rowRule: true },
   raised: { action: "glow" },
-  monochrome: { field: "ink", neutralTint: true },
+  monochrome: { field: "ink" },
 };
 
 export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comfortable"): KitStyle {

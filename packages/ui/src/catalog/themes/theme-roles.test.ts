@@ -68,14 +68,22 @@ describe("themeRoles control labels", () => {
       for (const accent of accents) {
         for (const mode of ["light", "dark"] as const) {
           const roles = themeRoles(preset, accent, mode);
-          expect(roles.accentSoft).toBe(preset.roles[mode].bg);
-          expect(roles.accentSoft).not.toBe(roles.raised);
+          expect(roles.accentSoft).toBe(preset.roles[mode].accentSoft);
+          expect(contrast(roles.accentSoft, roles.surface)).toBeGreaterThanOrEqual(
+            mode === "dark" ? 1.6 : 1.3,
+          );
+          expect(contrast(roles.accentSoft, roles.raised)).toBeGreaterThanOrEqual(1.07);
           expect(roles.accent).toBe(accent[mode].accent);
           expect(roles.badSoft).not.toBe(roles.raised);
         }
       }
     },
   );
+
+  it("keeps Calm dark's raised control fill separate from the card", () => {
+    const roles = themeRoles(presets[0], accents[0], "dark");
+    expect(contrast(roles.raised, roles.surface)).toBeGreaterThanOrEqual(1.15);
+  });
 
   it.each(["fresh", "playful", "soft"] as const)("separates dark Moss controls from %s cards", (id) => {
     const preset = presets.find((preset) => preset.id === id)!;

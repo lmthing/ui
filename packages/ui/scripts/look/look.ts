@@ -2,8 +2,7 @@ import { lookArgs, runLook } from "./component";
 import { runThemeReference } from "./theme-reference";
 
 if (process.argv.includes("--theme-reference")) {
-  await runThemeReference();
-  process.exit(0);
+  process.exit((await runThemeReference()).length ? 1 : 0);
 }
 const issues = await runLook(lookArgs(process.argv.slice(2)));
 const unique = new Map(issues.map((i) => [`${i.kind}|${i.part}|${i.detail}`, i]));

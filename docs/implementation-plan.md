@@ -385,10 +385,11 @@ tints must retain their existing contrast.
 light/dark base roles. The surface treatment selects a shared card recipe and may set the screen gutter, field
 chrome, action shape or shadow, and row rules. `strong` increases weight; the display-title treatment enlarges
 normal titles outside cards without competing with the figures and headings inside. Accents supply `accent`,
-`accentSoft` and `onAccent`. The no-tint treatments use a neutral canvas fill
+`accentSoft` and `onAccent`. The no-tint treatments use a distinct neutral state fill
 instead of a decorative accent tint, while retaining semantic status colours and the chosen solid accent.
 Raw colours belong only in tokens and themes. Night works in either explicit mode, with raised surfaces and an
 accent glow on enabled primary actions.
+Wider screen gutters fall back to the default inset when the available width cannot hold seven calendar targets.
 
 `KitStyle` is everything a preset changes that is not a colour, derived from the preset by a pure function and handed to `KitProvider`:
 
@@ -407,7 +408,6 @@ export type KitStyle = {
     corner: "md" | "lg";
     displayTitle: boolean;
     rowRule: boolean;
-    neutralTint: boolean;
   };
 };
 export function kitStyleOf(preset: PresetMeta): KitStyle;

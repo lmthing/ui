@@ -1,11 +1,37 @@
 import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import { fileURLToPath, URL, URLSearchParams } from "node:url";
 import type { Page } from "playwright-core";
-import { createServer } from "vite";
+import { build, preview } from "vite";
 import { bundleChecks, galleryConfig, launchChrome } from ".";
 import type { LookIssue } from "./checks";
 
 const shots = new URL("../../shots/FullThemes/", import.meta.url);
+
+export async function startThemeReferenceGallery() {
+  const folder = new URL("../", shots);
+  await mkdir(folder, { recursive: true });
+  const outDir = await mkdtemp(fileURLToPath(new URL("theme-reference-", folder)));
+  const options = { ...galleryConfig(0), build: { outDir }, preview: { host: "127.0.0.1", port: 0 } };
+  const cleanup = () => rm(outDir, { recursive: true, force: true });
+  try {
+    await build(options);
+    const server = await preview(options);
+    return {
+      base: server.resolvedUrls!.local[0]!,
+      close: async () => {
+        try {
+          await server.close();
+        } finally {
+          await cleanup();
+        }
+      },
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
+}
 
 export async function openThemeReference(page: Page, base: string, mode: string, screen = "") {
   const url = new URL(base);
@@ -40,21 +66,21 @@ async function captureThemes(page: Page, base: string) {
   }
   writeFileSync(new URL("issues.json", shots), `${JSON.stringify(issues, null, 2)}\n`);
   console.log(`${issues.length} automated look issues.`);
+  return issues;
 }
 
 export async function runThemeReference() {
   mkdirSync(shots, { recursive: true });
-  const server = await createServer(galleryConfig(0));
+  const gallery = await startThemeReferenceGallery();
   try {
-    await server.listen();
     const browser = await launchChrome();
     try {
       const page = await browser.newPage({ viewport: { width: 1776, height: 960 } });
-      await captureThemes(page, server.resolvedUrls!.local[0]!);
+      return await captureThemes(page, gallery.base);
     } finally {
       await browser.close();
     }
   } finally {
-    await server.close();
+    await gallery.close();
   }
 }

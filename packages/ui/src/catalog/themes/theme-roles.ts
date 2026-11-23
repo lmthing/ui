@@ -1,5 +1,4 @@
 import type { AccentMeta, PresetMeta } from "../meta";
-import { kitStyleOf } from "./kit-style";
 
 const toneShare = { light: 0.12, dark: 0.4 } as const;
 const channel = (hex: string, at: number) => parseInt(hex.slice(at, at + 2), 16);
@@ -46,7 +45,7 @@ export function themeRoles(preset: PresetMeta, accent: AccentMeta, mode: "light"
   return {
     ...base,
     ...colors,
-    accentSoft: kitStyleOf(preset).frame.neutralTint ? base.bg : colors.accentSoft,
+    accentSoft: base.accentSoft ?? colors.accentSoft,
     onAccent: onAccentOf(colors.accent, colors.onAccent, base.text),
     goodSoft: mix(tones.good, base.surface, share),
     warnSoft: mix(tones.warn, base.surface, share),

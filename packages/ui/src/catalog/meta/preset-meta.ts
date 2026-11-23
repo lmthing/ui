@@ -1,7 +1,7 @@
 export type BaseRoles = Record<
   "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
   string
->;
+> & { accentSoft?: string };
 export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
 type PresetFont = "humanist" | "grotesk" | "rounded" | "serif";
 export type PresetMeta = {

@@ -5,7 +5,7 @@ import { config } from "../index";
 import { themeReferenceScreens } from "./theme-reference-screens";
 
 const width = 390;
-const height = 552;
+const height = 576;
 
 function ReferencePhone({ screen, theme }: { screen: ScreenLike; theme: ThemeChoice }) {
   return (
