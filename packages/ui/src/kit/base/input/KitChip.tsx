@@ -5,8 +5,12 @@ import { component, radius, size, space, type IconName, type Swatch } from "../.
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
-// The 44px touch area carries the role; the visible pill or segment sits inside it.
-const Hit = styled(YStack, { minHeight: size.control.md, justifyContent: "center" });
+// The 44×44px touch area carries the role; the visible pill or segment sits inside it.
+const Hit = styled(YStack, {
+  minHeight: size.control.md,
+  minWidth: size.control.md,
+  justifyContent: "center",
+});
 const ChoiceTarget = createContext<string | undefined>(undefined);
 const diagonal = { x1: "0%", y1: "100%", x2: "100%", y2: "0%" };
 type ChipProps = {
@@ -52,7 +56,7 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   return (
     <XStack
       alignItems="center"
-      justifyContent={segment || custom ? "center" : undefined}
+      justifyContent="center"
       gap={!segment || custom ? space.xs : undefined}
       minWidth={custom ? size.control.md : undefined}
       minHeight={segment ? size.control.sm : size.control.md}
@@ -132,9 +136,7 @@ function Chip(input: ChipProps & { stamped: boolean }) {
   return (
     <Hit
       {...(addressed ? address : {})}
-      {...(look === "segment"
-        ? { flex: component.base.bodyFlex, flexBasis: component.base.none, minWidth: size.control.md }
-        : {})}
+      {...(look === "segment" ? { flex: component.base.bodyFlex, flexBasis: component.base.none } : {})}
       paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
       {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
       {...(press ? { onPress: press } : {})}

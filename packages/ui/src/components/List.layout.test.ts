@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { components, size } from "@lmthing/ui/catalog";
+import { components, size, type as typography } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt, type RenderedElement } from "../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -66,7 +66,7 @@ describe("data hierarchy and avatar regressions", () => {
     const history = renderInstance("Timeline", components.Timeline.examples[0], "filled", bold);
     const day = renderInstance("Timeline", components.Timeline.examples[1], "filled", bold);
     expect(styleAt(history, "home/c1/r1/time")).toContain("--text");
-    expect(styleAt(history, "home/c1/r1/time")).toMatch(/font-size:\s*16px/);
+    expect(styleAt(history, "home/c1/r1/time")).toContain(`font-size:${typography.body.size}px`);
     expect(styleAt(day, "home/c1/r1/time")).toContain("--muted");
   });
   it("limits share typography to heading, body, and label sizes", () => {
