@@ -108,6 +108,18 @@ describe("Offer bounds and fallback", () => {
 });
 
 describe("Offer parts and states", () => {
+  it("places recipient and employer actions in different labeled groups", () => {
+    const html = renderInstance("Offer", full, "filled", theme, { component: "o1" });
+    const recipient = html.indexOf('aria-label="For the candidate"');
+    const employer = html.indexOf('aria-label="For the employer"');
+    expect(recipient).toBeGreaterThan(-1);
+    for (const part of ["accept", "decline"]) {
+      const position = html.indexOf(`data-testid="home/o1/${part}"`);
+      expect(position).toBeGreaterThan(recipient);
+      expect(position).toBeLessThan(employer);
+    }
+    expect(html.indexOf('data-testid="home/o1/withdraw"')).toBeGreaterThan(employer);
+  });
   it("keeps every visible address in the grid and both finish variants", () => {
     const expected = meta.parts
       .filter((part) => !/^(edit|send|success|error)/.test(part))

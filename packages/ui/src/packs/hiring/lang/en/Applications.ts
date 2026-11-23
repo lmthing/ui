@@ -1,5 +1,6 @@
 export const words = {
   applications: {
+    lastStage: (stage: string) => `Last stage: ${stage}`,
     applied: (date: string) => `Applied ${date}`,
     contact: (date: string, ago?: string) => `Last contact ${date}${ago ? ` · ${ago}` : ""}`,
     daysAgo: (days: string, plural: Intl.LDMLPluralRule) =>

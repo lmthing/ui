@@ -52,12 +52,11 @@ export function jobPostReading(input: JobDetails, currency?: AppCurrency, lang?:
     [copy.workplace, copy.contract].join(words.termSeparator),
     ...(copy.easyApply ? [copy.easyApply] : []),
     ...(copy.pay === undefined ? [] : [copy.pay]),
-    ...(copy.benefits.length ? [copy.benefitsLabel, ...copy.benefits] : []),
     words.requirements,
     ...copy.requirements,
+    ...(copy.benefits.length ? [copy.benefitsLabel, ...copy.benefits] : []),
     ...(copy.closes === undefined ? [] : [copy.closes]),
     words.save,
-    ...(copy.open ? [words.apply] : []),
-    words.publish,
+    ...(copy.open ? [words.apply, words.publish] : []),
   ];
 }

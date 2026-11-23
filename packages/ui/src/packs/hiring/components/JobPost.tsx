@@ -30,7 +30,7 @@ export const meta = {
   states: ["filled", "loading", "success", "error"],
   actions: {
     parts: { save: ["toggle"], apply: ["press"], publish: ["press"] },
-    when: { apply: { acceptingApplications: true } },
+    when: { apply: { acceptingApplications: true }, publish: { acceptingApplications: true } },
     noGoto: { parts: ["publish"] },
   },
   live: {
@@ -166,9 +166,9 @@ type Job = c.Props<typeof props, typeof meta>;
 type Density = c.ThemeDensity;
 
 // prettier-ignore
-function JobActions({ input, open, loading, density }: { input: Job; open: boolean; loading: boolean; density: Density }) {
+function JobSeekerActions({ input, open, loading, density }: { input: Job; open: boolean; loading: boolean; density: Density }) {
   const { words: { jobPost: words } } = kit.useWords(hiringWordsFor);
-  return <kit.KitContent group="response" {...{ density }}>
+  return <kit.KitContent {...{ density }}>
     <kit.KitRow label={words.save} inline {...{ density }}
       trailing={<kit.KitTrail kind="toggle" part="save" on={input.saved} />}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.save]]} {...{ density }} /> :
@@ -176,11 +176,36 @@ function JobActions({ input, open, loading, density }: { input: Job; open: boole
     </kit.KitRow>
     {open && (loading ? <kit.KitSkeleton shape="control" label={words.apply} kind="secondary" full /> :
       <kit.KitAction part="apply" label={words.apply} goto={input.goto} kind="secondary" full />)}
-    <kit.KitContent group="response" {...{ density }}>
-      {loading ? <kit.KitSkeleton shape="control" label={words.publish} kind="quiet" full /> :
-        <kit.KitAction part="publish" label={words.publish} kind="quiet" full />}
-    </kit.KitContent>
   </kit.KitContent>;
+}
+
+function JobActions({
+  input,
+  open,
+  loading,
+  density,
+}: {
+  input: Job;
+  open: boolean;
+  loading: boolean;
+  density: Density;
+}) {
+  const {
+    words: { jobPost: words },
+  } = kit.useWords(hiringWordsFor);
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitRowGroup spacing="groups" density={density}>
+        <JobSeekerActions {...{ input, open, loading, density }} />
+        {open &&
+          (loading ? (
+            <kit.KitSkeleton shape="control" label={words.publish} kind="quiet" />
+          ) : (
+            <kit.KitAction part="publish" label={words.publish} kind="quiet" tone="neutral" />
+          ))}
+      </kit.KitRowGroup>
+    </kit.KitContent>
+  );
 }
 
 function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
@@ -188,7 +213,7 @@ function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; 
   return (
     <kit.KitContent group="response" rhythm="flush" density={density}>
       <kit.KitLayoutText
-        line={{ part: "benefits", text: copy.benefitsLabel, role: "meta", strong: true }}
+        line={{ part: "benefits", text: copy.benefitsLabel, role: "meta", tone: "muted" }}
         density={density}
       />
       <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
@@ -203,6 +228,32 @@ function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; 
           />
         ))}
       </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
+function JobRequirements({ input, density, loading }: { input: Job; density: Density; loading: boolean }) {
+  const {
+    words: { jobPost: words },
+  } = kit.useWords(hiringWordsFor);
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitLayoutText
+        line={{ part: "requirements", text: words.requirements, role: "meta", strong: true }}
+        density={density}
+      />
+      <kit.KitRowGroup separators={false} density={density}>
+        {input.requirements.map((text, index) => (
+          <kit.KitContent
+            key={index}
+            lineRole="body"
+            lead={<kit.KitIcon name="dot" decorative scale="sm" loading={loading} />}
+            density={density}
+          >
+            <kit.KitLayoutText line={{ text }} density={density} />
+          </kit.KitContent>
+        ))}
+      </kit.KitRowGroup>
     </kit.KitContent>
   );
 }
@@ -232,15 +283,11 @@ function JobBody({ input, density }: { input: Job; density: Density }) {
         </kit.KitGrid> : terms}
         {line("pay", copy.pay, "number")}
       </kit.KitContent>
-      <JobBenefits {...{ copy, density }} />
       {detail === "full" && <kit.KitContent group="response" {...{ density }}>
         {line("about", input.about, "body")}
       </kit.KitContent>}
-      <kit.KitContent group="response" {...{ density }}>
-        {line("requirements", words.requirements, "label", "muted")}
-        {copy.requirements.map((requirement, index) =>
-          <kit.KitContent key={index} {...{ density }}>{line(null, requirement, "body")}</kit.KitContent>)}
-      </kit.KitContent>
+      <JobRequirements {...{ input, density, loading }} />
+      <JobBenefits {...{ copy, density }} />
       {copy.closes && <kit.KitContent group="response" {...{ density }}>
         {line("closes", copy.closes, "label", copy.open ? "muted" : "warn")}
       </kit.KitContent>}
