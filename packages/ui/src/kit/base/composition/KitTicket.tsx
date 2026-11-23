@@ -19,14 +19,14 @@ type TicketProps = {
   label: string;
 };
 
-function Perforation() {
+function Perforation({ edge }: { edge: number }) {
   const notch = space.md + space.xs;
   const theme = useTheme();
   return (
     <XStack height={notch} alignItems="center" pointerEvents="none" aria-hidden accessibilityElementsHidden>
       <YStack
         position="absolute"
-        left={-notch / 2}
+        left={-notch / 2 - edge}
         width={notch}
         height={notch}
         borderRadius={radius.pill}
@@ -47,7 +47,7 @@ function Perforation() {
       </YStack>
       <YStack
         position="absolute"
-        right={-notch / 2}
+        right={-notch / 2 - edge}
         width={notch}
         height={notch}
         borderRadius={radius.pill}
@@ -120,23 +120,21 @@ export function KitTicket({ part = "root", ...props }: TicketProps) {
   const addressed = part !== null && (props.loading || part !== props.target?.part || item !== context.item);
   const address = usePart(part ?? "root", addressed);
   const stub = Children.toArray(props.code).length > 0;
+  const surface = surfaceOf(ks.surface);
+  const corner = shifted("md", ks.radiusShift);
   return (
     <YStack
       {...(addressed ? address : {})}
-      {...surfaceOf(ks.surface)}
-      borderRadius={shifted(props.style === "pass" ? "xl" : "lg", ks.radiusShift)}
+      {...surface}
+      borderRadius={corner}
       aria-busy={props.loading || undefined}
       accessibilityLabel={!props.loading && props.target?.part == null ? props.label : undefined}
     >
-      <YStack
-        overflow="hidden"
-        borderRadius={shifted(props.style === "pass" ? "xl" : "lg", ks.radiusShift)}
-        backgroundColor={props.used && !props.loading ? "$raised" : "$surface"}
-      >
+      <YStack borderRadius={corner} backgroundColor={props.used && !props.loading ? "$raised" : "$surface"}>
         <PartContext.Provider value={{ ...context, ...(item ? { item } : {}) }}>
           <TicketBody {...props} />
         </PartContext.Provider>
-        <Perforation />
+        <Perforation edge={surface.borderWidth} />
         {stub ? (
           <TicketStub code={props.code} label={props.label} loading={Boolean(props.loading)} />
         ) : (

@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, size, themeName } from "@lmthing/ui/catalog";
+import { component, presets, size, space, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitDiceFace, KitWheel, KitOrbit, KitText } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -81,6 +81,24 @@ describe("KitOrbit", () => {
 });
 
 describe("KitOrbit alignment", () => {
+  it("keeps only a small inset below the last tile in the four-node ring", () => {
+    const html = render({ nodes, at: "r2" });
+    let ring = elementAt(html, "home/c1/root");
+    while (!ring.attributes.includes("data-look-twoedge") && ring.children.length === 1) {
+      ring = ring.children[0]!;
+    }
+    expect(ring.attributes).toContain("data-look-twoedge");
+    const lowest = ring.children.find(({ children }) =>
+      children[0]?.attributes.includes('data-testid="home/c1/r3/root"'),
+    )!;
+    const px = (css: string, property: string) =>
+      Number(css.match(new RegExp(`(?:^|;)${property}:([\\d.]+)px`))?.[1]);
+    expect(
+      px(styleAt(html, ring), "height") -
+        px(styleAt(html, lowest), "top") -
+        px(styleAt(html, lowest.children[0]!), "height"),
+    ).toBeCloseTo(space.sm);
+  });
   it("fits the ring to the drawing and hides the direction icon while loading", () => {
     const props = { nodes: nodes.slice(0, 3), at: "r2" };
     const svgs = (loading: boolean) => render({ ...props, loading }).match(/<svg\b[^>]*>/g)!;

@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { ChartGantt, ChevronsLeftRight } from "@tamagui/lucide-icons";
+import { ChartGantt, ChevronLeft, ChevronRight } from "@tamagui/lucide-icons";
 import { isWeb, ScrollView, XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 import { GanttDependencies, GanttLane, type Gate, type Link, type Range } from "./gantt-lanes";
-import { laneHeight, railWidth, timelineWidth } from "./gantt-layout";
+import {
+  laneHeight,
+  railWidth,
+  range,
+  rangeContinuation,
+  timelineEdges,
+  timelineWidth,
+} from "./gantt-layout";
 
 type Column = { id: string; label: string };
 type GanttProps = {
@@ -18,15 +25,7 @@ type GanttProps = {
   links: readonly Link[];
 };
 
-function GanttRail({
-  entries,
-  loading,
-  scrollable,
-}: {
-  entries: readonly (Range | Gate)[];
-  loading: boolean;
-  scrollable: boolean;
-}) {
+function GanttRail({ entries, loading }: { entries: readonly (Range | Gate)[]; loading: boolean }) {
   return (
     <YStack width={railWidth} flexShrink={component.base.none} backgroundColor="$raised">
       <YStack
@@ -38,8 +37,6 @@ function GanttRail({
       >
         {loading ? (
           <YStack width={size.icon.md} height={space.sm} backgroundColor="$line" borderRadius={radius.pill} />
-        ) : scrollable ? (
-          <ChevronsLeftRight size={size.icon.md} color="$muted" aria-hidden />
         ) : (
           <ChartGantt size={size.icon.md} color="$muted" aria-hidden />
         )}
@@ -119,6 +116,51 @@ function TimelineGrid({
   );
 }
 
+function TimelineCue({ side, lane }: { side: "left" | "right"; lane: number }) {
+  const Glyph = side === "left" ? ChevronLeft : ChevronRight;
+  return (
+    <YStack
+      {...{ [side]: component.base.none, "data-viewport-cue": side }}
+      position="absolute"
+      top={lane * laneHeight + (laneHeight - size.icon.sm) / 2}
+      borderRadius={radius.pill}
+      backgroundColor="$raised"
+      pointerEvents="none"
+      aria-hidden
+      accessibilityElementsHidden
+    >
+      <Glyph size={size.icon.sm} color="$text" />
+    </YStack>
+  );
+}
+
+function TimelineCues({
+  rows,
+  edges,
+  width,
+}: {
+  rows: readonly Range[];
+  edges: ReturnType<typeof timelineEdges>;
+  width: number;
+}) {
+  return (
+    <YStack fullscreen pointerEvents="none" aria-hidden>
+      {(["left", "right"] as const).flatMap((side) =>
+        edges[side]
+          ? [
+              <TimelineCue key={side} {...{ side }} lane={0} />,
+              ...rows.map((row, index) =>
+                rangeContinuation(range(row.start, row.end, width), edges)[side] ? (
+                  <TimelineCue key={`${side}/${row.id}`} {...{ side }} lane={index + 1} />
+                ) : null,
+              ),
+            ]
+          : [],
+      )}
+    </YStack>
+  );
+}
+
 function GanttTimeline({
   columns,
   rows,
@@ -126,40 +168,46 @@ function GanttTimeline({
   links,
   loading,
   width,
-  scrollable,
+  viewport,
   setViewport,
 }: Omit<GanttProps, "part" | "loading"> & {
   loading: boolean;
   width: number;
-  scrollable: boolean;
+  viewport: number;
   setViewport: (width: number) => void;
 }) {
+  const [scrollX, setScrollX] = useState(0);
+  const edges = timelineEdges(width, viewport, scrollX);
   return (
-    <ScrollView
-      horizontal
-      minWidth={component.base.none}
-      onLayout={(event) => setViewport(event.nativeEvent.layout.width)}
-      showsHorizontalScrollIndicator
-      scrollEnabled={!loading}
-      accessibilityLabel={
-        loading
-          ? undefined
-          : columns
-              .map((column) => column.label)
-              .filter(Boolean)
-              .join(", ") || undefined
-      }
-      {...(isWeb ? { role: "region", tabIndex: !loading && scrollable ? 0 : -1 } : {})}
-    >
-      <YStack width={width}>
-        <TimelineGrid columns={columns} lanes={rows.length + gates.length} {...{ loading, width }} />
-        <GanttDependencies {...{ rows, gates, links, width, loading }} />
-        <YStack height={laneHeight} aria-hidden />
-        {[...rows, ...gates].map((entry) => (
-          <GanttLane key={entry.id} {...{ entry, width, loading }} />
-        ))}
-      </YStack>
-    </ScrollView>
+    <YStack flex={1} minWidth={component.base.none} position="relative">
+      <ScrollView
+        horizontal
+        minWidth={component.base.none}
+        onLayout={(event) => setViewport(event.nativeEvent.layout.width)}
+        onScroll={loading ? undefined : (event) => setScrollX(event.nativeEvent.contentOffset.x)}
+        showsHorizontalScrollIndicator
+        scrollEnabled={!loading}
+        accessibilityLabel={
+          loading
+            ? undefined
+            : columns
+                .map((column) => column.label)
+                .filter(Boolean)
+                .join(", ") || undefined
+        }
+        {...(isWeb ? { role: "region", tabIndex: !loading && (edges.left || edges.right) ? 0 : -1 } : {})}
+      >
+        <YStack width={width}>
+          <TimelineGrid columns={columns} lanes={rows.length + gates.length} {...{ loading, width }} />
+          <GanttDependencies {...{ rows, gates, links, width, loading }} />
+          <YStack height={laneHeight} aria-hidden />
+          {[...rows, ...gates].map((entry) => (
+            <GanttLane key={entry.id} {...{ entry, width, loading }} />
+          ))}
+        </YStack>
+      </ScrollView>
+      {!loading && (edges.left || edges.right) && <TimelineCues {...{ rows, edges, width }} />}
+    </YStack>
   );
 }
 
@@ -178,7 +226,6 @@ export function KitGantt({ part = "root", loading = false, columns, rows, gates,
   const drawnRows = loading && empty ? loadingRows : rows;
   const drawnColumns = columns.length ? columns : loadingColumns;
   const width = timelineWidth(drawnColumns.length, viewport);
-  const scrollable = width > viewport + component.base.borderWidth;
   return (
     <YStack {...address} aria-busy={loading || undefined} minWidth={component.base.none}>
       {empty && !loading ? (
@@ -205,11 +252,11 @@ export function KitGantt({ part = "root", loading = false, columns, rows, gates,
           borderRadius={shifted("lg", ks.radiusShift)}
           overflow="hidden"
         >
-          <GanttRail entries={[...drawnRows, ...gates]} {...{ loading, scrollable }} />
+          <GanttRail entries={[...drawnRows, ...gates]} loading={loading} />
           <GanttTimeline
             columns={drawnColumns}
             rows={drawnRows}
-            {...{ gates, links, loading, width, scrollable, setViewport }}
+            {...{ gates, links, loading, width, viewport, setViewport }}
           />
         </XStack>
       )}

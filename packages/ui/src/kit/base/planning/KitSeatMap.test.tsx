@@ -2,7 +2,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it, vi } from "vitest";
-import { components, radius, size, themeName } from "@lmthing/ui/catalog";
+import { components, radius, size, space, themeName, type as typography } from "@lmthing/ui/catalog";
 import {
   createScreenController,
   KitProvider,
@@ -100,6 +100,49 @@ it("keeps descriptive drawing ids separate from controller item ids", () => {
   expect(html).toContain("Juniper");
   expect(html).not.toContain('data-testid="home/c1/table"');
   expect(elementAt(html, "home/c1/r8/seat").attributes).toContain('aria-label="Ari"');
+});
+
+it("gives all round seats the same orbital radius and retains their order", () => {
+  const seats = Array.from({ length: 8 }, (_, i) => ({
+    id: `r${i + 2}`,
+    label: `Guest ${i}`,
+    target: { part: "seat" },
+  }));
+  const html = render({ tables: [{ ...tables[0], seats }] });
+  let diagram = elementAt(html, "home/c1/root").children[0]!;
+  while (diagram.children.length === 1) diagram = diagram.children[0]!;
+  expect(diagram.children[0]).toEqual(elementAt(html, "home/c1/r1/table"));
+  const diameter = Number(styleAt(html, diagram).match(/(?:^|;)width:(\d+)px/)?.[1]);
+  const reach = (diameter - size.control.md) / 2;
+  expect(reach - size.control.md / 2 - size.control.md).toBeGreaterThanOrEqual(space.xs);
+  const ring = diagram.children[1]!;
+  expect(ring.children).toHaveLength(8);
+  const percent = (css: string, key: string) =>
+    Number(css.match(new RegExp(`(?:^|;)${key}:([\\d.]+)%`))?.[1]);
+  for (const [index, node] of ring.children.entries()) {
+    const css = styleAt(html, node);
+    expect(Math.hypot(percent(css, "left") - 50, percent(css, "top") - 50)).toBeCloseTo(50);
+    expect(node.children[0]!.attributes).toContain(`data-testid="home/c1/${seats[index]!.id}/seat"`);
+  }
+});
+
+it("keeps a cold tray flat at the content width and reserves each known guest row without mounting controls", () => {
+  const trayGuests = [tables[0].seats[0], tables[0].seats[1]].map((seat) => ({
+    ...seat,
+    move: { destinations: ["Elm"], label: () => "Move to Elm" },
+  }));
+  const props = { tables, tray, trayGuests };
+  const filled = render(props);
+  const loadedTray = elementAt(filled, "home/c1/root").children.at(-1)!;
+  expect(styleAt(filled, loadedTray)).toContain("width:100%");
+  expect(styleAt(filled, loadedTray)).not.toMatch(/max-width|background-color/);
+  expect(loadedTray.children).toHaveLength(3);
+  const html = render({ ...props, loading: true });
+  const waiting = elementAt(html, "home/c1/root").children.at(-1)!;
+  expect(
+    waiting.children.map((node) => Number(styleAt(html, node).match(/(?:^|;)height:(\d+)px/)?.[1])),
+  ).toEqual([typography.label.lineHeight, size.control.md, size.control.md]);
+  expect(html).not.toMatch(/Waiting|role="button"|\/tray"/);
 });
 
 it("keeps a seat drawing inert when move has no destination, valid address or controller offer", () => {

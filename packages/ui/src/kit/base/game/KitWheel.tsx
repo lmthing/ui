@@ -1,6 +1,6 @@
 import { useWords } from "../../provider";
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, XStack, YStack } from "tamagui";
+import { isWeb, ScrollView, XStack, YStack } from "tamagui";
 import { ChevronDown } from "@tamagui/lucide-icons";
 import { component, emptyLine, size, space } from "../../../catalog";
 import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
@@ -18,6 +18,44 @@ type WheelProps = {
   busy?: boolean;
   style?: "wheel" | "strip";
 };
+const stripTileWidth = size.control.md * 3;
+
+function StripEdge({ atEnd = false }: { atEnd?: boolean }) {
+  const side = atEnd ? "right" : "left";
+  return (
+    <YStack
+      position="absolute"
+      {...{ [side]: component.base.none }}
+      top={component.base.none}
+      bottom={component.base.none}
+      width={space.md}
+      pointerEvents="none"
+      aria-hidden
+      style={{ backgroundImage: `linear-gradient(to ${side}, transparent, var(--surface))` } as never}
+    />
+  );
+}
+
+function StripTile({ option, selected, loading }: { option: Option; selected: boolean; loading: boolean }) {
+  const context = usePartContext();
+  const ks = useKitStyle();
+  return (
+    <YStack
+      width={stripTileWidth}
+      minHeight={size.control.md}
+      padding={space.md}
+      borderRadius={shifted("md", ks.radiusShift)}
+      borderWidth={component.base.strongBorder}
+      borderColor={loading ? "$line" : selected ? "$accent" : "$muted"}
+      backgroundColor={!loading && selected ? "$accentSoft" : "$surface"}
+    >
+      <PartContext.Provider value={{ ...context, item: option.id }}>
+        <OptionLabel {...{ option, selected, loading }} />
+      </PartContext.Provider>
+    </YStack>
+  );
+}
+
 function StripDrawing({
   options,
   at,
@@ -29,49 +67,41 @@ function StripDrawing({
   angle: number;
   loading: boolean;
 }) {
-  const context = usePartContext();
   const scroll = useRef<{ scrollTo(options: { x: number; animated: boolean }): void }>(null);
-  const ks = useKitStyle();
   const [viewport, setViewport] = useState(0);
-  const width = size.control.md * 3;
   const selected = options.findIndex((option) => option.id === at);
   const position = selected >= 0 ? selected : (((angle % 1) + 1) % 1) * Math.max(0, options.length - 1);
-  const offset = position * (width + space.sm);
+  const offset = position * (stripTileWidth + space.sm);
   useEffect(() => {
     scroll.current?.scrollTo({ x: offset, animated: false });
   }, [offset, viewport]);
   return (
     <YStack gap={space.sm}>
-      <ChevronDown size={size.icon.lg} color="$text" alignSelf="center" aria-hidden />
-      <ScrollView
-        ref={scroll as never}
-        horizontal
-        showsHorizontalScrollIndicator
-        onLayout={(event) => setViewport(event.nativeEvent.layout.width)}
-      >
-        <XStack
-          gap={space.sm}
-          paddingVertical={space.xs}
-          paddingHorizontal={Math.max(space.xs, (viewport - width) / 2)}
+      <ChevronDown size={size.icon.lg} color={loading ? "$muted" : "$text"} alignSelf="center" aria-hidden />
+      <YStack position="relative">
+        <ScrollView
+          ref={scroll as never}
+          horizontal
+          showsHorizontalScrollIndicator
+          onLayout={(event) => setViewport(event.nativeEvent.layout.width)}
         >
-          {options.map((option) => (
-            <YStack
-              key={option.id}
-              width={width}
-              minHeight={size.control.md}
-              padding={space.md}
-              borderRadius={shifted("md", ks.radiusShift)}
-              borderWidth={component.base.strongBorder}
-              borderColor={!loading && option.id === at ? "$accent" : "$muted"}
-              backgroundColor={!loading && option.id === at ? "$accentSoft" : "$surface"}
-            >
-              <PartContext.Provider value={{ ...context, item: option.id }}>
-                <OptionLabel option={option} selected={at === option.id} loading={loading} />
-              </PartContext.Provider>
-            </YStack>
-          ))}
-        </XStack>
-      </ScrollView>
+          <XStack
+            gap={space.sm}
+            paddingVertical={space.xs}
+            paddingHorizontal={Math.max(space.xs, (viewport - stripTileWidth) / 2)}
+          >
+            {options.map((option) => (
+              <StripTile key={option.id} option={option} selected={at === option.id} loading={loading} />
+            ))}
+          </XStack>
+        </ScrollView>
+        {isWeb && (
+          <>
+            <StripEdge />
+            <StripEdge atEnd />
+          </>
+        )}
+      </YStack>
     </YStack>
   );
 }
@@ -93,8 +123,10 @@ export function KitWheel({
   const turns = Number.isFinite(rotation) ? rotation : 0;
   const selected = options.findIndex((option) => option.id === at);
   const target =
-    !busy && selected >= 0 && style === "wheel"
-      ? Math.round(turns) - (selected + 0.5) / options.length
+    !busy && options.length > 0 && style === "wheel"
+      ? selected >= 0
+        ? Math.round(turns) - (selected + 0.5) / options.length
+        : (Math.floor(turns * options.length) + 0.5) / options.length
       : turns;
   const angle = useAnimatedValue(
     target,
