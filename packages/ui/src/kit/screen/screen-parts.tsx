@@ -4,6 +4,7 @@ import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
+import { KitCard, KitEmpty } from "../base";
 import {
   space,
   parseItemProps,
@@ -12,17 +13,25 @@ import {
   gapBetween,
   projectAdjustments,
   isDeviceDataVisible,
+  projectDataViewList,
+  type resolveDataViews,
   type ScreenLike,
 } from "../../catalog";
 import type { RendererMap } from "./Screen";
 import { ScreenBottomOutlet, ScreenBottomSlots, ScreenBottomSource } from "./pinned-bottom";
 
-type RenderProps = { controller: ScreenController; renderers: RendererMap; screen: ScreenLike };
+type RenderProps = {
+  controller: ScreenController;
+  renderers: RendererMap;
+  screen: ScreenLike;
+  views?: ReturnType<typeof resolveDataViews>;
+};
 function ScreenEntry({
   controller,
   renderers,
   screen,
   entry,
+  views,
 }: RenderProps & {
   entry: ScreenLike["components"][number];
 }) {
@@ -33,9 +42,12 @@ function ScreenEntry({
   // Presence can keep an old entry for its exit animation; a closed gate never keeps the view.
   if (!def || !View || !isDeviceDataVisible(def.meta, data)) return null;
   const parsed = parseItemProps(def, input);
-  const props = projectAdjustments(def.meta, parsed, (part) =>
+  const live = projectAdjustments(def.meta, parsed, (part) =>
     controller.store.get(`${screen.id}/${id}/${part}`),
   );
+  const { props, empty } =
+    views && state === "filled" ? projectDataViewList(views, id, live) : { props: live };
+  const emptyPanel = views?.empty.get(id);
   const signature = def.meta.signatureByStyle?.[String(input.style)] ?? def.meta.signature;
   return (
     <PartScope
@@ -47,22 +59,35 @@ function ScreenEntry({
       {...(signature ? { signature } : {})}
       cue={Number(controller.store.get(`${screen.id}/${id}/$cue`) ?? 0)}
     >
-      <View {...props} />
+      {empty ? (
+        <KitCard style="inset">
+          <KitEmpty part="results" title={empty} prominence="body" announce="status" decorativeIcon />
+        </KitCard>
+      ) : (
+        <View {...props} />
+      )}
+      {emptyPanel && (
+        <KitEmpty part="results" title={emptyPanel} prominence="body" announce="status" decorativeIcon />
+      )}
     </PartScope>
   );
 }
 function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
-  const { controller, screen } = props;
+  const { controller, screen, views } = props;
   const components = controller.defs;
   const elsewhere = new Set(
     screen.components.filter((entry) => regionOf(entry, components) !== name).map(({ id }) => id),
   );
   const entries = sortByRegion(screen.components, components).filter(
-    (entry) => regionOf(entry, components) === name,
+    (entry) => regionOf(entry, components) === name && !views?.hidden.has(entry.id),
   );
   return (
     <KitPresence
-      keepExit={(node) => isValidElement<RegionEntryProps>(node) && !elsewhere.has(node.props.entry.id)}
+      keepExit={(node) =>
+        isValidElement<RegionEntryProps>(node) &&
+        !elsewhere.has(node.props.entry.id) &&
+        !views?.hidden.has(node.props.entry.id)
+      }
     >
       {entries.map((entry, index) => (
         <RegionEntry

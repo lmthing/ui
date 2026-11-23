@@ -30,6 +30,7 @@ import { captureDeviceTime, isDeviceDataVisible, projectDeviceData, type DeviceD
 import { withRecordScreen } from "./record-runtime";
 import { redactPrivateMarks } from "./private-controls";
 import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./host-commands";
+import { projectDataViewList, resolveDataViews } from "./data-view";
 
 type Props = Record<string, unknown>;
 
@@ -47,6 +48,7 @@ export function readComponent(
   selection?: BoundSelection,
   target?: ReturnType<typeof driveTarget>,
   host?: HostActionPolicy,
+  views?: ReturnType<typeof resolveDataViews>,
 ): string[] {
   const { meta } = def;
   if (meta.selectionBinding?.requireSelection && !selection?.selected.length) return [];
@@ -57,12 +59,18 @@ export function readComponent(
   const migrated = migrateInput(meta.id, input);
   const validated = parseControlProps(def, migrated, get);
   const live = liveProps(meta, validated, instance, values, true, deviceData);
-  const props = projectDriveObservation(
+  const observed = projectDriveObservation(
     meta,
     projectSelectionBinding(meta, live, selection),
     instance,
     target,
   );
+  const presentation =
+    views && (!state || state === "filled")
+      ? projectDataViewList(views, instance, observed)
+      : { props: observed };
+  const { props, empty } = presentation;
+  if (empty) return [`${instance} ${meta.id} (empty) ${quote(empty)}`];
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -76,7 +84,16 @@ export function readComponent(
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const optedIn = (state === "empty" || state === "success") && meta.readInState?.(props, state);
   const successContent = state === "success" && (draw || session || meta.readSuccess);
-  const content = { props, validated, instance, values, state, session, draw, summaryOnly: !!optedIn };
+  const content = {
+    props,
+    validated: views?.lists.has(instance) ? projectDataViewList(views, instance, validated).props : validated,
+    instance,
+    values,
+    state,
+    session,
+    draw,
+    summaryOnly: !!optedIn,
+  };
   const copy = { lang, deviceData, currency };
   if (state !== "filled" && !feedback && !optedIn && !successContent) {
     const summary =
@@ -119,13 +136,24 @@ export function readScreen(
   const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = localValues(screen.id, values);
   const { values: safe, addresses } = redactPrivateMarks(local);
+  const views = resolveDataViews(
+    {
+      ...migrated,
+      components: migrated.components.filter(
+        ({ c }) => !defs[c] || isDeviceDataVisible(defs[c]!.meta, snapshot),
+      ),
+    },
+    defs,
+    safe,
+  );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
+    if (views.hidden.has(id)) return [];
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];
     const selection = selectionBindingFor(migrated, defs, def.meta, id, safe, snapshot, addresses)?.view;
     const target = driveTarget(def.meta, migrated, defs, safe, snapshot, canDrive, addresses);
-    return readComponent(
+    const lines = readComponent(
       def,
       props,
       id,
@@ -137,7 +165,10 @@ export function readScreen(
       selection,
       target,
       migrated[hostActionPolicy],
+      views,
     );
+    const empty = views.empty.get(id);
+    return empty ? [...lines, `${id}/results ${quote(empty)}`] : lines;
   });
   return [header, ...lines].join("\n");
 }

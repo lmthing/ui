@@ -1,6 +1,6 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, type KeyboardEvent, type ReactNode } from "react";
 import { Line, Svg } from "react-native-svg";
-import { XStack, YStack, isWeb, styled, useTheme } from "tamagui";
+import { ScrollView, XStack, YStack, isWeb, styled, useTheme } from "tamagui";
 import { component, radius, size, space, type IconName, type Swatch } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
@@ -28,6 +28,8 @@ type ChipProps = {
   labelPart?: string | null; // Null leaves caller-owned group labels untouched.
   swatchPart?: string; // Opt-in address for a stamped chip's swatch dot.
   dimSwatch?: boolean; // Defaults to dimming the dot of a disabled chip.
+  roving?: boolean;
+  focusable?: boolean;
 };
 function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
   const { label, on, icon, look, stamped, disabled, swatch, loading, labelPart = "label" } = props;
@@ -117,8 +119,29 @@ function SwatchMark(props: ChipProps & { swatch: Swatch; loading: boolean; stamp
     />
   );
 }
+function activateByKey(press: () => void) {
+  return (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== " " && event.key !== "Enter") return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!event.repeat) press();
+  };
+}
+
 function Chip(input: ChipProps & { stamped: boolean }) {
-  const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
+  const {
+    label,
+    value = label,
+    on,
+    role,
+    look,
+    stamped,
+    part = "root",
+    disabled,
+    roving,
+    focusable,
+    ...props
+  } = input;
   const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
   const loading = useComponentState() === "loading" && variant;
   const addressed = stamped && part !== null && !loading;
@@ -140,6 +163,8 @@ function Chip(input: ChipProps & { stamped: boolean }) {
       paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
       {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
       {...(press ? { onPress: press } : {})}
+      {...(isWeb && press && roving !== undefined ? ({ onKeyDown: activateByKey(press) } as object) : {})}
+      {...(isWeb && press && roving ? { tabIndex: on || focusable ? 0 : -1 } : {})}
       aria-hidden={loading || undefined}
       aria-disabled={(!loading && disabled) || undefined}
       accessibilityRole={loading ? undefined : role}
@@ -164,25 +189,46 @@ export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: s
     </PartContext.Provider>
   );
 }
+
+function trackKey(event: KeyboardEvent<HTMLElement>) {
+  const { key, currentTarget, target } = event;
+  if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Home", "End"].includes(key)) return;
+  const choices = Array.from(
+    currentTarget.querySelectorAll<HTMLElement>('[role="tab"], [role="radio"]'),
+  ).filter((option) => option.getAttribute("aria-disabled") !== "true");
+  const at = choices.indexOf(target as HTMLElement);
+  if (at < 0) return;
+  const delta = key === "ArrowLeft" || key === "ArrowUp" ? -1 : 1;
+  const next =
+    key === "Home" ? 0 : key === "End" ? choices.length - 1 : (at + delta + choices.length) % choices.length;
+  event.preventDefault();
+  choices[next]?.focus();
+  choices[next]?.click();
+}
+
+type TrackProps = {
+  look?: "pills" | "segments";
+  /** The track's own part: `root` (default), or `field` when the whole track is one choice control. */
+  part?: string;
+  role?: "radiogroup";
+  label?: string;
+  children: ReactNode;
+  scroll?: boolean;
+  keyboard?: boolean;
+};
 export function KitTrack({
   look = "pills",
   part = "root",
   role,
   label,
   children,
-}: {
-  look?: "pills" | "segments";
-  /** The track's own part: `root` (default), or `field` when the whole track is one choice control. */
-  part?: string;
-  /** `radiogroup` when the track itself is the selectable control (a Field of kind choice). */
-  role?: "radiogroup";
-  label?: string;
-  children: ReactNode;
-}) {
+  scroll,
+  keyboard,
+}: TrackProps) {
   const ks = useKitStyle();
   const address = usePart(part);
   const segments = look === "segments";
-  return (
+  const track = (
     <XStack
       {...address}
       {...(segments
@@ -191,11 +237,23 @@ export function KitTrack({
             borderRadius: shifted("md", ks.radiusShift),
             paddingHorizontal: space.xs,
           }
-        : { flexWrap: "wrap" as const, columnGap: space.sm, rowGap: space.sm })}
+        : {
+            flexWrap: scroll ? ("nowrap" as const) : ("wrap" as const),
+            columnGap: space.sm,
+            rowGap: space.sm,
+          })}
       {...({ role: role ?? (segments ? "tablist" : "group") } as object)}
       {...(label ? { "aria-label": label } : {})}
+      {...(isWeb && keyboard ? ({ onKeyDown: trackKey } as object) : {})}
     >
       <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
     </XStack>
+  );
+  return scroll ? (
+    <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator>
+      {track}
+    </ScrollView>
+  ) : (
+    track
   );
 }
