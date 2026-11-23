@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
-import type { Browser, Page } from "playwright-core";
+import type { Browser, Locator, Page } from "playwright-core";
 import { URL } from "node:url";
 import { bundleChecks, launchChrome } from ".";
 import { openThemeReference, startThemeReferenceGallery } from "./theme-reference";
@@ -102,6 +102,34 @@ it("checks alignment independently for the dashboard's stats and chart", async (
   expect(await page.evaluate(() => window.lookChecks.find())).toEqual([]);
 });
 
+async function expectSeparateDays(days: Locator, count: number) {
+  const boxes = await days.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { x, y, right, width } = node.getBoundingClientRect();
+      return { x, y, right, width };
+    }),
+  );
+  expect(boxes).toHaveLength(count);
+  for (const [index, box] of boxes.entries()) {
+    expect(box.width).toBeGreaterThanOrEqual(40);
+    const previous = boxes[index - 1];
+    if (previous?.y === box.y) expect(box.x + 0.02).toBeGreaterThanOrEqual(previous.right);
+  }
+}
+
+it("preserves Editorial margins in zoomed thumbnails", async () => {
+  await openThemeReference(page, base(), "light");
+  const cardStart = (preset: string) =>
+    phone(preset, "list")
+      .getByTestId("list/walks/root")
+      .evaluate((node) => {
+        const frame = node.closest("[data-look-frame]")!.getBoundingClientRect();
+        return Math.round(((node.getBoundingClientRect().left - frame.left) / frame.width) * 390);
+      });
+  await expect.poll(() => cardStart("editorial")).toBe(32);
+  expect(await cardStart("calm")).toBe(20);
+});
+
 it("keeps seven 40px calendar targets separate when Editorial narrows to 320px", async () => {
   const calendar = await browser.newPage({ viewport: { width: 390, height: 700 } });
   try {
@@ -114,19 +142,18 @@ it("keeps seven 40px calendar targets separate when Editorial narrows to 320px",
     await expect.poll(gutter).toBe(32);
     await calendar.setViewportSize({ width: 320, height: 700 });
     await expect.poll(gutter).toBe(20);
-    const boxes = await days.evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const { x, y, right, width } = node.getBoundingClientRect();
-        return { x, y, right, width };
-      }),
-    );
-    expect(boxes).toHaveLength(30);
-    for (const [index, box] of boxes.entries()) {
-      expect(box.width).toBeGreaterThanOrEqual(40);
-      const previous = boxes[index - 1];
-      if (previous?.y === box.y) expect(box.x).toBeGreaterThanOrEqual(previous.right);
-    }
+    await expectSeparateDays(days, 30);
   } finally {
     await calendar.close();
   }
+});
+
+it("keeps the padded Editorial range calendar usable at 360px", async () => {
+  await page.goto(new URL("?c=Calendar&w=360&preset=editorial", base()).href);
+  const frame = page
+    .locator("[data-look-frame]")
+    .filter({ has: page.locator('[data-testid$="/range_status"]') });
+  const days = frame.locator('[role="button"][data-testid$="/root"]');
+  await days.first().waitFor();
+  await expectSeparateDays(days, 31);
 });

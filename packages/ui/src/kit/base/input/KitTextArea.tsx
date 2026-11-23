@@ -5,7 +5,7 @@ import { component, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { shifted } from "../text";
-import { fieldFinish, fieldType, isRuledField } from "./field-finish";
+import { fieldType, isRuledField, useFieldFinish } from "./field-finish";
 
 /**
  * A text box that grows with what is written (role textbox, multiline), at least `lines` tall, with its
@@ -22,6 +22,7 @@ type TextAreaProps = {
 
 export function KitTextArea({ hint, value, lines = 4, part = "field", label, maxLength }: TextAreaProps) {
   const ks = useKitStyle();
+  const finish = useFieldFinish();
   const kit = useKit();
   const address = usePart(part);
   const current = useControlValue(address.testID, value ?? "");
@@ -34,7 +35,7 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
       borderRadius={
         isRuledField(ks.frame.field) ? component.base.none : shifted(ks.frame.corner, ks.radiusShift)
       }
-      {...fieldFinish(ks.frame.field)}
+      {...finish}
     >
       <TextArea
         {...(address as Record<string, unknown>)}

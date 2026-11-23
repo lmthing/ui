@@ -1,6 +1,6 @@
 import { defaultEnvironment, type Environment, type NativeHost } from "./environment";
-import { useMemo, useRef, useState, type ComponentProps, type ReactNode } from "react";
-import { Theme, YStack, type TamaguiElement } from "tamagui";
+import { useMemo, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { Theme, YStack, isWeb, type TamaguiElement } from "tamagui";
 import {
   component,
   defaultLang,
@@ -46,7 +46,7 @@ export function KitProvider({
   const osReduced = useReducedMotion(theme.motion === "lively" && !environment.reduceMotion, nativeHost);
   const { density, motion } = themePreferencesOf(theme, environment.reduceMotion || osReduced);
   const desired = useMemo(() => kitStyleOf(preset, density), [preset, density]);
-  const [style, onLayout] = useScreenGutter(desired);
+  const [style, onLayout] = useScreenGutter(desired, root);
   const value = useMemo(
     () => ({
       style,
@@ -88,13 +88,20 @@ export function KitProvider({
   );
 }
 
-function useScreenGutter(desired: KitStyle) {
+function useScreenGutter(desired: KitStyle, root: RefObject<TamaguiElement | null>) {
   const gutter = desired.frame.gutter;
   const [wide, setWide] = useState(false);
-  // A seven-day row must keep its full touch targets when the frame starts narrow or is resized.
-  const minWidth = component.base.dayMinWidth * 7 + 2 * space[gutter];
+  // Reserve room for seven day targets even inside a padded, outlined card.
+  const minWidth =
+    component.base.dayMinWidth * 7 + 2 * (space[gutter] + space.md + component.base.borderWidth);
   const onLayout: ComponentProps<typeof YStack>["onLayout"] =
-    gutter === "gutter" ? undefined : ({ nativeEvent }) => setWide(nativeEvent.layout.width >= minWidth);
+    gutter === "gutter"
+      ? undefined
+      : ({ nativeEvent }) => {
+          // A stage or thumbnail may scale the DOM without changing its layout width.
+          const width = isWeb ? (root.current as HTMLElement | null)?.offsetWidth : nativeEvent.layout.width;
+          setWide((width ?? nativeEvent.layout.width) >= minWidth);
+        };
   const style = useMemo(
     () =>
       wide || gutter === "gutter"

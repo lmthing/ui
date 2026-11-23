@@ -6,7 +6,7 @@ import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
 import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
-import { fieldFinish, fieldType, isRuledField } from "./field-finish";
+import { fieldType, isRuledField, useFieldFinish } from "./field-finish";
 
 export const inputRadius = (
   kind: InputProps["kind"],
@@ -81,6 +81,7 @@ export function KitInput(props: InputProps) {
   const ruled = isRuledField(ks.frame.field);
   const { lead, start, end, captionStart } = useInputLayout(props);
   const loading = useComponentState() === "loading";
+  const finish = useFieldFinish(loading, inactive);
   const address = usePart(part ?? undefined, !loading && part !== null);
   const error = useControlValue<string | undefined>(`${address.testID}/$error`, undefined);
   const name = label ?? caption;
@@ -98,7 +99,7 @@ export function KitInput(props: InputProps) {
         paddingLeft={ruled && !props.inset && !caption ? component.base.none : start}
         paddingRight={end}
         borderRadius={ruled ? component.base.none : inputRadius(kind, ks.radiusShift, ks.frame.corner)}
-        {...fieldFinish(ks.frame.field, loading, inactive)}
+        {...finish}
       >
         {lead && (
           <YStack

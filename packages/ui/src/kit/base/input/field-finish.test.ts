@@ -21,6 +21,7 @@ it("uses a single bottom rule in notebook and editorial treatments", () => {
 it("can outline fields instead of using the default raised fill", () => {
   expect(fieldFinish("filled").backgroundColor).toBe("$raised");
   expect(fieldFinish("filled", false, true).backgroundColor).toBe("$surface");
+  expect(fieldFinish("filled", false, false, true).backgroundColor).toBe("$surface");
   expect(fieldFinish("outlined").backgroundColor).toBe("$surface");
   expect(fieldFinish("ink")).toMatchObject({ backgroundColor: "$surface", borderColor: "$text" });
 });
