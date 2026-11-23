@@ -93,6 +93,15 @@ describe("KitChip optional named parts", () => {
 });
 describe("KitChip variant options", () => {
   it.each(["pill", "segment", "box"] as const)(
+    "keeps a short %s label inside a full touch target",
+    (look) => {
+      const html = render({ ...chip, look, label: "S" });
+      const hit = styleAt(html, "home/c1/r1/root");
+      expect(hit).toContain(`min-height:${size.control.md}px`);
+      expect(hit).toContain(`min-width:${size.control.md}px`);
+    },
+  );
+  it.each(["pill", "segment", "box"] as const)(
     "draws fixed swatches in the %s without addressing them",
     (look) => {
       const html = render({ ...chip, look, swatch: "navy", part: "option" });
