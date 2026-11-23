@@ -92,22 +92,36 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
-const routeGuide = { projectRef: "route_guide", style: "month", from: "2026-11-01", to: "2026-11-30",
+const routeGuide = {
+  projectRef: "route_guide",
+  style: "month",
+  from: "2026-11-01",
+  to: "2026-11-30",
   tasks: [
     { taskRef: "map", title: "Map route", start: "2026-10-29", end: "2026-11-10", after: [] },
     { taskRef: "test", title: "Test route", start: "2026-11-09", end: "2026-11-14", after: ["map"] },
   ],
-  gates: [{ title: "Guide ready", due: "2026-11-15" }] } satisfies z.input<typeof props>;
+  gates: [{ title: "Guide ready", due: "2026-11-15" }],
+} satisfies z.input<typeof props>;
 
-// prettier-ignore
 export const examples = [
-  { projectRef: "garden", from: seedMonday, to: seedSunday,
+  {
+    projectRef: "garden",
+    from: seedMonday,
+    to: seedSunday,
     tasks: [
-      { taskRef: "survey", title: "Check light", start: seedMonday, end: "2026-11-17", after: [], goto: "survey" },
+      {
+        taskRef: "survey",
+        title: "Check light",
+        start: seedMonday,
+        end: "2026-11-17",
+        after: [],
+        goto: "survey",
+      },
       { taskRef: "planting", title: "Plan plants", start: "2026-11-18", end: seedFriday, after: ["survey"] },
     ],
-    gates: [{ title: "Plan ready", due: "2026-11-18", goto: "garden_scope" }] },
+    gates: [{ title: "Plan ready", due: "2026-11-18", goto: "garden_scope" }],
+  },
   routeGuide,
   { ...routeGuide },
 ] satisfies z.input<typeof props>[];
@@ -137,59 +151,171 @@ type View = c.Props<typeof props, typeof meta>;
 type ScheduleCopy = ReturnType<typeof ganttCopy<View["targets"][number]>>;
 type GanttWords = ReturnType<typeof projectsWordsFor>["gantt"];
 
-// prettier-ignore
-function ScheduleDetails({ copy, words, density, loading }: { copy: ScheduleCopy; words: GanttWords; density: c.ThemeDensity; loading: boolean }) {
-  return <kit.KitContent group="response" density={density}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.details]]} /> :
-      <kit.KitText role="label" tone="muted" part={null}>{copy.details}</kit.KitText>}
-    <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
-    {copy.entries.map(({ entry, inRange, dates, after, conflict }) => {
-      const root = inRange && entry.goto ? null : "root";
-      const inline = inRange || !entry.goto;
-      const title = <kit.KitText part="title" item={entry.id} role="label" density={density}>{entry.title}</kit.KitText>;
-      if (loading) return <kit.KitRow key={entry.id} part={null} label={entry.title} inset="none" density={density} inline={inline}>
-        <kit.KitSkeleton shape="figure" inset="none" density={density}
-          content={[["label", entry.title], ["caption", dates], ["caption", after],
-            ["caption", conflict ? words.conflict : undefined], ["caption", inRange ? undefined : words.outside]]} />
-      </kit.KitRow>;
-      if (inRange && !dates)
-        return <kit.KitText key={entry.id} part={root} item={entry.id} role="label" density={density}>{title}</kit.KitText>;
-      return <kit.KitRow key={entry.id} item={entry.id} part={root} goto={inRange ? undefined : entry.goto}
-        label={entry.title} inset="none" density={density} inline={inline}>
-            <kit.KitContent lineRole="body" density={density}>
-              {title}
-              {dates && <kit.KitText part="dates" role="caption" tone="muted">{dates}</kit.KitText>}
-              {after && <kit.KitText part="after" role="caption" tone="muted">{after}</kit.KitText>}
-              {conflict && <kit.KitText part="conflict" role="caption" tone="warn">{words.conflict}</kit.KitText>}
-              {!inRange && <kit.KitText part="outside" role="caption" tone="muted">{words.outside}</kit.KitText>}
-            </kit.KitContent>
-      </kit.KitRow>;
-    })}
-    </kit.KitGrid>
-  </kit.KitContent>;
+function SchedulePlaceholder(
+  { entry, inRange, dates, after, conflict }: ScheduleCopy["entries"][number],
+  words: GanttWords,
+  density: c.ThemeDensity,
+  inline: boolean,
+) {
+  return (
+    <kit.KitRow key={entry.id} part={null} label={entry.title} inset="none" density={density} inline={inline}>
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        density={density}
+        content={[
+          ["label", entry.title],
+          ["caption", dates],
+          ["caption", after],
+          ["caption", conflict ? words.conflict : undefined],
+          ["caption", inRange ? undefined : words.outside],
+        ]}
+      />
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
+function ScheduleEntry(
+  { entry, inRange, dates, after, conflict }: ScheduleCopy["entries"][number],
+  words: GanttWords,
+  density: c.ThemeDensity,
+  loading: boolean,
+) {
+  const root = inRange && entry.goto ? null : "root";
+  const inline = inRange || !entry.goto;
+  const title = (
+    <kit.KitText part="title" item={entry.id} role="label" density={density}>
+      {entry.title}
+    </kit.KitText>
+  );
+  if (loading) return SchedulePlaceholder({ entry, inRange, dates, after, conflict }, words, density, inline);
+  if (inRange && !dates)
+    return (
+      <kit.KitText key={entry.id} part={root} item={entry.id} role="label" density={density}>
+        {title}
+      </kit.KitText>
+    );
+  return (
+    <kit.KitRow
+      key={entry.id}
+      item={entry.id}
+      part={root}
+      goto={inRange ? undefined : entry.goto}
+      label={entry.title}
+      inset="none"
+      density={density}
+      inline={inline}
+    >
+      <kit.KitContent lineRole="body" density={density}>
+        {title}
+        {dates && (
+          <kit.KitText part="dates" role="caption" tone="muted">
+            {dates}
+          </kit.KitText>
+        )}
+        {after && (
+          <kit.KitText part="after" role="caption" tone="muted">
+            {after}
+          </kit.KitText>
+        )}
+        {conflict && (
+          <kit.KitText part="conflict" role="caption" tone="warn">
+            {words.conflict}
+          </kit.KitText>
+        )}
+        {!inRange && (
+          <kit.KitText part="outside" role="caption" tone="muted">
+            {words.outside}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+function ScheduleDetails({
+  copy,
+  words,
+  density,
+  loading,
+}: {
+  copy: ScheduleCopy;
+  words: GanttWords;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.details]]} />
+      ) : (
+        <kit.KitText role="label" tone="muted" part={null}>
+          {copy.details}
+        </kit.KitText>
+      )}
+      <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+        {copy.entries.map((detail) => ScheduleEntry(detail, words, density, loading))}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
+}
+
 export function Gantt(input: View) {
   const state = kit.useComponentState();
-  const { lang, words: { gantt: words } } = kit.useWords(projectsWordsFor);
+  const {
+    lang,
+    words: { gantt: words },
+  } = kit.useWords(projectsWordsFor);
   const loading = state === "loading";
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const chart = state === "empty" ? undefined : ganttChart(input, lang);
   const copy = state === "empty" ? undefined : ganttCopy({ ...input, detail }, lang);
-  return <kit.KitCard part="root" padded density={density}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> :
-      copy && chart && <>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[["heading", copy.range]]} /> :
-          <kit.KitText part={null} role="heading" density="comfortable">{copy.range}</kit.KitText>}
-        <kit.KitTrack part="range" role="radiogroup" look="segments" label={words.range}>
-          {scales.map((value) => <kit.KitChip key={value} item={null} disabled={loading ? true : undefined}
-            role="radio" look="segment" label={words[value]} on={input.style === value} value={value} />)}
-        </kit.KitTrack>
-        {!loading && copy.noDates ? <kit.KitText part="chart" tone="muted">{copy.noDates}</kit.KitText> :
-          <kit.KitGantt part="chart" {...chart} loading={loading} />}
-        <ScheduleDetails {...{ copy, words, density, loading }} />
-      </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" icon="calendar" decorativeIcon />
+      ) : (
+        copy &&
+        chart && (
+          <>
+            {loading ? (
+              <kit.KitSkeleton
+                shape="figure"
+                inset="none"
+                density="comfortable"
+                content={[["heading", copy.range]]}
+              />
+            ) : (
+              <kit.KitText part={null} role="heading" density="comfortable">
+                {copy.range}
+              </kit.KitText>
+            )}
+            <kit.KitTrack part="range" role="radiogroup" look="segments" label={words.range}>
+              {scales.map((value) => (
+                <kit.KitChip
+                  key={value}
+                  item={null}
+                  disabled={loading ? true : undefined}
+                  role="radio"
+                  look="segment"
+                  label={words[value]}
+                  on={input.style === value}
+                  value={value}
+                />
+              ))}
+            </kit.KitTrack>
+            {!loading && copy.noDates ? (
+              <kit.KitText part="chart" tone="muted">
+                {copy.noDates}
+              </kit.KitText>
+            ) : (
+              <kit.KitGantt part="chart" {...chart} loading={loading} />
+            )}
+            <ScheduleDetails {...{ copy, words, density, loading }} />
+          </>
+        )
+      )}
+    </kit.KitCard>
+  );
 }
