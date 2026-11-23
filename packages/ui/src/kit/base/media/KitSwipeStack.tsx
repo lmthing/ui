@@ -21,7 +21,7 @@ function Front({ label, children }: { label: string; children: ReactNode }) {
       {...address}
       {...(swipe.handlers as object)}
       x={swipe.offset}
-      {...surfaceOf(ks.surface === "hairline" ? "hairline" : "soft")}
+      {...surfaceOf(ks.surface)}
       borderRadius={shifted("md", ks.radiusShift)}
       overflow="hidden"
       accessibilityRole="button"
@@ -90,7 +90,7 @@ export function KitSwipeStack({
             right={depth * peek}
             top={depth * peek + space.xs}
             bottom={0}
-            {...surfaceOf(ks.surface === "hairline" ? "hairline" : "soft")}
+            {...surfaceOf(ks.surface)}
             backgroundColor="$raised"
             opacity={1 - depth * component.base.stackFade}
             borderRadius={shifted("md", ks.radiusShift)}

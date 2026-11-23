@@ -1,14 +1,17 @@
 import { defaultEnvironment, type Environment, type NativeHost } from "./environment";
-import { useMemo, useRef, type ReactNode } from "react";
-import { Theme, YStack, type TamaguiElement } from "tamagui";
+import { useMemo, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { Theme, YStack, isWeb, type TamaguiElement } from "tamagui";
 import {
+  component,
   defaultLang,
   kitStyleOf,
   localeOf,
   presets,
+  space,
   themeName,
   themePreferencesOf,
   type ThemeChoice,
+  type KitStyle,
 } from "../../catalog";
 import { noopParts, type PartRegistry } from "../registry";
 import { KitContext, type KitContextValue } from "./context";
@@ -42,9 +45,11 @@ export function KitProvider({
   const preset = presets.find((value) => value.id === theme.preset)!;
   const osReduced = useReducedMotion(theme.motion === "lively" && !environment.reduceMotion, nativeHost);
   const { density, motion } = themePreferencesOf(theme, environment.reduceMotion || osReduced);
+  const desired = useMemo(() => kitStyleOf(preset, density), [preset, density]);
+  const [style, onLayout] = useScreenGutter(desired, root);
   const value = useMemo(
     () => ({
-      style: kitStyleOf(preset, density),
+      style,
       density,
       motion,
       lang: localeOf(lang),
@@ -58,7 +63,7 @@ export function KitProvider({
       ...(resolvePhoto ? { resolvePhoto } : {}),
     }),
     [
-      preset,
+      style,
       density,
       motion,
       lang,
@@ -75,12 +80,36 @@ export function KitProvider({
   return (
     <Theme name={themeName(theme)}>
       <KitContext.Provider value={value}>
-        <YStack ref={root} backgroundColor="$bg" {...(controller ? { height: "100%" as const } : {})}>
+        <YStack ref={root} onLayout={onLayout} backgroundColor="$bg" height={controller ? "100%" : undefined}>
           {children}
         </YStack>
       </KitContext.Provider>
     </Theme>
   );
+}
+
+function useScreenGutter(desired: KitStyle, root: RefObject<TamaguiElement | null>) {
+  const gutter = desired.frame.gutter;
+  const [wide, setWide] = useState(false);
+  // Reserve room for seven day targets even inside a padded, outlined card.
+  const minWidth =
+    component.base.dayMinWidth * 7 + 2 * (space[gutter] + space.md + component.base.borderWidth);
+  const onLayout: ComponentProps<typeof YStack>["onLayout"] =
+    gutter === "gutter"
+      ? undefined
+      : ({ nativeEvent }) => {
+          // A stage or thumbnail may scale the DOM without changing its layout width.
+          const width = isWeb ? (root.current as HTMLElement | null)?.offsetWidth : nativeEvent.layout.width;
+          setWide((width ?? nativeEvent.layout.width) >= minWidth);
+        };
+  const style = useMemo(
+    () =>
+      wide || gutter === "gutter"
+        ? desired
+        : { ...desired, frame: { ...desired.frame, gutter: "gutter" as const } },
+    [desired, gutter, wide],
+  );
+  return [style, onLayout] as const;
 }
 
 function linkHandler(controller: KitContextValue["controller"], onLink: KitContextValue["onLink"]) {

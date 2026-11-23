@@ -1,14 +1,18 @@
 import { useControlValue } from "../../interact";
 import { Input, XStack, YStack } from "tamagui";
-import { component, fontFamilies, size, space, type as typography, type KitStyle } from "../../../catalog";
+import { component, size, space, type as typography, type KitStyle } from "../../../catalog";
 import { useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
 import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
+import { fieldType, isRuledField, useFieldFinish } from "./field-finish";
 
-export const inputRadius = (kind: InputProps["kind"], shift: KitStyle["radiusShift"]) =>
-  shifted(kind === "search" ? "lg" : "md", shift);
+export const inputRadius = (
+  kind: InputProps["kind"],
+  shift: KitStyle["radiusShift"],
+  corner: KitStyle["frame"]["corner"] = "md",
+) => shifted(kind === "search" ? "lg" : corner, shift);
 
 function useInputLayout({ kind, icon, inset, compact }: InputProps) {
   const spacing = useVariantDensity();
@@ -46,7 +50,8 @@ function TextControl({
       placeholder={hint}
       placeholderTextColor="$muted"
       color={options.inactive ? "$muted" : "$text"}
-      fontFamily={fontFamilies[ks.fonts.text]}
+      {...fieldType(ks)}
+      paddingBottom={isRuledField(ks.frame.field) ? space.sm : undefined}
       {...(kind === "number" && options.action === "set"
         ? { textAlign: "right", fontVariant: ["tabular-nums"] }
         : {})}
@@ -73,8 +78,10 @@ function TextControl({
 export function KitInput(props: InputProps) {
   const { part = "field", caption, label, kind, inactive } = props;
   const ks = useKitStyle();
+  const ruled = isRuledField(ks.frame.field);
   const { lead, start, end, captionStart } = useInputLayout(props);
   const loading = useComponentState() === "loading";
+  const finish = useFieldFinish(loading, inactive);
   const address = usePart(part ?? undefined, !loading && part !== null);
   const error = useControlValue<string | undefined>(`${address.testID}/$error`, undefined);
   const name = label ?? caption;
@@ -89,15 +96,16 @@ export function KitInput(props: InputProps) {
         alignItems="center"
         gap={space.sm}
         minHeight={size.control.md}
-        paddingLeft={start}
+        paddingLeft={ruled && !props.inset && !caption ? component.base.none : start}
         paddingRight={end}
-        borderRadius={inputRadius(kind, ks.radiusShift)}
-        backgroundColor={loading ? "$line" : inactive ? "$surface" : "$raised"}
-        borderWidth={component.base.borderWidth}
-        borderColor="$line"
+        borderRadius={ruled ? component.base.none : inputRadius(kind, ks.radiusShift, ks.frame.corner)}
+        {...finish}
       >
         {lead && (
-          <YStack opacity={loading ? component.base.none : undefined}>
+          <YStack
+            opacity={loading ? component.base.none : undefined}
+            marginBottom={ruled ? space.sm : undefined}
+          >
             <KitIcon name={lead} tone="muted" decorative />
           </YStack>
         )}
