@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createElement, type ComponentProps } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
-import { components, component, radius, space, type as typography } from "@lmthing/ui/catalog";
+import { components, component, radius, size, space, type as typography } from "@lmthing/ui/catalog";
 import { KitCard, KitProvider, KitSkeleton, PartScope } from "@lmthing/ui/kit";
 import { renderInstance, elementAt, styleAt, config } from "../../../../test/render";
 import { linesOf, skeletonInset } from "./skeleton-content";
@@ -131,9 +131,11 @@ describe("skeleton loading through the real entry", () => {
   it("keeps chart height, total and one column per point", () => {
     const input = components.Bars.examples[1]!;
     const html = renderInstance("Bars", input, "loading", theme);
-    expect(styles(html).match(/height:142px/g)).toHaveLength(input.points.length);
-    expect(styles(html)).toContain("height:44px");
-    expect(styles(html)).toContain("height:24px");
+    const css = styles(html);
+    const columnHeight = component.base.barsHeight + typography.caption.lineHeight + space.xs;
+    expect(css.match(new RegExp(`height:${columnHeight}px`, "g"))).toHaveLength(input.points.length);
+    expect(css).toContain(`height:${typography.number.lineHeight}px`);
+    expect(css).toContain(`height:${typography.number.size * 0.6}px`);
   });
   it("centres all four figure lines", () => {
     const html = renderInstance("Amount", components.Amount.examples[0], "loading", theme);
@@ -158,10 +160,12 @@ describe("choice loading after filled-layout polish", () => {
     const html = renderInstance("Choice", input, "loading", theme);
     const root = elementAt(html, "home/c1/root");
     expect(styleAt(html, root)).toContain("padding-left:0px");
-    expect(styles(html)).toContain("line-height:18px");
+    expect(styles(html)).toContain(`line-height:${typography.caption.lineHeight}px`);
     const columns = descendants(root).filter((node) => {
       const css = styleAt(html, node);
-      return css.includes("width:24px") && css.includes("height:22px");
+      return (
+        css.includes(`width:${size.icon.lg}px`) && css.includes(`height:${typography.body.lineHeight}px`)
+      );
     });
     expect(columns).toHaveLength(input.options.length);
   });
