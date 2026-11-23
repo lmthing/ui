@@ -8,5 +8,6 @@ An identity block with a name, short detail and optional portrait. Not a screen 
 
 ## Writer
 
-- Set detail and media only when explicitly requested. A profile at the top of the page does not change its media.
-- Supplying a portrait leaves media null, never "thumb". Use media "none" only to hide the portrait slot. If only the supporting text should be hidden, set just detail "brief" and keep the supplied meta.
+- Put the portrait reference in `photo`. In the usual layout use `"media": null`, even with a supplied portrait or a profile at the top of the page. The default already shows the portrait.
+- Use `"media": "thumb"` only for an explicitly requested thumbnail or photo-led treatment. Use `"media": "none"` only if asked to hide the portrait. Never use `none` when the request says to show a picture.
+- Put supplied supporting text in `meta`. To show it, use `"detail": null`, including in a photo-led profile. Use `"detail": "brief"` only on an explicit request to hide the supporting line, and keep that text in `meta`. Hiding the supporting line alone leaves `media` null.
