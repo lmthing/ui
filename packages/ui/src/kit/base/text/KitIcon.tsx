@@ -1,8 +1,7 @@
 import { useSignatureProgress } from "../../motion";
-import { motion } from "../../../catalog";
-import * as Lucide from "@tamagui/lucide-icons";
+import * as icons from "../../../entry/icons.generated";
 import { YStack, styled } from "tamagui";
-import { iconTable, radius, size, type IconName } from "../../../catalog";
+import { iconTable, motion, radius, size, type IconName } from "../../../catalog";
 import { usePart } from "../../part";
 
 const Frame = styled(YStack, { alignItems: "center", justifyContent: "center" });
@@ -28,7 +27,7 @@ export function KitIcon({
   const addressed = !decorative && !loading;
   const address = usePart(part, addressed);
   const progress = useSignatureProgress("streak_flame");
-  const Icon = Lucide[iconTable[name]];
+  const Icon = icons[iconTable[name]];
   return (
     <Frame
       scale={name === "flame" ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}

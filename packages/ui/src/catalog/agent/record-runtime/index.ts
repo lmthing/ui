@@ -11,7 +11,7 @@ export const isRecordJournal = (key: string) => key.startsWith("$record:");
 const addressOf = (screen: string, key: string) =>
   key.startsWith(`${screen}/`) ? key.slice(screen.length + 1) : key;
 
-const recordScreen = Symbol("recordScreen");
+const recordScreen = Symbol.for("@lmthing/ui/recordScreen");
 type RecordData = DeviceData & { [recordScreen]?: ScreenLike };
 export function withRecordScreen(data: DeviceData | undefined, screen: ScreenLike): RecordData {
   return { ...data, [recordScreen]: screen };

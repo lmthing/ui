@@ -9,10 +9,26 @@
       "types": "./dist/catalog.d.ts",
       "import": "./dist/catalog.js"
     },
+    "./catalog-browser": {
+      "types": "./dist/catalog-browser.d.ts",
+      "import": "./dist/catalog-browser.js"
+    },
     "./kit": {
       "source": "./src/entry/kit.ts",
       "types": "./dist/kit.d.ts",
       "import": "./dist/kit.js"
+    },
+    "./kit/runtime": {
+      "types": "./dist/kit-runtime.d.ts",
+      "import": "./dist/kit-runtime.js"
+    },
+    "./kit/tamagui": {
+      "types": "./dist/kit-tamagui.d.ts",
+      "import": "./dist/kit-tamagui.js"
+    },
+    "./renderers/*": {
+      "types": "./dist/renderers/*.d.ts",
+      "import": "./dist/renderers/*.js"
     }
   },
   "scripts": {

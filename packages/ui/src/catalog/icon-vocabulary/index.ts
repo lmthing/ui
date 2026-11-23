@@ -1,0 +1,1 @@
+export { iconTable } from "../icons";
