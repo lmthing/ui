@@ -14010,6 +14010,1107 @@
       "{\n  \"id\": \"expenses_books_receipt_edit\",\n  \"title\": \"Edit receipt\",\n  \"components\": [\n    {\n      \"id\": \"header_back\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Edit receipt\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"expense_receipt\",\n      \"c\": \"Expenses\",\n      \"detail\": null,\n      \"style\": \"receipt\",\n      \"receipts\": [\n        {\n          \"expenseRef\": \"travel_1\",\n          \"date\": \"2026-11-20\",\n          \"supplier\": \"Town Transit\",\n          \"receipt\": null,\n          \"lines\": [\n            {\n              \"title\": \"Travel\",\n              \"net\": 100,\n              \"businessUse\": 1,\n              \"categoryRef\": \"travel\",\n              \"vatCode\": \"none\"\n            }\n          ],\n          \"postedAt\": null,\n          \"voided\": null,\n          \"goto\": null\n        }\n      ],\n      \"captureGoto\": null\n    },\n    {\n      \"id\": \"note_classify\",\n      \"c\": \"Note\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Classify before posting.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"button_done\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Done\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"receipts\",\n      \"confirm\": null\n    }\n  ]\n}"
     ]
   },
+  "compose%2Fexpenses%2Fbooks_receipts%2FTitle%20it%20Receipts%2C%20then%20Search%20receipts%20and%20All%20and%20Travel%20filter%20chips.%20Show%20the%20expense%20register.%20Draft%20travel_1%20from%20Town%20Transit%2C%202026-11-20%2C%20one%20split%20Travel%20100%20net%2C%20businessUse%201%2C%20categoryRef%20travel%2C%20vatCode%20none.%20End%20with%20Add%20receipt%20linking%20to%20new_receipt./41141b9b6addcd65/57472dbe30a33340": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: expenses/books_receipts. Job: Find expense receipts and classify their splits.\n\nBrief: Title it Receipts, then Search receipts and All and Travel filter chips. Show the expense register. Draft travel_1 from Town Transit, 2026-11-20, one split Travel 100 net, businessUse 1, categoryRef travel, vatCode none. End with Add receipt linking to new_receipt.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Search\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Chips\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Expenses\"],\"min\":1,\"max\":1,\"variant\":\"register\"},{\"id\":\"slot_4\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Chips.filter can only target a List, not the Expenses register. Keep the requested chip labels, set filter:null and view:null on every chip, and render the receipts in Expenses.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nSearch: Find one thing among many by typing words from its name.\nprops: { hint: text≤40 }\nexample: {\"c\":\"Search\",\"hint\":\"Search plants\"}\nweight: 1\n\nChips: Narrow a list by toggling visible labels, or pick one value from a few choices.\nprops: { lead?: icon|none=\"icon\", style?: filter|choose=\"filter\", filter?: { list: id snake_case, field: category|badge }, items: [2..6 { label: text≤16, on?: boolean=false, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, view?: { panel?: id snake_case, match?: text≤24, empty: text≤64 } }] }\nRule: For text-only chips or a request to hide or turn off icons, set \"lead\":\"none\", not null. Keep the existing item icon references: lead controls whether they are drawn. Use lead:null for normal chips with no request to hide icons.\nRule: If the response is only one Chips component, use filter:null and view:null on every item. A standalone line cannot refer to sibling ids that aren't being written. Don't invent any ids.\nRule: When composing a list filter, give the sibling List an explicit id and set filter to {\"list\":\"list_id\",\"field\":\"category\"}. Tag each List row with its actual category and set each item's view.match to the exact value. Include view.empty for each item. In filter style use only real categories; no selected chips already means All. In choose style an item without match shows All.\nRule: To show named sibling content instead, set filter:null and give every item a view with panel (the sibling's explicit id), match:null and empty (its no-results message). An item without panel shows its empty message if no other selected item has results.\nexample: {\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"All rooms\",\"on\":true},{\"label\":\"Bathroom\"},{\"label\":\"Kitchen\"},{\"label\":\"Sun room\"},{\"label\":\"Balcony\"},{\"label\":\"Hallway shelves\"}]}\nweight: 1\n\nExpenses: Record business receipts and split their costs for bookkeeping and VAT.\nprops: { detail?: full|brief=\"full\", style?: register|receipt=\"register\", receipts: [1..6 { expenseRef: id snake_case, date: date YYYY-MM-DD, supplier: text≤32, receipt?: photo lib:<tag>|local:<n>, lines: [1..8 { title: text≤32, net: number, businessUse: num 0..1, categoryRef: id snake_case, vatCode: id snake_case }], postedAt?: id snake_case, voided?: boolean=false, goto?: id snake_case }], captureGoto?: id snake_case }\nRule: Use style \"receipt\" for exactly one receipt with editable draft lines; otherwise use \"register\". A receipt has one to eight splits; each has a positive net amount and businessUse from 0 to 1.\nRule: Use snake_case references. A posted receipt has an offset datetime in postedAt; only a posted receipt can be voided. Never write gross, deductible cost or recoverable VAT.\nRule: For a register with only the gross totals, use detail \"brief\". Keep all receipt data.\nexample: {\"c\":\"Expenses\",\"style\":\"receipt\",\"captureGoto\":\"capture\",\"receipts\":[{\"expenseRef\":\"supplies\",\"date\":\"2026-11-19\",\"supplier\":\"Fern Nursery\",\"receipt\":\"local:1\",\"lines\":[{\"title\":\"Potting mix\",\"net\":21,\"businessUse\":1,\"categoryRef\":\"supplies\",\"vatCode\":\"standard\"},{\"title\":\"Delivery\",\"net\":7,\"businessUse\":0.5,\"categoryRef\":\"travel\",\"vatCode\":\"standard\"}]}]}\nweight: 3\n\nButton: A screen's main task action or a quiet secondary action.\nprops: { emphasis?: normal|quiet=\"normal\", media?: icon|none=\"icon\", label: text≤24, kind?: text≤?, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nRule: Set media to \"none\" only to hide an icon explicitly supplied and kept in icon. If no icon was requested, both icon and media are null. Hiding an icon does not change a filled Button's emphasis.\nRule: Use emphasis \"quiet\" for a secondary action or link in the scrolling content. Leave emphasis null for the screen's own main action. Use a row link to open its record and the Header back control to return.\nRule: For a link to a supplied screen id, copy the id to goto.\nRule: For a destructive action, set kind to \"danger\" and supply confirm. Otherwise leave kind null.\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"expenses_books_receipts\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"s1\",\"c\":\"Search\",\"hint\":\"Search\"},{\"id\":\"c1\",\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"Item one\",\"on\":true},{\"label\":\"Item two\",\"on\":false}]},{\"id\":\"e1\",\"c\":\"Expenses\",\"receipts\":[{\"expenseRef\":\"item_1\",\"date\":\"2026-11-20\",\"supplier\":\"Item one\",\"lines\":[{\"title\":\"Item two\",\"net\":1,\"businessUse\":1,\"categoryRef\":\"item_2\",\"vatCode\":\"item_3\"}]}],\"style\":\"register\"},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Search",
+                        "enum": [
+                          "Search"
+                        ]
+                      },
+                      "hint": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "hint"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Chips",
+                        "enum": [
+                          "Chips"
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "filter",
+                              "choose"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "filter": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "list": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              },
+                              "field": {
+                                "type": "string",
+                                "enum": [
+                                  "category",
+                                  "badge"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "list",
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            },
+                            "on": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "view": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "panel": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_]*$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "match": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 24
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "empty": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
+                                    }
+                                  },
+                                  "required": [
+                                    "panel",
+                                    "match",
+                                    "empty"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "on",
+                            "icon",
+                            "view"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "lead",
+                      "style",
+                      "filter",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Expenses",
+                        "enum": [
+                          "Expenses"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "register",
+                              "receipt"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "receipts": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "expenseRef": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                            },
+                            "date": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "supplier": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 32
+                            },
+                            "receipt": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "lines": {
+                              "minItems": 1,
+                              "maxItems": 8,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "title": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 32
+                                  },
+                                  "net": {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "businessUse": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1
+                                  },
+                                  "categoryRef": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                                  },
+                                  "vatCode": {
+                                    "type": "string",
+                                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                                  }
+                                },
+                                "required": [
+                                  "title",
+                                  "net",
+                                  "businessUse",
+                                  "categoryRef",
+                                  "vatCode"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "postedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "voided": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "expenseRef",
+                            "date",
+                            "supplier",
+                            "receipt",
+                            "lines",
+                            "postedAt",
+                            "voided",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "captureGoto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "style",
+                      "receipts",
+                      "captureGoto"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "danger"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "media",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"expenses_books_receipts\",\n  \"title\": \"Receipts\",\n  \"components\": [\n    {\n      \"id\": \"header_receipts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Receipts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"search_receipts\",\n      \"c\": \"Search\",\n      \"hint\": \"Search receipts\"\n    },\n    {\n      \"id\": \"chips_receipts\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"filter\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"All\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Travel\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"expenses_register\",\n      \"c\": \"Expenses\",\n      \"detail\": null,\n      \"style\": \"register\",\n      \"receipts\": [\n        {\n          \"expenseRef\": \"travel_1\",\n          \"date\": \"2026-11-20\",\n          \"supplier\": \"Town Transit\",\n          \"receipt\": null,\n          \"lines\": [\n            {\n              \"title\": \"Travel\",\n              \"net\": 100,\n              \"businessUse\": 1,\n              \"categoryRef\": \"travel\",\n              \"vatCode\": \"none\"\n            }\n          ],\n          \"postedAt\": null,\n          \"voided\": null,\n          \"goto\": null\n        }\n      ],\n      \"captureGoto\": null\n    },\n    {\n      \"id\": \"button_add_receipt\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Add receipt\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": \"new_receipt\",\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"expenses_books_receipts\",\n  \"title\": \"Receipts\",\n  \"components\": [\n    {\n      \"id\": \"header_receipts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Receipts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"search_receipts\",\n      \"c\": \"Search\",\n      \"hint\": \"Search receipts\"\n    },\n    {\n      \"id\": \"chips_receipts\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"filter\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"All\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Travel\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"expenses_register\",\n      \"c\": \"Expenses\",\n      \"detail\": null,\n      \"style\": \"register\",\n      \"receipts\": [\n        {\n          \"expenseRef\": \"travel_1\",\n          \"date\": \"2026-11-20\",\n          \"supplier\": \"Town Transit\",\n          \"receipt\": null,\n          \"lines\": [\n            {\n              \"title\": \"Travel\",\n              \"net\": 100,\n              \"businessUse\": 1,\n              \"categoryRef\": \"travel\",\n              \"vatCode\": \"none\"\n            }\n          ],\n          \"postedAt\": null,\n          \"voided\": null,\n          \"goto\": null\n        }\n      ],\n      \"captureGoto\": null\n    },\n    {\n      \"id\": \"button_add_receipt\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Add receipt\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": \"new_receipt\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"expenses_books_receipts\",\n  \"title\": \"Receipts\",\n  \"components\": [\n    { \"id\": \"header\", \"c\": \"Header\", \"emphasis\": null, \"detail\": null, \"style\": null, \"title\": \"Receipts\" , \"sub\": null, \"action\": null},\n    { \"id\": \"search_receipts\", \"c\": \"Search\", \"hint\": \"Search receipts\" },\n    { \"id\": \"filter_chips\", \"c\": \"Chips\", \"lead\": null, \"style\": \"filter\", \"filter\": null, \"items\": [\n      { \"label\": \"All\", \"on\": true, \"icon\": null, \"view\": null },\n      { \"label\": \"Travel\", \"on\": false, \"icon\": null, \"view\": null }\n    ]},\n    { \"id\": \"register\", \"c\": \"Expenses\", \"detail\": null, \"style\": \"register\", \"receipts\": [\n      { \"expenseRef\": \"travel_1\", \"date\": \"2026-11-20\", \"supplier\": \"Town Transit\", \"receipt\": null, \"lines\": [\n        { \"title\": \"Travel\", \"net\": 100, \"businessUse\": 1, \"categoryRef\": \"travel\", \"vatCode\": \"none\" }\n      ], \"postedAt\": null, \"voided\": null, \"goto\": null }\n    ], \"captureGoto\": null },\n    { \"id\": \"add_receipt\", \"c\": \"Button\", \"emphasis\": null, \"media\": null, \"label\": \"Add receipt\", \"kind\": null, \"icon\": null, \"goto\": \"new_receipt\", \"confirm\": null }\n  ]\n}",
+      "{\n  \"id\": \"expenses_books_receipts\",\n  \"title\": \"Receipts\",\n  \"components\": [\n    {\n      \"id\": \"header_receipts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Receipts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"search_receipts\",\n      \"c\": \"Search\",\n      \"hint\": \"Search receipts\"\n    },\n    {\n      \"id\": \"chips_all_travel\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"filter\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"All\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Travel\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"expenses_register\",\n      \"c\": \"Expenses\",\n      \"detail\": \"brief\",\n      \"style\": \"register\",\n      \"receipts\": [\n        {\n          \"expenseRef\": \"travel_1\",\n          \"date\": \"2026-11-20\",\n          \"supplier\": \"Town Transit\",\n          \"receipt\": null,\n          \"lines\": [\n            {\n              \"title\": \"Travel\",\n              \"net\": 100,\n              \"businessUse\": 1,\n              \"categoryRef\": \"travel\",\n              \"vatCode\": \"none\"\n            }\n          ],\n          \"postedAt\": null,\n          \"voided\": false,\n          \"goto\": null\n        }\n      ],\n      \"captureGoto\": null\n    },\n    {\n      \"id\": \"button_add_receipt\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Add receipt\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": \"new_receipt\",\n      \"confirm\": null\n    }\n  ]\n}"
+    ]
+  },
   "compose%2Fexpenses%2Fbooks_receipts%2FTitle%20it%20Receipts%2C%20then%20Search%20receipts%20and%20All%20and%20Travel%20filter%20chips.%20Show%20the%20expense%20register.%20Draft%20travel_1%20from%20Town%20Transit%2C%202026-11-20%2C%20one%20split%20Travel%20100%20net%2C%20businessUse%201%2C%20categoryRef%20travel%2C%20vatCode%20none.%20End%20with%20Add%20receipt%20linking%20to%20new_receipt./e00f202f77ea4288/83caa3066b4eece8": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: expenses/books_receipts. Job: Find expense receipts and classify their splits.\n\nBrief: Title it Receipts, then Search receipts and All and Travel filter chips. Show the expense register. Draft travel_1 from Town Transit, 2026-11-20, one split Travel 100 net, businessUse 1, categoryRef travel, vatCode none. End with Add receipt linking to new_receipt.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Search\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Chips\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Expenses\"],\"min\":1,\"max\":1,\"variant\":\"register\"},{\"id\":\"slot_4\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nSearch: Find one thing among many by typing words from its name.\nprops: { hint: text≤40 }\nexample: {\"c\":\"Search\",\"hint\":\"Search plants\"}\nweight: 1\n\nChips: Narrow a list by toggling visible labels, or pick one value from a few choices.\nprops: { lead?: icon|none=\"icon\", style?: filter|choose=\"filter\", filter?: { list: id snake_case, field: category|badge }, items: [2..6 { label: text≤16, on?: boolean=false, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, view?: { panel?: id snake_case, match?: text≤24, empty: text≤64 } }] }\nRule: For text-only chips or a request to hide or turn off icons, set \"lead\":\"none\", not null. Keep the existing item icon references: lead controls whether they are drawn. Use lead:null for normal chips with no request to hide icons.\nRule: If the response is only one Chips component, use filter:null and view:null on every item. A standalone line cannot refer to sibling ids that aren't being written. Don't invent any ids.\nRule: When composing a list filter, give the sibling List an explicit id and set filter to {\"list\":\"list_id\",\"field\":\"category\"}. Tag each List row with its actual category and set each item's view.match to the exact value. Include view.empty for each item. In filter style use only real categories; no selected chips already means All. In choose style an item without match shows All.\nRule: To show named sibling content instead, set filter:null and give every item a view with panel (the sibling's explicit id), match:null and empty (its no-results message). An item without panel shows its empty message if no other selected item has results.\nexample: {\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"All rooms\",\"on\":true},{\"label\":\"Bathroom\"},{\"label\":\"Kitchen\"},{\"label\":\"Sun room\"},{\"label\":\"Balcony\"},{\"label\":\"Hallway shelves\"}]}\nweight: 1\n\nExpenses: Record business receipts and split their costs for bookkeeping and VAT.\nprops: { detail?: full|brief=\"full\", style?: register|receipt=\"register\", receipts: [1..6 { expenseRef: id snake_case, date: date YYYY-MM-DD, supplier: text≤32, receipt?: photo lib:<tag>|local:<n>, lines: [1..8 { title: text≤32, net: number, businessUse: num 0..1, categoryRef: id snake_case, vatCode: id snake_case }], postedAt?: id snake_case, voided?: boolean=false, goto?: id snake_case }], captureGoto?: id snake_case }\nRule: Use style \"receipt\" for exactly one receipt with editable draft lines; otherwise use \"register\". A receipt has one to eight splits; each has a positive net amount and businessUse from 0 to 1.\nRule: Use snake_case references. A posted receipt has an offset datetime in postedAt; only a posted receipt can be voided. Never write gross, deductible cost or recoverable VAT.\nRule: For a register with only the gross totals, use detail \"brief\". Keep all receipt data.\nexample: {\"c\":\"Expenses\",\"style\":\"receipt\",\"captureGoto\":\"capture\",\"receipts\":[{\"expenseRef\":\"supplies\",\"date\":\"2026-11-19\",\"supplier\":\"Fern Nursery\",\"receipt\":\"local:1\",\"lines\":[{\"title\":\"Potting mix\",\"net\":21,\"businessUse\":1,\"categoryRef\":\"supplies\",\"vatCode\":\"standard\"},{\"title\":\"Delivery\",\"net\":7,\"businessUse\":0.5,\"categoryRef\":\"travel\",\"vatCode\":\"standard\"}]}]}\nweight: 3\n\nButton: A screen's main task action or a quiet secondary action.\nprops: { emphasis?: normal|quiet=\"normal\", media?: icon|none=\"icon\", label: text≤24, kind?: text≤?, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nRule: Set media to \"none\" only to hide an icon explicitly supplied and kept in icon. If no icon was requested, both icon and media are null. Hiding an icon does not change a filled Button's emphasis.\nRule: Use emphasis \"quiet\" for a secondary action or link in the scrolling content. Leave emphasis null for the screen's own main action. Use a row link to open its record and the Header back control to return.\nRule: For a link to a supplied screen id, copy the id to goto.\nRule: For a destructive action, set kind to \"danger\" and supply confirm. Otherwise leave kind null.\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"expenses_books_receipts\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"s1\",\"c\":\"Search\",\"hint\":\"Search\"},{\"id\":\"c1\",\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"Item one\",\"on\":true},{\"label\":\"Item two\",\"on\":false}]},{\"id\":\"e1\",\"c\":\"Expenses\",\"receipts\":[{\"expenseRef\":\"item_1\",\"date\":\"2026-11-20\",\"supplier\":\"Item one\",\"lines\":[{\"title\":\"Item two\",\"net\":1,\"businessUse\":1,\"categoryRef\":\"item_2\",\"vatCode\":\"item_3\"}]}],\"style\":\"register\"},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {
