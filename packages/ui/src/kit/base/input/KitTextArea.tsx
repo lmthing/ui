@@ -1,11 +1,11 @@
 import { useControlValue } from "../../interact";
 import { useState } from "react";
 import { TextArea, YStack } from "tamagui";
-import { component, fontFamilies, size, space, type as typography } from "../../../catalog";
+import { component, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { shifted } from "../text";
-import { fieldFinish } from "./field-finish";
+import { fieldFinish, fieldType, isRuledField } from "./field-finish";
 
 /**
  * A text box that grows with what is written (role textbox, multiline), at least `lines` tall, with its
@@ -32,7 +32,7 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
       borderRadius={
-        ks.frame.field === "ruled" ? component.base.none : shifted(ks.frame.corner, ks.radiusShift)
+        isRuledField(ks.frame.field) ? component.base.none : shifted(ks.frame.corner, ks.radiusShift)
       }
       {...fieldFinish(ks.frame.field)}
     >
@@ -63,7 +63,7 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
         readOnly={!kit.interactive}
         color="$text"
         placeholderTextColor="$muted"
-        fontFamily={fontFamilies[ks.fonts.text]}
+        {...fieldType(ks)}
         fontSize={typography.body.size}
         lineHeight={typography.body.lineHeight}
       />

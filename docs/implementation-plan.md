@@ -403,7 +403,7 @@ export type KitStyle = {
   strong: boolean;
   frame: {
     gutter: SpaceToken;
-    field: "filled" | "outlined" | "ruled" | "ink";
+    field: "filled" | "outlined" | "ruled" | "serifRule" | "ink";
     action: "standard" | "block" | "pill" | "glow";
     corner: "md" | "lg";
     displayTitle: boolean;

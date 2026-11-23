@@ -1,12 +1,12 @@
 import { useControlValue } from "../../interact";
 import { Input, XStack, YStack } from "tamagui";
-import { component, fontFamilies, size, space, type as typography, type KitStyle } from "../../../catalog";
+import { component, size, space, type as typography, type KitStyle } from "../../../catalog";
 import { useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
 import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
-import { fieldFinish } from "./field-finish";
+import { fieldFinish, fieldType, isRuledField } from "./field-finish";
 
 export const inputRadius = (
   kind: InputProps["kind"],
@@ -50,7 +50,8 @@ function TextControl({
       placeholder={hint}
       placeholderTextColor="$muted"
       color={options.inactive ? "$muted" : "$text"}
-      fontFamily={fontFamilies[ks.fonts.text]}
+      {...fieldType(ks)}
+      paddingBottom={isRuledField(ks.frame.field) ? space.sm : undefined}
       {...(kind === "number" && options.action === "set"
         ? { textAlign: "right", fontVariant: ["tabular-nums"] }
         : {})}
@@ -77,6 +78,7 @@ function TextControl({
 export function KitInput(props: InputProps) {
   const { part = "field", caption, label, kind, inactive } = props;
   const ks = useKitStyle();
+  const ruled = isRuledField(ks.frame.field);
   const { lead, start, end, captionStart } = useInputLayout(props);
   const loading = useComponentState() === "loading";
   const address = usePart(part ?? undefined, !loading && part !== null);
@@ -93,17 +95,16 @@ export function KitInput(props: InputProps) {
         alignItems="center"
         gap={space.sm}
         minHeight={size.control.md}
-        paddingLeft={start}
+        paddingLeft={ruled && !props.inset && !caption ? component.base.none : start}
         paddingRight={end}
-        borderRadius={
-          ks.frame.field === "ruled"
-            ? component.base.none
-            : inputRadius(kind, ks.radiusShift, ks.frame.corner)
-        }
+        borderRadius={ruled ? component.base.none : inputRadius(kind, ks.radiusShift, ks.frame.corner)}
         {...fieldFinish(ks.frame.field, loading, inactive)}
       >
         {lead && (
-          <YStack opacity={loading ? component.base.none : undefined}>
+          <YStack
+            opacity={loading ? component.base.none : undefined}
+            marginBottom={ruled ? space.sm : undefined}
+          >
             <KitIcon name={lead} tone="muted" decorative />
           </YStack>
         )}

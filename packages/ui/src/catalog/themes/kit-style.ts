@@ -11,7 +11,7 @@ export type KitStyle = {
   strong: boolean;
   frame: {
     gutter: SpaceToken;
-    field: "filled" | "outlined" | "ruled" | "ink";
+    field: "filled" | "outlined" | "ruled" | "serifRule" | "ink";
     action: "standard" | "block" | "pill" | "glow";
     corner: "md" | "lg";
     displayTitle: boolean;
@@ -31,7 +31,7 @@ const treatments: Partial<Record<KitStyle["surface"], Partial<KitStyle["frame"]>
   hairline: { field: "outlined" },
   accentBlock: { action: "block", displayTitle: true },
   tinted: { action: "pill", corner: "lg" },
-  editorial: { gutter: "2xl", field: "ruled", displayTitle: true },
+  editorial: { gutter: "2xl", field: "serifRule", displayTitle: true },
   ruled: { field: "ruled", rowRule: true },
   raised: { action: "glow" },
   monochrome: { field: "ink" },

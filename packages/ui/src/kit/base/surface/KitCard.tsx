@@ -114,7 +114,12 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
     borderRadius: shifted(ks.frame.corner, ks.radiusShift),
     padding: padded && !flush ? space.md : style === "inset" ? space.xs : component.base.none,
     ...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {}),
-    gap: style === "cards" ? space[spacing.gap] : padded ? space[spacing.contentGap] : component.base.none,
+    gap:
+      style === "cards"
+        ? space[spacing.gap]
+        : padded
+          ? space[flush ? "xs" : spacing.contentGap]
+          : component.base.none,
     ...(align === "center" ? { alignItems: variants.align.center.content } : {}),
     ...(gutter ? { marginHorizontal: -space[gutter] } : {}),
   };
