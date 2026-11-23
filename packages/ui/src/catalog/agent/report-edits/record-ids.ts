@@ -1,4 +1,5 @@
 import type { Meta } from "../../meta";
+import { hasHostItemAddress } from "../../lines";
 import type { Values } from "../act";
 import { recordKey } from "../device-data";
 import { addressedItems } from "../visibility";
@@ -17,7 +18,7 @@ export function rememberRecordIds(meta: Meta, props: Values, values: Values, bas
   const prefix = meta.items?.prefix ?? "r";
   addressedItems(meta, props).forEach((row, index) => {
     const key = recordKey(row, keys);
-    if (key !== undefined && !Object.hasOwn(ids, key))
+    if (key !== undefined && (hasHostItemAddress(row) || !Object.hasOwn(ids, key)))
       ids[key] = typeof row.id === "string" && row.id !== `${prefix}${index + 1}` ? row.id : index + 1;
   });
   const next = added && recordKey(added, keys);
@@ -38,6 +39,7 @@ export function projectRecordIds(meta: Meta, props: Values, get: (part: string) 
   return {
     ...props,
     [items.key]: addressedItems(meta, props).map((row) => {
+      if (hasHostItemAddress(row)) return row;
       const key = recordKey(row, items.records!.keys);
       const id = key !== undefined ? ids[key] : undefined;
       return id === undefined ? row : { ...row, id: itemId(items.prefix ?? "r", id) };

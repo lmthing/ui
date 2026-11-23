@@ -9,6 +9,7 @@ export {
 } from "./repair-component";
 export {
   hostItemInput,
+  hasHostItemAddress,
   hostWireItemIds,
   parseItemProps,
   safeParseItemProps,

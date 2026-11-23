@@ -34,7 +34,9 @@ function checkCollections(meta: Meta, collections: NonNullable<Meta["collections
 
 type Values = Record<string, unknown>;
 const rowIndex = Symbol("host row index");
-type TracedRow = Values & { [rowIndex]?: number };
+const hostAddress = Symbol("host row address");
+type TracedRow = Values & { [rowIndex]?: number; [hostAddress]?: true };
+export const hasHostItemAddress = (row: TracedRow) => row[hostAddress] === true;
 type RowIds = {
   ids: ReadonlyMap<string, readonly unknown[]>;
   onRow?: (key: string, index: number, id: string, repaired: boolean) => void;
@@ -100,7 +102,7 @@ function attachIds(rows: readonly TracedRow[], ids: readonly string[], key: stri
     }
     if (row?.[rowIndex] !== undefined) {
       const { [rowIndex]: _index, ...fields } = row;
-      return { ...fields, id };
+      return { ...fields, id, [hostAddress]: true };
     }
     return row?.id === id ? row : { ...row, id };
   });

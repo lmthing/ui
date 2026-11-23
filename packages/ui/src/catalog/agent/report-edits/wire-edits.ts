@@ -2,6 +2,7 @@ import type { Definition } from "../../probes";
 import type { Meta } from "../../meta";
 import { hostItemInput } from "../../lines";
 import type { Values } from "../act";
+import { recordKey } from "../device-data";
 import { projectControlInput } from "../live-props";
 
 type Edit = { path: readonly (string | number)[]; value: unknown };
@@ -64,11 +65,38 @@ export function reportEditWire(def: Definition, input: unknown, get: (part: stri
   return projectControlInput(def, input as Values, get);
 }
 
-export function applyRecordWire(meta: Meta, input: Values, get: (part: string) => unknown) {
+function preserveHostRecordIds(def: Definition, input: Values, patch: Values) {
+  const items = def.meta.items;
+  if (!items?.records) return patch;
+  const {
+    key,
+    records: { keys },
+  } = items;
+  const original = input[key];
+  const edited = patch[key];
+  if (!Array.isArray(original) || !Array.isArray(edited)) return patch;
+  const ids = hostItemInput(def, input).ids.get(key);
+  if (!ids) return patch;
+  const byRecord = new Map<string, unknown>();
+  ids.forEach((id, index) => {
+    const record = recordKey(original[index], keys);
+    if (record !== undefined) byRecord.set(record, id);
+  });
+  return {
+    ...patch,
+    [key]: edited.map((row: Values) => {
+      const record = recordKey(row, keys);
+      return record !== undefined && byRecord.has(record) ? { ...row, id: byRecord.get(record) } : row;
+    }),
+  };
+}
+
+export function applyRecordWire(def: Definition, input: Values, get: (part: string) => unknown) {
+  const { meta } = def;
   if (!meta.items?.records && !meta.clocks?.some(({ commitOnStop, journal }) => commitOnStop || journal))
     return input;
   const patch = (get(recordWireKey) as RecordEdits | undefined)?.[recordPartition(meta, input)];
-  return patch ? { ...input, ...patch } : input;
+  return patch ? { ...input, ...preserveHostRecordIds(def, input, patch) } : input;
 }
 
 /** Validate the whole mutation once, including any cross-field schema refinements. */

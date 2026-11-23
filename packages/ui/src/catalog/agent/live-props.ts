@@ -83,7 +83,7 @@ export function projectControlInput(def: Definition, input: Values, get: Get): V
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get, hostWireItemIds(def, source));
   source = projectNamedSelections(meta, source, get, "wire");
-  source = applyRecordWire(meta, source, get);
+  source = applyRecordWire(def, source, get);
   const ids = hostWireItemIds(def, source);
   source = projectMoves(def, source, get, ids);
   const items = meta.items;
