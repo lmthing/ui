@@ -165,23 +165,14 @@ export function Heatmap(input: Props<typeof props, typeof meta>) {
             )}
           </>
         )}
+        <kit.KitContent rhythm="flush" density={density}>
+          <kit.KitHeatGrid {...heatGrid(input, lang)} part="grid" style={style} loading={loading} />
+          <kit.KitLayoutText
+            line={{ text: legend, part: "legend", role: "caption", tone: "muted" }}
+            density={density}
+          />
+        </kit.KitContent>
       </kit.KitContent>
-      <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-        <kit.KitHeatGrid {...heatGrid(input, lang)} part="grid" style={style} loading={loading} />
-      </kit.KitContent>
-      {loading ? (
-        <kit.KitSkeleton
-          rows={1}
-          shape="figure"
-          inset="none"
-          density={density}
-          content={[["caption", legend]]}
-        />
-      ) : (
-        <kit.KitText role="caption" tone="muted" part="legend" density={density}>
-          {legend}
-        </kit.KitText>
-      )}
     </kit.KitCard>
   );
 }
