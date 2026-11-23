@@ -28,9 +28,27 @@ export const meta = {
     "Touch or stylus input saves a dated local signed copy of the reviewed version without altering the original or verifying identity.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
-  // prettier-ignore
-  parts: ["root", "title", "signer", "hint", "document", "document_label", "document_icon",
-    "review", "review_label", "pad", "pad_frame", "clear", "clear_label", "save", "save_label", "success", "error", "sub", "date_stamp"],
+  parts: [
+    "root",
+    "title",
+    "signer",
+    "hint",
+    "document",
+    "document_label",
+    "document_icon",
+    "review",
+    "review_label",
+    "pad",
+    "pad_frame",
+    "clear",
+    "clear_label",
+    "save",
+    "save_label",
+    "success",
+    "error",
+    "sub",
+    "date_stamp",
+  ],
   states: ["empty", "filled", "loading", "success", "error"],
   confirmParts: ["clear"],
   emptyActions: ["document.press", "review.check", "pad.set"],
@@ -135,35 +153,139 @@ type View = c.Props<typeof props, typeof meta>;
 type Density = c.ThemeDensity;
 type Display = ReturnType<typeof signatureDisplay>;
 
-// prettier-ignore
-function SignatureWorkflow({ copy, density, options }: { copy: Display; density: Density; options: boolean }) {
-  const pad = <kit.KitSignaturePad part="pad_frame" target={{ part: "pad" }} label={copy.pad}
-    loading={copy.loading} disabled={!copy.canDraw} {...(copy.mark ? { mark: copy.mark } : {})} />;
-  return <>
-    <kit.KitAction part="document" label={copy.open} icon="file_text" kind="secondary" full />
-    <kit.KitRow part={null} label="" inline density={density} lineRole="label"
-      trailing={copy.loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
-        <kit.KitCheck part="review" label={copy.review} done={copy.reviewed}
-        readonly={copy.reviewed} disabled={!copy.canReview && !copy.reviewed} />}>
-      {copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.review]]} /> :
-        <kit.KitText part="review_label" role="label" density={density}>{copy.review}</kit.KitText>}
+function SignatureReview(copy: Display, density: Density) {
+  return (
+    <kit.KitRow
+      part={null}
+      label=""
+      inline
+      density={density}
+      lineRole="label"
+      trailing={
+        copy.loading ? (
+          <kit.KitSkeleton shape="control" kind="quiet" />
+        ) : (
+          <kit.KitCheck
+            part="review"
+            label={copy.review}
+            done={copy.reviewed}
+            readonly={copy.reviewed}
+            disabled={!copy.canReview && !copy.reviewed}
+          />
+        )
+      }
+    >
+      {copy.loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.review]]} />
+      ) : (
+        <kit.KitText part="review_label" role="label" density={density}>
+          {copy.review}
+        </kit.KitText>
+      )}
     </kit.KitRow>
-    {options ?
-      <kit.KitFigure density={density} media={pad}
-        caption={copy.dateStamp && <kit.KitLayoutText {...{ density }}
-          line={{ part: "date_stamp", text: copy.dateStamp, role: "caption", tone: "muted" }} />} />
-      : pad}
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
-        kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
-      <kit.KitAction part="clear" label={copy.clear} kind="danger" disabled={!copy.canClear} />
-    </kit.KitGrid>
-  </>;
+  );
 }
 
-// prettier-ignore
+function SignatureWorkflow({
+  copy,
+  density,
+  options,
+}: {
+  copy: Display;
+  density: Density;
+  options: boolean;
+}) {
+  const pad = (
+    <kit.KitSignaturePad
+      part="pad_frame"
+      target={{ part: "pad" }}
+      label={copy.pad}
+      loading={copy.loading}
+      disabled={!copy.canDraw}
+      {...(copy.mark ? { mark: copy.mark } : {})}
+    />
+  );
+  return (
+    <>
+      <kit.KitAction part="document" label={copy.open} icon="file_text" kind="secondary" full />
+      {SignatureReview(copy, density)}
+      {options ? (
+        <kit.KitFigure
+          density={density}
+          media={pad}
+          caption={
+            copy.dateStamp && (
+              <kit.KitLayoutText
+                {...{ density }}
+                line={{ part: "date_stamp", text: copy.dateStamp, role: "caption", tone: "muted" }}
+              />
+            )
+          }
+        />
+      ) : (
+        pad
+      )}
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitAction
+          part="save"
+          label={copy.save}
+          full
+          disabled={!copy.canSave}
+          kind={copy.loading || copy.canSave ? "primary" : "quiet"}
+        />
+        <kit.KitAction part="clear" label={copy.clear} kind="danger" disabled={!copy.canClear} />
+      </kit.KitGrid>
+    </>
+  );
+}
+
+function SignatureHeading(
+  title: string,
+  copy: Display,
+  hint: string | undefined,
+  density: Density,
+  options: boolean,
+) {
+  return options ? (
+    <kit.KitHeader
+      {...{ density }}
+      title={{ part: "title", text: title, role: "title" }}
+      meta={[
+        { part: "signer", text: copy.signer },
+        { part: "hint", text: hint },
+      ]}
+    />
+  ) : copy.loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      density={density}
+      content={[
+        ["title", title],
+        ["label", copy.signer],
+        ["label", hint],
+      ]}
+    />
+  ) : (
+    <kit.KitContent lineRole="title" density={density}>
+      <kit.KitText part="title" role="title" density={density}>
+        {title}
+      </kit.KitText>
+      <kit.KitText part="signer" role="label" tone="muted" density={density}>
+        {copy.signer}
+      </kit.KitText>
+      {hint && (
+        <kit.KitText part="hint" role="label" tone="muted" density={density}>
+          {hint}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
+}
+
 export function Signature(input: View) {
-  const { component } = kit.usePartContext(), state = kit.useComponentState();
+  const { component } = kit.usePartContext();
+  const state = kit.useComponentState();
   const { lang } = kit.useWords(paperworkWordsFor);
   const host = signatureHost(input, component, kit.useDeviceData());
   const copy = signatureDisplay(input.signer, state, host, lang, input);
@@ -171,21 +293,32 @@ export function Signature(input: View) {
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const hint = detail === "full" ? input.hint : undefined;
-  return <kit.KitCard part="root" padded density={density}>
-    {options ? <kit.KitHeader {...{ density }} title={{ part: "title", text: input.title, role: "title" }}
-      meta={[{ part: "signer", text: copy.signer }, { part: "hint", text: hint }]} />
-      : copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["title", input.title], ["label", copy.signer], ["label", hint]]} />
-      : <kit.KitContent lineRole="title" density={density}>
-        <kit.KitText part="title" role="title" density={density}>{input.title}</kit.KitText>
-        <kit.KitText part="signer" role="label" tone="muted" density={density}>{copy.signer}</kit.KitText>
-        {hint && <kit.KitText part="hint" role="label" tone="muted" density={density}>{hint}</kit.KitText>}
-      </kit.KitContent>}
-    {copy.feedback ? <kit.KitContent lineRole="body" group="response" density={density}
-      lead={<kit.KitIcon name={copy.feedback.icon} tone={copy.feedback.tone === "good" ? "good" : "muted"} decorative />}>
-      <kit.KitText part={copy.feedback.part} role="body" emphasis="strong" density={density}>{copy.feedback.title}</kit.KitText>
-      <kit.KitText part="sub" role="label" tone="muted" density={density}>{copy.feedback.sub}</kit.KitText>
-    </kit.KitContent>
-      : <SignatureWorkflow {...{ copy, density, options }} />}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      {SignatureHeading(input.title, copy, hint, density, options)}
+      {copy.feedback ? (
+        <kit.KitContent
+          lineRole="body"
+          group="response"
+          density={density}
+          lead={
+            <kit.KitIcon
+              name={copy.feedback.icon}
+              tone={copy.feedback.tone === "good" ? "good" : "muted"}
+              decorative
+            />
+          }
+        >
+          <kit.KitText part={copy.feedback.part} role="body" emphasis="strong" density={density}>
+            {copy.feedback.title}
+          </kit.KitText>
+          <kit.KitText part="sub" role="label" tone="muted" density={density}>
+            {copy.feedback.sub}
+          </kit.KitText>
+        </kit.KitContent>
+      ) : (
+        <SignatureWorkflow {...{ copy, density, options }} />
+      )}
+    </kit.KitCard>
+  );
 }
