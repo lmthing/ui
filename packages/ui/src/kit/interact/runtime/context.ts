@@ -3,6 +3,10 @@ import {
   migrateScreen,
   mediaHostKey,
   resolveDefinition,
+  hostItemInput,
+  parseItemProps,
+  safeParseItemProps,
+  stampItemIds,
   type ActStep,
   type Definition,
   type DeviceData,
@@ -73,15 +77,18 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
   const initial: Values = {};
   for (const entry of screen.components) {
     const { id, c, state: _state, ...raw } = entry;
-    const input = defs[c]?.props.safeParse(raw);
-    if (!input?.success) continue;
+    const def = defs[c];
+    if (!def) continue;
+    const { wire, ids } = hostItemInput(def, raw);
+    const input = ids.size ? safeParseItemProps(def, raw).parsed : def.props.safeParse(wire);
+    if (!input.success) continue;
     const value = input.data as Values;
     initial[valueKey(screen.id, id, "$runtime")] = true;
-    for (const [part, clock] of Object.entries(initialClocks(defs[c]!.meta, value, now())))
+    for (const [part, clock] of Object.entries(initialClocks(def.meta, value, now())))
       initial[valueKey(screen.id, id, part)] = clock;
     if (c === "List" && value.style === "expand")
-      (value.rows as Values[]).forEach((_row, index) => {
-        initial[valueKey(screen.id, id, `r${index + 1}`)] = false;
+      ((ids.size ? value : stampItemIds(def.meta, value)).rows as Values[]).forEach((row) => {
+        initial[valueKey(screen.id, id, String(row.id))] = false;
       });
   }
   return initial;
@@ -195,5 +202,7 @@ function entryInput(
   defs: ControllerOptions["defs"],
   { id: _id, c, state: _state, ...input }: ScreenComponent,
 ) {
-  return defs[c]!.props.parse(input) as Values;
+  const def = defs[c]!;
+  const { wire, ids } = hostItemInput(def, input);
+  return ids.size ? parseItemProps(def, input) : def.props.parse(wire);
 }

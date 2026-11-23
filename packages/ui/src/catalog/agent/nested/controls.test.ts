@@ -104,6 +104,22 @@ it("uses parent-specific closed choices and exposes only real, enabled presses",
   expect(edited).toContain('[c1/r2/choice_2 select = "Gamma"; choices ["Alpha","Gamma"]]');
 });
 
+it("loads schema-defaulted choices on an addressed host row", () => {
+  const { choices, ...row } = seed.rows[0]!;
+  const defaults = def.props.shape.rows.element;
+  const fixture = {
+    ...def,
+    props: def.props.extend({
+      rows: z.array(defaults.extend({ choices: defaults.shape.choices.default(choices) })),
+    }),
+  };
+  const defs = { NestedFixture: fixture };
+  const host = { ...screen, components: [{ ...seed, rows: [{ ...row, id: "r7" }] }] };
+  const plan = planAct(host, defs, {}, [act("r7/choice_1", "select", "Beta")]);
+  if (!plan.ok) throw new Error(JSON.stringify(plan));
+  expect(readScreen(host, defs, plan.values)).toContain('[c1/r7/choice_1 select = "Beta"');
+});
+
 it("counts aliased toggles once and enforces independent bounds by parent and partition", () => {
   const read = readScreen(screen, defs);
   expect(read).not.toContain("r1/pick_2");

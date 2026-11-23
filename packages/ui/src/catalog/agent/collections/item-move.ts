@@ -87,7 +87,12 @@ export function itemActionOffer(
 }
 
 /** Overlay the destination on the original wire row without reordering or restamping it. */
-export function projectMoves(def: Definition, props: Values, get: (part: string) => unknown): Values {
+export function projectMoves(
+  def: Definition,
+  props: Values,
+  get: (part: string) => unknown,
+  ids?: readonly (string | undefined)[],
+): Values {
   const items = def.meta.items;
   const spec = items?.move;
   if (!spec || spec.derived || items.deviceData || !Array.isArray(props[items.key])) return props;
@@ -95,7 +100,7 @@ export function projectMoves(def: Definition, props: Values, get: (part: string)
   let labels: ReturnType<typeof columnLabels> | undefined;
   let values: Set<string> | undefined;
   const projected = rows.map((row, index) => {
-    const value = get(moveKey(`${items.prefix ?? "r"}${index + 1}`));
+    const value = get(moveKey(ids?.[index] ?? `${items.prefix ?? "r"}${index + 1}`));
     if (typeof value !== "string") return row;
     if ("field" in spec) {
       values ??= new Set(enumValues(items, spec, def.props));

@@ -1,6 +1,8 @@
 import type { Definition } from "../../probes";
 import type { Meta } from "../../meta";
+import { hostItemInput } from "../../lines";
 import type { Values } from "../act";
+import { recordKey } from "../device-data";
 import { projectControlInput } from "../live-props";
 
 type Edit = { path: readonly (string | number)[]; value: unknown };
@@ -63,18 +65,47 @@ export function reportEditWire(def: Definition, input: unknown, get: (part: stri
   return projectControlInput(def, input as Values, get);
 }
 
-export function applyRecordWire(meta: Meta, input: Values, get: (part: string) => unknown) {
+function preserveHostRecordIds(def: Definition, input: Values, patch: Values) {
+  const items = def.meta.items;
+  if (!items?.records) return patch;
+  const {
+    key,
+    records: { keys },
+  } = items;
+  const original = input[key];
+  const edited = patch[key];
+  if (!Array.isArray(original) || !Array.isArray(edited)) return patch;
+  const ids = hostItemInput(def, input).ids.get(key);
+  if (!ids) return patch;
+  const byRecord = new Map<string, unknown>();
+  ids.forEach((id, index) => {
+    const record = recordKey(original[index], keys);
+    if (record !== undefined) byRecord.set(record, id);
+  });
+  return {
+    ...patch,
+    [key]: edited.map((row: Values) => {
+      const record = recordKey(row, keys);
+      // Only the current host payload can reserve an address during mixed-ID replay.
+      const { id: _savedId, ...fields } = row;
+      return record !== undefined && byRecord.has(record) ? { ...fields, id: byRecord.get(record) } : fields;
+    }),
+  };
+}
+
+export function applyRecordWire(def: Definition, input: Values, get: (part: string) => unknown) {
+  const { meta } = def;
   if (!meta.items?.records && !meta.clocks?.some(({ commitOnStop, journal }) => commitOnStop || journal))
     return input;
   const patch = (get(recordWireKey) as RecordEdits | undefined)?.[recordPartition(meta, input)];
-  return patch ? { ...input, ...patch } : input;
+  return patch ? { ...input, ...preserveHostRecordIds(def, input, patch) } : input;
 }
 
 /** Validate the whole mutation once, including any cross-field schema refinements. */
 export function validRecordWire(def: Definition, wire: Values, patch: Values) {
   return (
     Object.keys(patch).every((key) => Object.hasOwn(def.props.shape, key)) &&
-    def.props.safeParse({ ...wire, ...patch }).success
+    def.props.safeParse(hostItemInput(def, { ...wire, ...patch }).wire).success
   );
 }
 
@@ -88,7 +119,7 @@ export function writeRecordWire(meta: Meta, wire: Values, values: Values, base: 
 export function writeWireEdit(def: Definition, wire: Values, values: Values, slot: string, edit: Edit) {
   if (!validPath(wire, edit.path)) return false;
   const next = replace(wire, edit.path, edit.value) as Values;
-  if (!def.props.safeParse(next).success) return false;
+  if (!def.props.safeParse(hostItemInput(def, next).wire).success) return false;
   values[slot] = { ...(values[slot] as Edits | undefined), [JSON.stringify(edit.path)]: edit };
   return true;
 }

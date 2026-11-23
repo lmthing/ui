@@ -141,6 +141,7 @@ export function projectMatrix(
   props: Values,
   get: (part: string) => unknown,
   defaultValues: (rows: string, values: string) => unknown,
+  ids?: readonly (string | undefined)[],
 ): Values {
   const items = meta.items!;
   const cells = knownRows(props[items.key]);
@@ -151,7 +152,8 @@ export function projectMatrix(
       const values = row[matrix.values] ?? defaultValues(matrix.rows, matrix.values);
       if (!Array.isArray(values)) return row;
       const next = values.map((seed: unknown) => {
-        const id = rowId(meta, cells[index] ?? {}, index++);
+        const at = index++;
+        const id = ids?.[at] ?? rowId(meta, cells[at] ?? {}, at);
         const value = get(keyFor(`${id}/`, prop));
         return value === null || finite(value) ? value : seed;
       });
@@ -163,7 +165,7 @@ export function projectMatrix(
 }
 
 // prettier-ignore
-export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown, wire = false): Values {
+export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown, wire = false, ids?: readonly (string | undefined)[]): Values {
   const setters = new Set(Object.values(meta.set ?? {}).map(({ prop }) => prop));
   const top = Object.values(meta.adjust ?? {}).filter((spec) => spec && !setters.has(spec.prop));
   if (top.length) props = projectHolder(props, top, "", get);
@@ -174,7 +176,7 @@ export function projectAdjustments(meta: Meta, props: Values, get: (part: string
   return {
     ...props,
     [items.key]: knownRows(props[items.key]).map((row, index) => {
-      const base = `${rowId(meta, wire ? {} : row, index)}/`; // Wire ids belong to records, not address slots.
+      const base = `${ids?.[index] ?? rowId(meta, wire ? {} : row, index)}/`;
       return projectItemSets(meta, projectHolder(row, specs, base, get), base, get);
     }),
   };

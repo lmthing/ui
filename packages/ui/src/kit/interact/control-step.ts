@@ -14,6 +14,7 @@ import {
   clearItemSets,
   controlValueKey,
   projectControlInput,
+  hostItemInput,
   type ActStep,
   type Definition,
   type ScreenLike,
@@ -71,7 +72,7 @@ export function stageConfirmedClear(
   for (const [part, value] of changes) next[valueKey(screen, entry.id, controlValueKey(def, part))] = value;
   const { id: _id, c: _c, state: _state, ...wire } = entry;
   const get = (part: string) => next[valueKey(screen, entry.id, part)];
-  if (def.props.safeParse(projectControlInput(def, wire, get)).success) return next;
+  if (def.props.safeParse(hostItemInput(def, projectControlInput(def, wire, get)).wire).success) return next;
 }
 
 export function controlStep(

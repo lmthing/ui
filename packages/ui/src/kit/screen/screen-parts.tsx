@@ -6,7 +6,7 @@ import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import {
   space,
-  stampItemIds,
+  parseItemProps,
   sortByRegion,
   gapBetween,
   projectAdjustments,
@@ -31,7 +31,7 @@ function ScreenEntry({
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
   // Presence can keep an old entry for its exit animation; a closed gate never keeps the view.
   if (!def || !View || !isDeviceDataVisible(def.meta, data)) return null;
-  const parsed = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
+  const parsed = parseItemProps(def, input);
   const props = projectAdjustments(def.meta, parsed, (part) =>
     controller.store.get(`${screen.id}/${id}/${part}`),
   );

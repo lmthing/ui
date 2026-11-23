@@ -8,6 +8,11 @@ export {
   type RepairContext,
 } from "./repair-component";
 export {
+  hostItemInput,
+  hasHostItemAddress,
+  hostWireItemIds,
+  parseItemProps,
+  safeParseItemProps,
   stampCollections,
   stampIds,
   stampIdsWithCounters,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
-import { stampItemIds } from "../lines";
+import { hostItemInput, hostWireItemIds, parseItemProps } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
@@ -46,13 +46,18 @@ export function wireAdjustmentKey(def: Definition, key: string) {
   const prop = key.slice(key.lastIndexOf("/") + 1);
   return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
 }
-function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {
+function projectWireAdjustments(
+  def: Definition,
+  input: Values,
+  get: (part: string) => unknown,
+  ids?: readonly (string | undefined)[],
+): Values {
   const items = def.meta.items;
   if (!items?.adjust || !Array.isArray(input[items.key])) return input;
   return {
     ...input,
     [items.key]: (input[items.key] as Values[]).map((row, index) => {
-      const id = `${items.prefix ?? "r"}${index + 1}`;
+      const id = ids?.[index] ?? `${items.prefix ?? "r"}${index + 1}`;
       for (const spec of Object.values(items.adjust ?? {})) {
         if (!spec) continue;
         const value = get(`$wire/${id}/$adjust/${spec.prop}`);
@@ -73,13 +78,14 @@ export function controlValueKey(def: Definition, key: string): string {
     ? `$wire/${key}`
     : key;
 }
-export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
+export function projectControlInput(def: Definition, input: Values, get: Get): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
-  if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
+  if (meta.select?.choices) source = projectLegacySelection(meta, source, get, hostWireItemIds(def, source));
   source = projectNamedSelections(meta, source, get, "wire");
-  source = applyRecordWire(meta, source, get);
-  source = projectMoves(def, source, get);
+  source = applyRecordWire(def, source, get);
+  const ids = hostWireItemIds(def, source);
+  source = projectMoves(def, source, get, ids);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !hasWireNestedControls(meta))) return source;
   const keys = new Set([items.key]);
@@ -87,16 +93,23 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(meta, def.props, source));
+  const choiceSeed = nestedChoiceSeed(meta, def.props, hostItemInput(def, source).wire);
+  const nested = projectNested(meta, seeded, get, choiceSeed, ids);
   const wireGet = (part: string) => get(controlValueKey(def, part));
-  const adjusted = projectWireAdjustments(def, nested, get);
+  const adjusted = projectWireAdjustments(def, nested, get, ids);
   const projected = items.set
-    ? projectMatrix(meta, projectAdjustments(meta, adjusted, wireGet, true), wireGet, (rows, values) => {
-        const array = unwrapField(fieldOf(def.props, rows));
-        return array instanceof z.ZodArray
-          ? defaultInput(fieldOf(unwrapField(array.element), values))
-          : undefined;
-      })
+    ? projectMatrix(
+        meta,
+        projectAdjustments(meta, adjusted, wireGet, true, ids),
+        wireGet,
+        (rows, values) => {
+          const array = unwrapField(fieldOf(def.props, rows));
+          return array instanceof z.ZodArray
+            ? defaultInput(fieldOf(unwrapField(array.element), values))
+            : undefined;
+        },
+        ids,
+      )
     : adjusted;
   for (const key of keys) {
     const next = projected[key],
@@ -113,11 +126,18 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
     get && repaired && typeof repaired === "object" && !Array.isArray(repaired)
       ? projectControlInput(def, repaired as Values, get)
       : repaired;
-  return stampItemIds(def.meta, def.props.parse(source) as Values);
+  return parseItemProps(def, source);
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
-export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
-  return projectComponentSets(meta, projectNested(meta, projectSelection(meta, props, get, mode), get), get);
+export function projectControls(
+  meta: Meta,
+  props: Values,
+  get: Get,
+  mode?: "live" | "wire",
+  ids?: readonly (string | undefined)[],
+): Values {
+  const selected = projectSelection(meta, props, get, mode, ids);
+  return projectComponentSets(meta, projectNested(meta, selected, get, undefined, ids), get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {

@@ -1,5 +1,5 @@
 import type { Definition } from "../../probes";
-import { stampItemIds } from "../../lines";
+import { hostItemInput, safeParseItemProps } from "../../lines";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { actionValueAddress, findAction, planHostAct, selectStep } from "./resolve-step";
@@ -96,12 +96,12 @@ export function controlsAreValid(
   const target = parts.join("/");
   const spec = nestedPart(def.meta, target);
   if (spec?.action === "select") {
-    const parsed = def.props.safeParse(projected);
+    const { parsed } = safeParseItemProps(def, projected);
     if (!parsed.success) return false;
-    const control = nestedAt(def.meta, stampItemIds(def.meta, parsed.data as Values), target);
+    const control = nestedAt(def.meta, parsed.data, target);
     return Boolean(control && control.item[spec.prop] === values[`${screen.id}/${address}`]);
   }
-  return projected === repaired || def.props.safeParse(projected).success;
+  return projected === repaired || def.props.safeParse(hostItemInput(def, projected).wire).success;
 }
 
 export function keypadInput(

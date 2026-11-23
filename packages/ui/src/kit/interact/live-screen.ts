@@ -4,6 +4,8 @@ import {
   projectClocks,
   projectAdjustments,
   liveProps,
+  hostItemInput,
+  hostWireItemIds,
   parseControlProps,
   drawStatus,
   buzzStatus,
@@ -49,22 +51,29 @@ export function projectScreen(
 }
 
 type Entry = ScreenLike["components"][number];
-function projectItems(entry: Entry, parsed: Values, get: (part: string) => unknown, result: Entry) {
+function projectItems(
+  entry: Entry,
+  parsed: Values,
+  get: (part: string) => unknown,
+  result: Entry,
+  ids?: readonly (string | undefined)[],
+) {
   const raw = (key: string) => entry[key] as Record<string, unknown>[];
+  const item = (index: number) => ids?.[index] ?? `r${index + 1}`;
   if (entry.c === "Choice" && parsed.multi)
     result.options = raw("options").map((row, index) => ({
       ...row,
-      on: get(`r${index + 1}`) ?? row.on ?? false,
+      on: get(item(index)) ?? row.on ?? false,
     }));
   if (entry.c === "List")
     result.rows = raw("rows").map((row, index) => {
-      const on = get(`r${index + 1}/trail`);
+      const on = get(`${item(index)}/trail`);
       return row.trail === "toggle" && typeof on === "boolean" ? { ...row, value: on ? "on" : "off" } : row;
     });
   if (entry.c === "Checklist")
     result.items = raw("items").map((row, index) => ({
       ...row,
-      done: get(`r${index + 1}/check`) ?? row.done ?? false,
+      done: get(`${item(index)}/check`) ?? row.done ?? false,
     }));
 }
 
@@ -82,6 +91,12 @@ function omitDerivedSelection(def: Definition, result: Entry) {
   )
     delete result[part];
 }
+
+function seedDrawDefaults(def: Definition, result: Entry, parsed: Values) {
+  for (const key of Object.keys(def.props.shape))
+    if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
+}
+
 function projectEntry(
   entry: Entry,
   screen: ScreenLike,
@@ -96,25 +111,25 @@ function projectEntry(
   const def = defs[entry.c];
   if (!def) return result;
   const { meta } = def;
-  const parsed = def.props.parse(input) as Values;
-  if (meta.draw)
-    for (const key of Object.keys(def.props.shape))
-      if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
-  Object.assign(result, projectControlInput(def, input, get));
+  const parsed = def.props.parse(hostItemInput(def, input).wire);
+  if (meta.draw) seedDrawDefaults(def, result, parsed);
+  const projected = projectControlInput(def, input, get);
+  Object.assign(result, projected);
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  Object.assign(result, projectControls(meta, result, get, "wire"));
+  const ids = hostWireItemIds(def, projected);
+  Object.assign(result, projectControls(meta, result, get, "wire", ids));
   omitDerivedSelection(def, result);
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
-  projectItems(entry, parsed, get, result);
-  Object.assign(result, projectAdjustments(meta, result, get));
-  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now, "legacy"));
+  projectItems(entry, parsed, get, result, ids);
+  Object.assign(result, projectAdjustments(meta, result, get, false, ids));
+  if (clocks || meta.draw)
+    Object.assign(result, projectClocks(meta, result, get, now, "legacy", undefined, ids));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
-  // Playback seconds and running state reach views through liveControls, not through wire props.
   if (clocks && hasPlaybackClock(meta)) {
     const state = projectClocks(meta, parseControlProps(def, input, get), get, now, "playback").state;
     if (state !== undefined) result.state = state as NonNullable<Entry["state"]>;
@@ -161,5 +176,6 @@ function projectSequenceCursor(
   const get = (part: string) => local[`${id}/${part}`];
   const data = withRecordScreen(atDeviceTime(projectDeviceData(deviceData, values), now), screen);
   const index = liveProps(def.meta, parseControlProps(def, wire, get), id, local, true, data, now)[cursor];
-  if (def.props.safeParse({ ...wire, [cursor]: index }).success) result[cursor] = index;
+  if (def.props.safeParse({ ...hostItemInput(def, wire).wire, [cursor]: index }).success)
+    result[cursor] = index;
 }

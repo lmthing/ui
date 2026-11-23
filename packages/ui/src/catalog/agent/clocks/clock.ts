@@ -27,11 +27,15 @@ function targets(specs: readonly ClockMeta[] | undefined, target: Omit<ClockTarg
     .map((spec) => ({ ...target, spec }));
 }
 /** Stable clock addresses follow the same row and indexed-sub-item convention as controls. */
-export function clockTargets(meta: Meta, props: Values): ClockTarget[] {
+export function clockTargets(
+  meta: Meta,
+  props: Values,
+  ids?: readonly (string | undefined)[],
+): ClockTarget[] {
   return [
     ...targets(meta.clocks, { holder: props, outer: props, base: "", suffix: "" }),
     ...clockRows(props[meta.items?.key ?? ""]).flatMap((holder, row) => {
-      const base = `${String(holder.id ?? `${meta.items?.prefix ?? "r"}${row + 1}`)}/`;
+      const base = `${String(ids?.[row] ?? holder.id ?? `${meta.items?.prefix ?? "r"}${row + 1}`)}/`;
       return [
         ...targets(meta.items?.clocks, { holder, outer: props, base, suffix: "", row }),
         ...clockRows(holder[meta.items?.nested?.key ?? ""]).flatMap((item, child) =>

@@ -7,4 +7,5 @@ export {
   type RegistryLike,
   type Issue,
   type ScreenEntry,
+  type RowAddress,
 } from "./types";
