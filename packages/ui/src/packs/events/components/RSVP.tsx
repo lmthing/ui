@@ -118,59 +118,120 @@ type RsvpFields = z.output<typeof props> & {
 };
 type RsvpFormProps = RsvpFields & { viewDensity: "comfortable" | "compact" };
 
-// prettier-ignore
+function MealChoices(meals: RsvpFormProps["meals"], selected: RsvpFormProps["selectedMeal"], title: string) {
+  return (
+    <kit.KitContent group="response">
+      <kit.KitText part={null} role="label">
+        {title}
+      </kit.KitText>
+      <kit.KitTrack part="meal" role="radiogroup" label={title} look="pills">
+        {Array.from(new Set(meals), (label) => (
+          <kit.KitChip key={label} item={null} role="radio" on={selected === label} label={label} />
+        ))}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
+function CompanionCount(count: string, max: RsvpFormProps["plusMax"], label: string) {
+  return (
+    <kit.KitContent group="response">
+      <kit.KitText part={null} role="label">
+        {label}
+      </kit.KitText>
+      <kit.KitInput
+        part="plus"
+        kind="number"
+        action="set"
+        value={count}
+        projected
+        min={0}
+        max={max}
+        step={1}
+        hint={label}
+      />
+    </kit.KitContent>
+  );
+}
+
 function ReplyForm(input: RsvpFormProps) {
-  const { lang, words: { rsvp } } = kit.useWords(eventsWordsFor);
+  const {
+    lang,
+    words: { rsvp },
+  } = kit.useWords(eventsWordsFor);
   const { screen, component } = kit.usePartContext();
   const base = `${screen}/${component}`;
   const companions = kit.useControlValue(`${base}/$adjust/companions`, input.companions ?? 0);
   const selected = kit.useControlValue(`${base}/$selection/selectedMeal`, input.selectedMeal);
   const { count } = rsvpFields(input, companions, lang);
   const { allowsPlus, allowsMeals } = rsvpOptions(input);
-  return <>
-    <kit.KitContent density={input.viewDensity} group="response">
-      <kit.KitGrid density={input.viewDensity}>
-        <kit.KitAction part="yes" label={rsvp.yes} kind={input.answer === "yes" ? "secondary" : "quiet"} full />
-        <kit.KitAction part="no" label={rsvp.no} kind="danger"
-          icon={input.answer === "no" ? "check" : undefined} contentParts={{ label: "no_label" }} full />
-      </kit.KitGrid>
-    </kit.KitContent>
-    {allowsPlus && <kit.KitContent group="response">
-      <kit.KitText part={null} role="label">{rsvp.plus}</kit.KitText>
-      <kit.KitInput part="plus" kind="number" action="set" value={count} projected
-        min={0} max={input.plusMax} step={1} hint={rsvp.plus} />
-    </kit.KitContent>}
-    {allowsMeals && <kit.KitContent group="response">
-      <kit.KitText part={null} role="label">{rsvp.meal}</kit.KitText>
-      <kit.KitTrack part="meal" role="radiogroup" label={rsvp.meal} look="pills">
-        {Array.from(new Set(input.meals), (label) =>
-          <kit.KitChip key={label} item={null} role="radio" on={selected === label} label={label} />)}
-      </kit.KitTrack>
-    </kit.KitContent>}
-    {input.detail === "full" && <kit.KitContent group="response">
-      <kit.KitTextArea part="note" label={rsvp.note} hint={rsvp.note}
-        value={input.note} maxLength={rsvpNoteMax} lines={2} />
-    </kit.KitContent>}
-    <kit.KitContent group="response">
-      <kit.KitAction part="send" label={rsvp.send} full />
-    </kit.KitContent>
-  </>;
+  return (
+    <>
+      <kit.KitContent density={input.viewDensity} group="response">
+        <kit.KitGrid density={input.viewDensity}>
+          <kit.KitAction
+            part="yes"
+            label={rsvp.yes}
+            kind={input.answer === "yes" ? "secondary" : "quiet"}
+            full
+          />
+          <kit.KitAction
+            part="no"
+            label={rsvp.no}
+            kind="danger"
+            icon={input.answer === "no" ? "check" : undefined}
+            contentParts={{ label: "no_label" }}
+            full
+          />
+        </kit.KitGrid>
+      </kit.KitContent>
+      {allowsPlus && CompanionCount(count, input.plusMax, rsvp.plus)}
+      {allowsMeals && MealChoices(input.meals, selected, rsvp.meal)}
+      {input.detail === "full" && (
+        <kit.KitContent group="response">
+          <kit.KitTextArea
+            part="note"
+            label={rsvp.note}
+            hint={rsvp.note}
+            value={input.note}
+            maxLength={rsvpNoteMax}
+            lines={2}
+          />
+        </kit.KitContent>
+      )}
+      <kit.KitContent group="response">
+        <kit.KitAction part="send" label={rsvp.send} full />
+      </kit.KitContent>
+    </>
+  );
 }
 
-// prettier-ignore
 export function RSVP(input: c.Props<typeof props, typeof meta>) {
-  const { lang, words: { rsvp } } = kit.useWords(eventsWordsFor);
+  const {
+    lang,
+    words: { rsvp },
+  } = kit.useWords(eventsWordsFor);
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const sent = state === "success";
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent lineRole="title" density={density}>
-      {sent && <kit.KitText part="success" role="title" density={density}>{rsvp.sent}</kit.KitText>}
-      <kit.KitText part="event" role={sent ? "body" : "title"} density={density}>{input.event}</kit.KitText>
-      <kit.KitText part="date" role="body" tone="muted">{c.appointmentDate(input.date, lang)}</kit.KitText>
-      {!sent && <ReplyForm {...input} detail={detail} viewDensity={density} />}
-    </kit.KitContent>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent lineRole="title" density={density}>
+        {sent && (
+          <kit.KitText part="success" role="title" density={density}>
+            {rsvp.sent}
+          </kit.KitText>
+        )}
+        <kit.KitText part="event" role={sent ? "body" : "title"} density={density}>
+          {input.event}
+        </kit.KitText>
+        <kit.KitText part="date" role="body" tone="muted">
+          {c.appointmentDate(input.date, lang)}
+        </kit.KitText>
+        {!sent && <ReplyForm {...input} detail={detail} viewDensity={density} />}
+      </kit.KitContent>
+    </kit.KitCard>
+  );
 }
