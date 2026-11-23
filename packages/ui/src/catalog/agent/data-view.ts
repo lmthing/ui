@@ -129,11 +129,13 @@ export function projectDataViewList(
 ): { props: Values; empty?: string } {
   const filters = views.lists.get(id);
   if (!filters || !Array.isArray(props.rows)) return { props };
-  if (state === "empty")
+  if (state === "empty") {
+    const selected = filters.find(({ active }) => active.length);
     return {
       props: { ...props, rows: [], more: undefined },
-      empty: (filters.find(({ active }) => active.length) ?? filters[0]!).empty,
+      ...(selected ? { empty: selected.empty } : {}),
     };
+  }
   if (state !== "filled") return { props };
   let rows = props.rows as Values[];
   let empty: string | undefined;

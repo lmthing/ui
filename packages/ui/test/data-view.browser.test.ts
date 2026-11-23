@@ -121,11 +121,19 @@ it("filters the named browse shelf without changing the independent care-plan sh
 it("updates the visible and readable message for a List already in the empty state", async () => {
   await open("empty");
   const message = page.getByTestId("plant_list/plants/results");
-  await message.waitFor();
-  expect(await message.textContent()).toBe("No plants in the kitchen");
-  await page.getByRole("checkbox", { name: "Bathroom" }).click();
+  const generic = page.getByText("Nothing here yet");
+  const bathroom = page.getByRole("checkbox", { name: "Bathroom" });
+  await generic.waitFor();
+  expect(await message.count()).toBe(0);
+  await bathroom.click();
   await expect.poll(() => message.textContent()).toBe("No plants in the bathroom");
   expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain(
     'plants List (empty) "No plants in the bathroom"',
   );
+  await bathroom.click();
+  await generic.waitFor();
+  expect(await message.count()).toBe(0);
+  const read = await page.evaluate(() => window.__lmthingUI!.read());
+  expect(read).toContain("plants List (empty)");
+  expect(read).not.toMatch(/No plants in the bathroom|No plants in the kitchen|plants\/r1 press/);
 });
