@@ -10,6 +10,7 @@ it("uses a single bottom rule in notebook and editorial treatments", () => {
     borderBottomWidth: component.base.borderWidth,
   });
   expect(fieldFinish("ruled", true).backgroundColor).toBe("$line");
+  expect(fieldFinish("ruled", false, true).backgroundColor).toBe("$surface");
   expect(fieldFinish("serifRule")).toEqual(fieldFinish("ruled"));
   expect(fieldType(kitStyleOf(editorial))).toMatchObject({
     fontFamily: expect.stringContaining("Fraunces"),

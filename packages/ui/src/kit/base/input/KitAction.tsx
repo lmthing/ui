@@ -11,6 +11,7 @@ import {
   type as typography,
   type ActionName,
   type IconName,
+  type KitStyle,
 } from "../../../catalog";
 import {
   useActionPress as useActionDispatch,
@@ -232,15 +233,22 @@ function ActionContent({
   );
 }
 
-function useActionFinish(kind: ActionKind, standaloneIcon: boolean, active: boolean) {
-  const { frame, radiusShift } = useKitStyle();
-  const filled = kind === "primary";
+/** Shared frame geometry for the real action and its neutral loading placeholder. */
+export function actionGeometry({ frame, radiusShift }: KitStyle, kind: ActionKind, standaloneIcon: boolean) {
   return {
     borderRadius: frame.action === "pill" || standaloneIcon ? radius.pill : shifted("md", radiusShift),
-    ...(filled && frame.action === "block" && !standaloneIcon
-      ? { minHeight: size.control.lg + space.xs }
-      : {}),
-    ...(filled && frame.action === "glow" && active
+    minHeight:
+      kind === "primary" && frame.action === "block" && !standaloneIcon
+        ? size.control.lg + space.xs
+        : size.control.md,
+  };
+}
+
+function useActionFinish(kind: ActionKind, standaloneIcon: boolean, active: boolean) {
+  const style = useKitStyle();
+  return {
+    ...actionGeometry(style, kind, standaloneIcon),
+    ...(kind === "primary" && style.frame.action === "glow" && active
       ? {
           ...accentGlow,
           shadowColor: "$accent",

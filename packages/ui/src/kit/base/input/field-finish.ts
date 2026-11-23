@@ -24,11 +24,13 @@ export function fieldFinish(
   return {
     backgroundColor: loading
       ? "$line"
-      : ruled
-        ? "transparent"
-        : inactive || raisedCard || treatment === "outlined" || treatment === "ink"
-          ? "$surface"
-          : "$raised",
+      : inactive
+        ? "$surface"
+        : ruled
+          ? "transparent"
+          : raisedCard || treatment === "outlined" || treatment === "ink"
+            ? "$surface"
+            : "$raised",
     borderColor: ruled ? "$muted" : treatment === "ink" ? "$text" : "$line",
     borderWidth: ruled ? component.base.none : component.base.borderWidth,
     ...(ruled ? { borderBottomWidth: component.base.borderWidth } : {}),
