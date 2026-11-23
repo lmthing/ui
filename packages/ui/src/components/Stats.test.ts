@@ -37,6 +37,7 @@ describe("Stats schema", () => {
     { tiles: [{ ...tile, value: "—" }, tile] },
     { tiles: [{ ...tile, value: "N/A" }, tile] },
     { tiles: [{ ...tile, value: "Not in" }, tile] },
+    { tiles: [{ ...tile, value: "1,2,3" }, tile] },
     { tiles: [{ label: " ITEM  ONE ", value: "0" }, tile] },
     { tiles: [{ ...tile, value: " ".repeat(4) }, tile] },
     { tiles: [{ ...tile, value: "a".repeat(9) }, tile] },
@@ -140,14 +141,23 @@ it("drops unavailable tiles in R2 without substituting a metric, even with usabl
   }
 });
 
-it("reads saved screens without their obsolete tiles or readdressing a surviving host tile", () => {
-  const tiles = [
-    { label: "Item one", value: "0", id: "r2" },
-    { label: "Returned", value: "0", id: "r5" },
+it("keeps formatted measurements and their saved host or positional addresses", () => {
+  const known = [
+    { label: "Completion", value: "95%" },
+    { label: "Total", value: "1\u202f200" },
   ];
-  const read = readComponent(components.Stats, { tiles }, "s1").join("\n");
-  expect(read).toContain('r5 "Returned" · "0"');
-  expect(read).not.toContain("Item one");
+  const tiles = [{ label: "Item one", value: "0" }, ...known];
+  const ctx = { cast: { things: [], items: [] } };
+  expect(repairComponent({ c: "Stats", tiles }, createRegistry(), ctx).component?.tiles).toEqual(known);
+  for (const [survivors, id] of [
+    [tiles, "r2"],
+    [[tiles[0], { ...tiles[1], id: "r5" }, tiles[2]], "r5"],
+  ] as const) {
+    const read = readComponent(components.Stats, { tiles: survivors }, "s1").join("\n");
+    expect(read).toContain(`${id} "Completion" · "95%"`);
+    expect(read).toContain('r3 "Total" · "1\u202f200"');
+    expect(read).not.toContain("Item one");
+  }
 });
 
 describe("Stats fallback and metadata", () => {

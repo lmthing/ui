@@ -159,8 +159,8 @@ export const examples = [
     style: "shelf",
     aspect: "tall",
     rows: [
-      { title: "Fern guide", photo: "lib:fern", progress: 0.5, badge: "In progress" },
-      { title: "Basil guide", photo: "lib:basil", progress: 0, badge: "New" },
+      { title: "Fern guide", photo: "lib:fern_shelf", progress: 0.5, badge: "In progress" },
+      { title: "Basil guide", photo: "lib:window_pots", progress: 0, badge: "New" },
     ],
   },
   {
@@ -536,7 +536,11 @@ export function List(input: ListProps) {
     (style === "shelf" &&
       (input.aspect !== "wide" || rows.some((row) => row.badge || row.progress !== undefined)));
   return (
-    <kit.KitCard style={frame} density={density}>
+    <kit.KitCard
+      style={frame}
+      density={density}
+      padded={frame === "inset" && state !== "empty" && rows.some((row) => row.mark === "highlight")}
+    >
       {state === "loading" ? (
         structured ? (
           <ListRows {...input} rows={rows} pending />

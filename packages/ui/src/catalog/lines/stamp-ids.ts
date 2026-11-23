@@ -323,7 +323,10 @@ function omitRejectedItems(def: Definition, input: Values, error: z.ZodError) {
       field === key && typeof index === "number" ? [index] : [],
     ),
   );
-  if (invalid.size) return { ...input, [key]: rows.filter((_, index) => !invalid.has(index)) };
+  if (invalid.size) {
+    const addressed = stampItemIds(def.meta, input)[key] as unknown[];
+    return { ...input, [key]: addressed.filter((_, index) => !invalid.has(index)) };
+  }
 }
 
 /** High water marks for a single screen. Keep them when deleting components or rows. */

@@ -45,13 +45,16 @@ export const meta = {
   states: ["filled", "empty", "loading"],
 } as const satisfies Meta;
 
+// Keep older display-ready percentages, currency and grouped figures. Never accept prose as a figure.
+const measurement =
+  /^[+−-]?\p{Sc}?(?:\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?|[.,]\d+)(?:[ \u00a0\u202f]?[%‰\p{Sc}])?$/u;
 const tileProps = z.strictObject({
   label: text(20).refine(
     (label) =>
       !placeholderTitles.some((title) => title.toLowerCase() === label.replace(/\s+/g, " ").toLowerCase()),
     "Use the name of a measured quantity, not a placeholder",
   ),
-  value: text(8).regex(/^[+−-]?(?:\d+(?:[.,]\d+)*|[.,]\d+)$/, "Use a numeric measurement"),
+  value: text(8).refine((value) => measurement.test(value), "Use a numeric measurement"),
   unit: text(8).optional(),
   trend: z.enum(["up", "down", "flat"]).optional(),
 });
