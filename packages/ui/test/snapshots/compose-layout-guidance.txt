@@ -20,7 +20,8 @@ Layout rule: Name the supplied activity in Header.title, e.g. Time your care ses
 Layout rule: Bars are context, not a second task: title them Recent session lengths and show only completed sessions, with each supplied minute value and three-letter day label. No padding or Today in Bars. Use one primary Button labeled Save session with goto session_saved; it does not duplicate Start or Stop.
 
 Layout: detail/facts. Job: One thing, fully.
-Layout rule: Choose one supplied record and use its name as the Header title. KeyValue shows that record's actual fields, not facts about other records. The Note makes a supplied fact useful for the next action, such as a recurring care interval; it is not a generic sample-data disclaimer. Label the Button to log or manage that record and link to the matching next screen. A recurring interval does not mean the action is due today.
+Layout rule: Choose one supplied record and use its name as the Header title. KeyValue shows that record's actual fields, not facts about other records. The Note can explain a supplied fact such as a recurring care interval; it is not a generic sample-data disclaimer. A recurring interval does not mean the action is due today.
+Layout rule: Use a primary Button only for a specific requested task on this record. A read-only detail needs no Button. Never use the Button to go back.
 
 Layout: calendar/week. Job: Things by date.
 Layout rule: Use only the supplied dated events and calendar month/start/days/selected values. Mark their event dates. Timeline uses day style with supplied times and titles, and the date and detail in meta. On EVERY Timeline item end, tone and goto must be literal null, even when time and title have values; do not replace those nulls with end times, status tones or links. This is not hours style. Header action is null.

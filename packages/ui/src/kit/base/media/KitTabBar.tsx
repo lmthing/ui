@@ -1,52 +1,74 @@
-import { useWords } from "../../provider";
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, isWeb } from "tamagui";
 import { badgeLine, component, radius, size, space, type IconName } from "../../../catalog";
-import { useKit } from "../../provider";
+import { useKit, useWords } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 
 type Tab = { id: string; icon: IconName; label: string; goto: string; count?: number | undefined };
+const webTab = { tag: "button", type: "button" } as const;
+const tabFocus = {
+  outlineColor: "$accent",
+  outlineStyle: "solid",
+  outlineWidth: component.base.strongBorder,
+  outlineOffset: -component.base.strongBorder,
+} as const;
+
+function TabGlyph({ tab, on }: { tab: Tab; on: boolean }) {
+  const { lang } = useWords();
+  const badge = tab.count ? badgeLine(tab.count, lang) : undefined;
+  return (
+    <XStack
+      alignItems="center"
+      gap={space.xs}
+      borderRadius={radius.pill}
+      paddingHorizontal={badge ? component.base.none : space.md}
+      backgroundColor={on ? "$accentSoft" : undefined}
+    >
+      <KitIcon name={tab.icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />
+      {badge && (
+        <YStack
+          minWidth={size.icon.sm}
+          paddingHorizontal={space.sm}
+          paddingVertical={space.xs}
+          borderRadius={radius.pill}
+          backgroundColor="$accent"
+        >
+          <KitText role="caption" tone="onAccent" align="center" part="badge">
+            {badge}
+          </KitText>
+        </YStack>
+      )}
+    </XStack>
+  );
+}
 
 function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
   const { lang } = useWords();
-
   const kit = useKit();
   const part = usePart();
+  const onPress = kit.interactive ? () => kit.onLink?.(tab.goto, part.testID) : undefined;
   return (
     <YStack
       {...part}
+      {...(isWeb && onPress ? webTab : {})}
       flex={1}
       flexBasis={component.base.none}
+      minWidth={component.base.none}
       minHeight={size.control.lg}
       alignItems="center"
       justifyContent="center"
       gap={space.xs}
       paddingVertical={space.md}
+      backgroundColor="transparent"
+      borderWidth={component.base.none}
+      focusVisibleStyle={tabFocus}
       accessibilityRole="tab"
       aria-selected={on}
       accessibilityLabel={tab.count ? `${tab.label}, ${badgeLine(tab.count, lang)}` : tab.label}
-      {...(kit.interactive ? { onPress: () => kit.onLink?.(tab.goto, part.testID) } : {})}
+      {...(onPress ? { onPress } : {})}
     >
-      <YStack position="relative">
-        <KitIcon name={tab.icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />
-        {Boolean(tab.count) && (
-          <YStack
-            position="absolute"
-            top={-space.xs}
-            right={-space.sm}
-            minWidth={size.icon.sm}
-            paddingHorizontal={space.sm}
-            paddingVertical={space.xs}
-            borderRadius={radius.pill}
-            backgroundColor="$accent"
-          >
-            <KitText role="caption" tone="onAccent" align="center" part="badge">
-              {badgeLine(tab.count!, lang)}
-            </KitText>
-          </YStack>
-        )}
-      </YStack>
+      <TabGlyph {...{ tab, on }} />
       <KitText role="caption" tone={on ? "accent" : "muted"} part="label" lines={1}>
         {tab.label}
       </KitText>

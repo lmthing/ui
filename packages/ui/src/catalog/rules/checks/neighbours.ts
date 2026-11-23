@@ -1,13 +1,15 @@
 import type { ScreenLike } from "../../agent";
 import type { Definition } from "../../probes";
 import { sortByRegion } from "../shared";
-import { at, resolveDefinition, type Issue } from "../shared";
+import { at, regionOf, resolveDefinition, type Issue } from "../shared";
 export function checkNeighbours(screen: ScreenLike, defs: Record<string, Definition>): Issue[] {
   const entries = sortByRegion(screen.components, defs);
-  const body = entries.filter((entry) => resolveDefinition(defs, entry.c)?.meta.region === "body");
+  const body = entries.filter(
+    (entry) => resolveDefinition(defs, entry.c) && regionOf(entry, defs) === "body",
+  );
   const issues: Issue[] = [];
   const primaries = entries.filter(
-    (entry) => entry.c === "Button" && (entry.kind ?? "primary") === "primary",
+    (entry) => entry.c === "Button" && (entry.kind ?? "primary") === "primary" && entry.emphasis !== "quiet",
   );
   if (primaries.length > 1)
     issues.push({

@@ -71,6 +71,9 @@ export function GalleryHeader({
         flexWrap="wrap"
       >
         <GalleryBrand />
+        <Text tag="a" href="?nav-shell" color="$accent" fontSize="$label">
+          Navigation shell
+        </Text>
         <Input
           value={filter}
           onChangeText={onFilter}

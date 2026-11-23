@@ -164,6 +164,7 @@ describe("Header view", () => {
           ...(parsed.action ? ["action"] : []),
           ...(back ? ["back"] : []),
         ]);
+        if (back) expect(offered.find(({ part }) => part === "back")?.detail).toBe("→back");
         for (const { address, action } of offered) {
           expect(action).toBe("press");
           const tag = html.match(new RegExp(`<[^>]*data-testid="home/${address}"[^>]*>`))?.[0];
@@ -174,6 +175,7 @@ describe("Header view", () => {
         expect(html.includes('data-testid="home/c1/sub"')).toBe(Boolean(parsed.sub));
         expect(html.includes('data-testid="home/c1/action"')).toBe(Boolean(parsed.action));
         expect(html.includes('data-testid="home/c1/back"')).toBe(back);
+        expect(html.includes('aria-label="Back"')).toBe(back);
         expect(read.includes("[c1/action press")).toBe(Boolean(parsed.action));
         expect(read.includes("[c1/back press")).toBe(back);
         if (parsed.action) expect(html).toContain('aria-label="Add a plant"');

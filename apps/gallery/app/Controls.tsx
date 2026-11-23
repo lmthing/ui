@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { accents, presets, themeName, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
 import { PhoneScreen } from "@lmthing/ui/kit";
@@ -10,6 +11,11 @@ const choices = [
   { title: "Weekly", sub: "Five walks each week", value: "£65" },
   { title: "Single", sub: "One walk when needed", value: "£18" },
 ];
+const tabs = [
+  { icon: "home", label: "Home", goto: "home" },
+  { icon: "message", label: "Inbox", goto: "inbox", count: 120 },
+];
+const navigationTabBar = { id: "t1", c: "TabBar", tabs };
 const screens: Record<string, ScreenLike> = {
   choice: { id: "controls", components: [header, { id: "c1", c: "Choice", options: choices }, note, button] },
   multi: {
@@ -69,14 +75,6 @@ const screens: Record<string, ScreenLike> = {
       header,
       { id: "s1", c: "Segmented", options: [{ label: "Today" }, { label: "Week" }], at: 0 },
       { id: "f1", c: "Chips", style: "choose", items: [{ label: "All" }, { label: "Due" }] },
-      {
-        id: "t1",
-        c: "TabBar",
-        tabs: [
-          { icon: "home", label: "Home", goto: "home" },
-          { icon: "message", label: "Inbox", goto: "inbox", count: 120 },
-        ],
-      },
     ],
   },
   calendar: {
@@ -101,12 +99,24 @@ const screens: Record<string, ScreenLike> = {
   },
 };
 const event = (name: string, detail: unknown) => globalThis.dispatchEvent(new CustomEvent(name, { detail }));
-const onLink = (goto: string, address: string) => event("gallery-link", { goto, address });
 const onSend = (text: string, address: string) => event("gallery-send", { text, address });
 const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
+  const [activeTab, setActiveTab] = useState(0);
+  const fixture = screens[kind] ?? screens.form!;
+  const screen =
+    kind === "navigation"
+      ? { ...fixture, components: [...fixture.components, { ...navigationTabBar, at: activeTab }] }
+      : fixture;
+  const onLink = (goto: string, address: string) => {
+    if (kind === "navigation") {
+      const index = tabs.findIndex((tab) => tab.goto === goto);
+      if (index >= 0) setActiveTab(index);
+    }
+    event("gallery-link", { goto, address });
+  };
   const theme: ThemeChoice = {
     preset: presets.find(({ id }) => id === query.get("preset"))?.id ?? "calm",
     accent: accents.find(({ id }) => id === query.get("accent"))?.id ?? "moss",
@@ -116,7 +126,7 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <YStack width="100%" maxWidth={430} height="100vh" alignSelf="center">
         <PhoneScreen
-          screen={screens[kind] ?? screens.form!}
+          screen={screen}
           theme={theme}
           resolvePhoto={(ref) => resolvePhoto(ref, theme)}
           onLink={onLink}

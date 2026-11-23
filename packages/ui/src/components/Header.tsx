@@ -13,11 +13,14 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitAction, KitBlock, KitText, useKit } from "../kit";
+import { KitAction, KitBlock, KitText, useKit, useWords } from "../kit";
 import { prompt } from "../entry/prompt-Header.generated";
+
+const backTarget = { goto: "back" } as const;
 
 export const meta = {
   id: "Header",
+  status: "ready",
   group: "structure",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -44,10 +47,11 @@ export const props = z
     sub: text(40).optional(),
     action: z.strictObject({ icon, label: text(16), goto: screenId.optional() }).optional(),
   })
-  // The shared reader distinguishes an absent optional part by its explicit undefined value.
+  // Expose the same code-owned back target to the reader and the screen controller.
   .overwrite((value) => ({
     ...value,
     action: value.action,
+    ...(value.style === "back" ? { back: backTarget } : {}),
     ...(value.detail === "brief" ? { sub: undefined } : {}),
   }));
 
@@ -106,6 +110,7 @@ export const probes = [
 export function Header(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, action, emphasis } = input;
   const density = useKit().density;
+  const { backLabel } = useWords().words;
   const role = style === "back" ? "heading" : "title";
   return (
     <KitBlock
@@ -114,7 +119,7 @@ export function Header(input: Props<typeof props, typeof meta>) {
       {...{ density, emphasis }}
       leading={
         style === "back" ? (
-          <KitAction kind="quiet" icon="chevron_left" part="back" a11y={title} goto="back" />
+          <KitAction kind="quiet" icon="chevron_left" part="back" a11y={backLabel} goto={backTarget.goto} />
         ) : undefined
       }
       trailing={

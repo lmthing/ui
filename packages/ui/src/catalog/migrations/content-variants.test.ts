@@ -64,7 +64,7 @@ it("keeps the structural number and back treatments", () => {
   const { c: _name, id, ...input } = migrateLine({ c: "Header", id: "h1", style: "back", title: "Fern" });
   expect(id).toBe("h1");
   expect(affordancesOf(components.Header.meta, components.Header.props.parse(input), "h1")).toEqual([
-    { address: "h1/back", part: "back", action: "press", detail: "" },
+    { address: "h1/back", part: "back", action: "press", detail: "→back" },
   ]);
 });
 

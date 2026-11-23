@@ -186,3 +186,23 @@ it("gives the same step direction distinct accessible names in different rows", 
     expect(await button.count()).toBe(1);
   }
 });
+
+it("mounts a single addressed Button while its emphasis moves it between regions", async () => {
+  await page.setViewportSize({ width: 390, height: 660 });
+  await page.goto(`${server.resolvedUrls!.local[0]}pinned-stepper.html?move-button`, {
+    waitUntil: "networkidle",
+  });
+  const target = part("b1/root");
+  const full = (await target.boundingBox())!.width;
+  for (const quiet of [true, false, true]) {
+    const count = await page.evaluate(async (quiet) => {
+      window.dispatchEvent(new CustomEvent("fixture-quiet", { detail: quiet }));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return document.querySelectorAll('[data-testid="fixture/b1/root"]').length;
+    }, quiet);
+    expect(count).toBe(1);
+    const width = (await target.boundingBox())!.width;
+    expect(quiet ? width < full : width === full).toBe(true);
+  }
+  expect(errors).toEqual([]);
+});

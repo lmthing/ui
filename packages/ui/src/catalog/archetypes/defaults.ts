@@ -132,7 +132,6 @@ export function defaultLines(
       { c: "Header" },
       { c: "Chips" },
       ...grouped.flatMap(() => [{ c: "SectionTitle" }, { c: "List" }]),
-      { c: "Button" },
     ];
   let fieldIndex = 0,
     groupIndex = -1;

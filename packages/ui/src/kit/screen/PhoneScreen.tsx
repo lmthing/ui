@@ -75,10 +75,14 @@ function usePhoneLifecycle(
 export type PhoneScreenProps = {
   defs: Record<string, Definition>;
   renderers: RendererMap;
+  /** On a peer root, supply one TabBar with its active `at` and a plain Header.
+   * On a pushed screen, omit TabBar and use Header `style: "back"`.
+   * A task Button pins above tabs; a quiet Button stays in the scrolling body. */
   screen: ScreenLike;
   theme: ThemeChoice;
   lang?: string | undefined;
   parts?: PartRegistry | undefined;
+  /** The host resolves destinations and history. The Header back control sends `"back"`. */
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;

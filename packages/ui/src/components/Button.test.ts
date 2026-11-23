@@ -17,17 +17,19 @@ describe("Button schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-  it("exercises every media value and optional field in the examples", () => {
+  it("exercises every variant value and optional field in the examples", () => {
     const parsed = examples.map((example) => props.parse(example));
-    for (const axis of ["media"] as const)
+    for (const axis of ["media", "emphasis"] as const)
       expect(new Set(parsed.map((example) => example[axis]))).toEqual(new Set(meta.variants[axis]));
     expect(parsed.some((example) => example.icon)).toBe(true);
     expect(parsed.some((example) => example.goto && example.goto !== "back")).toBe(true);
-    expect(parsed.some((example) => example.goto === "back")).toBe(true);
+    expect(parsed.some((example) => example.emphasis === "quiet" && example.goto === "schedule")).toBe(true);
+    expect(props.safeParse({ label: "Back", goto: "back" }).success).toBe(true);
   });
   it("applies defaults and trims text", () => {
     expect(props.parse({ label: "  Continue  " })).toEqual({
       label: "Continue",
+      emphasis: "normal",
       media: "icon",
     });
   });
@@ -117,7 +119,7 @@ describe("Button fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Button")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Actions")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Button" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,

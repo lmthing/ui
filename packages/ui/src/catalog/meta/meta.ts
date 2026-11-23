@@ -35,6 +35,8 @@ type SelectMeta = {
       value?: RowSelection;
       mode?: "one";
       runtime?: never;
+      /** Resolve a row selection without projecting it onto the host's current value. */
+      host?: true;
       /** Named parts that require an explicit value from a closed list or an array prop. */
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
