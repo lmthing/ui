@@ -1,3 +1,7 @@
+import { words as LifeCounterWords } from "./en/LifeCounter";
+import { words as PassRevealWords } from "./en/PassReveal";
+import { words as CardDeckWords } from "./en/CardDeck";
+import { words as BuzzerPadWords } from "./en/BuzzerPad";
 import { words as TeamPickerWords } from "./en/TeamPicker";
 import { words as TurnOrderWords } from "./en/TurnOrder";
 import { words as ScoreSheetWords } from "./en/ScoreSheet";
@@ -11,6 +15,10 @@ export const en = {
   ...TriviaWords,
   ...DiceWords,
   ...SpinnerWords,
+  ...LifeCounterWords,
+  ...PassRevealWords,
+  ...CardDeckWords,
+  ...BuzzerPadWords,
 };
 
 export type PlayWords = typeof en;

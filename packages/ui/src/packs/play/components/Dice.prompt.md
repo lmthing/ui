@@ -8,5 +8,6 @@ Random numbered dice with optional holds and a computed sum. Not manual counting
 
 ## Writer
 
-- sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.
+- sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" for ordinary numbered dice; pips is six-sided only. Never write faces, held flags or sum.
+- For a dice pool with numbered faces and a counted/dropped label use style: "pool", on any supported sides. Use mod for a signed modifier added once to the total and drop: "low" or "high" to omit one face from the total, only if requested.
 - For hiding the setup caption alone use {"detail":"brief"}.

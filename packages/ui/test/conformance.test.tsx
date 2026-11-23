@@ -48,6 +48,7 @@ const domainEmpty: Readonly<Record<string, string>> = {
   CannedReplies: "No saved replies yet",
   CreditScore: "No credit report available",
   LeaveBalance: "No leave balances assigned",
+  PassReveal: "Add at least three players to start",
   PayStub: "No pay statements issued yet",
   TeamDirectory: "No teammates in the directory yet",
   Transcript: "No transcript available",
@@ -59,7 +60,7 @@ function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: strin
   if (expected) return expect(visibleTexts(html)).toContain(expected);
   // Explicit empty screen reads only the state header; use the declared copy hook here.
   const withEmptyReading =
-    Boolean(data) || meta.id === "Flashcard" || meta.id === "BoxScore" || meta.id === "Sessions";
+    Boolean(data) || ["Flashcard", "BoxScore", "MatchStats", "MomentumChart", "Sessions"].includes(meta.id);
   const lines = withEmptyReading ? meta.read?.(input, "empty", undefined, data) : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {

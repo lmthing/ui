@@ -74,6 +74,8 @@ export type Meta = {
   errorActions?: readonly `${string}.${ActionName}`[];
   /** Read visible content and the read summary in success, not just the header and available actions. */
   readSuccess?: true;
+  /** Read a summary without listing items in empty or success when the props opt in. */
+  readInState?: (props: Readonly<Record<string, unknown>>, state: "empty" | "success") => boolean;
   /** Read the component's error summary alongside its available recovery actions. */
   readError?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */

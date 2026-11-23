@@ -141,16 +141,21 @@ function OfferActions({ input, expired, density, loading }: { input: Terms; expi
     {draft ? <>
       {button("send", "primary")}
       {button("edit", "quiet", input.goto)}
-    </> : <>
-      {!expired && <kit.KitGrid {...{ density }}>
-        {button("accept", "primary")}{button("decline", "danger")}
-      </kit.KitGrid>}
-      <kit.KitContent group={expired ? "content" : "response"} {...{ density }}>
-        {loading ? button("withdraw", "quiet") :
-          <kit.KitRow part="withdraw" label={words.actions.withdraw} role="button" inline {...{ density }}><kit.KitText
-            part="withdraw_label" role="label" tone="bad" align="center">{words.actions.withdraw}</kit.KitText></kit.KitRow>}
-      </kit.KitContent>
-    </>}
+    </> : <kit.KitRowGroup spacing="groups" density={density}>
+      {!expired && <kit.KitRow part={null} role="group" inline fitContent label={words.recipientActions} density={density}>
+        <kit.KitLayoutText line={{ text: words.recipientActions, role: "meta", tone: "muted" }} density={density} />
+        <kit.KitGrid {...{ density }}>
+          {button("accept", "primary")}{button("decline", "danger")}
+        </kit.KitGrid>
+      </kit.KitRow>}
+      <kit.KitRow part={null} role="group" inline fitContent label={words.employerActions} density={density}>
+        <kit.KitLayoutText line={{ text: words.employerActions, role: "meta", tone: "muted" }} density={density} />
+        <kit.KitRow part={loading ? null : "withdraw"} label={words.actions.withdraw}
+          role={loading ? "text" : "button"} inline density={density}>
+          <kit.KitLayoutText line={{ part: "withdraw_label", text: words.actions.withdraw, role: "meta", tone: "bad" }} density={density} />
+        </kit.KitRow>
+      </kit.KitRow>
+    </kit.KitRowGroup>}
   </kit.KitContent>;
 }
 

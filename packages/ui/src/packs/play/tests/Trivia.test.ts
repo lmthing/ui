@@ -74,18 +74,19 @@ describe("Trivia probes", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Choice");
+    // prettier-ignore
     expect(probes).toEqual([
       expect.objectContaining({ kind: "choose", expect: "Trivia" }),
       expect.objectContaining({ kind: "choose", expect: "Choice" }),
       expect.objectContaining({ kind: "write", expect: "Trivia" }),
       expect.objectContaining({ kind: "write", variant: { axis: "media", value: "none" } }),
+      expect.objectContaining({ kind: "write", expectProps: { questions: [{ choices: expect.any(Array), answer: "Roots" }] } }),
       expect.objectContaining({ kind: "read", expect: press("reveal") }),
       expect.objectContaining({ kind: "read", expect: press("restart") }),
     ]);
     expect(createRegistry({ packs: ["play"] }).ids.includes(meta.id)).toBe(packReady("play"));
   });
 });
-
 describe("Trivia fallback", () => {
   it("uses matching cast fields and neutral placeholders for empty or malformed records", () => {
     const things = [{ type: "entry", fields: ["name", "detail"] }];

@@ -169,24 +169,15 @@ function ApplicationHeading(
   loading: boolean,
   line: ReturnType<typeof CreateApplicationLine>,
 ) {
-  return loading ? (
-    <kit.KitSkeleton
-      shape="rows"
-      inset="none"
-      rows={1}
-      lead="none"
-      {...{ density }}
-      items={[{ title: row.role, sub: row.employer, trail: "chevron" }]}
-    />
-  ) : (
+  return (
     <kit.KitRow
       inline
       label={row.role}
-      part="root"
-      goto={row.goto}
+      part={loading ? null : "root"}
+      goto={loading ? undefined : row.goto}
       lineRole="heading"
       {...{ density }}
-      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}
+      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" loading={loading} />}
     >
       {line("role", row.role, "heading", "text")}
       {line("employer", row.employer, "body")}
@@ -203,7 +194,7 @@ function ApplicationFollowUp(
   line: ReturnType<typeof CreateApplicationLine>,
 ) {
   return (
-    <kit.KitContent group="response" {...{ density }}>
+    <kit.KitContent {...{ density }}>
       {line("next", row.next, "body", "text")}
       {line("next_at", copy.nextAt)}
       {line("due", copy.due, "label", "warn")}
@@ -234,13 +225,17 @@ function ApplicationFollowUp(
 }
 
 function ApplicationWithdraw(label: string, density: c.ThemeDensity, loading: boolean) {
-  return loading ? (
-    <kit.KitSkeleton shape="figure" inset="none" content={[["label", label]]} {...{ density }} />
-  ) : (
-    <kit.KitRow part="withdraw" role="button" inline label={label} {...{ density }}>
-      <kit.KitText part="withdraw_label" role="label" tone="muted" {...{ density }}>
-        {label}
-      </kit.KitText>
+  return (
+    <kit.KitRow
+      inline
+      part={loading ? null : "withdraw"}
+      role={loading ? "text" : "button"}
+      {...{ label, density }}
+    >
+      <kit.KitLayoutText
+        line={{ part: "withdraw_label", text: label, role: "meta", tone: "muted" }}
+        density={density}
+      />
     </kit.KitRow>
   );
 }
@@ -264,13 +259,13 @@ function ApplicationRow({ row, density, surface, loading }: ApplicationRowProps)
     >
       {ApplicationHeading(row, density, loading, line)}
       <kit.KitContent {...{ density }}>
-        {line("stage", copy.stage, "label", copy.outcome ? "muted" : "text")}
         {line(
           "outcome",
           copy.outcome,
           "label",
           row.outcome === "hired" ? "good" : row.outcome === "rejected" ? "bad" : "text",
         )}
+        {line("stage", copy.stage, "label", copy.outcome ? "muted" : "text")}
         {line("applied", copy.applied)}
         {line("last_contact", copy.lastContact)}
       </kit.KitContent>
@@ -305,16 +300,11 @@ export function Applications(input: Tracker) {
           icon={state === "success" ? "check" : "info"}
         />
       ) : (
-        <kit.KitGrid
-          arrange="rows"
-          list
-          listRowGap={surface === "plain" ? "group" : "cards"}
-          {...{ density }}
-        >
+        <kit.KitRowGroup spacing="groups" {...{ density }}>
           {applications.map((row) => (
             <ApplicationRow key={row.id} {...{ row, density, surface }} loading={state === "loading"} />
           ))}
-        </kit.KitGrid>
+        </kit.KitRowGroup>
       )}
     </kit.KitCard>
   );

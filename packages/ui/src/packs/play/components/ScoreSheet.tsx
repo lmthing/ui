@@ -31,13 +31,15 @@ import {
   useWords,
   useKit,
 } from "../../../kit";
-import { scoreCopy, scoreReading } from "../copy";
+import { scoreBidLine, scoreCopy, scoreGoalCopy, scoreReading } from "../copy";
 import { playWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-ScoreSheet.generated";
 
 // Core first: Counter/default cannot store several players' numeric round cells and compute totals.
 const scoreMin = -999;
 const scoreMax = 999;
+const roundsMax = 12;
+const score = z.int().min(scoreMin).max(scoreMax).nullable();
 const roundKey = (index: number) => String(index + 1);
 export const meta = {
   id: "ScoreSheet",
@@ -55,10 +57,10 @@ export const meta = {
   clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",
   variants: { overflow: ["all", "page"] },
-  variantParts: { "overflow.page": { hides: ["root", "round", "score"] } },
+  variantParts: { "overflow.page": { hides: ["root", "round", "score", "bid"] } },
   items: {
     key: "cells",
-    parts: ["root", "player", "round", "score"],
+    parts: ["root", "player", "round", "score", "bid"],
     set: {
       score: {
         prop: "score",
@@ -70,14 +72,19 @@ export const meta = {
     },
   },
   select: { prop: "selectedRound", choices: { root: { prop: "roundOptions" } } },
-  parts: ["root", "sheet", "matrix", "title", "progress", "empty", "reset", "share"],
+  parts: ["root", "sheet", "matrix", "title", "progress", "goal", "goal_reached", "empty", "reset", "share"],
   states: ["filled", "empty", "loading", "success"],
   actions: {
     parts: { root: ["select"], reset: ["press"], share: ["press"] },
     items: { score: ["set"] },
     when: { share: { share: true }, score: { editable: true } },
   },
-  read: (input, _state, lang): string[] => scoreReading(input as z.output<typeof props>, lang),
+  readInState: (input, state): boolean =>
+    state === "success" &&
+    (input.goal !== undefined ||
+      (input as z.output<typeof props>).rounds.some(({ bids }) => bids !== undefined)),
+  read: (input, state, lang): string[] =>
+    scoreReading(input as z.output<typeof props>, lang, state === "success"),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -90,11 +97,17 @@ export const props = z
       .array(
         z.strictObject({
           label: text(16),
-          points: z.array(z.int().min(scoreMin).max(scoreMax).nullable()).min(2).max(6),
+          points: z.array(score).min(2).max(6),
+          bids: z.array(score).min(2).max(6).optional(),
         }),
       )
       .min(1)
-      .max(12),
+      .max(roundsMax),
+    goal: z
+      .int()
+      .min(scoreMin * roundsMax)
+      .max(scoreMax * roundsMax)
+      .optional(),
     wins: z.enum(["high", "low"]).default("high"),
     share: z.boolean().default(false),
     selectedRound: z.enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]).default("1"),
@@ -106,6 +119,10 @@ export const props = z
   .refine(({ players, rounds }) => rounds.every((round) => round.points.length === players.length), {
     path: ["rounds"],
     message: "Every round needs exactly one point entry per player",
+  })
+  .refine(({ players, rounds }) => rounds.every(({ bids }) => !bids || bids.length === players.length), {
+    path: ["rounds"],
+    message: "Every bidding round needs exactly one bid entry per player",
   })
   .overwrite((value) => ({
     ...value,
@@ -146,6 +163,7 @@ export const examples = [
   },
   { ...game, overflow: "page" },
   { ...game },
+  { ...game, goal: 7, rounds: [{ ...game.rounds[0]!, bids: [3, 2, 4] }, game.rounds[1]!] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ScoreSheet");
 export const probes = [
@@ -160,6 +178,18 @@ export const probes = [
     ),
     variant: { axis: "overflow", value: "page" },
   },
+  {
+    ...write(
+      "Track Anna and Ben's round scores. They made 4 and 2 in the first round. The target total is 10.",
+    ),
+    expectProps: { goal: 10 },
+  },
+  {
+    ...write(
+      "Record exactly one game round for only two players, Anna then Ben. Anna bid 3 and made 4; Ben bid 1 and made 2. Record the bids and what each player made.",
+    ),
+    expectProps: { players: [{ name: "Anna" }, { name: "Ben" }], rounds: [{ bids: [3, 1], points: [4, 2] }] },
+  },
   read("Change Anna's score in round one", { address: "s1/r1/score", action: "set" }),
   read("Reset the round scores", { address: "s1/reset", action: "press" }),
 ] satisfies Probe[];
@@ -172,6 +202,7 @@ type VisibleRounds = {
   rounds: SheetProps["rounds"];
   visible: number[];
   cellId: (round: number, player: number) => string;
+  spacer: React.ReactElement | null;
 };
 
 function ScoreLineFor(loading: boolean) {
@@ -180,13 +211,14 @@ function ScoreLineFor(loading: boolean) {
     text: string,
     tone: "accent" | "text" | "good" | "muted" = "text",
     align: "start" | "end" = "start",
+    part: "bid" | null = null,
   ) {
     return loading ? (
       <KitSkeleton shape="figure" inset="none" content={[[role, text, align, "compact"]]} />
     ) : (
       <KitText
         {...{ role, tone, align }}
-        part={null}
+        part={part}
         numberScale="compact"
         tabular={role === "number"}
         lines={1}
@@ -198,10 +230,11 @@ function ScoreLineFor(loading: boolean) {
 }
 
 function ScoreColumns(
-  { rounds, visible, cellId }: VisibleRounds,
+  { rounds, visible, cellId, spacer }: VisibleRounds,
   selected: number,
   readonly: boolean,
   line: ReturnType<typeof ScoreLineFor>,
+  labels: Labels,
 ) {
   return visible.map((round) => ({
     id: roundKey(round),
@@ -214,22 +247,25 @@ function ScoreColumns(
           round === selected ? "accent" : "text",
           readonly ? "end" : "start",
         )}
+        {spacer &&
+          (rounds[round]!.bids ? line("caption", labels.made, "muted", readonly ? "end" : "start") : spacer)}
       </KitRow>
     ),
   }));
 }
 
 function ScoreCells(
-  { rounds, visible, cellId }: VisibleRounds,
+  { rounds, visible, cellId, spacer }: VisibleRounds,
   { loading, readonly, lang }: TableDisplay,
   words: ScoreWords,
   player: number,
   name: string,
+  line: ReturnType<typeof ScoreLineFor>,
 ) {
   const labels = words.scoreLabels;
   return visible.map((round) => {
-    const { label: roundLabel, points } = rounds[round]!;
-    const label = words.scoreCell(name, roundLabel);
+    const { label: roundLabel, points, bids } = rounds[round]!;
+    const label = words.scoreCell(name, roundLabel, bids ? labels.made : undefined);
     const score = points[player];
     const value = score == null ? "" : String(score);
     return {
@@ -256,6 +292,10 @@ function ScoreCells(
               step={1}
             />
           )}
+          {spacer &&
+            (bids
+              ? line("caption", scoreBidLine(bids[player]!, lang), "muted", readonly ? "end" : "start", "bid")
+              : spacer)}
         </KitRow>
       ),
     };
@@ -272,22 +312,33 @@ function ScoreRows(
 ) {
   const { lang, loading } = display;
   const { players: totals } = scoreCopy(input, lang);
-  return totals.map(({ name, total, standing, winner }, player) => ({
-    id: grid.cellId(selected, player),
-    label: name,
-    heading: (
-      <KitRow inline part="player" label={name}>
-        <KitGrid fitLast>
-          <KitContent>
-            {line("label", name)}
-            {standing && line("caption", standing, winner ? "good" : "muted")}
-          </KitContent>
-          {line("number", loading ? digitsLine(0, 2, lang) : total, "text", "end")}
-        </KitGrid>
-      </KitRow>
-    ),
-    cells: ScoreCells(grid, display, words, player, name),
-  }));
+  return totals.map(({ name, total, standing, winner }, player) => {
+    const amount = line("number", loading ? digitsLine(0, 2, lang) : total, "text", "end");
+    const { spacer } = grid;
+    return {
+      id: grid.cellId(selected, player),
+      label: name,
+      heading: (
+        <KitRow inline part="player" label={name}>
+          <KitGrid fitLast>
+            <KitContent>
+              {line("label", name)}
+              {standing ? line("caption", standing, winner ? "good" : "muted") : spacer}
+            </KitContent>
+            {spacer ? (
+              <KitRow inline label={words.scoreLabels.total}>
+                {amount}
+                {spacer}
+              </KitRow>
+            ) : (
+              amount
+            )}
+          </KitGrid>
+        </KitRow>
+      ),
+      cells: ScoreCells(grid, display, words, player, name, line),
+    };
+  });
 }
 
 // The presentation can pin another round without ever reordering the underlying score addresses.
@@ -310,9 +361,14 @@ function ScoreTable({
     ...rounds.flatMap((_, index) => (overflow === "all" && index !== selected ? [index] : [])),
   ];
   const cellId = (round: number, player: number) => cells[round * players.length + player]!.id;
-  const grid = { rounds, visible, cellId };
+  const spacer = visible.some((round) => rounds[round]!.bids) ? (
+    <KitText role="caption" part={null}>
+      {"\u00a0"}
+    </KitText>
+  ) : null;
+  const grid = { rounds, visible, cellId, spacer };
   const line = ScoreLineFor(loading);
-  const columns = ScoreColumns(grid, selected, readonly, line);
+  const columns = ScoreColumns(grid, selected, readonly, line, labels);
   const rows = ScoreRows(input, grid, selected, { loading, readonly, lang }, words, line);
   return (
     <KitTable
@@ -326,6 +382,7 @@ function ScoreTable({
             {line("label", labels.player, "muted")}
             {line("label", labels.total, "muted", "end")}
           </KitGrid>
+          {spacer}
         </KitRow>
       }
     />
@@ -347,6 +404,45 @@ function ScoreActions({ share, loading, labels }: { share: boolean; loading: boo
     </KitGrid>
   );
 }
+function ScoreGoal({
+  goal,
+  loading,
+}: {
+  goal: NonNullable<ReturnType<typeof scoreGoalCopy>>;
+  loading: boolean;
+}) {
+  if (loading)
+    return (
+      <KitSkeleton
+        shape="figure"
+        inset="none"
+        content={
+          goal.reached
+            ? [
+                ["label", goal.target],
+                ["caption", goal.reached],
+              ]
+            : [["label", goal.target]]
+        }
+      />
+    );
+  return (
+    <>
+      <KitText role="label" part="goal">
+        {goal.prefix}
+        <KitText role="number" numberScale="compact" tabular part={null}>
+          {goal.value}
+        </KitText>
+      </KitText>
+      {goal.reached && (
+        <KitText role="caption" part="goal_reached" tone="good">
+          {goal.reached}
+        </KitText>
+      )}
+    </>
+  );
+}
+
 export function ScoreSheet(input: SheetProps) {
   const state = useComponentState();
   const {
@@ -354,16 +450,11 @@ export function ScoreSheet(input: SheetProps) {
     words: { scoreLabels: labels },
   } = useWords(playWordsFor);
   const density = useKit().density;
-  const loading = state === "loading",
-    active = state === "filled";
+  const loading = state === "loading";
   const selected = Number(input.selectedRound) - 1;
-  if (state === "empty")
-    return (
-      <KitCard part="root" padded density={density}>
-        <KitEmpty part="empty" decorativeIcon />
-      </KitCard>
-    );
+  if (state === "empty") return <ScoreEmpty density={density} />;
   const { progress } = scoreCopy(input, lang);
+  const goal = scoreGoalCopy(input, lang);
   return (
     <KitCard part={state === "success" ? "root" : "sheet"} padded density={density}>
       <KitContent density={density}>
@@ -386,9 +477,10 @@ export function ScoreSheet(input: SheetProps) {
             </KitText>
           </>
         )}
+        {goal && <ScoreGoal goal={goal} loading={loading} />}
       </KitContent>
       {state !== "success" && (
-        <KitTrack part="root" {...(active ? { role: "radiogroup" } : {})} label={labels.rounds}>
+        <KitTrack part="root" {...(state === "filled" ? { role: "radiogroup" } : {})} label={labels.rounds}>
           {input.rounds.map(({ label }, index) => (
             <KitChip
               key={roundKey(index)}
@@ -402,8 +494,16 @@ export function ScoreSheet(input: SheetProps) {
           ))}
         </KitTrack>
       )}
-      <ScoreTable {...{ input, selected, loading }} readonly={!active && !loading} />
+      <ScoreTable {...{ input, selected, loading }} readonly={state !== "filled" && !loading} />
       {state !== "success" && <ScoreActions {...{ loading, labels }} share={input.share} />}
+    </KitCard>
+  );
+}
+
+function ScoreEmpty({ density }: { density: ReturnType<typeof useKit>["density"] }) {
+  return (
+    <KitCard part="root" padded density={density}>
+      <KitEmpty part="empty" decorativeIcon />
     </KitCard>
   );
 }
