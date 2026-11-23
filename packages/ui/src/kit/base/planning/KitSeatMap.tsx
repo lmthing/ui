@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
-import { XStack, YStack } from "tamagui";
+import { isWeb, ScrollView, XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { seatFill } from "../../seat-state";
-import { KitText, shifted, surfaceOf } from "../text";
+import { KitText, shifted } from "../text";
 import { SeatMoveChoices, SeatMoveScope, SeatTray, useSeatMoveTarget, type Seat } from "./seat-move";
 import {
   PlanningTargetScope,
@@ -34,6 +34,7 @@ type SeatMapProps = {
   })[];
 };
 const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
+const seatEdge = size.control.md;
 
 function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray: boolean }) {
   const address = usePlanningAddress(seat.target, loading);
@@ -49,7 +50,6 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
       height={size.control.md}
       alignItems={tray ? "flex-start" : "center"}
       justifyContent="center"
-      paddingHorizontal={tray ? space.sm : undefined}
       borderRadius={tray ? radius.md : radius.pill}
       borderWidth={tray ? 0 : selected ? component.base.strongBorder : component.base.borderWidth}
       borderColor={selected ? "$accent" : "$line"}
@@ -124,19 +124,90 @@ function TableTop({ table, loading }: { table: Table; loading: boolean }) {
   );
 }
 
+function RoundDrawing({ table, loading, diameter }: { table: Table; loading: boolean; diameter: number }) {
+  const { seats } = table;
+  return (
+    <YStack width={diameter} height={diameter} alignSelf="center" alignItems="center" justifyContent="center">
+      <TableTop table={table} loading={loading} />
+      {seats.length > 0 && (
+        <YStack fullscreen margin={seatEdge / 2} pointerEvents="box-none">
+          {seats.map((seat, index) => {
+            const angle = (index / seats.length) * (Math.PI * 2);
+            return (
+              <YStack
+                key={seat.id}
+                position="absolute"
+                left={`${(1 + Math.sin(angle)) * 50}%`}
+                top={`${(1 - Math.cos(angle)) * 50}%`}
+                marginLeft={-seatEdge / 2}
+                marginTop={-seatEdge / 2}
+              >
+                <ScopedSeat seat={seat} loading={loading} />
+              </YStack>
+            );
+          })}
+        </YStack>
+      )}
+    </YStack>
+  );
+}
+
+function RoundTable({ table, loading }: { table: Table; loading: boolean }) {
+  const [width, setWidth] = useState(0);
+  const diameter = table.seats.length ? roundDiameter(table.seats.length) : seatEdge * 2;
+  const overflowing = width > 0 && width < diameter;
+  return (
+    <ScrollView
+      horizontal
+      onLayout={({ nativeEvent }) => setWidth(nativeEvent.layout.width)}
+      contentContainerStyle={{ minWidth: "100%", justifyContent: "center" }}
+      showsHorizontalScrollIndicator={overflowing && !loading}
+      scrollEnabled={!loading}
+      {...(isWeb && overflowing && !loading
+        ? { role: "region", tabIndex: 0, "aria-label": table.label }
+        : {})}
+    >
+      <RoundDrawing {...{ table, loading, diameter }} />
+    </ScrollView>
+  );
+}
+
+function roundDiameter(count: number) {
+  const clearOfTable = seatEdge * 4 + space.xs * 2;
+  const clearOfSeats = count > 1 ? (seatEdge + space.xs) / Math.sin(Math.PI / count) + seatEdge : 0;
+  return Math.ceil(Math.max(clearOfTable, clearOfSeats));
+}
+
+function LongTable({ table, loading }: { table: Table; loading: boolean }) {
+  const { seats } = table;
+  const split = Math.ceil(seats.length / 2);
+  return (
+    <>
+      <SeatBank seats={seats.slice(0, split)} loading={loading} />
+      <YStack alignItems="center">
+        <TableTop table={table} loading={loading} />
+      </YStack>
+      <SeatBank seats={seats.slice(split)} loading={loading} />
+    </>
+  );
+}
+
 function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
   const ks = useKitStyle();
-  const { seats } = table;
-  const flanks = table.shape === "round" && seats.length >= 4;
-  const split = Math.ceil(seats.length / 2);
-  const top = seats.slice(0, split - (flanks ? 1 : 0));
-  const bottom = seats.slice(split + (flanks ? 1 : 0));
+  const round = table.shape === "round";
   return (
     <YStack
       gap={space.xs}
       padding={space.md}
       width="100%"
-      maxWidth={mapWidth}
+      maxWidth={
+        round
+          ? Math.max(
+              mapWidth,
+              roundDiameter(table.seats.length) + 2 * (space.md + component.base.borderWidth),
+            )
+          : mapWidth
+      }
       alignSelf="center"
       borderRadius={shifted("lg", ks.radiusShift)}
       borderWidth={component.base.borderWidth}
@@ -145,20 +216,14 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
       aria-hidden={loading || undefined}
       accessibilityElementsHidden={loading || undefined}
     >
-      <SeatBank seats={top} loading={loading} />
-      <XStack gap={space.xs} alignItems="center" justifyContent="center">
-        {flanks && <ScopedSeat seat={seats[split - 1]!} loading={loading} />}
-        <TableTop table={table} loading={loading} />
-        {flanks && <ScopedSeat seat={seats[split]!} loading={loading} />}
-      </XStack>
-      <SeatBank seats={bottom} loading={loading} />
+      {round ? <RoundTable {...{ table, loading }} /> : <LongTable {...{ table, loading }} />}
       {!loading && table.count && (
         <KitText role="caption" tone="muted" part={table.count.part} align="center" tabular>
           {table.count.text}
         </KitText>
       )}
       {!loading &&
-        seats.map(
+        table.seats.map(
           (seat) =>
             seat.move && (
               <PlanningTargetScope key={seat.id} id={seat.id} target={seat.target}>
@@ -197,18 +262,9 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray, trayG
           </PlanningTargetScope>
         ))}
         {(tray != null || trayGuests.length > 0) && (
-          <SeatTray loading={loading} maxWidth={mapWidth} gap={trayGuests.length ? space.xs : 0}>
+          <SeatTray loading={loading} hasHeading={tray != null} guests={trayGuests.length}>
             {tray}
-            {guests.length > 0 && (
-              <YStack
-                {...surfaceOf(ks.surface)}
-                borderRadius={shifted("md", ks.radiusShift)}
-                padding={space.xs}
-                gap={space.xs}
-              >
-                {guests}
-              </YStack>
-            )}
+            {guests}
           </SeatTray>
         )}
       </SeatMoveScope>

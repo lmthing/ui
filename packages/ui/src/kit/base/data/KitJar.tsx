@@ -51,14 +51,16 @@ export function KitJar({ part = "root", loading = false, ratio, label, children 
   return (
     <YStack
       {...usePart(part)}
-      width={component.base.ringMd}
+      width="100%"
+      maxWidth={component.base.ringLg}
       alignSelf="center"
       alignItems="center"
       aria-label={loading ? undefined : label}
       aria-busy={loading || undefined}
     >
       <YStack
-        width={component.base.ringMd - space.xl}
+        alignSelf="stretch"
+        marginHorizontal={space.md}
         height={space.sm}
         borderWidth={component.base.strongBorder}
         borderColor={loading ? "$line" : "$muted"}

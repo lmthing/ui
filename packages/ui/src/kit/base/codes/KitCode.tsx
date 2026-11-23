@@ -6,7 +6,7 @@ import qrcode from "qrcode-generator";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
-import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import { KitIcon, KitText, shifted } from "../text";
 import { barcodeDrawing } from "./barcode";
 
 type CodeProps = {
@@ -129,7 +129,6 @@ export function KitCode({
       justifyContent="center"
       gap={space.sm}
       borderRadius={shifted("md", ks.radiusShift)}
-      {...(enlarged ? {} : surfaceOf(ks.surface))}
       aria-busy={loading || undefined}
       accessibilityRole={drawing ? "image" : undefined}
       accessibilityLabel={drawing ? label : undefined}

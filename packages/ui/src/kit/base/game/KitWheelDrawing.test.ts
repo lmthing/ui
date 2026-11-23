@@ -42,5 +42,8 @@ describe("WheelDrawing", () => {
     const hidden = render({ ...props, angle: 0, loading: true });
     expect(hidden).not.toContain("data-testid=");
     expect(hidden).not.toContain('role="text"');
+    expect(hidden.match(new RegExp(`stroke-opacity="${component.base.disabledOpacity}"`, "g"))).toHaveLength(
+      5,
+    );
   });
 });

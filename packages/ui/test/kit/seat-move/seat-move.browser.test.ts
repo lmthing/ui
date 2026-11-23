@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
+import { size } from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "../../../scripts/look";
 
 let server: ViteDevServer;
@@ -125,6 +126,71 @@ it("seats a tray guest by keyboard, preserves its address and hides the newly fu
     // The last seat leaves no destination. The new marker can receive restored focus but is not tabbable.
     expect(await next.evaluate((node) => node === document.activeElement)).toBe(true);
     expect(await next.getAttribute("tabindex")).toBe("-1");
+  } finally {
+    await page.close();
+  }
+});
+
+it("shows Gantt viewport continuation on the scrollable side without moving the label rail", async () => {
+  const page = await browser.newPage({ viewport: { width: 430, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL("/?c=Gantt&w=390&preset=calm&mode=light", server.resolvedUrls!.local[0]).href);
+    const chart = page.locator('[data-look-frame] [data-testid$="/chart"]').first();
+    const timeline = chart.getByRole("region");
+    const cue = (side: "left" | "right") => chart.locator(`[data-viewport-cue="${side}"]`);
+    const label = chart.getByText("Plan plants", { exact: true });
+    await cue("right").nth(1).waitFor();
+    expect(await cue("left").count()).toBe(0);
+    expect(await timeline.getAttribute("tabindex")).toBe("0");
+    const labelLeft = (await label.boundingBox())!.x;
+    await timeline.press("ArrowRight");
+    await cue("left").first().waitFor();
+    await timeline.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+    });
+    await cue("right").first().waitFor({ state: "detached" });
+    expect((await label.boundingBox())!.x).toBe(labelLeft);
+    expect(
+      await timeline.evaluate((element) => element.scrollWidth - element.clientWidth - element.scrollLeft),
+    ).toBeLessThanOrEqual(1);
+  } finally {
+    await page.close();
+  }
+});
+
+it("keeps all sixteen round seats separated and reachable in a narrow phone", async () => {
+  const page = await browser.newPage({ viewport: { width: 320, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL(`${route}?full-round-table`, server.resolvedUrls!.local[0]).href);
+    const table = page.getByRole("region", { name: "Oak" });
+    await table.waitFor();
+    const sizes = await table.locator('[data-testid^="home/c1/r"]').evaluateAll((seats) =>
+      seats.map((seat) => {
+        const { x, y, width, height } = seat.getBoundingClientRect();
+        return { width, height, x: x + width / 2, y: y + height / 2 };
+      }),
+    );
+    expect(sizes).toHaveLength(16);
+    for (const [index, a] of sizes.entries()) {
+      // DOMRect can subtract two subpixel coordinates when reporting the CSS dimensions.
+      expect(a.width).toBeCloseTo(size.control.md, 4);
+      expect(a.height).toBeCloseTo(size.control.md, 4);
+      const b = sizes[(index + 1) % sizes.length]!;
+      expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(size.control.md);
+    }
+    await table.press("ArrowRight");
+    await expect.poll(() => table.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+    const farSeat = page.getByTestId("home/c1/r5/root");
+    await farSeat.scrollIntoViewIfNeeded();
+    await expect
+      .poll(async () => {
+        const viewport = (await table.boundingBox())!;
+        const seat = (await farSeat.boundingBox())!;
+        return seat.x + seat.width - (viewport.x + viewport.width);
+      })
+      .toBeLessThanOrEqual(1);
   } finally {
     await page.close();
   }
