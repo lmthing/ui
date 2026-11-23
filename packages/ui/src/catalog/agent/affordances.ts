@@ -87,11 +87,6 @@ function actionsForItem(
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  // Spell out the row root when there are also named actions, even if they are not currently offered.
-  const explicitRoot =
-    meta.select?.runtime &&
-    meta.select.mode === "flags" &&
-    Object.keys(items ?? {}).some((part) => part !== "root");
   return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
     .filter(({ part, action }) => {
       if (!dateSpanOffer(meta, props, part, action, item)) return false;
@@ -107,7 +102,7 @@ function actionsForItem(
         : itemActionOffer(meta, props, item, offer, schema),
     )
     .map((offer) =>
-      explicitRoot && offer.part === "root" && offer.action === "toggle"
+      meta.items?.readRoot && offer.part === "root" && !offer.readAddress
         ? { ...offer, readAddress: `${offer.address}/root` }
         : offer,
     );

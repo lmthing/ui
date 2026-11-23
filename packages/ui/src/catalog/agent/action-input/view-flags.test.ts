@@ -14,7 +14,11 @@ const second = "home/f1/r2";
 const details = { address: `${second}/details`, action: "press" };
 const toggle = { address: second, action: "toggle" };
 
-function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select", confirm = false) {
+function fixture(
+  source: "wire" | "parsed" | "live",
+  action: "toggle" | "select",
+  { confirm, readRoot }: { confirm?: true; readRoot?: true } = {},
+) {
   const key = source === "wire" ? "rows" : "viewRows";
   const meta = {
     id: "Fixture",
@@ -25,7 +29,7 @@ function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select"
     weight: 1,
     tier: "phone",
     realPath: "Local disclosure",
-    items: { key, parts: ["root", "details"] },
+    items: { key, parts: ["root", "details"], ...(readRoot && { readRoot }) },
     actions: {
       items: { root: [action], details: ["press"] },
       when: { details: { expanded: true, hasExpanded: true } },
@@ -68,7 +72,7 @@ function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select"
 }
 
 it.each(["wire", "parsed", "live"] as const)("keeps %s flag rows out of wire snapshots", (source) => {
-  const { controller, def, onChange, screen, view } = fixture(source, "toggle");
+  const { controller, def, onChange, screen, view } = fixture(source, "toggle", { readRoot: true });
   const wire = controller.snapshotScreen();
   const { id: _id, c: _c, ...input } = wire.components[0]!;
   expect(() => def.props.parse(input)).not.toThrow();
@@ -113,9 +117,11 @@ it("selects a derived row and clears the previous flag without persisting either
 });
 
 it("confirms an action that a presentation-only flag enables", () => {
-  const { controller, onAction, screen } = fixture("parsed", "toggle", true);
+  const { controller, onAction, screen } = fixture("parsed", "toggle", { confirm: true });
   controller.registerPart(details.address);
+  expect(controller.read()).toContain("[f1/r2 toggle:off]");
   expect(controller.act(toggle).ok).toBe(true);
+  expect(controller.read()).toContain("[f1/r2 toggle:on] [f1/r2/details press]");
   onAction.mockClear();
   expect(controller.act(details).ok).toBe(true);
   expect(controller.read()).toContain("[confirm/confirm press]");
