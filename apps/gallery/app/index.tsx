@@ -5,6 +5,7 @@ import { Screens } from "./Screens";
 import { Runtime } from "./Runtime";
 import { Controls } from "./Controls";
 import { MotionPreview } from "./Motion";
+import { ThemeReference } from "./ThemeReference";
 import { ComponentTitle, Overview, SharedVariants, VariantGrid } from "./overview";
 
 const query = new URLSearchParams(globalThis.location?.search ?? "");
@@ -13,6 +14,8 @@ const width = Number(query.get("w")) || 0;
 const mode = query.get("mode");
 
 export function Gallery() {
+  if (query.has("theme-reference"))
+    return <ThemeReference mode={mode === "dark" ? "dark" : "light"} screenId={query.get("screen")} />;
   if (query.has("motion")) return <MotionPreview name={query.get("motion") as SignatureName} />;
   if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} query={query} />;
   if (query.has("runtime")) return <Runtime />;

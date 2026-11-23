@@ -9,8 +9,33 @@ export type KitStyle = {
   densityKind: PresetMeta["density"];
   surface: PresetMeta["surface"];
   strong: boolean;
+  frame: {
+    gutter: SpaceToken;
+    field: "filled" | "outlined" | "ruled" | "serifRule" | "ink";
+    action: "standard" | "block" | "pill" | "glow";
+    corner: "md" | "lg";
+    displayTitle: boolean;
+    rowRule: boolean;
+  };
 };
 const shifts = { sharp: -1, soft: 0, round: 1 } as const;
+const frame: KitStyle["frame"] = {
+  gutter: "gutter",
+  field: "filled",
+  action: "standard",
+  corner: "md",
+  displayTitle: false,
+  rowRule: false,
+};
+const treatments: Partial<Record<KitStyle["surface"], Partial<KitStyle["frame"]>>> = {
+  hairline: { field: "outlined" },
+  accentBlock: { action: "block", displayTitle: true },
+  tinted: { action: "pill", corner: "lg" },
+  editorial: { gutter: "2xl", field: "serifRule", displayTitle: true },
+  ruled: { field: "ruled", rowRule: true },
+  raised: { action: "glow" },
+  monochrome: { field: "ink" },
+};
 
 export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comfortable"): KitStyle {
   return {
@@ -24,5 +49,6 @@ export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comforta
     densityKind: preset.density,
     surface: preset.surface,
     strong: preset.weight === "strong",
+    frame: { ...frame, ...treatments[preset.surface] },
   };
 }

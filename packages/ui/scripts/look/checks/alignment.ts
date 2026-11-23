@@ -5,14 +5,17 @@ export function checkAlignment(context: FrameCheck) {
   // a top edge, and across rows they start at a few shared x positions (one per column).
   const byPart = new Map<string, DOMRect[]>();
   for (const el of Array.from(frameEl.querySelectorAll("[data-testid]"))) {
-    const m = el.getAttribute("data-testid")!.match(/\/r\d+\/([a-z_]+)$/);
+    const m = el.getAttribute("data-testid")!.match(/^(.+)\/r\d+\/([a-z_]+)$/);
     const rect = el.getBoundingClientRect();
     // Chat bubbles align to two sides on purpose (theirs left, mine right): no column check.
     if (el.closest("[data-look-twoedge]")) continue;
-    if (m && m[1] !== "root" && rect.width) byPart.set(m[1]!, [...(byPart.get(m[1]!) ?? []), rect]);
+    if (m && m[2] !== "root" && rect.width) {
+      const key = `${m[1]}/${m[2]}`;
+      byPart.set(key, [...(byPart.get(key) ?? []), rect]);
+    }
   }
 
-  for (const [part, rects] of byPart) checkPart(context, part, rects);
+  for (const [key, rects] of byPart) checkPart(context, key.slice(key.lastIndexOf("/") + 1), rects);
 }
 function checkPart({ frame, frameEl, add }: FrameCheck, part: string, rects: DOMRect[]) {
   const lefts = [...new Set(rects.map((r) => Math.round(r.left / 3)))];

@@ -33,11 +33,12 @@ export function projectApplications<T extends ApplicationInfo>(rows: readonly T[
 
 export function applicationCopy(row: ApplicationInfo, lang?: string, now = new Date()) {
   const { applications: words, stages, outcomes } = hiringWordsFor(lang);
+  const outcome = row.outcome === "active" ? undefined : outcomes[row.outcome];
   const days = row.lastContact ? elapsedDays(row.lastContact, now) : 0;
   const due = pending(row) && row.nextAt ? elapsedDays(row.nextAt, now) : -1;
   return {
-    stage: stages[row.stage],
-    outcome: row.outcome === "active" ? undefined : outcomes[row.outcome],
+    outcome,
+    stage: outcome ? words.lastStage(stages[row.stage]) : stages[row.stage],
     applied: row.applied ? words.applied(appointmentDate(row.applied, lang)) : undefined,
     lastContact: row.lastContact
       ? words.contact(

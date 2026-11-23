@@ -74,9 +74,11 @@ export function readComponent(
   const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  const content = { props, validated, instance, values, state, session, draw };
+  const optedIn = (state === "empty" || state === "success") && meta.readInState?.(props, state);
+  const successContent = state === "success" && (draw || session || meta.readSuccess);
+  const content = { props, validated, instance, values, state, session, draw, summaryOnly: !!optedIn };
   const copy = { lang, deviceData, currency };
-  if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess))) {
+  if (state !== "filled" && !feedback && !optedIn && !successContent) {
     const summary =
       state === "empty"
         ? readDraw(draw)

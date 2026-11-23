@@ -8,11 +8,11 @@ export const calm = {
   weight: "regular",
   shape: "soft",
   density: "airy",
-  surface: "soft",
+  surface: "flat",
   roles: {
     light: {
       bg: "#f4f5f1",
-      surface: "#ffffff",
+      surface: "#fafbf7",
       raised: "#eef1ea",
       line: "#d2d9cc",
       text: "#1b221e",
@@ -23,8 +23,8 @@ export const calm = {
     },
     dark: {
       bg: "#121614",
-      surface: "#1a201d",
-      raised: "#222b25",
+      surface: "#222b25",
+      raised: "#2c362f",
       line: "#3f4d43",
       text: "#f1f6ef",
       muted: "#b2c0b6",

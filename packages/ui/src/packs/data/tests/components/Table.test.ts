@@ -143,6 +143,7 @@ describe("Table states and parts", () => {
     expect(parts.has("home/c1/header")).toBe(false);
     expect(parts.has("home/c1/r1/root")).toBe(false);
     expect(parts.has("home/c1/r1/pick")).toBe(false);
+    expect(html).not.toContain('role="radio"');
     expect(readScreen(screen(ledge, state), defs)).not.toMatch(/\[(?:t1\/header|t1\/r1)/);
   });
 });

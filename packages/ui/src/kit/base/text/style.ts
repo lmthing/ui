@@ -3,6 +3,7 @@ import {
   component,
   elevation,
   radius,
+  space,
   variants,
   type AxisValue,
   type KitStyle,
@@ -26,30 +27,31 @@ export const outlined = {
   borderColor: `$${variants.surface.outlined.rule}`,
   borderWidth: component.base[variants.surface.outlined.border],
 } as const;
-export const CardStyleContext = createContext<CardStyle>("inset");
+export const CardStyleContext = createContext<CardStyle | undefined>(undefined);
 export const EdgeMediaContext = createContext(false);
 export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiusShift"]) {
   const steps = ["sm", "md", "lg", "xl"] as const;
   const index = Math.max(0, Math.min(steps.length - 1, steps.indexOf(token) + shift));
   return radius[steps[index]!];
 }
-/**
- * How a card sits on the screen, per preset: `soft` (calm) white card with a gentle shadow,
- * `solid` (bold) a crisp card on a contrasting background, `hairline` (editorial) paper with a rule.
- */
-export function surfaceOf(treatment: KitStyle["surface"]) {
-  const { fill, rule, border, elevation: depth } = variants.surface.card[treatment];
+/** How an inset surface sits on the screen, independent of its content. */
+export function surfaceOf(treatment: KitStyle["surface"], layer: "card" | "overlay" = "card") {
+  const tokens = variants.surface.card[treatment];
+  const { fill, rule, border, elevation: depth } = tokens;
+  const band = "band" in tokens ? tokens.band : undefined;
   const shadow = elevation[depth];
   return {
-    backgroundColor: `$${fill}`,
+    backgroundColor: `$${layer === "overlay" && fill === "bg" ? "surface" : fill}`,
     ...(rule ? { borderColor: `$${rule}` as const } : {}),
     borderWidth: component.base[border],
+    ...(band ? { borderTopColor: `$${band}` as const, borderTopWidth: space.sm } : {}),
     ...(depth !== "flat"
       ? {
           shadowColor: "$text",
           shadowOffset: { width: component.base.none, height: shadow.offset },
           shadowRadius: shadow.shadowRadius,
           shadowOpacity: shadow.shadowOpacity,
+          elevationAndroid: shadow.elevation,
         }
       : {}),
   } as const;

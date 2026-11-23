@@ -8,5 +8,5 @@ Host-controlled question and answer reveals for players answering aloud or on pa
 
 ## Writer
 
-- Write seed question, answer, optional explanation/photo and points. Never write submissions, grades, awarded scores, current index or reveal state.
+- Write seed question, answer, optional explanation/photo, points and two to four display-only choices if requested. Keep the answer in answer; never write correct-choice indexes, submissions, grades, awarded scores, current index or reveal state.
 - To hide photos alone use {"media":"none","emphasis":null}. Keep the supplied photo in the question data. Use hero only when the user separately asks for large question text.

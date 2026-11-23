@@ -107,6 +107,7 @@ describe("Heatmap states and parts", () => {
   it("draws the week/day and day/hour grids with a shared legend", () => {
     const weekly = addresses(weeks);
     for (const part of meta.parts) expect(weekly.has(`home/c1/${part}`)).toBe(true);
+    expect(weekly.get("home/c1/detail")?.text).toEqual(["Weeks start Monday · Scroll sideways if needed"]);
     expect(weekly.get("home/c1/legend")?.text).toEqual(["Intensity scale · checks"]);
     const hourly = addresses(hours);
     expect(hourly.get("home/c1/r84/root")?.attributes).toContain('aria-label="Sunday, 22:00: 0 walks"');
@@ -126,6 +127,7 @@ describe("Heatmap read and act", () => {
   it("reads the localized scale and matrix with their axis headings", () => {
     const weekly = readScreen(screen(), defs);
     expect(weekly).toContain("W1 · W2 · W3 · W4");
+    expect(weekly).toContain("Weeks start Monday · Scroll sideways if needed");
     expect(weekly).toContain("Monday: 1 · 3 · 1 · 2");
     expect(weekly).toContain("Intensity scale · checks: 0 · 2.5 · 5");
     const hourly = readScreen(screen({ ...hours, detail: "brief" }), defs);

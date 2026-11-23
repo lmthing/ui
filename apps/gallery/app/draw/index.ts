@@ -1,6 +1,8 @@
 import {
   components,
   selectionBindingFor,
+  stampItemIds,
+  visibleItems,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -24,6 +26,7 @@ export const drawPreviewEnvironment: Environment = {
   agentMode: true,
 };
 const approveExampleReveal: AuthenticateReveal = async () => "approved";
+const previewBuzzGapMs = 137;
 const fakeScannerBrightness: ScannerBrightnessAdapter = () => true;
 
 /** A deterministic stream of unsigned 32-bit words for gallery fixtures only. */
@@ -114,6 +117,26 @@ function createSelectionPreview(
   throw new Error(`No selectable ${c} example for ${def.meta.id} preview`);
 }
 
+/** Seed the first two touch events, leaving any other pads available. */
+function createBuzzPreview(def: Definition, input: Record<string, unknown>, screen: string) {
+  let at = 0;
+  const controller = createScreenController({
+    screen: { id: screen, components: [{ ...input, id: previewComponent, c: def.meta.id }] },
+    defs: { [def.meta.id]: def },
+    touchNow: () => at,
+  });
+  try {
+    const players = visibleItems(def.meta, stampItemIds(def.meta, input));
+    for (const { id } of players.slice(0, 2)) {
+      controller.press(`${previewComponent}/${String(id)}/${def.meta.buzz!.press}`);
+      at += previewBuzzGapMs;
+    }
+    return controller;
+  } finally {
+    controller.dispose();
+  }
+}
+
 /** Both the gallery grid and look frames use the same out-of-band fixture for each example/state. */
 export function createPreviewController(
   def: Definition,
@@ -121,6 +144,7 @@ export function createPreviewController(
   screen: string,
   { state, drawn, scanner }: { state: StateName; drawn?: true; scanner?: true },
 ) {
+  if (state === "success" && def.meta.buzz) return createBuzzPreview(def, input, screen);
   if (state === "filled" && input.bright === true && def.meta.actions?.scannerBrightness?.length)
     return createScannerPreview(def, input, screen, scanner);
   const deviceData = def.meta.deviceData?.length && def.meta.previewDeviceData?.({ input, state });

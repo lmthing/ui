@@ -58,7 +58,7 @@ export function offerReading(
     ...(copy.deadline ? [copy.deadline] : []),
     ...(copy.conditions.length ? [words.conditions, ...copy.conditions] : []),
     ...(draft ? [words.actions.send, words.actions.edit] : []),
-    ...(sent && !input.expired ? [words.actions.accept, words.actions.decline] : []),
-    ...(sent ? [words.actions.withdraw] : []),
+    ...(sent && !input.expired ? [words.recipientActions, words.actions.accept, words.actions.decline] : []),
+    ...(sent ? [words.employerActions, words.actions.withdraw] : []),
   ];
 }

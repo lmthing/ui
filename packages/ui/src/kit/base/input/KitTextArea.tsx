@@ -1,10 +1,11 @@
 import { useControlValue } from "../../interact";
 import { useState } from "react";
 import { TextArea, YStack } from "tamagui";
-import { component, fontFamilies, size, space, type as typography } from "../../../catalog";
+import { component, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { shifted } from "../text";
+import { fieldType, isRuledField, useFieldFinish } from "./field-finish";
 
 /**
  * A text box that grows with what is written (role textbox, multiline), at least `lines` tall, with its
@@ -21,6 +22,7 @@ type TextAreaProps = {
 
 export function KitTextArea({ hint, value, lines = 4, part = "field", label, maxLength }: TextAreaProps) {
   const ks = useKitStyle();
+  const finish = useFieldFinish();
   const kit = useKit();
   const address = usePart(part);
   const current = useControlValue(address.testID, value ?? "");
@@ -30,10 +32,10 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
       minHeight={size.control.md + typography.body.lineHeight * (lines - 1)}
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
-      borderRadius={shifted("md", ks.radiusShift)}
-      backgroundColor="$raised"
-      borderWidth={component.base.borderWidth}
-      borderColor="$line"
+      borderRadius={
+        isRuledField(ks.frame.field) ? component.base.none : shifted(ks.frame.corner, ks.radiusShift)
+      }
+      {...finish}
     >
       <TextArea
         {...(address as Record<string, unknown>)}
@@ -62,7 +64,7 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
         readOnly={!kit.interactive}
         color="$text"
         placeholderTextColor="$muted"
-        fontFamily={fontFamilies[ks.fonts.text]}
+        {...fieldType(ks)}
         fontSize={typography.body.size}
         lineHeight={typography.body.lineHeight}
       />

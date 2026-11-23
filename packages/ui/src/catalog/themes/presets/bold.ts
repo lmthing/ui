@@ -8,7 +8,7 @@ export const bold = {
   weight: "strong",
   shape: "sharp",
   density: "compact",
-  surface: "solid",
+  surface: "accentBlock",
   roles: {
     light: {
       bg: "#efefec",
