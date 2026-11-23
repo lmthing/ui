@@ -14,6 +14,7 @@ import { elementAt, renderInstance, styleAt } from "../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Gallery;
 const pair = [{ photo: "lib:entry" }, { photo: "local:1" }];
+const resolvePhoto = (reference: string) => reference;
 const viewProps = (input: unknown) =>
   stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
 
@@ -123,7 +124,7 @@ describe("Gallery metadata and probes", () => {
   it("declares only linked item root actions", () => {
     expect(meta.items).toEqual({ key: "photos", parts: ["root", "photo", "caption"] });
     expect(meta.parts).toEqual(["root"]);
-    expect(meta.states).toEqual(["filled", "empty", "loading"]);
+    expect(meta.states).toEqual(["filled", "empty", "loading", "error"]);
     expect(meta.tier).toBe("phone");
     for (const goto of [undefined, "first", "back"]) {
       const input = { photos: [{ photo: "lib:entry", goto }, pair[1]] };
@@ -152,7 +153,7 @@ describe("Gallery metadata and probes", () => {
 // prettier-ignore
 describe("Gallery view", () => {
   it.each([2, 3, 4, 5, 6])("renders %i photos in the required grid columns", (count) => {
-    const html = renderInstance("Gallery", { photos: Array.from({ length: count }, () => pair[0]) }, "filled", theme);
+    const html = renderInstance("Gallery", { photos: Array.from({ length: count }, () => pair[0]) }, "filled", theme, { resolvePhoto });
     const grid = elementAt(html, "home/c1/root").children[0]!;
     const columns = count === 3 || count === 6 ? 3 : 2;
     expect(grid.children).toHaveLength(Math.ceil(count / columns));
@@ -161,7 +162,7 @@ describe("Gallery view", () => {
       expect(html).toContain(`data-testid="home/c1/r${index}/photo"`);
   });
   it.each(examples)("draws themed photos and captions in the requested layout", (example) => {
-    const html = renderInstance("Gallery", example, "filled", theme);
+    const html = renderInstance("Gallery", example, "filled", theme, { resolvePhoto });
     const parsed = props.parse(example);
     for (const [index, entry] of parsed.photos.entries()) {
       const base = `home/c1/r${index + 1}`;
@@ -176,7 +177,7 @@ describe("Gallery view", () => {
     const html = renderInstance("Gallery", example, "loading", theme);
     expect(html.match(/aria-busy="true"/g)).toHaveLength(example.photos.length);
     expect(html).not.toContain('data-testid="home/c1/r1/photo"');
-    const filled = renderInstance("Gallery", example, "filled", theme);
+    const filled = renderInstance("Gallery", example, "filled", theme, { resolvePhoto });
     expect(styleAt(html, "home/c1/root")).toBe(styleAt(filled, "home/c1/root"));
     const layout = elementAt(html, "home/c1/root").children[0]!;
     expect(layout.children.length).toBe(elementAt(filled, "home/c1/root").children[0]!.children.length);
@@ -184,6 +185,27 @@ describe("Gallery view", () => {
     expect(empty).toContain("Nothing here yet");
     expect(empty).not.toContain('data-testid="home/c1/r1/root"');
   });
+});
+
+it("collapses an unresolved carousel and does not re-address surviving photos", () => {
+  const input = {
+    style: "carousel",
+    photos: [
+      { ...pair[0], caption: "Missing" },
+      { ...pair[1], caption: "Available" },
+    ],
+  };
+  expect(renderInstance("Gallery", input, "filled", theme)).not.toContain("home/c1/");
+  const partial = renderInstance("Gallery", input, "filled", theme, {
+    resolvePhoto: (reference) => (reference === "local:1" ? reference : undefined),
+  });
+  expect(partial).not.toContain("Missing");
+  expect(partial).not.toContain("home/c1/r1/");
+  expect(partial).toContain('data-testid="home/c1/r2/photo"');
+  expect(partial).toContain("Available");
+  const error = renderInstance("Gallery", input, "error", theme);
+  expect(error).toContain("Image unavailable");
+  expect(error).not.toContain('role="img"');
 });
 
 // prettier-ignore

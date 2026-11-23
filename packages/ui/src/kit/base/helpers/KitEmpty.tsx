@@ -1,5 +1,5 @@
 import { useWords } from "../../provider";
-import { YStack, styled } from "tamagui";
+import { XStack, YStack, styled } from "tamagui";
 import { component, emptyLine, size, space, type IconName, type ThemeDensity } from "../../../catalog";
 import { KitIcon, KitText } from "../text";
 import { usePartContext } from "../../part";
@@ -31,7 +31,30 @@ type EmptyProps = {
   prominence?: "body" | "heading";
   density?: ThemeDensity | undefined;
   announce?: "alert" | "status";
+  layout?: "stacked" | "inline";
 };
+
+function EmptyBadge({
+  icon,
+  tone,
+  decorative,
+}: {
+  icon: IconName;
+  tone: NonNullable<EmptyProps["tone"]>;
+  decorative: boolean;
+}) {
+  return (
+    <Badge backgroundColor={tone === "neutral" ? "$raised" : `$${tone}Soft`}>
+      <KitIcon
+        name={icon}
+        tone={tone === "neutral" ? "muted" : tone}
+        scale="lg"
+        part="icon"
+        decorative={decorative}
+      />
+    </Badge>
+  );
+}
 
 /** A centred state message with a soft icon badge and copy from the shared dictionary or caller. */
 export function KitEmpty({
@@ -46,12 +69,23 @@ export function KitEmpty({
   prominence,
   density,
   announce,
+  layout = "stacked",
 }: EmptyProps) {
   const { lang } = useWords();
   const { thing, state } = usePartContext();
   const treatment = prominence ?? (title && (fill || state !== "empty") ? "heading" : "body");
   const textTone =
     tone === "bad" || (tone === "good" && prominence) ? tone : treatment === "body" ? "muted" : "text";
+  const label = title ?? emptyLine(noun ?? thing, lang);
+  if (layout === "inline")
+    return (
+      <XStack alignItems="center" gap={space.xs} accessibilityRole={announce}>
+        <KitIcon name={icon} tone={tone === "neutral" ? "muted" : tone} decorative />
+        <KitText role="body" tone={textTone} {...{ part, density }}>
+          {label}
+        </KitText>
+      </XStack>
+    );
   return (
     <YStack
       alignItems="center"
@@ -60,18 +94,10 @@ export function KitEmpty({
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
-      <Badge backgroundColor={tone === "neutral" ? "$raised" : `$${tone}Soft`}>
-        <KitIcon
-          name={icon}
-          tone={tone === "neutral" ? "muted" : tone}
-          scale="lg"
-          part="icon"
-          decorative={decorativeIcon}
-        />
-      </Badge>
+      <EmptyBadge {...{ icon, tone }} decorative={decorativeIcon} />
       <YStack gap={space.xs} alignItems="center" accessibilityRole={announce}>
         <KitText role={treatment} tone={textTone} align="center" {...{ part, density }}>
-          {title ?? emptyLine(noun ?? thing, lang)}
+          {label}
         </KitText>
         {sub && (
           <KitText role="body" tone="muted" align="center" part="sub">

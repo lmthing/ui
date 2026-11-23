@@ -74,7 +74,12 @@ export function renderExample(
   const def: Definition = components[id];
   const props = def.props.parse(input) as Record<string, unknown>;
   const deviceData = exampleDeviceData(def, props, state);
-  const html = renderInstance(id, input, state, theme, { ...options, deviceData });
+  const hasMediaExample = id === "Photo" || id === "Gallery";
+  const html = renderInstance(id, input, state, theme, {
+    ...(hasMediaExample ? { resolvePhoto: (reference: string) => reference } : {}),
+    ...options,
+    deviceData,
+  });
   return { html, props, deviceData };
 }
 

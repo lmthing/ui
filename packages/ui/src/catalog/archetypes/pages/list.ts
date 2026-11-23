@@ -9,7 +9,7 @@ export const meta = createMeta(
   {
     plain: "Header Chips List Button?",
     grouped: "Header SectionTitle List SectionTitle? List? SectionTitle? List? Button?",
-    gallery: "Header Chips Gallery Button?",
+    gallery: "Header SectionTitle Gallery Button?",
   },
   {
     plain: [
@@ -22,7 +22,10 @@ export const meta = createMeta(
       'With plant records, use Header.title "Plants by room" and Header.sub "Open a plant from its room". Use SectionTitle.text for each literal room. Under it set the row title to the plant name, meta to the actual care interval, and goto to that plant only. Do not repeat the room in the row. Leave unrequested axes null.',
       "This browse-only brief does not ask to add records. Set Header.action to null and omit Button. The row links are the only actions.",
     ],
-    gallery: [action],
+    gallery: [
+      'Name the collection in Header and explain that the photos open records. Name the set of photos in SectionTitle, distinct from the page title, e.g. "Reference photos" for the supplied plant sample. Use Gallery only for supplied images; give each a caption naming its record and a link to it. Omit Chips: category filters require a List. For a category-filtered collection, use the plain layout instead.',
+      action,
+    ],
   },
 ) satisfies ArchetypeMeta;
 export const defaults = meta.defaults;

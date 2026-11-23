@@ -4,12 +4,13 @@ import type { ScreenLike } from "../../agent";
 export const meta = createMeta(
   "dashboard",
   "How things are going",
-  { rings: "Header Segmented? Stats Progress:ring List", charts: "Header Stats Bars List" },
+  { rings: "Header Segmented? Stats Progress:ring? List", charts: "Header Stats Bars List" },
   {
     rings: [
-      "When including Segmented, bind its tabs to the Stats and Progress sibling ids (one panel per tab), with an empty message for each. Use tabs only if both drawings are useful views of the supplied data.",
-      'For Progress set style:"ring" and write exactly one bars item with label, value and of; set unit, tone and goto to null. Use measured coverage when no goal is supplied: for plant records, label it "Care schedules", count plants with a supplied care interval as value and all supplied plants as of. Do not invent a watering or completion count.',
+      'Include Progress only for a supplied completed amount and target for the same goal. Use style "ring", one bars item with label, value and of, and copy any supplied unit and deadline. The plant sample gives care intervals and locations, not logged work: omit Progress. A plant count may inform Stats, but is not progress.',
+      "Include Segmented only if both Stats and Progress are present and offer useful alternative views. Bind one tab to each sibling id and supply an empty message for each tab.",
       "Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.",
+      'For the plant sample, title the screen "Plant care schedules" and set the subtitle to "Open a plant to review its care". Use Stats for the total plant count. Order the List by the supplied watering interval, shortest first, with each room in meta and the actual interval in fact, e.g. "Every 3 days". Do not call the intervals due dates.',
     ],
     charts: [
       "Make the chart the focus. Compare a single supplied measure with a specific title and unit. Every column label must be at most four characters: for Basil, Fern and Monstera use Basi, Fern and Mons.",

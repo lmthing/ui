@@ -10,12 +10,18 @@ import {
   type ComponentName,
   type Definition,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers, useKitStyle } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, PhoneScreen, renderers, useKitStyle } from "@lmthing/ui/kit";
 import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
-import { resolvePhoto } from "./photos";
+import {
+  lookPhoto,
+  mediaProgressFixtures,
+  resolveMediaFixture,
+  withoutHiddenFixtureSlots,
+} from "./media-progress";
+import type { ScreenLike, ThemeChoice } from "@lmthing/ui/catalog";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
 
 function screenCells(id: ComponentName): Cell[] {
@@ -24,6 +30,10 @@ function screenCells(id: ComponentName): Cell[] {
   // Keep the folder skeleton beside its filled example for visual review only.
   const folders = cells[components.Documents.examples.findIndex(({ style }) => style === "folders")];
   return folders ? [...cells, { ...folders, state: "loading" }] : cells;
+}
+
+function lookFrameId(id: ComponentName, preset: string, mode: "light" | "dark", name: string) {
+  return `${id.toLowerCase()}_${preset}_${mode}_${name}`;
 }
 
 function LookFrame({ screen, width, children }: { screen: string; width: number; children: ReactNode }) {
@@ -57,7 +67,7 @@ function Screen({
   const View = renderers[id as keyof typeof renderers] as ((props: object) => React.ReactNode) | undefined;
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
-  const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
+  const screen = lookFrameId(id, preset, mode, cellKey(cell));
   const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   const view = View ? <View {...props} /> : <DraftPreview id={id} />;
@@ -67,7 +77,7 @@ function Screen({
       <KitProvider
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
-        resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never, id)}
+        resolvePhoto={(ref) => lookPhoto(ref, { preset, mode, accent: accents[0]!.id } as never, id)}
         interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
@@ -85,16 +95,49 @@ function Screen({
   );
 }
 
+function MediaProgressScreen({
+  id,
+  screen,
+  theme,
+  width,
+}: {
+  id: ComponentName;
+  screen: ScreenLike;
+  theme: ThemeChoice;
+  width: number;
+}) {
+  return (
+    <YStack gap={space.xs}>
+      <Text fontSize={12} data-look-label>{`${theme.preset} · ${screen.id.replaceAll("_", " ")}`}</Text>
+      <YStack
+        width={width}
+        backgroundColor="$bg"
+        data-look-frame={lookFrameId(id, theme.preset, theme.mode, `fixture_${screen.id}`)}
+      >
+        <PhoneScreen
+          {...{ screen, theme }}
+          resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
+          interactive={screen.id === "garden_gallery"}
+          reduceMotion
+          agentMode
+        />
+      </YStack>
+    </YStack>
+  );
+}
+
 export function Screens({
   id,
   width,
   mode,
   presetIds,
+  omitHidden = false,
 }: {
   id: ComponentName;
   width: number;
   mode: "light" | "dark";
   presetIds: readonly string[];
+  omitHidden?: boolean;
 }) {
   const cells = screenCells(id);
   return (
@@ -110,6 +153,15 @@ export function Screens({
           <YStack key={preset.id} gap={space.lg}>
             {cells.map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
+            ))}
+            {mediaProgressFixtures[id]?.map((screen) => (
+              <MediaProgressScreen
+                key={screen.id}
+                id={id}
+                screen={omitHidden ? withoutHiddenFixtureSlots(screen) : screen}
+                width={width}
+                theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
+              />
             ))}
           </YStack>
         ))}

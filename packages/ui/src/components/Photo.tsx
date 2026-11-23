@@ -12,11 +12,21 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import {
+  KitCard,
+  KitEmpty,
+  KitPhoto,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+  useKit,
+  useWords,
+} from "../kit";
 import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
   id: "Photo",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -28,7 +38,8 @@ export const meta = {
   variants: { aspect: ["wide", "square", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
   parts: ["root", "photo", "caption"],
-  states: ["filled", "loading"],
+  states: ["filled", "loading", "error"],
+  viewVisible: ({ photo }, resolvePhoto) => typeof photo === "string" && Boolean(resolvePhoto?.(photo)),
 } as const satisfies Meta;
 
 export const props = z
@@ -38,7 +49,7 @@ export const props = z
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = cast.items[0];
-  const reference = photo.safeParse(thing && `lib:${thing.type}`);
+  const reference = photo.safeParse(item?.photo ?? (thing && `lib:${thing.type}`));
   return {
     photo: reference.success
       ? reference.data
@@ -47,7 +58,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-const fern = { photo: "lib:plants", caption: "Fern catching the morning light" };
+const fern = { photo: "lib:fern", caption: "Fern catching the morning light" };
 const clover = { photo: "lib:dogs", caption: "Clover after her morning park walk" };
 export const examples = [
   fern,
@@ -74,6 +85,8 @@ export const probes = [
 
 export function Photo({ aspect, photo, caption }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const { resolvePhoto } = useKit();
+  const { words } = useWords();
   if (state === "loading") {
     return (
       <KitCard style="plain" part="root">
@@ -81,6 +94,17 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
       </KitCard>
     );
   }
+  if (state !== "error" && !meta.viewVisible({ photo }, resolvePhoto)) return null;
+  const error = (
+    <KitEmpty
+      layout="inline"
+      title={words.photoUnavailable}
+      icon="alert"
+      tone="bad"
+      announce="status"
+      part={null}
+    />
+  );
   const line = caption && (
     <KitText role="caption" tone="muted" part="caption">
       {caption}
@@ -88,8 +112,11 @@ export function Photo({ aspect, photo, caption }: Props<typeof props, typeof met
   );
   return (
     <KitCard style="plain" part="root" padded inset="md">
-      <KitPhoto photo={photo} aspect={aspect} part="photo" />
-      {line}
+      {state === "error" ? (
+        error
+      ) : (
+        <KitPhoto photo={photo} aspect={aspect} part="photo" error={error} caption={line} />
+      )}
     </KitCard>
   );
 }

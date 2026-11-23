@@ -23,6 +23,7 @@ export const navigationScreens: Record<string, ScreenLike> = {
     components: [
       { id: "h1", c: "Header", title: "Today", sub: "Your plant care at a glance" },
       { id: "intro", c: "Hero", title: "Watering due today", sub: "Check the soil before watering." },
+      { id: "schedule", c: "SectionTitle", text: "Watering schedule" },
       { id: "plants", c: "List", rows: plants },
       // The kit says where tabs go even when the host supplies them before the action.
       { id: "tabs", c: "TabBar", tabs, at: 0 },

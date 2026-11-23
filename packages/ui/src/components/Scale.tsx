@@ -17,8 +17,12 @@ import {
 import { z } from "zod";
 import { prompt } from "../entry/prompt-Scale.generated";
 
+const visibleScore: NonNullable<Meta["viewVisible"]> = ({ readonly, value }) =>
+  readonly !== true || (typeof value === "number" && value > 0);
+
 export const meta = {
   id: "Scale",
+  status: "ready",
   group: "input",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -34,6 +38,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["meta"] } },
   parts: ["root", "label", "meta", "l1", "l2", "l3", "l4", "l5"],
   states: ["filled"],
+  viewVisible: visibleScore,
   actions: {
     parts: { l1: ["select"], l2: ["select"], l3: ["select"], l4: ["select"], l5: ["select"] },
     // A rating that is only shown has no targets to act on.
@@ -46,8 +51,13 @@ export const meta = {
     },
   },
   read: (input: unknown, _state, lang?: string): string[] => {
-    const { value, meta: note } = props.parse(input);
-    return [`${numberLine(value, lang)} ${goalLine(5, lang)}`, ...(note ? [JSON.stringify(note)] : [])];
+    const { value, readonly, label, meta: note } = props.parse(input);
+    if (!visibleScore({ readonly, value })) return [];
+    return [
+      `${numberLine(value, lang)} ${goalLine(5, lang)}`,
+      ...(note ? [JSON.stringify(note)] : []),
+      JSON.stringify(label),
+    ];
   },
 } as const satisfies Meta;
 
@@ -55,10 +65,10 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["mood", "stars", "dots"]).default("dots"),
-    label: text(32),
+    label: text(32).meta({ read: false }),
     value: z.number().min(0).max(5).multipleOf(0.5).default(0),
     readonly: z.boolean().default(false),
-    meta: text(24).optional(),
+    meta: text(24).optional().meta({ read: false }),
   })
   .refine(({ readonly, value }) => readonly || Number.isInteger(value), {
     path: ["value"],
@@ -87,15 +97,13 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-const checkIn = { label: "Watering check-in", style: "dots", value: 3 } as const;
 const rated = { label: "Rated by walkers", style: "stars", value: 4.5, readonly: true } as const;
 export const examples = [
   { label: "How healthy does it look?", style: "mood", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4 },
-  { label: "How did it go? 1 low, 5 high", style: "dots", value: 0 },
+  { label: "How did it go?", style: "dots", value: 0 },
   { ...rated, meta: "212 reviews" },
-  checkIn,
-  { ...checkIn },
+  { label: "Watering check-in", style: "dots", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "quiet" },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "hero" },
   { ...rated, meta: "212 reviews", detail: "brief" },
@@ -123,6 +131,7 @@ export function Scale(input: Props<typeof props, typeof meta>) {
   const { style, label, value, readonly, emphasis, detail, meta: note } = input;
   const density = useKit().density;
   const { lang } = useWords();
+  if (!meta.viewVisible(input)) return null;
   const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,
     string,

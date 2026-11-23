@@ -9,6 +9,7 @@ import {
   type CastLike,
   packComposition,
   defaultLines,
+  scoreComposition,
   type CoreArchetypeMeta,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../../test/render";
@@ -43,15 +44,17 @@ describe("core archetype defaults", () => {
       expect(readScreen(screen, components)).toContain(`screen ${screen.id}`);
       for (const { id: _id, c, state: _state, ...input } of screen.components)
         expect(
-          renderInstance(c as keyof typeof components, input, "filled", {
-            preset: "calm",
-            mode: "light",
-            accent: "moss",
-          }),
+          renderInstance(
+            c as keyof typeof components,
+            input,
+            "filled",
+            { preset: "calm", mode: "light", accent: "moss" },
+            { resolvePhoto: (reference) => reference },
+          ),
         ).toContain('data-testid="home/c1/root"');
     }
   });
-  it("uses reply, writing, price choices and shelves in the updated recipes", () => {
+  it("uses reply, writing and price choices in the updated recipes", () => {
     const registry = createRegistry(),
       cast = casts[1]!;
     expect(registry.defaultLines("chat", "thread", cast).components.at(-1)).toMatchObject({
@@ -67,11 +70,6 @@ describe("core archetype defaults", () => {
       .defaultLines("plans", "plans", cast)
       .components.find((entry) => entry.c === "Choice")!;
     expect((plans.options as { value?: string }[]).every((option) => option.value)).toBe(true);
-    expect(
-      registry
-        .defaultLines("browse", "shelves", cast)
-        .components.filter((entry) => entry.c === "List" && entry.style === "shelf"),
-    ).toHaveLength(2);
   });
 });
 
@@ -97,6 +95,60 @@ describe("optional task actions", () => {
       }
     },
   );
+});
+
+it("keeps each shelf thumbnail with its source record, even when earlier records are skipped", () => {
+  const cast: CastLike = {
+    things: [{ type: "plant", fields: ["name"] }],
+    items: [
+      { id: "dog", type: "dog", sample: true, name: "Clover", photo: "lib:dogs" },
+      { id: "untitled", type: "plant", sample: true, photo: "lib:plants" },
+      { id: "fern", type: "plant", sample: true, name: "Fern", photo: "lib:fern" },
+      { id: "basil", type: "plant", sample: true, name: "Basil", photo: "lib:basil" },
+    ],
+  };
+  const screen = createRegistry().defaultLines("browse", "shelves", cast);
+  for (const shelf of screen.components.filter((entry) => entry.c === "List")) {
+    expect(shelf.style).toBe("shelf");
+    expect(shelf.rows).toEqual([
+      { title: "Fern", photo: "lib:fern" },
+      { title: "Basil", photo: "lib:basil" },
+    ]);
+  }
+});
+
+it("accepts text-first browsing with only the supplied media and detail notes without any media", () => {
+  const registry = createRegistry();
+  const cast = {
+    ...casts[1]!,
+    items: casts[1]!.items.map((item, index) => (index === 1 ? { ...item, photo: "lib:basil" } : item)),
+  };
+  const browse = registry.defaultLines("browse", "shelves", cast);
+  for (const list of browse.components.filter((entry) => entry.c === "List")) {
+    expect(list).toMatchObject({
+      lead: "thumb",
+      rows: [{ title: "Fern" }, { title: "Basil", photo: "lib:basil" }, { title: "Monstera" }],
+    });
+    expect((list.rows as { photo?: string }[]).map((row) => row.photo)).toEqual([
+      undefined,
+      "lib:basil",
+      undefined,
+    ]);
+    expect(list.style).toBeUndefined();
+  }
+  expect(
+    scoreComposition(JSON.stringify(browse), archetypes.browse.meta, "shelves", components).issues,
+  ).toEqual([]);
+  const detail = registry.defaultLines("detail", "media", cast);
+  expect(detail.components.map(({ c }) => c)).toEqual(["Header", "Note", "KeyValue"]);
+  expect(
+    scoreComposition(JSON.stringify(detail), archetypes.detail.meta, "media", components).issues,
+  ).toEqual([]);
+  const withImage = registry.defaultLines("detail", "media", { ...cast, items: [cast.items[1]!] });
+  expect(withImage.components[1]).toMatchObject({ c: "Photo", photo: "lib:basil" });
+  expect(
+    scoreComposition(JSON.stringify(withImage), archetypes.detail.meta, "media", components).issues,
+  ).toEqual([]);
 });
 
 const barsDefault: CoreArchetypeMeta = {

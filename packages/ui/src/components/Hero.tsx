@@ -20,6 +20,7 @@ import { prompt } from "../entry/prompt-Hero.generated";
 
 export const meta = {
   id: "Hero",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -68,22 +69,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 }
 
 export const examples = [
-  { title: "Plant care", sub: "Check the ferns before watering", photo: "lib:plants" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", photo: "lib:plants" },
   {
     media: "cover",
-    title: "Morning walk",
-    sub: "Clover and Pip are ready for their morning park walk",
+    title: "Clover and Pip are ready",
+    sub: "Meet at the park gate at 9:00",
     photo: "lib:dogs",
   },
-  { title: "Morning walk", sub: "Clover and Pip are ready for their morning park walk" },
+  { title: "Clover and Pip are ready", sub: "Meet at the park gate at 9:00" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
   { title: "Watered", sub: "Next check on Friday" },
   { title: "Watered", tone: "good", sub: "Next check on Friday" },
   { title: "Watered", sub: "Next check on Friday" },
   { title: "Cancelled", tone: "bad" },
-  { title: "Plant care", sub: "Check the ferns before watering", emphasis: "quiet" },
-  { title: "Plant care", sub: "Check the ferns before watering", detail: "brief" },
-  { title: "Plant care", sub: "Check the ferns before watering" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", emphasis: "quiet" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", detail: "brief" },
+  { title: "Check the ferns first", sub: "Water only if the topsoil is dry" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Hero");
@@ -93,60 +94,55 @@ export const probes = [
   write("Make the main number two, with plants need water underneath and a warning tone"),
   {
     ...write(
-      "Put a wide photo of lib:dogs above the main headline, Morning walk. Keep the subtitle, Clover and Pip at 09:00.",
+      "Make Morning walk the lead statement, with the subtitle Clover and Pip at 09:00 and a wide supporting photo of lib:dogs.",
     ),
     variant: { axis: "media", value: "cover" },
+    expectProps: { title: "Morning walk", sub: "Clover and Pip at 09:00", photo: "lib:dogs" },
   },
 ] satisfies Probe[];
 
 export function Hero(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, photo, media, tone, emphasis } = input;
-  const align = "start";
-  const density = useKit().density;
+  const { density, resolvePhoto } = useKit();
   const state = useComponentState();
-  const { resolvePhoto } = useKit();
   const hasPhoto = media === "cover" && photo && resolvePhoto?.(photo);
   const number = style === "number";
+  const titleRole = number ? "number" : "title";
+  const subRole = number ? "label" : "body";
   if (state === "loading") {
     return (
       <KitCard style="cards" density={density} part="root">
         <KitSkeleton
-          rows={1}
-          lead="none"
-          shape={hasPhoto ? "media" : "headline"}
-          {...{ density, emphasis }}
+          shape="figure"
+          density={density}
           inset="none"
+          lines={[
+            { text: title, role: titleRole, emphasis },
+            ...(sub ? [{ text: sub, role: subRole } as const] : []),
+          ]}
         />
+        {hasPhoto && <KitPhoto shape="panorama" part={null} loading />}
       </KitCard>
     );
   }
-  const copy = (
-    <>
-      <KitText
-        role={number ? "number" : media === "cover" ? "title" : "display"}
-        tone={tone === "neutral" ? (number ? "accent" : "text") : tone}
-        {...{ density, emphasis, align }}
-        part="title"
-      >
-        {title}
-      </KitText>
-      {sub && (
-        <KitText role={number ? "label" : "body"} tone="muted" part="sub" {...{ density, align }}>
-          {sub}
-        </KitText>
-      )}
-    </>
-  );
   return (
-    <KitCard style="cards" density={density} align={align} part="root">
-      {hasPhoto && photo ? (
-        <>
-          <KitPhoto photo={photo} shape="wide" part="photo" />
-          <KitContent {...{ density, align }}>{copy}</KitContent>
-        </>
-      ) : (
-        copy
-      )}
+    <KitCard style="cards" density={density} part="root">
+      <KitContent density={density}>
+        <KitText
+          role={titleRole}
+          tone={tone === "neutral" ? (number ? "accent" : "text") : tone}
+          {...{ density, emphasis }}
+          part="title"
+        >
+          {title}
+        </KitText>
+        {sub && (
+          <KitText role={subRole} tone="muted" part="sub" density={density}>
+            {sub}
+          </KitText>
+        )}
+      </KitContent>
+      {hasPhoto && <KitPhoto photo={photo} shape="panorama" part="photo" error={null} />}
     </KitCard>
   );
 }

@@ -57,6 +57,7 @@ export function resolvePhoto(
   ref: string,
   theme: ThemeChoice = { preset: "calm", accent: "moss", mode: "light" },
   component?: ComponentName,
+  cropSafe = false,
 ): string {
   const preset = presets.find((entry) => entry.id === theme.preset) ?? presets[0];
   const accent = accents.find((entry) => entry.id === theme.accent) ?? accents[0];
@@ -72,6 +73,7 @@ export function resolvePhoto(
     const cover = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90" color="${roles.accent}"><rect width="120" height="90" fill="${from}"/><rect x="10" y="10" width="100" height="70" rx="4" fill="${to}"/>${motif}</svg>`;
     return `data:image/svg+xml;base64,${btoa(cover)}`;
   }
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="160" height="90" fill="url(#g)"/><g fill="none" stroke="${roles.muted}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${subjectOf(ref, value, component)}</g></svg>`;
+  const transform = cropSafe ? ' transform="translate(80 45) scale(.78) translate(-80 -45)"' : "";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="160" height="90" fill="url(#g)"/><g fill="none" stroke="${roles.muted}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"${transform}>${subjectOf(ref, value, component)}</g></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }

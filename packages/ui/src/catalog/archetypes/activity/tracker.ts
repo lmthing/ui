@@ -7,6 +7,7 @@ export const meta = createMeta(
     counter: "Header Counter Note Bars Button",
     scale: "Header Scale:mood Bars Button",
     timer: "Header Timer Note Bars Button",
+    project: "Header Progress KeyValue Button?",
   },
   {
     counter: [
@@ -19,6 +20,10 @@ export const meta = createMeta(
     timer: [
       "Name the supplied activity in Header.title, e.g. Time your care session. Header.action, detail and emphasis are null; avoid a generic subtitle. Timer counts up from the supplied current seconds. The Note gives one clear sequence using the visible control labels: Start when you begin, Stop when finished, then Save session to review the saved entry. Note.media, tone and emphasis stay null.",
       "Bars are context, not a second task: title them Recent session lengths and show only completed sessions, with each supplied minute value and three-letter day label. No padding or Today in Bars. Use one primary Button labeled Save session with goto session_saved; it does not duplicate Start or Stop.",
+    ],
+    project: [
+      "Track a measured project over time. Put only the project name in Header; the short horizontal Progress bar is the lead, not a Hero. Use the same measure for completed work and total work, and include the supplied unit and due date. Progress calculates what remains. KeyValue names the next milestone if supplied; do not invent one or duplicate the progress figures.",
+      "If this layout is requested without a measurement, use an empty bars array and show only known facts. Add a Button only for a specific task like logging more work, not to open one project item.",
     ],
   },
 ) satisfies ArchetypeMeta;

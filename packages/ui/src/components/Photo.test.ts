@@ -11,6 +11,7 @@ import {
 import { elementAt, renderInstance, styleAt } from "../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Photo;
+const resolvePhoto = (reference: string) => reference;
 
 describe("Photo schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -133,7 +134,7 @@ describe("Photo metadata and probes", () => {
       weight: 2,
       tier: "phone",
       parts: ["root", "photo", "caption"],
-      states: ["filled", "loading"],
+      states: ["filled", "loading", "error"],
     });
     expect(meta).not.toHaveProperty("actions");
     expect(meta).not.toHaveProperty("items");
@@ -164,7 +165,7 @@ describe("Photo metadata and probes", () => {
 
 describe("Photo view", () => {
   it.each(examples)("draws one themed image and only the supplied caption", (example) => {
-    const html = renderInstance("Photo", example, "filled", theme);
+    const html = renderInstance("Photo", example, "filled", theme, { resolvePhoto });
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(elementAt(html, "home/c1/photo").attributes).toContain('role="img"');
     const { aspect, caption } = props.parse(example);
@@ -186,11 +187,22 @@ describe("Photo view", () => {
 it("hides the caption part and its reading only in brief", () => {
   const input = { photo: "lib:entry", caption: "Morning light" };
   expect(meta.variantParts["detail.brief"].hides).toEqual(["caption"]);
-  expect(renderInstance("Photo", { ...input, detail: "brief" }, "filled", theme)).not.toContain(
-    'data-testid="home/c1/caption"',
-  );
+  expect(
+    renderInstance("Photo", { ...input, detail: "brief" }, "filled", theme, { resolvePhoto }),
+  ).not.toContain('data-testid="home/c1/caption"');
   expect(readComponent(components.Photo, input, "p1").join("\n")).toContain(input.caption);
   expect(readComponent(components.Photo, { ...input, detail: "brief" }, "p1").join("\n")).not.toContain(
     input.caption,
   );
+});
+
+it("collapses an unknown reference and shows an inline error for an explicitly failed image", () => {
+  const input = { photo: "local:42", caption: "Morning light" };
+  const absent = renderInstance("Photo", input, "filled", theme);
+  expect(absent).not.toContain("home/c1/");
+  expect(absent).not.toContain("Morning light");
+  const failed = renderInstance("Photo", input, "error", theme);
+  expect(failed).toContain("Image unavailable");
+  expect(failed).not.toContain("Morning light");
+  expect(failed).not.toContain('role="img"');
 });

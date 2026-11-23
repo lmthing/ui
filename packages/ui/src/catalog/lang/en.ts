@@ -28,6 +28,8 @@ import { words as ArticleWords } from "./en/Article";
 import { words as PassCardWords } from "./en/PassCard";
 import { words as FileListWords } from "./en/FileList";
 import { words as HeaderWords } from "./en/Header";
+import { words as PhotoWords } from "./en/Photo";
+import { words as ProgressWords } from "./en/Progress";
 
 export const en = {
   ...SwipeStackWords,
@@ -60,6 +62,8 @@ export const en = {
   ...PassCardWords,
   ...FileListWords,
   ...HeaderWords,
+  ...PhotoWords,
+  ...ProgressWords,
 };
 
 export type Words = typeof en;

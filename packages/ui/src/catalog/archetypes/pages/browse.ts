@@ -4,12 +4,13 @@ import type { ScreenLike } from "../../agent";
 export const meta = createMeta(
   "browse",
   "Explore shelves of things to open",
-  { shelves: "Header Search Chips SectionTitle List:shelf SectionTitle List:shelf" },
+  { shelves: "Header Search Chips SectionTitle List SectionTitle List" },
   {
     shelves: [
       'Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name.',
-      'Chips in filter style controls only the first List: set filter.list to that exact id and filter.field to "category". For plant records, use their literal rooms as categories (e.g. "Bathroom", "Kitchen", "Living room"), not the plant kind. Give each distinct room exactly one chip: on:false, view.panel:null, view.match equal to the room exactly, and view.empty naming that room. Never add an All chip; all off already shows the full shelf.',
-      'Use two Lists with style "shelf", each introduced by a SectionTitle with null axes and no link. Each shelf needs at least two rows, and every row in both shelves must carry its supplied photo reference. The first shelf shows the inventory, with location and record_<name> destinations. The second links directly to careplan_<name>: when two or more records have weekly or more frequent care, title it "Weekly care or sooner", order those records by shortest interval and show their actual intervals; otherwise choose another grounded subset of at least two. Use null for all List and row axes.',
+      'Chips in filter style controls only the first List: set filter.list to that exact id and filter.field to "category". For plant records, put each literal room (e.g. "Bathroom", "Kitchen", "Living room") in its row category, not the plant kind. Give each distinct room exactly one chip: on:false, view.panel:null, view.match equal to the room exactly, and view.empty naming that room. Never add an All chip; all off already shows the full inventory.',
+      'Use two Lists, each introduced by a SectionTitle with null axes and no link. Use style "shelf" only when that List has at least two records and every row has its supplied image reference. Otherwise use the default List style with lead "thumb". Include only supplied references; never invent a local reference or use unrelated covers. Leave other List and row axes null.',
+      'The first List shows the inventory with locations and record_<name> destinations. The second links to careplan_<name>. If at least two records have weekly or more frequent care, title it "Weekly care or sooner", order from shortest interval and show the supplied intervals. Otherwise use another grounded subset. Omit Hero: the collection header already leads.',
     ],
   },
 ) satisfies ArchetypeMeta;

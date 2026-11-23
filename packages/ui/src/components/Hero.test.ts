@@ -191,7 +191,12 @@ describe("Hero fallback and metadata", () => {
     const resolvePhoto = vi.fn(() => source);
     const html = renderInstance("Hero", examples[1], "filled", theme, { resolvePhoto });
     expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
-    if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    if (source) {
+      expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*3/);
+      expect(html.indexOf('data-testid="home/c1/title"')).toBeLessThan(
+        html.indexOf('data-testid="home/c1/photo"'),
+      );
+    }
     expect(elementAt(html, "home/c1/title").attributes).toContain('data-testid="home/c1/title"');
     expect(resolvePhoto).toHaveBeenCalledWith("lib:dogs");
   });

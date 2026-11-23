@@ -61,6 +61,11 @@ export type Meta = {
   /** Resolve a declared part's tier from a live component prop before falling back to static tiers. */
   partTiersBy?: Readonly<Record<string, { prop: string; tiers: Readonly<Partial<Record<string, Tier>>> }>>;
   realPath: string;
+  /** A filled component with no drawable content does not take up a screen slot. */
+  viewVisible?: (
+    input: Readonly<Record<string, unknown>>,
+    resolvePhoto?: (reference: string) => string | undefined,
+  ) => boolean;
   dense?: true;
   confirmParts?: readonly string[];
   drives?: string | DriveBindings; // A component id preserves legacy item-root seek.
