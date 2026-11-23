@@ -126,7 +126,7 @@ export const deviceProbes = [
     "Actions",
   ),
   choose(
-    "Scan local app preference rows, each with a trailing on/off switch; not labelled form inputs or connected hardware",
+    "Show a scannable settings list for this app's local preferences: Email reminders, Weekly digest and App sounds, each in its own row with a switch at the right. This is not a form.",
     "List",
   ),
   choose(

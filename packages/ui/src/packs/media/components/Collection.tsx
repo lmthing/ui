@@ -110,7 +110,7 @@ export const probes = [
     "Give this podcast series one overview with its cover, presenter, total episode count, play-all and a follow button",
   ),
   choose(
-    "Lead the homepage with one large photograph and the headline A greener home, without any playback or follow buttons",
+    "Open the homepage with one featured message: A greener home. Make those words the main headline over a full-width photograph, not a picture caption.",
     "Hero",
   ),
   write(

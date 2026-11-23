@@ -8,6 +8,8 @@ export const hiring_openings = {
     hiring_roles: {
       writeHints: [
         'Use JobFeed for structured openings with employer, workplace, posting date or pay. For a flat list with only title, status and destination, use List with "style":null and "trail":"badge" at the component level. Put each status in its row value, not in the shelf-only badge field; leave row trail and badge null.',
+        'If the results are JobFeed, no chip can bind to it. Use this Chips shape with the requested labels: {"id":"c1","c":"Chips","style":"choose","lead":null,"filter":null,"items":[{"label":"All","on":true,"icon":null,"view":null},{"label":"Summer","on":false,"icon":null,"view":null}]}. Do not generate view objects for these chips.',
+        "Write one compact JSON object, with no indentation or extra lines. Include a unique id and c on each component.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

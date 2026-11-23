@@ -4,7 +4,7 @@ See one show's details, start the whole series and follow new releases.
 
 ## Pick
 
-The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).
+The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. A homepage's main headline over a large photo is Hero; Photo is only a picture with an optional caption. Not a person (Profile), one recording (Player), or owned things (Things).
 
 ## Writer
 

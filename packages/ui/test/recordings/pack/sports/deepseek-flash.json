@@ -20417,6 +20417,1124 @@
       "{\n  \"id\": \"league_results\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"season_heading\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Season results\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"fixture_list\",\n      \"c\": \"Fixtures\",\n      \"density\": null,\n      \"detail\": null,\n      \"matches\": [\n        {\n          \"date\": \"2026-11-15\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Fern House\",\n          \"home\": false,\n          \"venue\": null,\n          \"us\": 1,\n          \"them\": 2,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"fern_match\",\n          \"live\": null,\n          \"clock\": null\n        },\n        {\n          \"date\": \"2026-11-22\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Oakfield\",\n          \"home\": true,\n          \"venue\": null,\n          \"us\": 3,\n          \"them\": 0,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"oak_match\",\n          \"live\": null,\n          \"clock\": null\n        }\n      ],\n      \"style\": null\n    },\n    {\n      \"id\": \"top_scorers_heading\",\n      \"c\": \"SectionTitle\",\n      \"density\": null,\n      \"detail\": null,\n      \"text\": \"Top scorers\",\n      \"link\": null\n    },\n    {\n      \"id\": \"top_scorers_list\",\n      \"c\": \"List\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"aspect\": null,\n      \"arrange\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": \"number\",\n      \"trail\": \"value\",\n      \"style\": null,\n      \"rows\": [\n        {\n          \"title\": \"Reed\",\n          \"meta\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"5\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        },\n        {\n          \"title\": \"Woods\",\n          \"meta\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"3\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
+  "compose%2Fleague%2Fresults%2FSeason%20results%20heading%2C%20then%20our%20fixture%20list%3A%202026-11-15%2010%3A00%20away%20at%20Fern%20House%2C%20lost%201%E2%80%932%2C%20link%20fern_match%3B%202026-11-22%2010%3A00%20home%20versus%20Oakfield%2C%20won%203%E2%80%930%2C%20link%20oak_match.%20Give%20the%20ranked%20list%20its%20own%20Top%20scorers%20section%20heading%3B%20top%20scorers%20Reed%205%20and%20Woods%203./63f1f73deaaa6826/adc6477055945734": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: league/results. Job: The season.\n\nBrief: Season results heading, then our fixture list: 2026-11-15 10:00 away at Fern House, lost 1–2, link fern_match; 2026-11-22 10:00 home versus Oakfield, won 3–0, link oak_match. Give the ranked list its own Top scorers section heading; top scorers Reed 5 and Woods 3.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Fixtures\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"List\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Make the final List a ranking with lead \"number\" and trail \"value\". Each row needs a title and one value, with no row trail override.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nFixtures: See who we play next and how recent matches ended.\nprops: { detail?: full|brief=\"full\", matches: [1..6 { date: date YYYY-MM-DD, time: time HH:MM, opponent: text≤24, home: boolean, venue?: text≤28, us?: int 0..9007199254740991, them?: int 0..9007199254740991, meet?: time HH:MM, kit?: text≤16, goto: id snake_case, live?: boolean, clock?: text≤12 }], style?: list|next|scoreboard=\"list\" }\nRule: Order matches by date and kickoff time. In next style put the next match first. Supply both scores for a result, or neither for an unplayed match.\nRule: For a single next match use style \"next\".\nRule: If asked to hide venue, meet time or kit from the preview, write {\"detail\":\"brief\"} and keep the supplied values in the match. Otherwise use detail: null.\nRule: For a multi-match score ticker use style \"scoreboard\". Mark in-progress matches with live: true; clock is the fixture’s displayed game time, not its kickoff time.\nexample: {\"c\":\"Fixtures\",\"matches\":[{\"date\":\"2026-11-15\",\"time\":\"10:00\",\"opponent\":\"Fern House\",\"home\":false,\"us\":3,\"them\":1,\"goto\":\"fern_match\"},{\"date\":\"2026-11-22\",\"time\":\"10:00\",\"opponent\":\"Garden Crew\",\"home\":true,\"venue\":\"Ledge Park\",\"live\":false,\"goto\":\"garden_match\"}]}\nweight: 2\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nList: Several things of the same kind, each one tappable.\nprops: { detail?: full|brief=\"full\", aspect?: wide|square|tall=\"wide\", arrange?: rows|grid=\"rows\", group?: none|sections=\"none\", overflow?: all|peek=\"all\", lead?: icon|none|thumb|number=\"icon\", trail?: chevron|none|value|badge|toggle|check=\"chevron\", style?: cards|shelf|expand, rows: [1..6 { title: text≤28, meta?: text≤36, fact?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: chevron|none|value|badge|toggle|check, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean, section?: text≤24, category?: text≤24, progress?: num 0..1, badge?: text≤24, unread?: boolean, pinned?: boolean }] }\nRule: Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark \"highlight\" on at most one in three rows (none in a one- or two-row list).\nRule: Use style \"expand\" with a body on every FAQ row. The water icon is \"drop\".\nRule: Put a row's image reference in photo. Use the supplied reference or a matching library image (\"lib:<tag>\"); use \"local:<n>\" only when that reference was supplied. If no matching image is available, leave photo null so there is no photo slot. Do not invent a local reference or substitute a placeholder image.\nRule: Rankings use style null (never expand), lead \"number\", trail \"value\", and each score in value. Only the person’s row gets me.\nRule: For grouped headings use group \"sections\" and a section label on every row; keep rows in section order.\nRule: For a two-row preview with See all, set overflow to \"peek\" and output every row in order, including hidden ones. Keep style and every other axis null unless separately requested.\nRule: Names only is a row-content request: write title and leave all other row fields null. Keep detail null; \"brief\" hides existing metadata and is only for an explicit request to hide it.\nRule: For a photo shelf or sideways rail of covers, set \"style\":\"shelf\" and put each available cover in its row's photo. Shelf already chooses the layout and displays the covers. Leave \"arrange\":null, \"lead\":null and \"overflow\":null, even for two covers. If tall or portrait covers are requested, set \"aspect\":\"tall\"; the crop changes aspect, not arrange. Progress is a fraction (0 to 1).\nRule: Set \"arrange\":\"grid\" only when the request asks for ordinary rows or quick cards in multiple columns, not for a photo shelf. Leave \"arrange\":null for ordinary vertical rows; null already means rows, so do not write \"arrange\":\"rows\". For a grid alone, leave \"style\":null and \"overflow\":null. Only set unread or pinned on rows explicitly described that way.\nRule: For ordinary record rows, use meta for the first distinguishing fact and fact for a second known fact, if useful. Put a short status or deadline in badge, not in the title or trail; for example meta \"Living room\", badge \"Due today\". Use a relevant icon or a known photo reference, never invent a personal photo. Set goto only for a real row destination; only linked rows draw a chevron.\nexample: {\"c\":\"List\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"trail\":null,\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":null,\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"league_results\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"f1\",\"c\":\"Fixtures\",\"matches\":[{\"date\":\"2026-11-22\",\"time\":\"09:00\",\"opponent\":\"Item one\",\"home\":true,\"goto\":\"details\"}]},{\"id\":\"s1\",\"c\":\"SectionTitle\",\"text\":\"Item one\"},{\"id\":\"l1\",\"c\":\"List\",\"rows\":[{\"title\":\"Item one\",\"trail\":\"none\"},{\"title\":\"Item two\",\"trail\":\"none\"},{\"title\":\"Item three\",\"trail\":\"none\"}],\"lead\":\"number\",\"trail\":\"value\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Fixtures",
+                        "enum": [
+                          "Fixtures"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "matches": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "opponent": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "home": {
+                              "type": "boolean"
+                            },
+                            "venue": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 28
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "us": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "them": {
+                              "anyOf": [
+                                {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "meet": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "kit": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 16
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "live": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "clock": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 12
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "date",
+                            "time",
+                            "opponent",
+                            "home",
+                            "venue",
+                            "us",
+                            "them",
+                            "meet",
+                            "kit",
+                            "goto",
+                            "live",
+                            "clock"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "list",
+                              "next",
+                              "scoreboard"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "matches",
+                      "style"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "SectionTitle",
+                        "enum": [
+                          "SectionTitle"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "link": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "text",
+                      "link"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "List",
+                        "enum": [
+                          "List"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "aspect": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "wide",
+                              "square",
+                              "tall"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "arrange": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "rows",
+                              "grid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "group": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "sections"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "overflow": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "all",
+                              "peek"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none",
+                              "thumb",
+                              "number"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "trail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "chevron",
+                              "none",
+                              "value",
+                              "badge",
+                              "toggle",
+                              "check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "cards",
+                              "shelf",
+                              "expand"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rows": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "meta": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 36
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "fact": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 36
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "trail": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "chevron",
+                                    "none",
+                                    "value",
+                                    "badge",
+                                    "toggle",
+                                    "check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight",
+                                    "muted",
+                                    "new"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 10
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "me": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "section": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "category": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "progress": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "badge": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "unread": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "pinned": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "meta",
+                            "fact",
+                            "icon",
+                            "photo",
+                            "trail",
+                            "tone",
+                            "mark",
+                            "value",
+                            "goto",
+                            "body",
+                            "me",
+                            "section",
+                            "category",
+                            "progress",
+                            "badge",
+                            "unread",
+                            "pinned"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "aspect",
+                      "arrange",
+                      "group",
+                      "overflow",
+                      "lead",
+                      "trail",
+                      "style",
+                      "rows"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"league_results\",\n  \"title\": \"Season\",\n  \"components\": [\n    {\n      \"id\": \"header_league_results\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Season results\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"fixtures_season_list\",\n      \"c\": \"Fixtures\",\n      \"detail\": null,\n      \"matches\": [\n        {\n          \"date\": \"2026-11-15\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Fern House\",\n          \"home\": false,\n          \"venue\": null,\n          \"us\": 1,\n          \"them\": 2,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"fern_match\",\n          \"live\": null,\n          \"clock\": null\n        },\n        {\n          \"date\": \"2026-11-22\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Oakfield\",\n          \"home\": true,\n          \"venue\": null,\n          \"us\": 3,\n          \"them\": 0,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"oak_match\",\n          \"live\": null,\n          \"clock\": null\n        }\n      ],\n      \"style\": null\n    },\n    {\n      \"id\": \"section_top_scorers\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Top scorers\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_top_scorers_ranking\",\n      \"c\": \"List\",\n      \"detail\": null,\n      \"aspect\": null,\n      \"arrange\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": \"number\",\n      \"trail\": \"value\",\n      \"style\": null,\n      \"rows\": [\n        {\n          \"title\": \"Reed\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"5\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        },\n        {\n          \"title\": \"Woods\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"3\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        }\n      ]\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"league_results\",\n  \"title\": \"Season\",\n  \"components\": [\n    {\n      \"id\": \"header_league_results\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Season results\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"fixtures_season_list\",\n      \"c\": \"Fixtures\",\n      \"detail\": null,\n      \"matches\": [\n        {\n          \"date\": \"2026-11-15\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Fern House\",\n          \"home\": false,\n          \"venue\": null,\n          \"us\": 1,\n          \"them\": 2,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"fern_match\",\n          \"live\": null,\n          \"clock\": null\n        },\n        {\n          \"date\": \"2026-11-22\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Oakfield\",\n          \"home\": true,\n          \"venue\": null,\n          \"us\": 3,\n          \"them\": 0,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"oak_match\",\n          \"live\": null,\n          \"clock\": null\n        }\n      ],\n      \"style\": null\n    },\n    {\n      \"id\": \"section_top_scorers\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Top scorers\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_top_scorers_ranking\",\n      \"c\": \"List\",\n      \"detail\": null,\n      \"aspect\": null,\n      \"arrange\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": \"number\",\n      \"trail\": \"value\",\n      \"style\": null,\n      \"rows\": [\n        {\n          \"title\": \"Reed\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"5\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        },\n        {\n          \"title\": \"Woods\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"3\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"league_results\",\n  \"title\": \"The Season\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"The Season\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"fixtures\",\n      \"c\": \"Fixtures\",\n      \"detail\": null,\n      \"matches\": [\n        {\n          \"date\": \"2026-11-15\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Fern House\",\n          \"home\": false,\n          \"venue\": null,\n          \"us\": 1,\n          \"them\": 2,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"fern_match\",\n          \"live\": null,\n          \"clock\": null\n        },\n        {\n          \"date\": \"2026-11-22\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Oakfield\",\n          \"home\": true,\n          \"venue\": null,\n          \"us\": 3,\n          \"them\": 0,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"oak_match\",\n          \"live\": null,\n          \"clock\": null\n        }\n      ],\n      \"style\": null\n    },\n    {\n      \"id\": \"section_title\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Top scorers\",\n      \"link\": null\n    },\n    {\n      \"id\": \"top_scorers\",\n      \"c\": \"List\",\n      \"detail\": null,\n      \"aspect\": null,\n      \"arrange\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": \"number\",\n      \"trail\": \"value\",\n      \"style\": null,\n      \"rows\": [\n        {\n          \"title\": \"Reed\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"5\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        },\n        {\n          \"title\": \"Woods\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"3\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"league_results\",\n  \"title\": \"The season\",\n  \"components\": [\n    {\n      \"id\": \"header_season\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"The season\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"fixtures_list\",\n      \"c\": \"Fixtures\",\n      \"detail\": null,\n      \"matches\": [\n        {\n          \"date\": \"2026-11-15\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Fern House\",\n          \"home\": false,\n          \"venue\": null,\n          \"us\": 1,\n          \"them\": 2,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"fern_match\",\n          \"live\": null,\n          \"clock\": null\n        },\n        {\n          \"date\": \"2026-11-22\",\n          \"time\": \"10:00\",\n          \"opponent\": \"Oakfield\",\n          \"home\": true,\n          \"venue\": null,\n          \"us\": 3,\n          \"them\": 0,\n          \"meet\": null,\n          \"kit\": null,\n          \"goto\": \"oak_match\",\n          \"live\": null,\n          \"clock\": null\n        }\n      ],\n      \"style\": null\n    },\n    {\n      \"id\": \"section_title_top_scorers\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Top scorers\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_top_scorers\",\n      \"c\": \"List\",\n      \"detail\": null,\n      \"aspect\": null,\n      \"arrange\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": \"number\",\n      \"trail\": \"value\",\n      \"style\": null,\n      \"rows\": [\n        {\n          \"title\": \"Reed\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"5\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        },\n        {\n          \"title\": \"Woods\",\n          \"meta\": null,\n          \"fact\": null,\n          \"icon\": null,\n          \"photo\": null,\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": \"3\",\n          \"goto\": null,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null,\n          \"category\": null,\n          \"progress\": null,\n          \"badge\": null,\n          \"unread\": null,\n          \"pinned\": null\n        }\n      ]\n    }\n  ]\n}"
+    ]
+  },
   "compose%2Fleague%2Fresults%2FSeason%20results%20heading%2C%20then%20our%20fixture%20list%3A%202026-11-15%2010%3A00%20away%20at%20Fern%20House%2C%20lost%201%E2%80%932%2C%20link%20fern_match%3B%202026-11-22%2010%3A00%20home%20versus%20Oakfield%2C%20won%203%E2%80%930%2C%20link%20oak_match.%20Give%20the%20ranked%20list%20its%20own%20Top%20scorers%20section%20heading%3B%20top%20scorers%20Reed%205%20and%20Woods%203./63f1f73deaaa6826/c0a9ec2ac4614f40": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: league/results. Job: The season.\n\nBrief: Season results heading, then our fixture list: 2026-11-15 10:00 away at Fern House, lost 1–2, link fern_match; 2026-11-22 10:00 home versus Oakfield, won 3–0, link oak_match. Give the ranked list its own Top scorers section heading; top scorers Reed 5 and Woods 3.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Fixtures\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"List\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Make the final List a ranking with lead \"number\" and trail \"value\". Each row needs a title and one value, with no row trail override.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nFixtures: See who we play next and how recent matches ended.\nprops: { detail?: full|brief=\"full\", matches: [1..6 { date: date YYYY-MM-DD, time: time HH:MM, opponent: text≤24, home: boolean, venue?: text≤28, us?: int 0..9007199254740991, them?: int 0..9007199254740991, meet?: time HH:MM, kit?: text≤16, goto: id snake_case, live?: boolean, clock?: text≤12 }], style?: list|next|scoreboard=\"list\" }\nRule: Order matches by date and kickoff time. In next style put the next match first. Supply both scores for a result, or neither for an unplayed match.\nRule: For a single next match use style \"next\".\nRule: If asked to hide venue, meet time or kit from the preview, write {\"detail\":\"brief\"} and keep the supplied values in the match. Otherwise use detail: null.\nRule: For a multi-match score ticker use style \"scoreboard\". Mark in-progress matches with live: true; clock is the fixture’s displayed game time, not its kickoff time.\nexample: {\"c\":\"Fixtures\",\"matches\":[{\"date\":\"2026-11-15\",\"time\":\"10:00\",\"opponent\":\"Fern House\",\"home\":false,\"us\":3,\"them\":1,\"goto\":\"fern_match\"},{\"date\":\"2026-11-22\",\"time\":\"10:00\",\"opponent\":\"Garden Crew\",\"home\":true,\"venue\":\"Ledge Park\",\"live\":false,\"goto\":\"garden_match\"}]}\nweight: 2\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nList: Several things of the same kind, each one tappable.\nprops: { detail?: full|brief=\"full\", aspect?: wide|square|tall=\"wide\", arrange?: rows|grid=\"rows\", group?: none|sections=\"none\", overflow?: all|peek=\"all\", lead?: icon|none|thumb|number=\"icon\", trail?: chevron|none|value|badge|toggle|check=\"chevron\", style?: cards|shelf|expand, rows: [1..6 { title: text≤28, meta?: text≤36, fact?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: chevron|none|value|badge|toggle|check, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean, section?: text≤24, category?: text≤24, progress?: num 0..1, badge?: text≤24, unread?: boolean, pinned?: boolean }] }\nRule: Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark \"highlight\" on at most one in three rows (none in a one- or two-row list).\nRule: Use style \"expand\" with a body on every FAQ row or \"shelf\" with a photo on every sideways rail row. Photos use references like \"lib:plants\" or \"local:1\". The water icon is \"drop\".\nRule: Rankings use style null (never expand), lead \"number\", trail \"value\", and each score in value. Only the person’s row gets me.\nRule: For grouped headings use group \"sections\" and a section label on every row; keep rows in section order.\nRule: For a two-row preview with See all, set overflow to \"peek\" and output every row in order, including hidden ones. Keep style and every other axis null unless separately requested.\nRule: Names only is a row-content request: write title and leave all other row fields null. Keep detail null; \"brief\" hides existing metadata and is only for an explicit request to hide it.\nRule: For a photo shelf with a tall crop or portrait covers, output \"style\":\"shelf\" and \"aspect\":\"tall\". Leave unrequested axes null. Progress is a fraction (0 to 1).\nRule: For two-column quick cards, set only arrange to \"grid\": use \"style\":null and \"overflow\":null, never \"overflow\":\"all\" just because all rows fit. Only set unread or pinned on rows explicitly described that way.\nRule: For ordinary record rows, use meta for the first distinguishing fact and fact for a second known fact, if useful. Put a short status or deadline in badge, not in the title or trail; for example meta \"Living room\", badge \"Due today\". Use a relevant icon or a known photo reference, never invent a personal photo. Set goto only for a real row destination; only linked rows draw a chevron.\nexample: {\"c\":\"List\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"trail\":null,\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":null,\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"league_results\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"f1\",\"c\":\"Fixtures\",\"matches\":[{\"date\":\"2026-11-22\",\"time\":\"09:00\",\"opponent\":\"Item one\",\"home\":true,\"goto\":\"details\"}]},{\"id\":\"s1\",\"c\":\"SectionTitle\",\"text\":\"Item one\"},{\"id\":\"l1\",\"c\":\"List\",\"rows\":[{\"title\":\"Item one\",\"trail\":\"none\"},{\"title\":\"Item two\",\"trail\":\"none\"},{\"title\":\"Item three\",\"trail\":\"none\"}],\"lead\":\"number\",\"trail\":\"value\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {
@@ -37332,6 +38450,15 @@
       "{\"c\":\"Lineup\",\"detail\":\"brief\",\"lines\":[{\"players\":[{\"number\":1,\"name\":\"Porter\" ,\"rating\":null,\"cards\":null,\"goals\":null}]},{\"players\":[{\"number\":5,\"name\":\"Banks\",\"rating\":null,\"cards\":null,\"goals\":2}]}],\"subs\":[],\"style\":\"list\"}",
       "{\"c\":\"Lineup\",\"detail\":\"brief\",\"lines\":[{\"players\":[{\"number\":1,\"name\":\"Porter\" ,\"rating\":null,\"cards\":null,\"goals\":null}]},{\"players\":[{\"number\":5,\"name\":\"Banks\",\"rating\":null,\"cards\":null,\"goals\":2}]}],\"subs\":[],\"style\":\"list\"}",
       "{\"c\":\"Lineup\",\"detail\":\"brief\",\"lines\":[{\"players\":[{\"number\":1,\"name\":\"Porter\" ,\"rating\":6.8,\"cards\":null,\"goals\":0}]},{\"players\":[{\"number\":5,\"name\":\"Banks\",\"rating\":7.2,\"cards\":null,\"goals\":2}]}],\"subs\":[],\"style\":\"list\"}"
+    ]
+  },
+  "List%2Fchoose%2FShow%20a%20ranked%20list%20of%20player%20names%20with%20one%20goals%20tally%20each.%20No%20match%20results%2C%20head-to-head%20rounds%2C%20or%20league%20table%20columns./4303dc50e87dc541/39854af9ce4c576f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: A screen's main task action or a quiet secondary action. Pick: One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value from a longer set. Prefer Segmented for a one-of-two or one-of-three choice. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: Give one important update, decision or measured number. Pick: Use only for one lead statement, decision or measured headline number that adds to the Header. Skip it if the page title, media, list or progress already leads. Not a separate warning (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Prefer Segmented over Chips for a one-of-two or one-of-three choice. Not independently combinable filters (Chips) or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Up to four available summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BoxScore: Compare period scores and inspect the players' match statistics for either team. Pick: Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).\n- Bracket: Follow knockout ties and see who advances to the next round. Pick: A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).\n- Fixtures: See who we play next and how recent matches ended. Pick: A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).\n- Lineup: See where the starters play and who is on the bench. Pick: Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).\n- MatchFeed: See each side's match incidents and record a new one. Pick: Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).\n- MatchStats: Compare how two teams performed on the same measurable aspects of one match. Pick: Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).\n- MomentumChart: See which team held the advantage and when the match turned. Pick: How momentum or win probability shifted during one match, with match-clock events. Not team totals (MatchStats), a tiny personal trend (Sparkline), or a business trend (LineChart).\n- Scoreboard: Follow the current score or keep score for both sides. Pick: The score and match clock for one contest between a home side and an away side. Not a practice result (Result), one adjustable count (Counter) or a standalone clock (Timer).\n- Squad: See who can play and let the coach pick the side. Pick: Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).\n- Standings: Compare teams in a league and see our place in the season. Pick: A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).\n\nNeed, in the person's words: \"Show a ranked list of player names with one goals tally each. No match results, head-to-head rounds, or league table columns.\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
     ]
   },
   "List%2Fchoose%2FShow%20a%20ranked%20list%20of%20player%20names%20with%20one%20goals%20tally%20each.%20No%20match%20results%2C%20head-to-head%20rounds%2C%20or%20league%20table%20columns./5c5aa9708908cf1b/24b6f39ba6324cbc": {

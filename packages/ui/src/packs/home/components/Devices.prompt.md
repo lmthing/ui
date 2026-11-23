@@ -4,7 +4,7 @@ Read and control connected household devices and apply saved settings together.
 
 ## Pick
 
-Only for explicitly connected household hardware: switches, thermostat set points and readings, sensor ranges and multi-device scenes. Local app preferences with a switch at the end of each row are List, never this component. Not a single form value (Field), navigation (Actions), manual summary numbers (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).
+Choose only for explicitly connected household hardware, such as a lamp, thermostat, sensor or multi-device scene. For local app preference rows with trailing on/off switches, choose List (trail toggle), not Devices. Not a single form value (Field), navigation (Actions), manual summary numbers (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).
 
 ## Writer
 

@@ -6,6 +6,9 @@ export const queue = {
   defaultLayout: "requests_active",
   layouts: {
     requests_active: {
+      writeHints: [
+        "Chips.filter can only target a List, not RequestQueue. Keep the requested chip labels, set filter:null and view:null on every chip, and leave ticket status and urgency in RequestQueue.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
