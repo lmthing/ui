@@ -108,6 +108,8 @@ export type Meta = {
     visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
+    /** Spell out `/root` on item-root actions in the reading without changing dispatch addresses. */
+    readRoot?: true;
     /** This wire collection has item addresses only in the matching component structure. */
     addressedWhen?: Readonly<Record<string, string | boolean>>;
     /** Replace these item fields with the secret marker when the shared read condition matches. */

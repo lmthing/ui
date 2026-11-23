@@ -100,6 +100,11 @@ function actionsForItem(
       offer.part === "root" && offer.action === "select" && activeDateSpan(meta, props)
         ? [{ ...offer, dateSpan: true as const }]
         : itemActionOffer(meta, props, item, offer, schema),
+    )
+    .map((offer) =>
+      meta.items?.readRoot && offer.part === "root" && !offer.readAddress
+        ? { ...offer, readAddress: `${offer.address}/root` }
+        : offer,
     );
 }
 
