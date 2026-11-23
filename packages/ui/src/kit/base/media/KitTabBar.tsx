@@ -16,19 +16,18 @@ const tabFocus = {
 
 function TabGlyph({ tab, on }: { tab: Tab; on: boolean }) {
   const { lang } = useWords();
+  const badge = tab.count ? badgeLine(tab.count, lang) : undefined;
   return (
-    <YStack
-      position="relative"
+    <XStack
+      alignItems="center"
+      gap={space.xs}
       borderRadius={radius.pill}
-      paddingHorizontal={space.md}
+      paddingHorizontal={badge ? component.base.none : space.md}
       backgroundColor={on ? "$accentSoft" : undefined}
     >
       <KitIcon name={tab.icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />
-      {Boolean(tab.count) && (
+      {badge && (
         <YStack
-          position="absolute"
-          top={-space.xs}
-          right={-space.sm}
           minWidth={size.icon.sm}
           paddingHorizontal={space.sm}
           paddingVertical={space.xs}
@@ -36,11 +35,11 @@ function TabGlyph({ tab, on }: { tab: Tab; on: boolean }) {
           backgroundColor="$accent"
         >
           <KitText role="caption" tone="onAccent" align="center" part="badge">
-            {badgeLine(tab.count!, lang)}
+            {badge}
           </KitText>
         </YStack>
       )}
-    </YStack>
+    </XStack>
   );
 }
 

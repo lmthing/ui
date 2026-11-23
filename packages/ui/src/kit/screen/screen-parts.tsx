@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { isValidElement, useContext } from "react";
 import { ScrollView, YStack } from "tamagui";
 import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
@@ -54,28 +54,46 @@ function ScreenEntry({
 function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
   const { controller, screen } = props;
   const components = controller.defs;
+  const elsewhere = new Set(
+    screen.components.filter((entry) => regionOf(entry, components) !== name).map(({ id }) => id),
+  );
   const entries = sortByRegion(screen.components, components).filter(
     (entry) => regionOf(entry, components) === name,
   );
   return (
-    <KitPresence>
+    <KitPresence
+      keepExit={(node) => isValidElement<RegionEntryProps>(node) && !elsewhere.has(node.props.entry.id)}
+    >
       {entries.map((entry, index) => (
-        <KitMotion key={entry.id} index={index} cue={entry.state ?? "filled"}>
-          <YStack
-            marginTop={
-              name === "body" && components[entry.c]
-                ? gapBetween(
-                    index ? components[entries[index - 1]!.c]?.meta : undefined,
-                    components[entry.c]!.meta,
-                  )
-                : 0
-            }
-          >
-            <ScreenEntry {...props} entry={entry} />
-          </YStack>
-        </KitMotion>
+        <RegionEntry
+          key={entry.id}
+          {...props}
+          entry={entry}
+          index={index}
+          marginTop={
+            name === "body" && components[entry.c]
+              ? gapBetween(components[entries[index - 1]?.c ?? ""]?.meta, components[entry.c]!.meta)
+              : 0
+          }
+        />
       ))}
     </KitPresence>
+  );
+}
+
+type RegionEntryProps = RenderProps & {
+  entry: ScreenLike["components"][number];
+  index: number;
+  marginTop: number;
+  exiting?: boolean;
+};
+function RegionEntry({ index, marginTop, exiting, ...props }: RegionEntryProps) {
+  return (
+    <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false}>
+      <YStack marginTop={marginTop}>
+        <ScreenEntry {...props} />
+      </YStack>
+    </KitMotion>
   );
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
@@ -86,9 +104,11 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     paddingLeft: Math.max(gutter, insets.left),
     paddingRight: Math.max(gutter, insets.right),
   };
+  const defs = props.controller.defs;
   const bodyOrder = props.screen.components
-    .filter((entry) => regionOf(entry, props.controller.defs) === "body")
+    .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
+  const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
@@ -109,6 +129,7 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
         <YStack
           flexShrink={0}
           {...horizontal}
+          paddingTop={hasFooter ? space.md : 0}
           paddingBottom={Math.max(space.lg, keyboardHeight ? 0 : insets.bottom)}
           gap={space.md}
         >

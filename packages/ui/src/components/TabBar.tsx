@@ -119,7 +119,7 @@ export const examples = [
     tabs: [
       { icon: "sun", label: "Today", goto: "today" },
       { icon: "leaf", label: "Plants", goto: "plants" },
-      { icon: "calendar", label: "Schedule", goto: "schedule" },
+      badgeTabs[1],
       { icon: "bookmark", label: "Saved", goto: "saved" },
       { icon: "settings", label: "Settings", goto: "settings" },
     ],

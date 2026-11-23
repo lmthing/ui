@@ -4,7 +4,7 @@ import type { Browser, Locator, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { launchChrome } from "../../../../scripts";
 import { galleryConfig } from "../../../../scripts/look";
-import { size } from "../../../catalog";
+import { size, space } from "../../../catalog";
 
 const width = 390;
 const height = 660;
@@ -114,10 +114,11 @@ it("keeps the action above tabs and inside a shared safe area while the body scr
   expect(a.x + a.width).toBe(width - safe.right);
   expect(b.x).toBe(a.x);
   expect(b.width).toBe(a.width);
-  const last = part("today/plants/r6/title");
+  const last = part("today/plants/r6/root");
   expect((await box(last)).y).toBeGreaterThan(a.y);
   await last.scrollIntoViewIfNeeded();
-  expect((await box(last)).y).toBeLessThan(a.y);
+  const lastRow = await box(last);
+  expect(a.y - (lastRow.y + lastRow.height)).toBeGreaterThanOrEqual(space.md);
   expect(await box(action)).toEqual(a);
   expect(await box(tabs)).toEqual(b);
   for (const name of ["Today", "Plants"]) {
@@ -125,6 +126,20 @@ it("keeps the action above tabs and inside a shared safe area while the body scr
     expect(target.width).toBeGreaterThanOrEqual(size.control.md);
     expect(target.height).toBeGreaterThanOrEqual(size.control.md);
   }
+  expect(errors).toEqual([]);
+});
+
+it("fits a wide badge beside the icon in a five-tab bar", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?c=TabBar&w=390&mode=light&preset=calm`);
+  const schedule = page.getByRole("tab", { name: "Schedule, 99+", exact: true }).last();
+  const hit = await box(schedule);
+  const glyph = await box(schedule.getByTestId(/\/icon$/));
+  const badge = await box(schedule.getByTestId(/\/badge$/));
+  const label = await box(schedule.getByTestId(/\/label$/));
+  expect(glyph.x).toBeGreaterThanOrEqual(hit.x);
+  expect(glyph.x + glyph.width).toBeLessThan(badge.x);
+  expect(badge.x + badge.width).toBeLessThanOrEqual(hit.x + hit.width);
+  expect(Math.max(glyph.y + glyph.height, badge.y + badge.height)).toBeLessThan(label.y);
   expect(errors).toEqual([]);
 });
 

@@ -77,9 +77,10 @@ export const probes = [
   },
   {
     ...write(
-      'Add a low-key "View schedule" link below the content that opens the screen with id "schedule".',
+      'Below the plant details, add a low-key secondary button labelled "Care notes" that opens the "care_notes" screen. Use the text label alone; there is no icon to show or hide.',
     ),
     variant: { axis: "emphasis", value: "quiet" },
+    expectProps: { label: "Care notes", goto: "care_notes" },
   },
   read("Press the main button", { address: "b1/root", action: "press" }),
 ] satisfies Probe[];

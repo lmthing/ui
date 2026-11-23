@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import { z } from "zod";
+import { components } from "@lmthing/ui/catalog";
+import { renderers as catalogRenderers } from "@lmthing/ui/kit";
 import { themeName, type Definition, type ThemeChoice } from "../../../catalog";
 import {
   KitAction,
@@ -132,8 +134,9 @@ const config = createTamagui({
   defaultFont: "humanist",
   themes: { light: scheme, [themeName(theme)]: scheme },
 });
-const defs = { Fixture: fixture, FixtureFooter: footer };
-const renderers = { Fixture: FixtureView, FixtureFooter: FooterView };
+const defs = { Fixture: fixture, FixtureFooter: footer, Button: components.Button };
+const renderers = { Fixture: FixtureView, FixtureFooter: FooterView, Button: catalogRenderers.Button };
+const moveButton = new URLSearchParams(location.search).has("move-button");
 const nativeHost: NativeHost = {
   snapshot: () => ({
     insets: { top: 0, bottom: 32, left: 28, right: 36 },
@@ -146,14 +149,18 @@ const nativeHost: NativeHost = {
 function App() {
   const [pinned, setPinned] = useState(true);
   const [order, setOrder] = useState(["d1", "d2"]);
+  const [quiet, setQuiet] = useState(false);
   useEffect(() => {
     const update = (event: Event) => setOrder((event as CustomEvent<string[]>).detail);
     const show = () => setPinned(true);
+    const updateQuiet = (event: Event) => setQuiet((event as CustomEvent<boolean>).detail);
     window.addEventListener("fixture-order", update);
     window.addEventListener("fixture-show", show);
+    window.addEventListener("fixture-quiet", updateQuiet);
     return () => {
       window.removeEventListener("fixture-order", update);
       window.removeEventListener("fixture-show", show);
+      window.removeEventListener("fixture-quiet", updateQuiet);
     };
   }, []);
   const screen = useMemo(
@@ -167,10 +174,18 @@ function App() {
           pinned: id !== "d1" || pinned,
           rows: id === "d1" ? [{ qty: 1 }, { qty: 2 }] : [{ qty: 3 }],
         })),
-        { id: "b1", c: "FixtureFooter", goto: "other" },
+        moveButton
+          ? {
+              id: "b1",
+              c: "Button",
+              label: "Existing footer",
+              emphasis: quiet ? "quiet" : "normal",
+              goto: "other",
+            }
+          : { id: "b1", c: "FixtureFooter", goto: "other" },
       ],
     }),
-    [pinned, order],
+    [pinned, order, quiet],
   );
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
