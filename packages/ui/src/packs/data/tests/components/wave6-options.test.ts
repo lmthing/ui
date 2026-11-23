@@ -133,6 +133,16 @@ it("groups and sorts numbered rows, keeping summary and row checks independent",
   expect(read).toContain("Total · Walks: 16");
 });
 
+it("keeps a long section label at the first record's heading address", () => {
+  const label = "Awaiting review tomorrow";
+  const rows = [{ cells: ["Canal loop", label, 8], goto: "canal" }, { cells: ["Park loop", label, 3] }];
+  const parts = addressedElements(renderInstance("Table", { ...tableInput, rows }, "filled", theme));
+  expect(parts.get("home/c1/r1/group_heading")?.text).toEqual([label]);
+  expect(parts.has("home/c1/r2/group_heading")).toBe(false);
+  expect(parts.get("home/c1/r1/root")?.attributes).toContain('role="link"');
+  expect(parts.has("home/c1/r2/pick")).toBe(true);
+});
+
 it("routes export only to an admitted service host, not to a screen link", async () => {
   let rejectExport!: () => void;
   const response = new Promise<{ status: "rejected" }>((resolve) => {
