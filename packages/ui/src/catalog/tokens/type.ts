@@ -1,15 +1,15 @@
 const steps = {
-  title: { size: 26, lineHeight: 32, weight: "700", tracking: -0.4 },
-  body: { size: 16, lineHeight: 22, weight: "400", tracking: 0 },
-  label: { size: 14, lineHeight: 20, weight: "500", tracking: 0 },
-  caption: { size: 13, lineHeight: 18, weight: "400", tracking: 0 },
-  number: { size: 40, lineHeight: 44, weight: "700", tracking: -1 },
+  title: { size: 22, lineHeight: 28, weight: "700", tracking: -0.5 },
+  body: { size: 15, lineHeight: 21, weight: "400", tracking: 0 },
+  label: { size: 13, lineHeight: 18, weight: "500", tracking: 0 },
+  caption: { size: 12, lineHeight: 16, weight: "400", tracking: 0 },
+  number: { size: 32, lineHeight: 36, weight: "700", tracking: -0.8 },
 } as const;
 
 export const type = {
   ...steps,
   // Keep role names and finishes, but no legacy role introduces a sixth size.
-  display: { ...steps.number, tracking: -0.6 },
+  display: { ...steps.number, tracking: -0.7 },
   heading: { ...steps.body, weight: "600", tracking: -0.2 },
 } as const;
 

@@ -1,5 +1,12 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { components, readComponent, type CastLike, type Props, type ThemeChoice } from "@lmthing/ui/catalog";
+import {
+  components,
+  readComponent,
+  type as typography,
+  type CastLike,
+  type Props,
+  type ThemeChoice,
+} from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance, styleAt } from "../../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Rewards;
@@ -143,8 +150,8 @@ describe("Rewards states and parts", () => {
     expect(elementAt(html, "home/c1/r1/photo").attributes).toContain('aria-label="Leo"');
     expect(elementAt(html, "home/c1/r1/jar").attributes).toContain('aria-label="8,50\u00a0$"');
     expect(elementAt(html, "home/c1/r1/points").children).toHaveLength(1);
-    expect(styleAt(html, "home/c1/r1/points")).toContain("font-size:40px");
-    expect(styleAt(html, "home/c1/r2/points")).toContain("font-size:40px");
+    expect(styleAt(html, "home/c1/r1/points")).toContain(`font-size:${typography.number.size}px`);
+    expect(styleAt(html, "home/c1/r2/points")).toContain(`font-size:${typography.number.size}px`);
     expect(html).not.toContain("home/c1/r1/unit");
   });
   it("replaces jar links and claims with a success message", () => {
