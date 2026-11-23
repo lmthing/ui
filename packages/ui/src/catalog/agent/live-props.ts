@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
-import { stampItemIds } from "../lines";
+import { parseItemProps } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
@@ -113,7 +113,7 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
     get && repaired && typeof repaired === "object" && !Array.isArray(repaired)
       ? projectControlInput(def, repaired as Values, get)
       : repaired;
-  return stampItemIds(def.meta, def.props.parse(source) as Values);
+  return parseItemProps(def, source);
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
 export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {

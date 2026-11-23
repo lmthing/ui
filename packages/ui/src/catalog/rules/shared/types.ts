@@ -4,6 +4,12 @@ import type { ScreenLike } from "../../agent";
 export type Issue = { code: string; address: string; message: string };
 export type RegistryLike = Record<string, Definition> | { defs: readonly Definition[] };
 export type ScreenEntry = ScreenLike["components"][number];
+export type RowAddress = (
+  entry: ScreenEntry,
+  key: string,
+  index: number,
+  part?: PropertyKey,
+) => string | undefined;
 export function definitionsOf(registry: RegistryLike): Record<string, Definition> {
   return Array.isArray(registry.defs)
     ? Object.fromEntries(registry.defs.map((def: Definition) => [def.meta.id, def]))

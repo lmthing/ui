@@ -20,7 +20,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const screen = controller.snapshotScreen();
   const fingerprint = JSON.stringify(screen);
   useEffect(() => {
-    const timer = setTimeout(() => onReport?.(checkScreen(screen, components)), 150);
+    const timer = setTimeout(() => onReport?.(checkScreen(screen, components, { hostItemIds: true })), 150);
     return () => clearTimeout(timer);
   }, [fingerprint, components, onReport]);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;

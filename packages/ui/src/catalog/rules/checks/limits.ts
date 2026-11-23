@@ -1,8 +1,12 @@
 import { z } from "zod";
 import type { ScreenLike } from "../../agent";
 import type { Definition } from "../../probes";
-import { at, resolveDefinition, type Issue } from "../shared";
-export function checkLimits(screen: ScreenLike, defs: Record<string, Definition>): Issue[] {
+import { at, resolveDefinition, type Issue, type RowAddress } from "../shared";
+export function checkLimits(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  rowAddress?: RowAddress,
+): Issue[] {
   const seen = new Set<string>();
   return screen.components.flatMap((entry) => {
     const issues: Issue[] = [];
@@ -22,12 +26,18 @@ export function checkLimits(screen: ScreenLike, defs: Record<string, Definition>
     const { id: _id, c: _c, state, ...input } = entry;
     const parsed = def.props.safeParse(input);
     if (!parsed.success)
-      for (const issue of parsed.error.issues)
+      for (const issue of parsed.error.issues) {
+        const [key, index, part] = issue.path;
+        const row =
+          typeof key === "string" && typeof index === "number"
+            ? rowAddress?.(entry, key, index, part)
+            : undefined;
         issues.push({
           code: "S.props",
-          address: `${screen.id}/${entry.id}/${issue.path.join("/") || "root"}`,
+          address: row ?? `${screen.id}/${entry.id}/${issue.path.join("/") || "root"}`,
           message: issue.message,
         });
+      }
     if (state && !(def.meta.states ?? ["filled"]).includes(state))
       issues.push({
         code: "S.state",

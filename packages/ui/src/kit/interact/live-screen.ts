@@ -4,6 +4,8 @@ import {
   projectClocks,
   projectAdjustments,
   liveProps,
+  hostItemInput,
+  stampItemIds,
   parseControlProps,
   drawStatus,
   buzzStatus,
@@ -51,20 +53,22 @@ export function projectScreen(
 type Entry = ScreenLike["components"][number];
 function projectItems(entry: Entry, parsed: Values, get: (part: string) => unknown, result: Entry) {
   const raw = (key: string) => entry[key] as Record<string, unknown>[];
+  const item = (key: string, index: number) =>
+    (parsed[key] as Values[] | undefined)?.[index]?.id ?? `r${index + 1}`;
   if (entry.c === "Choice" && parsed.multi)
     result.options = raw("options").map((row, index) => ({
       ...row,
-      on: get(`r${index + 1}`) ?? row.on ?? false,
+      on: get(String(item("options", index))) ?? row.on ?? false,
     }));
   if (entry.c === "List")
     result.rows = raw("rows").map((row, index) => {
-      const on = get(`r${index + 1}/trail`);
+      const on = get(`${String(item("rows", index))}/trail`);
       return row.trail === "toggle" && typeof on === "boolean" ? { ...row, value: on ? "on" : "off" } : row;
     });
   if (entry.c === "Checklist")
     result.items = raw("items").map((row, index) => ({
       ...row,
-      done: get(`r${index + 1}/check`) ?? row.done ?? false,
+      done: get(`${String(item("items", index))}/check`) ?? row.done ?? false,
     }));
 }
 
@@ -96,7 +100,8 @@ function projectEntry(
   const def = defs[entry.c];
   if (!def) return result;
   const { meta } = def;
-  const parsed = def.props.parse(input) as Values;
+  const { wire, ids } = hostItemInput(def, input);
+  const parsed = def.props.parse(wire);
   if (meta.draw)
     for (const key of Object.keys(def.props.shape))
       if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
@@ -110,7 +115,7 @@ function projectEntry(
   Object.assign(result, projectControls(meta, result, get, "wire"));
   omitDerivedSelection(def, result);
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
-  projectItems(entry, parsed, get, result);
+  projectItems(entry, ids.size ? stampItemIds(meta, parsed, undefined, { ids }) : parsed, get, result);
   Object.assign(result, projectAdjustments(meta, result, get));
   if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now, "legacy"));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
@@ -161,5 +166,6 @@ function projectSequenceCursor(
   const get = (part: string) => local[`${id}/${part}`];
   const data = withRecordScreen(atDeviceTime(projectDeviceData(deviceData, values), now), screen);
   const index = liveProps(def.meta, parseControlProps(def, wire, get), id, local, true, data, now)[cursor];
-  if (def.props.safeParse({ ...wire, [cursor]: index }).success) result[cursor] = index;
+  if (def.props.safeParse({ ...hostItemInput(def, wire).wire, [cursor]: index }).success)
+    result[cursor] = index;
 }
