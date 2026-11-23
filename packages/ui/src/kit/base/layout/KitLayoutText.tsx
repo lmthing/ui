@@ -10,6 +10,7 @@ export type LayoutLine = {
   tone?: TextTone;
   lines?: number;
   strong?: boolean;
+  breakLongWords?: boolean;
   compact?: boolean;
   tabular?: boolean;
 };
@@ -27,7 +28,7 @@ export function KitLayoutText({
   baseline?: boolean;
 }) {
   const loading = useComponentState() === "loading";
-  const { text, part = null, role = "body", tone, lines, strong, compact, tabular } = line;
+  const { text, part = null, role = "body", tone, lines, strong, compact, tabular, breakLongWords } = line;
   if (!text) return null;
   const style = {
     role: layoutType[role],
@@ -44,6 +45,7 @@ export function KitLayoutText({
       {...(tone ? { tone } : {})}
       {...(lines ? { lines } : {})}
       {...(strong ? { emphasis: "strong" as const } : {})}
+      {...(breakLongWords && { breakLongWords })}
       {...(tabular ? { tabular } : {})}
     >
       {text}

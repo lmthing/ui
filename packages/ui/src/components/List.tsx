@@ -20,12 +20,12 @@ export const meta = {
   parts: ["root", "more", "more_label", "count"],
   items: {
     key: "rows",
-    parts: ["root", "title", "meta", "icon", "trail", "body", "rank", "badge", "unread", "pinned"],
+    parts: ["root", "title", "meta", "fact", "icon", "trail", "body", "rank", "badge", "unread", "pinned"],
     variants: { trail: trails, tone: ["neutral", "good", "warn", "bad"], mark: ["none", "highlight", "muted", "new"] },
   },
   variantParts: {
-    "detail.brief": { hides: ["meta"] }, "overflow.peek": { adds: ["more", "more_label", "count"] },
-    "lead.none": { hides: ["icon"] }, "lead.thumb": { hides: ["icon"] }, "lead.number": { hides: ["icon"], adds: ["rank"] },
+    "detail.brief": { hides: ["meta", "fact"] }, "overflow.peek": { adds: ["more", "more_label", "count"] },
+    "lead.none": { hides: ["icon"] }, "lead.number": { hides: ["icon"], adds: ["rank"] },
     "trail.none": { hides: ["trail"] }, "trail.chevron": trailPart, "trail.value": trailPart,
     "trail.badge": trailPart, "trail.toggle": trailPart, "trail.check": trailPart,
   },
@@ -38,11 +38,12 @@ export const meta = {
 } as const satisfies c.Meta;
 // prettier-ignore
 const rowProps = z.strictObject({
-  title: c.text(28), meta: c.text(36).optional(), icon: c.icon.optional(), photo: c.photo.optional(),
+  title: c.text(28), meta: c.text(36).optional(), fact: c.text(36).optional(),
+  icon: c.icon.optional(), photo: c.photo.optional(),
   ...c.itemVariantProps(meta.items.variants, { inheritTrail: true }),
   value: c.text(10).optional(), goto: c.screenId.optional(), body: c.text(200).optional(),
   me: z.boolean().optional(), section: c.text(24).optional(),
-  progress: z.number().min(0).max(1).optional(), badge: c.text(12).optional(),
+  progress: z.number().min(0).max(1).optional(), badge: c.text(24).optional(),
   unread: z.boolean().optional(), pinned: z.boolean().optional(),
 });
 // prettier-ignore
@@ -52,10 +53,10 @@ export const props = z.strictObject({
 }).refine(({ style, group, rows }) =>
   (style !== "shelf" || (rows.length >= 2 && rows.every((row) => row.photo))) &&
   (style !== "expand" || rows.every((row) => row.body)) &&
-  ((style === "shelf" && !rows.some((row) => row.body)) || rows.every((row) => row.progress === undefined && row.badge === undefined)) &&
+  ((style === "shelf" && !rows.some((row) => row.body)) || rows.every((row) => row.progress === undefined)) &&
   (group !== "sections" || rows.every((row) => row.section)) &&
   rows.filter((row) => row.me).length <= 1,
-  { path: ["rows"], message: "Shelf needs two photo rows and alone allows progress/badges; expand needs bodies, sections need labels, at most one me" },
+  { path: ["rows"], message: "Shelf needs two photo rows and alone allows progress; expand needs bodies, sections need labels, at most one me" },
 ).overwrite((value) => {
   const { rows, group, detail, lead, trail, overflow } = value;
   const style = rows.some((row) => row.body) ? "expand" : value.style;
@@ -66,9 +67,9 @@ export const props = z.strictObject({
       ...(row.unread !== undefined || row.pinned !== undefined ? { on: row.me === true } : {}),
       ...row, trail: row.trail ?? (quiet && trail === "chevron" ? "none" : trail),
       root: style === "expand" ? "toggle" : row.goto ? "press" : undefined,
-      ...(detail === "brief" ? { meta: undefined } : {}),
+      ...(detail === "brief" ? { meta: undefined, fact: undefined } : {}),
       ...(group !== "sections" ? { section: undefined } : {}),
-      ...(lead === "number" || lead === "none" ? { icon: undefined, photo: undefined } : lead === "icon" && row.icon && style !== "shelf" ? { photo: undefined } : {}),
+      ...(lead === "number" || lead === "none" ? { icon: undefined, photo: undefined } : {}),
     })),
   };
 });
@@ -158,8 +159,8 @@ export const examples = [
     style: "shelf",
     aspect: "tall",
     rows: [
-      { title: "Fern guide", photo: "lib:fern", progress: 0.5, badge: "In progress" },
-      { title: "Basil guide", photo: "lib:basil", progress: 0, badge: "New" },
+      { title: "Fern guide", photo: "lib:fern_shelf", progress: 0.5, badge: "In progress" },
+      { title: "Basil guide", photo: "lib:window_pots", progress: 0, badge: "New" },
     ],
   },
   {
@@ -180,12 +181,70 @@ export const examples = [
   { style: "cards", rows: c.sampleWalkRows },
   { rows: c.samplePlantRows },
   { rows: [{ title: "Walk reminder", icon: "clock", trail: "toggle" }] },
+  {
+    rows: [
+      {
+        title: "Fern",
+        photo: "lib:fern",
+        meta: "Bathroom",
+        fact: "Last watered Monday",
+        badge: "Due today",
+        tone: "warn",
+        goto: "fern",
+      },
+      { title: "Monstera", photo: "lib:monstera", meta: "Living room", badge: "Watered", tone: "good" },
+      { title: "Basil", photo: "lib:basil", meta: "Kitchen windowsill", goto: "basil" },
+    ],
+  },
+  {
+    rows: [
+      {
+        title: "Oak dining chair",
+        meta: "Avery Morgan",
+        fact: "Pickup after 4 pm",
+        badge: "Ready for pickup",
+        tone: "good",
+        goto: "chair",
+      },
+      {
+        title: "Walnut writing desk",
+        meta: "Reese Lin",
+        fact: "Hardware ordered on Tuesday",
+        badge: "Waiting for parts",
+        tone: "warn",
+      },
+      { title: "Floor lamp", meta: "Sam Patel", icon: "clock", badge: "Due Friday", goto: "lamp" },
+    ],
+  },
+  {
+    rows: [
+      {
+        title: "WHEN WE BUILD WITH HARD WOOD",
+        meta: "Second edition, reference copy",
+        fact: "West reading room · upper shelf",
+        badge: "Available after Thursday",
+        goto: "guide",
+      },
+      {
+        title: "A history of city gardens",
+        meta: "First edition with a fold-out map",
+        fact: "North storeroom · shelf 12",
+        badge: "Waiting for conservation",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("List");
 export const probes = [
   choose("Show my plants and let me tap one"),
   choose("Show the room and water interval of one plant", "KeyValue"),
   write("Three plants with their rooms and water due today"),
+  {
+    ...write(
+      "List this record: Fern. Use Bathroom as its first fact, Indirect light as its second fact, and Due today as its status badge.",
+    ),
+    fields: { "rows.0.meta": "Bathroom", "rows.0.fact": "Indirect light", "rows.0.badge": "Due today" },
+  },
   write("A sideways row of three plant photo cards to swipe through: Fern, Monstera and Basil"),
   {
     ...write(
@@ -219,16 +278,10 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
     words: { listLabels },
   } = kit.useWords();
   const mark = row.unread && row.mark === "none" ? "new" : row.mark;
-  const sideTrail = grid && row.trail === "chevron";
+  const chevron = row.trail === "chevron" && row.goto;
+  const sideTrail = grid && chevron;
   const { badge, unread, pinned, progress } = CardExtras(row, listLabels, lang);
-  const leading =
-    lead === "number" ? (
-      <kit.KitRank place={index + 1} part="rank" density={density} />
-    ) : (lead === "thumb" || (grid && lead === undefined)) && row.photo ? (
-      <kit.KitPhoto photo={row.photo} part="icon" />
-    ) : grid && lead === "icon" && row.icon ? (
-      <kit.KitIcon name={row.icon} part="icon" />
-    ) : undefined;
+  const leading = <CardLeading {...{ row, aspect, lead, index, density }} {...(grid && { grid })} />;
   return (
     <kit.KitRow
       item={row.id}
@@ -239,24 +292,30 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
       surface={grid}
       leading={leading}
       trailing={sideTrail ? <kit.KitIcon name="chevron_right" part="trail" scale="sm" /> : undefined}
-      leadingAlign={lead === "thumb" ? "row" : "line"}
+      leadingAlign={lead === "thumb" || (grid && (row.photo || !row.icon)) ? "row" : "line"}
       inset={grid ? "md" : "none"}
     >
       <kit.KitContent density={density} lineRole="body">
         {!grid && !lead && row.photo && (
           <kit.KitPhoto photo={row.photo} aspect={aspect} part="icon" label={row.title} />
         )}
-        <kit.KitText role="body" part="title" density={density} tone={cardTitleTone(row, mark)}>
+        <kit.KitText
+          role="body"
+          part="title"
+          density={density}
+          tone={cardTitleTone(row, mark)}
+          breakLongWords
+        >
           {row.title}
         </kit.KitText>
-        {row.meta && (
-          <kit.KitText role="caption" tone="muted" part="meta">
-            {row.meta}
-          </kit.KitText>
-        )}
-        {!sideTrail && row.trail !== "none" && (
-          <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />
-        )}
+        {(["meta", "fact"] as const).map((part) => (
+          <kit.KitLayoutText
+            key={part}
+            line={{ text: row[part], role: "caption", tone: "muted", part, breakLongWords: true }}
+            density={density}
+          />
+        ))}
+        <CardTrail {...{ row, sideTrail: Boolean(sideTrail), density }} />
         {badge}
         {unread}
         {pinned}
@@ -266,31 +325,40 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
   );
 }
 
+function CardLeading({ row, lead, index, density, grid }: CardDetailProps) {
+  if (lead === "number") return <kit.KitRank place={index + 1} part="rank" density={density} />;
+  if (grid && (lead === "icon" || lead === "thumb"))
+    return row.photo || !row.icon ? (
+      <kit.KitRecordLead title={row.title} photo={row.photo} />
+    ) : (
+      <kit.KitIcon name={row.icon} part="icon" />
+    );
+  if (lead === "thumb" && row.photo) return <kit.KitPhoto photo={row.photo} part="icon" />;
+}
+
+function CardTrail({
+  row,
+  sideTrail,
+  density,
+}: {
+  row: ListRow;
+  sideTrail: boolean;
+  density: c.ThemeDensity;
+}) {
+  if (sideTrail || row.trail === "none" || (row.trail === "chevron" && !row.goto)) return null;
+  return <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />;
+}
+
 function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
   const { style, density, lead, trail, aspect, pending, grid, unread, pinned } = layout;
-  if (pending)
-    return style === "shelf" ? (
-      <kit.KitSkeleton
-        key={row.id}
-        shape="media"
-        inset="none"
-        aspect={lead === "icon" ? aspect : "none"}
-        density={density}
-        lines={[
-          { text: row.title, role: "body" },
-          ...(row.meta ? [{ text: row.meta, role: "caption" as const }] : []),
-        ]}
-      />
-    ) : (
-      <kit.KitSkeleton key={row.id} items={[row]} density={density} lead={row.photo ? "box" : "dot"} />
-    );
+  if (pending) return <PendingRow key={row.id} row={row} layout={layout} />;
   const finish = {
     density,
     tone: row.tone,
     mark: row.unread && row.mark === "none" ? ("new" as const) : row.mark,
     surface: style === "cards" ? ("card" as const) : undefined,
   };
-  const leading = lead === "icon" && (style === "shelf" || !row.icon) ? undefined : lead;
+  const leading = lead === "icon" && style === "shelf" ? undefined : lead;
   const shelf =
     style === "shelf" && (aspect !== "wide" || row.progress !== undefined || row.badge !== undefined);
   if (shelf || grid)
@@ -309,6 +377,7 @@ function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
       {...finish}
       lead={leading}
       style={style ?? "inset"}
+      record
     />
   );
   return row.unread || row.pinned ? (
@@ -326,10 +395,27 @@ function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
   );
 }
 
+function PendingRow({ row, layout }: { row: ListRow; layout: ListRowLayout }) {
+  const { style, density, lead, aspect } = layout;
+  const item = skeletonRow(row, lead);
+  return style === "shelf" ? (
+    <kit.KitSkeleton
+      key={row.id}
+      shape="media"
+      inset="none"
+      aspect={lead === "icon" ? aspect : "none"}
+      density={density}
+      lines={item.lines}
+    />
+  ) : (
+    <kit.KitSkeleton key={row.id} items={[item]} density={density} />
+  );
+}
+
 function cardTitleTone(row: ListRow, mark: ListRow["mark"]) {
   if (row.me || mark === "new") return "accent";
   if (mark === "muted") return "muted";
-  return row.tone === "neutral" ? "text" : row.tone;
+  return row.badge || row.tone === "neutral" ? "text" : row.tone;
 }
 
 type CardDetailProps = Pick<ListProps, "aspect"> & {
@@ -343,9 +429,13 @@ type CardDetailProps = Pick<ListProps, "aspect"> & {
 function CardExtras(row: ListRow, listLabels: c.Words["listLabels"], lang?: string) {
   return {
     badge: row.badge && (
-      <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" value={row.badge} part="badge" />}>
-        <></>
-      </kit.KitContent>
+      <kit.KitTrail
+        kind="badge"
+        inline
+        value={row.badge}
+        part="badge"
+        tone={row.tone === "neutral" ? "text" : row.tone}
+      />
     ),
     unread: row.unread && (
       <kit.KitText role="caption" tone="accent" part="unread">
@@ -366,6 +456,21 @@ function CardExtras(row: ListRow, listLabels: c.Words["listLabels"], lang?: stri
         addressed={false}
       />
     ),
+  };
+}
+
+function skeletonRow(row: ListRow, lead: ListProps["lead"]) {
+  const media = (lead === "icon" || lead === "thumb") && (row.photo || !row.icon);
+  return {
+    ...row,
+    photo: media ? (row.photo ?? row.title) : undefined,
+    lead: lead === "none" ? ("none" as const) : ("box" as const),
+    trail: row.trail === "chevron" && !row.goto ? undefined : row.trail,
+    lines: [
+      { text: row.title, role: "body" as const },
+      ...[row.meta, row.fact].flatMap((text) => (text ? [{ text, role: "caption" as const }] : [])),
+      ...(row.badge ? [{ text: row.badge, role: "label" as const }] : []),
+    ],
   };
 }
 
@@ -431,15 +536,18 @@ export function List(input: ListProps) {
     (style === "shelf" &&
       (input.aspect !== "wide" || rows.some((row) => row.badge || row.progress !== undefined)));
   return (
-    <kit.KitCard style={frame} density={density}>
+    <kit.KitCard
+      style={frame}
+      density={density}
+      padded={frame === "inset" && state !== "empty" && rows.some((row) => row.mark === "highlight")}
+    >
       {state === "loading" ? (
         structured ? (
           <ListRows {...input} rows={rows} pending />
         ) : (
           <kit.KitSkeleton
             rows={rows.length}
-            items={rows}
-            lead={rows[0]?.photo ? "box" : "dot"}
+            items={rows.map((row) => skeletonRow(row, input.lead))}
             {...{ density }}
           />
         )

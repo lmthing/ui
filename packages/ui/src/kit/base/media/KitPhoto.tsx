@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { YStack, styled } from "tamagui";
+import { YStack, isWeb, styled } from "tamagui";
 import { component, radius, size, variants, type AxisValue, type ContentBleed } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
@@ -37,6 +37,8 @@ type PhotoProps = {
   part?: string | null;
   label?: string;
   initials?: string | undefined;
+  /** When the adjacent title already names the item, the image or its monogram is decorative. */
+  decorative?: boolean;
   ring?: "none" | "accent" | "muted";
   loading?: boolean;
 };
@@ -45,18 +47,27 @@ function PhotoInitials({
   value,
   avatar,
   decorative,
+  hasPhoto,
 }: {
   value: string;
   avatar: boolean;
   decorative: boolean;
+  hasPhoto: boolean;
 }) {
+  const painted = decorative && isWeb;
   const text = (
     <KitText role={avatar ? "heading" : "label"} tone="text" align="center" part={null} lines={1}>
-      {value}
+      {painted ? <span data-kit-photo-initial={value} /> : value}
     </KitText>
   );
-  return decorative ? (
+  return decorative || hasPhoto ? (
     <YStack aria-hidden accessibilityElementsHidden>
+      {/* React hoists the shared rule out of the row. The glyph isn't a DOM text node. */}
+      {painted && (
+        <style href="kit-photo-initial" precedence="default">
+          {"[data-kit-photo-initial]::before { content: attr(data-kit-photo-initial); }"}
+        </style>
+      )}
       {text}
     </YStack>
   ) : (
@@ -70,7 +81,7 @@ function PhotoInitials({
  */
 export function KitPhoto(props: PhotoProps) {
   const { photo, shape: fallbackShape = "thumb", aspect = "auto", part = "icon" } = props;
-  const { label, initials, ring = "none", loading = false } = props;
+  const { label, initials, ring = "none", loading = false, decorative = false } = props;
   const inheritedBleed = useContext(EdgeMediaContext);
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
   const { layer } = usePhotoLayer(loading ? undefined : photo);
@@ -94,10 +105,14 @@ export function KitPhoto(props: PhotoProps) {
       shape={shape}
       {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: corners })}
-      aria-hidden={loading || undefined}
-      accessibilityRole={loading ? undefined : "image"}
+      aria-hidden={loading || decorative || undefined}
+      accessibilityElementsHidden={decorative || undefined}
+      importantForAccessibility={decorative && !isWeb ? "no-hide-descendants" : undefined}
+      accessibilityRole={loading || decorative ? undefined : "image"}
       accessibilityLabel={
-        loading ? undefined : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
+        loading || decorative
+          ? undefined
+          : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
       }
       {...(ring !== "none"
         ? {
@@ -108,8 +123,13 @@ export function KitPhoto(props: PhotoProps) {
       alignItems="center"
       justifyContent="center"
     >
-      {!loading && !layer && initials && (!photo || circle) && (
-        <PhotoInitials value={initials} avatar={shape === "avatar"} decorative={Boolean(photo)} />
+      {!loading && !layer && initials && (!photo || circle || decorative) && (
+        <PhotoInitials
+          value={initials}
+          avatar={shape === "avatar"}
+          decorative={decorative}
+          hasPhoto={Boolean(photo)}
+        />
       )}
       {layer && <PhotoLayer {...layer} />}
     </Frame>

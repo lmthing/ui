@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { renderInstance } from "../../test/render";
+import { renderInstance, styleAt } from "../../test/render";
 // prettier-ignore
 import { components, createRegistry, planAct, readComponent, secretRevealKey, secretRevealMatches, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
@@ -170,6 +170,28 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
 describe("KeyValue rendering", () => {
+  it.each(["rows", "grid"] as const)(
+    "emphasises only the status value in %s without changing addresses",
+    (arrange) => {
+      const pairs = [
+        { label: "Order", value: "LC-104" },
+        { label: "Status", value: "Ready for pickup", status: true },
+      ];
+      const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+      expect(props.safeParse({ pairs: [...pairs, pairs[1]] }).success).toBe(false);
+      expect(props.safeParse({ pairs, masked: true }).success).toBe(false);
+      const plain = renderInstance(
+        "KeyValue",
+        { pairs: [pairs[0], { ...pairs[1], status: false }], arrange },
+        "filled",
+        theme,
+      );
+      const html = renderInstance("KeyValue", { pairs, arrange }, "filled", theme);
+      expect(html.indexOf("LC-104")).toBeLessThan(html.indexOf("Ready for pickup"));
+      expect(styleAt(html, "home/c1/r2/value")).not.toBe(styleAt(plain, "home/c1/r2/value"));
+      expect(styleAt(html, "home/c1/r1/value")).toBe(styleAt(plain, "home/c1/r1/value"));
+    },
+  );
   it("hides only the declared icon parts and keeps pair addresses", () => {
     const html = renderPairs("grid", 3, false, true);
     expect(meta.variantParts["lead.none"]).toEqual({ hides: ["icon"] });

@@ -9,6 +9,8 @@ type GridProps = {
   columns?: 2 | 3;
   /** Let the final column fit a short label, leaving the remaining width to the main content. */
   fitLast?: boolean;
+  /** A fixed label rail with the following column taking the available space. */
+  keyColumn?: boolean;
   /** Zero-based column-grid cell indices, within each group if grouped. */
   opposing?: readonly number[];
   density?: ThemeDensity | undefined;
@@ -87,7 +89,19 @@ export function KitGrid(props: GridProps) {
         {children}
       </KitStrip>
     );
-  return <ColumnGrid {...{ cells, columns, fitLast, spacing, listRole, opposing: props.opposing }} />;
+  return (
+    <ColumnGrid
+      {...{
+        cells,
+        columns,
+        fitLast,
+        spacing,
+        listRole,
+        opposing: props.opposing,
+        keyColumn: props.keyColumn,
+      }}
+    />
+  );
 }
 
 function ColumnGrid({
@@ -97,6 +111,7 @@ function ColumnGrid({
   spacing,
   listRole,
   opposing,
+  keyColumn,
 }: {
   cells: ReactNode[];
   columns: 2 | 3;
@@ -104,6 +119,7 @@ function ColumnGrid({
   spacing: ReturnType<typeof useVariantDensity>;
   listRole: "list" | undefined;
   opposing: GridProps["opposing"];
+  keyColumn: GridProps["keyColumn"];
 }) {
   const rows = Array.from({ length: Math.ceil(cells.length / columns) }, (_, row) =>
     cells.slice(row * columns, row * columns + columns),
@@ -115,7 +131,7 @@ function ColumnGrid({
           key={index}
           {...(listRole ? { role: "presentation" as const } : {})}
           alignItems={fitLast ? "center" : "flex-start"}
-          gap={space[spacing.columnGap]}
+          gap={space[keyColumn ? "sm" : spacing.columnGap]}
         >
           {Array.from({ length: columns }, (_, column) => (
             <YStack
@@ -125,9 +141,11 @@ function ColumnGrid({
               {...(row[column] !== undefined && opposing?.includes(index * columns + column)
                 ? { rotate: "180deg" }
                 : {})}
-              {...(fitLast && column === columns - 1
-                ? { flexShrink: component.base.none }
-                : { flex: component.base.bodyFlex, flexBasis: component.base.none })}
+              {...(keyColumn && column === 0
+                ? { width: component.base.keyColumnWidth }
+                : fitLast && column === columns - 1
+                  ? { flexShrink: component.base.none }
+                  : { flex: component.base.bodyFlex, flexBasis: component.base.none })}
               minWidth={component.base.none}
             >
               {row[column] ?? null}

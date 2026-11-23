@@ -2,8 +2,14 @@ Layout: dashboard/rings. Job: How things are going.
 Layout rule: Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.
 
 Layout: dashboard/charts. Job: How things are going.
-Layout rule: Bars columns have labels of at most four characters, even when the source name is longer. Abbreviate every category consistently; keep full names in the following List. Compare one meaningful measured unit.
-Layout rule: The List explains the abbreviated bars. Show each full name and its supplied detail. Leave detail and row mark null unless explicitly requested; a larger or smaller bar does not request a highlight.
+Layout rule: Make the chart the focus. Compare a single supplied measure with a specific title and unit. Every column label must be at most four characters: for Basil, Fern and Monstera use Basi, Fern and Mons.
+Layout rule: Use Stats only for quantities supported by the cast, such as the count of records. A recurring interval does not say how many are due, overdue or complete. Do not assert those counts in Stats or the header without actual activity or due dates.
+Layout rule: The List explains the abbreviated bars. Use the same order, with full names and their supplied distinguishing facts. Only offer actions with a specific destination. Leave detail and row mark null unless explicitly requested; a larger or smaller bar does not request a highlight.
+
+Layout: profile/person. Job: Me or the person this screen is about.
+Layout rule: Choose one supplied record as the subject when none is named. Name that record in Header.title and Profile.name, not the entire collection. Use Profile to show the subject's supplied context, such as its room. Add one relevant Header.action only if it has a specific destination.
+Layout rule: Include the required Stats component, but never invent tiles. Extract a measurement explicitly stated for the subject whenever possible: for Fern's 'Water every seven days', use label 'Watering interval', value '7', unit 'days'. Use an empty tiles array only when no measurement is available.
+Layout rule: Use the List for other records in the collection or additional details. Exclude the featured record, keep each related record's supplied facts and link to its own destination if available. Leave overflow, detail and mark null.
 
 Layout: browse/shelves. Job: Explore shelves of things to open.
 Layout rule: Name the collection in Header.title. Show Header.sub (40 characters max), e.g. "Open a plant or view its care plan"; keep Header axes null. Keep a separate Add action opening the new-record screen. Search finds records by name. In Chips, select All initially and filter by real categories.

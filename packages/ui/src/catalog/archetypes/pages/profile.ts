@@ -14,7 +14,9 @@ export const meta = createMeta(
       "Use Stats for two independently grounded quantities. With plant records and rooms, show Plants and the count of distinct Rooms, not a guessed care status. Carry the supplied room and care interval into both the featured Profile and the other List rows (e.g. Bathroom · Water every seven days, within 36 characters for a List row). Link each List row to its own details, never duplicate the featured row, and keep unrequested axes null.",
     ],
     person: [
-      "Choose one supplied record as the subject when no subject is named. Header and Profile identify that same subject, not the entire collection. Use Stats for supported measurements, not guesses. Treat the selected record as the subject: feature its specific supplied facts in Profile and give one clear, relevant next action in Header.action only if it has a real destination. Use the List for related records or supporting details not already in Profile; label links by destination and do not link to a duplicate of this screen. Leave overflow, detail and mark null.",
+      "Choose one supplied record as the subject when none is named. Name that record in Header.title and Profile.name, not the entire collection. Use Profile to show the subject's supplied context, such as its room. Add one relevant Header.action only if it has a specific destination.",
+      "Include the required Stats component, but never invent tiles. Extract a measurement explicitly stated for the subject whenever possible: for Fern's 'Water every seven days', use label 'Watering interval', value '7', unit 'days'. Use an empty tiles array only when no measurement is available.",
+      "Use the List for other records in the collection or additional details. Exclude the featured record, keep each related record's supplied facts and link to its own destination if available. Leave overflow, detail and mark null.",
     ],
   },
 ) satisfies ArchetypeMeta;

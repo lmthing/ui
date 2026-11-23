@@ -4,6 +4,7 @@ import {
   components,
   createRegistry,
   migrateLine,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -41,7 +42,8 @@ describe("List schema", () => {
     { rows: [{ title: "Fern", photo: `lib:${"a".repeat(65)}` }] },
     { style: "masonry", rows: [{ title: "Fern" }] },
     { rows: [{ title: "Fern", progress: 0.5 }] },
-    { rows: [{ title: "Fern", badge: "New" }] },
+    { rows: [{ title: "Fern", badge: "a".repeat(25) }] },
+    { rows: [{ title: "Fern", fact: "a".repeat(37) }] },
     { color: "red", rows: [{ title: "Fern" }] },
     { rows: [{ title: "Fern", pixels: 4 }] },
     { rows: [{ title: "Fern", root: "fern" }] },
@@ -65,6 +67,42 @@ describe("List schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expect(props.safeParse({ rows: [{ title: "Fern", id: "r1" }] }).success).toBe(false);
   });
+});
+
+it.each(["rows", "grid"] as const)("keeps record identity, facts and route separate in %s", (arrange) => {
+  const rows = [
+    {
+      title: "Illustrated field guide",
+      meta: "Second edition",
+      fact: "Upper shelf",
+      badge: "Due Friday",
+      goto: "guide",
+      photo: "lib:guide",
+    },
+    { title: "Garden history", badge: "In conservation" },
+    { title: "Local catalogue", icon: "clock", trail: "chevron" },
+  ];
+  const input = { rows, arrange };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderInstance("List", input, "filled", theme);
+  const elements = addressedElements(html);
+  for (const part of ["title", "meta", "fact", "badge", "icon", "trail"])
+    expect(elements.has(`home/c1/r1/${part}`)).toBe(true);
+  for (const part of ["r2/icon", "r2/badge", "r3/icon"]) expect(elements.has(`home/c1/${part}`)).toBe(true);
+  for (const part of ["r2/trail", "r3/trail"]) expect(elements.has(`home/c1/${part}`)).toBe(false);
+  expect(html.match(/role="link"/g)).toHaveLength(1);
+  expect(elements.get("home/c1/r2/icon")?.attributes).toContain('aria-hidden="true"');
+  expect(html).toContain('<span data-kit-photo-initial="G"></span>');
+  expect(readComponent(components.List, input, "c1").join()).toContain('"Second edition" · "Upper shelf"');
+  const brief = addressedElements(renderInstance("List", { ...input, detail: "brief" }, "filled", theme));
+  expect(brief.has("home/c1/r1/fact")).toBe(false);
+  expect(brief.has("home/c1/r1/badge")).toBe(true);
+  for (const state of ["loading", "empty"] as const) {
+    const transitional = renderInstance("List", input, state, theme);
+    expect(addressedElements(transitional).has("home/c1/r1/badge")).toBe(false);
+    expect(transitional.includes('role="link"')).toBe(false);
+    expect(transitional).toContain(state === "loading" ? 'aria-busy="true"' : "Nothing here yet");
+  }
 });
 
 it("allows both shelf progress endpoints, and preserves grid link addresses", () => {

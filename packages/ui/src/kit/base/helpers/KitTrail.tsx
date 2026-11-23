@@ -59,6 +59,8 @@ type TrailProps = {
   disabled?: boolean;
   tone?: TextTone | undefined;
   density?: ThemeDensity | undefined;
+  /** A badge in the text column, not a reserved trailing control slot. */
+  inline?: boolean;
 };
 
 function ToggleTrail({
@@ -93,7 +95,8 @@ function ValueTrail({
   tone,
   loading,
   density,
-}: Pick<TrailProps, "kind" | "value" | "tone" | "density"> & { loading: boolean }) {
+  inline,
+}: Pick<TrailProps, "kind" | "value" | "tone" | "density" | "inline"> & { loading: boolean }) {
   const text = (
     <YStack
       {...(loading
@@ -107,6 +110,7 @@ function ValueTrail({
         tone={tone ?? (kind === "badge" ? "accent" : "text")}
         density={density}
         part={null}
+        {...(inline && { breakLongWords: true })}
       >
         {value ?? ""}
       </KitText>
@@ -180,6 +184,12 @@ export function KitTrail(props: TrailProps) {
     );
   }
   if (kind === "value" || kind === "badge") {
+    if (kind === "badge" && props.inline)
+      return (
+        <YStack {...address} alignSelf="flex-start" maxWidth="100%" aria-hidden={loading || undefined}>
+          <ValueTrail {...{ kind, value, tone, loading, density }} inline />
+        </YStack>
+      );
     return (
       <Frame {...address} aria-hidden={loading || undefined} aria-busy={loading || undefined}>
         <ValueTrail {...{ kind, value, tone, loading, density }} />

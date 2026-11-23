@@ -34,7 +34,7 @@ function repairProps(
   ctx: RepairContext,
   codes: Set<LineCode>,
 ) {
-  const variants = repairVariants(def, props);
+  const variants = repairVariants(def, dropInvalidItems(def, props, codes));
   variants.codes.forEach((entry) => codes.add(entry));
   const shape = z.toJSONSchema(def.props, {
     io: "input",
@@ -45,6 +45,43 @@ function repairProps(
     codes,
     photoTags: ctx.photoTags,
   });
+}
+
+/** Some collections must omit invalid entries rather than infer or repair their contents. */
+function omitOptionalNulls(schema: z.ZodType, item: unknown): unknown {
+  if (!(schema instanceof z.ZodObject) || !isValues(item)) return item;
+  return Object.fromEntries(
+    Object.entries(item).filter(([key, value]) => {
+      const field: unknown = Object.hasOwn(schema.shape, key) ? schema.shape[key] : undefined;
+      return !(value === null && field instanceof z.ZodOptional && !z.safeParse(field, null).success);
+    }),
+  );
+}
+
+function dropInvalidItems(def: Definition, props: Record<string, unknown>, codes: Set<LineCode>) {
+  const schema = def.props;
+  if (!(schema instanceof z.ZodObject)) return props;
+  const input = { ...props };
+  for (const [key, field] of Object.entries(schema.shape)) {
+    const items = input[key];
+    if (
+      !(field instanceof z.ZodArray) ||
+      field.meta()?.repair !== "drop_invalid_items" ||
+      !Array.isArray(items)
+    )
+      continue;
+    const valid = items.flatMap((item) => {
+      const element = field.element;
+      const parsed = z.safeParse(
+        element,
+        element instanceof z.ZodType ? omitOptionalNulls(element, item) : item,
+      );
+      return parsed.success ? [parsed.data] : [];
+    });
+    if (valid.length !== items.length) codes.add(code.array);
+    input[key] = valid;
+  }
+  return input;
 }
 
 /** Validate an exact scoped id (or a saved-input migration), then repair and revalidate its wire props. */

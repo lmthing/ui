@@ -67,10 +67,11 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
 });
 
 it("snapshots the layout guidance for grounded content and clear actions", async () => {
-  const { browse, calendar, dashboard, detail, journal, onboarding, tracker } = archetypes;
+  const { browse, calendar, dashboard, detail, journal, onboarding, profile, tracker } = archetypes;
   const prompts = [
     composePrompt(dashboard.meta, "rings", cast, components),
     composePrompt(dashboard.meta, "charts", cast, components),
+    composePrompt(profile.meta, "person", cast, components),
     composePrompt(browse.meta, "shelves", cast, components),
     composePrompt(tracker.meta, "timer", cast, components),
     composePrompt(detail.meta, "facts", cast, components),

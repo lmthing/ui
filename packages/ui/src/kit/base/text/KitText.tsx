@@ -60,6 +60,8 @@ type TextProps = {
   numberScale?: "display" | "compact";
   /** Struck through: an old price. */
   strike?: boolean;
+  /** Keep an unbroken name or code inside its available width. */
+  breakLongWords?: boolean;
   goto?: string | undefined;
   item?: string | undefined;
   emphasis?: TextFinish["emphasis"] | "strong" | "emphasis";
@@ -164,10 +166,17 @@ function useFigureTypography({ role, align, tabular }: TextProps) {
   return { align: align ?? (figure ? "end" : "start"), tabular: tabular ?? figure } as const;
 }
 
-const wrapProse = ({ role = "body", lines, children }: TextProps) =>
-  isWeb && role === "body" && !lines && typeof children === "string"
-    ? { style: { textWrap: "pretty" } as never }
-    : {};
+function wrapProse({ role = "body", lines, children, breakLongWords }: TextProps) {
+  if (!isWeb || lines || typeof children !== "string") return {};
+  const pretty = role === "body";
+  if (!pretty && !breakLongWords) return {};
+  return {
+    style: {
+      ...(pretty && { textWrap: "pretty" }),
+      ...(breakLongWords && { overflowWrap: "anywhere" }),
+    } as never,
+  };
+}
 
 function TextRun(props: TextProps) {
   const { children, role = "body", tone = "text", part = "root", lines } = props;

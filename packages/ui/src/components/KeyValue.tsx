@@ -57,6 +57,7 @@ const pairProps = z.strictObject({
   label: text(20),
   value: text(28),
   icon: icon.optional(),
+  status: z.boolean().optional(),
   ...itemVariantProps(meta.items.variants),
 });
 export const props = z
@@ -64,6 +65,10 @@ export const props = z
     ...variantProps(meta.variants),
     masked: z.boolean().optional(),
     pairs: z.array(pairProps).min(1).max(6),
+  })
+  .refine(({ pairs, masked }) => pairs.filter((pair) => pair.status).length <= (masked ? 0 : 1), {
+    path: ["pairs"],
+    message: "Mark at most one unmasked pair as the primary status",
   })
   .overwrite((value) =>
     value.lead === "none"
@@ -121,6 +126,13 @@ export const examples = [
   { pairs: [facts[0], facts[1], { ...facts[2], mark: "highlight" }, facts[3]] },
   { pairs: [facts[0], facts[1], facts[2], { ...facts[3], mark: "muted" }] },
   { masked: true, pairs: [{ label: "Walk entry code", value: "DEMO-042" }] },
+  {
+    pairs: [
+      { label: "Order status", value: "Ready for pickup", tone: "good", status: true },
+      { label: "Order no.", value: "LC-104" },
+      { label: "Pickup", value: "Friday, 3–5 pm" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("KeyValue");
@@ -137,6 +149,10 @@ export const probes = [
   {
     ...write("Hide the dog walk's entry code until revealed. Use the fake code DEMO-042."),
     expectProps: { masked: true },
+  },
+  {
+    ...write("Show Order status: Ready for pickup as the primary status, then Order number: LC-104."),
+    fields: { "pairs.0.label": "Order status", "pairs.0.status": true },
   },
   read("Show the hidden walk entry code", { address: "k1/r1/reveal", action: "toggle" }, 11),
 ] satisfies Probe[];
@@ -205,12 +221,14 @@ function PairRow({
     <kit.KitRow
       {...(loading ? { part: null } : { item: pair.id })}
       label={pair.label}
-      {...(!loading && { tone: pair.tone, mark: pair.mark })}
+      {...(pair.status
+        ? { surface: "tinted", tone: pair.tone }
+        : !loading && { tone: pair.tone, mark: pair.mark })}
       inline={!horizontal}
       density={density}
       leading={lead}
     >
-      <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} density={density}>
+      <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} keyColumn density={density}>
         {loading ? (
           <kit.KitSkeleton
             shape="figure"
@@ -225,15 +243,31 @@ function PairRow({
         )}
         {masked ? (
           <MaskedValue pair={pair} loading={loading} density={density} />
-        ) : loading ? (
-          <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
         ) : (
-          <kit.KitText role={role} part="value" density="comfortable">
-            {pair.value}
-          </kit.KitText>
+          <PairValue {...{ pair, role, loading }} />
         )}
       </kit.KitGrid>
     </kit.KitRow>
+  );
+}
+
+function PairValue({
+  pair,
+  role,
+  loading,
+}: {
+  pair: Pair;
+  role: ReturnType<typeof valueRole>;
+  loading: boolean;
+}) {
+  if (loading)
+    return (
+      <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+    );
+  return (
+    <kit.KitText role={role} part="value" density="comfortable" {...(pair.status && { emphasis: "strong" })}>
+      {pair.value}
+    </kit.KitText>
   );
 }
 
@@ -244,7 +278,7 @@ export function KeyValue({ arrange, pairs, masked = false }: Props<typeof props,
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
   return (
-    <kit.KitCard surface={surface} density={density} part="root" padded={grid && state !== "empty"}>
+    <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"}>
       {state === "empty" ? (
         <kit.KitEmpty part="label" />
       ) : (

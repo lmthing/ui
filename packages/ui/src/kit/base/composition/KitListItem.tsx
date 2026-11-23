@@ -13,6 +13,8 @@ export type ListItemRow = {
   id: string;
   title: string;
   meta?: string | undefined;
+  fact?: string | undefined;
+  badge?: string | undefined;
   icon?: IconName | undefined;
   photo?: string | undefined;
   trail?: TrailKind | undefined;
@@ -33,21 +35,48 @@ type ItemProps = {
   tone?: AxisValue<"tone"> | undefined;
   mark?: AxisValue<"mark"> | undefined;
   surface?: SurfaceFinish | undefined;
+  record?: boolean;
 };
 function titleTone({ row, tone, mark }: ItemProps): TextTone {
   if (row.me || mark === "new") return "accent";
   if (mark === "muted") return "muted";
-  return tone && tone !== "neutral" ? tone : "text";
+  return !row.badge && tone && tone !== "neutral" ? tone : "text";
 }
 
 function ItemText(props: ItemProps) {
-  const { row, density, detail } = props;
+  const { row, density, detail, record, tone } = props;
   return (
     <>
-      <KitLayoutText line={{ text: row.title, tone: titleTone(props), part: "title" }} density={density} />
-      {row.meta && detail !== "brief" && (
-        <KitLayoutText
-          line={{ text: row.meta, role: "caption", part: "meta", tone: "muted" }}
+      <KitLayoutText
+        line={{
+          text: row.title,
+          tone: titleTone(props),
+          part: "title",
+          ...(record && { breakLongWords: true }),
+        }}
+        density={density}
+      />
+      {detail !== "brief" &&
+        (["meta", "fact"] as const).map((part) => (
+          <KitLayoutText
+            key={part}
+            line={{
+              text: row[part],
+              role: "caption",
+              part,
+              tone: "muted",
+              ...(record && { breakLongWords: true }),
+            }}
+            density={density}
+          />
+        ))}
+      {row.badge && (
+        <KitTrail
+          kind="badge"
+          inline
+          value={row.badge}
+          part="badge"
+          tone={tone === "neutral" ? "text" : tone}
           density={density}
         />
       )}
@@ -82,7 +111,7 @@ function ShelfItem(props: ItemProps) {
     </KitRow>
   );
 }
-function itemLead({ row, style, index, lead, density }: ItemProps) {
+function itemLead({ row, style, index, lead, density, record }: ItemProps) {
   if (lead === "none") return null;
   if (lead === "number") return <KitRank place={index + 1} part="rank" density={density} />;
   if (lead === "check")
@@ -90,6 +119,7 @@ function itemLead({ row, style, index, lead, density }: ItemProps) {
       <KitCheck done={row.done} readonly label={row.title} part="icon" />
     );
   if (lead === "icon") return row.icon ? <KitIcon name={row.icon} part="icon" /> : null;
+  if (record && lead === "thumb" && row.icon && !row.photo) return <KitIcon name={row.icon} part="icon" />;
   if (lead === "thumb" || lead === "avatar") {
     return (
       row.photo && <KitPhoto photo={row.photo} shape={lead === "avatar" ? "round" : "thumb"} part="icon" />
@@ -99,6 +129,12 @@ function itemLead({ row, style, index, lead, density }: ItemProps) {
   if (row.photo) return <KitPhoto photo={row.photo} part="icon" />;
   return <KitIcon name={row.icon} part="icon" />;
 }
+
+/** A compact record thumbnail or an identity monogram when the host has no image. */
+export function KitRecordLead({ title, photo }: Pick<ListItemRow, "title" | "photo">) {
+  const initial = title.match(/[\p{L}\p{N}]/u)?.[0] ?? Array.from(title)[0];
+  return <KitPhoto photo={photo} initials={initial?.toUpperCase()} part="icon" decorative />;
+}
 function itemTrail({ row, style, trail, density }: ItemProps) {
   if (trail === undefined && (style === "expand" || style === "shelf")) return null;
   const kind =
@@ -107,17 +143,20 @@ function itemTrail({ row, style, trail, density }: ItemProps) {
         ? "value"
         : "none"
       : (row.trail ?? trail ?? "none");
-  return kind === "none" ? null : <KitTrail kind={kind} value={row.value} part="trail" density={density} />;
+  if (kind === "none" || (kind === "chevron" && (style === "expand" || !row.goto))) return null;
+  return <KitTrail kind={kind} value={row.value} part="trail" density={density} />;
 }
 
 /** A shelf, expandable or ranked row, retaining the same addresses and live controls. */
 export function KitListItem(props: ItemProps) {
-  const { row, style, density, lead, mark, surface } = props;
+  const { row, style, density, lead, mark, surface, record } = props;
   const kit = useKit();
   const context = usePartContext();
   const open = useControlValue(`${context.screen}/${context.component}/${row.id}`, !kit.controller);
   if (style === "shelf") return <ShelfItem {...props} />;
   const expand = style === "expand";
+  const recordRail = record && (lead === "icon" || lead === "thumb");
+  const recordLead = recordRail && (row.photo || !row.icon);
   const photoLead = row.photo && (lead === undefined || lead === "thumb" || lead === "avatar");
   // Legacy `none` trails reserved an empty first-line slot. An explicitly adopted trail does not.
   const trailing =
@@ -128,12 +167,13 @@ export function KitListItem(props: ItemProps) {
     );
   return (
     <KitRow
-      leadingAlign={photoLead ? "row" : "line"}
+      leadingAlign={recordLead || photoLead ? "row" : "line"}
+      leadingWidth={recordRail ? "avatar" : undefined}
       item={row.id}
       label={row.title}
       goto={expand ? undefined : row.goto}
       {...(expand ? { role: "button" as const, expanded: open } : {})}
-      leading={itemLead(props)}
+      leading={recordLead ? <KitRecordLead title={row.title} photo={row.photo} /> : itemLead(props)}
       trailing={trailing}
       {...{ density, mark, surface }}
     >
