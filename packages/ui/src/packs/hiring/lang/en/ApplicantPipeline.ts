@@ -1,6 +1,7 @@
 export const words = {
   pipeline: {
     move: "Move to",
+    moveButton: (stage: string) => `To ${stage}`,
     destination: (stage: string, name: string) => `Move ${name} to ${stage}`,
     outcomes: (counts: readonly string[]) => counts.join(" · "),
     count: (label: string, count: string) => `${label}: ${count}`,

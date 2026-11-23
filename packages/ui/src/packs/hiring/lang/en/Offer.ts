@@ -15,6 +15,8 @@ export const words = {
     closed: (date: string) => `Deadline passed ${date}`,
     conditions: "Conditions",
     condition: (line: string) => `• ${line}`,
+    recipientActions: "For the candidate",
+    employerActions: "For the employer",
     actions: {
       edit: "Edit terms",
       send: "Send offer",

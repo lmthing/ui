@@ -39,6 +39,7 @@ describe("Offer copy", () => {
       "Deadline passed 1 May 2027",
       "Conditions",
       "• Subject to two references",
+      "For the employer",
       "Withdraw offer",
     ]);
   });

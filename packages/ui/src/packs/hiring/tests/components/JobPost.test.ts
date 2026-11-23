@@ -193,7 +193,7 @@ describe("JobPost actions", () => {
       current.dispose();
     }
   });
-  it("offers Apply through the closing day, then only saves or publishes", () => {
+  it("offers Apply and Publish through the closing day, then only saves", () => {
     vi.useFakeTimers();
     const onLink = vi.fn(),
       onAction = vi.fn();
@@ -204,16 +204,21 @@ describe("JobPost actions", () => {
       expect(current.read()).toContain("[j1/apply press→apply]");
       expect(current.press("j1/apply").ok).toBe(true);
       expect(onLink).toHaveBeenCalledExactlyOnceWith("apply", "home/j1/apply");
+      expect(parts().has("home/j1/publish")).toBe(true);
+      expect(current.read()).toContain("[j1/publish press !needs-service]");
+      expect(current.press("j1/publish").ok).toBe(true);
+      expect(onAction).toHaveBeenLastCalledWith({ address: "home/j1/publish", action: "press" });
       vi.setSystemTime(new Date(2027, 4, 1));
       expect(parts().has("home/j1/apply")).toBe(false);
       expect(current.read()).toContain("Applications closed");
       expect(current.read()).not.toContain("[j1/apply ");
       expect(current.press("j1/apply").ok).toBe(false);
       expect(current.press("j1/save").ok).toBe(true);
-      expect(current.read()).toContain("[j1/publish press !needs-service]");
-      expect(current.press("j1/publish").ok).toBe(true);
+      expect(parts().has("home/j1/publish")).toBe(false);
+      expect(current.read()).not.toContain("[j1/publish ");
+      expect(current.press("j1/publish").ok).toBe(false);
       expect(onLink).toHaveBeenCalledTimes(1);
-      expect(onAction).toHaveBeenLastCalledWith({ address: "home/j1/publish", action: "press" });
+      expect(onAction.mock.calls.filter(([step]) => step.address === "home/j1/publish")).toHaveLength(1);
     } finally {
       current.dispose();
       vi.useRealTimers();
