@@ -42,9 +42,10 @@ export function projectClocks(
   now: number,
   mode: "all" | "playback" | "legacy" | "record" | "timestamp" = "all",
   data?: DeviceData,
+  ids?: readonly (string | undefined)[],
 ): Values {
   let playbackCompletion: StateName | undefined;
-  for (const clock of clockTargets(meta, props)) {
+  for (const clock of clockTargets(meta, props, ids)) {
     const playback = isPlaybackClock(clock.spec);
     const family = clock.spec.timestamp
       ? "timestamp"

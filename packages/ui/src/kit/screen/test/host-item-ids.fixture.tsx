@@ -5,7 +5,7 @@ import { z } from "zod";
 import { components, themeName, type Definition, type Issue, type ThemeChoice } from "@lmthing/ui/catalog";
 import { KitRow, renderers as kitRenderers, useLiveControls } from "@lmthing/ui/kit";
 import { config } from "../../../../../../apps/gallery";
-import { PhoneScreen } from "../PhoneScreen";
+import { PhoneScreen } from "..";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const named = {

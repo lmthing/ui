@@ -1,5 +1,6 @@
 import type { Definition } from "../../probes";
 import type { Meta } from "../../meta";
+import { hostItemInput } from "../../lines";
 import type { Values } from "../act";
 import { projectControlInput } from "../live-props";
 
@@ -74,7 +75,7 @@ export function applyRecordWire(meta: Meta, input: Values, get: (part: string) =
 export function validRecordWire(def: Definition, wire: Values, patch: Values) {
   return (
     Object.keys(patch).every((key) => Object.hasOwn(def.props.shape, key)) &&
-    def.props.safeParse({ ...wire, ...patch }).success
+    def.props.safeParse(hostItemInput(def, { ...wire, ...patch }).wire).success
   );
 }
 
@@ -88,7 +89,7 @@ export function writeRecordWire(meta: Meta, wire: Values, values: Values, base: 
 export function writeWireEdit(def: Definition, wire: Values, values: Values, slot: string, edit: Edit) {
   if (!validPath(wire, edit.path)) return false;
   const next = replace(wire, edit.path, edit.value) as Values;
-  if (!def.props.safeParse(next).success) return false;
+  if (!def.props.safeParse(hostItemInput(def, next).wire).success) return false;
   values[slot] = { ...(values[slot] as Edits | undefined), [JSON.stringify(edit.path)]: edit };
   return true;
 }

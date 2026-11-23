@@ -74,6 +74,24 @@ const remove = { address: "b1/r1/remove", action: "press" };
 const confirm = { address: "confirm/confirm", action: "press" };
 const cancel = { address: "confirm/cancel", action: "dismiss" };
 
+it("retains host addresses through confirmed record edits and removal", () => {
+  const rows = [
+    { ...seed.rows[0]!, id: "r7" },
+    { ...seed.rows[1]!, id: "r5" },
+  ];
+  const host = { ...screen, components: [{ ...screen.components[0]!, rows }] };
+  const runtime = createScreenController({ screen: host, defs, now });
+  try {
+    expect(runtime.act([{ ...check, address: "b1/r7/accept" }, confirm]).ok).toBe(true);
+    expect(runtime.read()).toContain("[b1/r7/accept check:done]");
+    expect(runtime.act([{ ...remove, address: "b1/r7/remove" }, confirm]).ok).toBe(true);
+    expect(runtime.snapshotScreen().components[0]?.rows).toEqual([rows[1]]);
+    expect(runtime.read()).toContain("[b1/r5/remove press]");
+  } finally {
+    runtime.dispose();
+  }
+});
+
 it("records or clears a local date, revision and shared snapshot in the same store notification", () => {
   const store = createInteractionStore();
   const unrelated = { scope: "b", ref: "x", date: "2026-03-07" };

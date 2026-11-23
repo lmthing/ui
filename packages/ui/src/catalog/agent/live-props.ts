@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
-import { hostWireItemIds, parseItemProps } from "../lines";
+import { hostItemInput, hostWireItemIds, parseItemProps } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
@@ -78,17 +78,13 @@ export function controlValueKey(def: Definition, key: string): string {
     ? `$wire/${key}`
     : key;
 }
-export function projectControlInput(
-  def: Definition,
-  input: Values,
-  get: Get,
-  ids = hostWireItemIds(def, input),
-): Values {
+export function projectControlInput(def: Definition, input: Values, get: Get): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
-  if (meta.select?.choices) source = projectLegacySelection(meta, source, get, ids);
+  if (meta.select?.choices) source = projectLegacySelection(meta, source, get, hostWireItemIds(def, source));
   source = projectNamedSelections(meta, source, get, "wire");
   source = applyRecordWire(meta, source, get);
+  const ids = hostWireItemIds(def, source);
   source = projectMoves(def, source, get, ids);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !hasWireNestedControls(meta))) return source;
@@ -97,7 +93,8 @@ export function projectControlInput(
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(meta, def.props, source), ids);
+  const choiceSeed = nestedChoiceSeed(meta, def.props, hostItemInput(def, source).wire);
+  const nested = projectNested(meta, seeded, get, choiceSeed, ids);
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get, ids);
   const projected = items.set

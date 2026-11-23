@@ -67,6 +67,28 @@ it("revalidates and moves only the addressed host card after reordering", () => 
   }
 });
 
+it("projects clock state only onto the timer that owns the host id", () => {
+  const { KitchenTimers } = components;
+  const timers = [
+    { label: "First", seconds: 40 },
+    { id: "r1", label: "Second", seconds: 60 },
+  ];
+  const controller = createScreenController({
+    defs: { KitchenTimers },
+    screen: { id: "home", components: [{ id: "k1", c: "KitchenTimers", timers }] },
+    now: () => 5000,
+  });
+  try {
+    expect(controller.act({ address: "k1/r1", action: "start" })).toMatchObject({ ok: true });
+    expect(controller.snapshotScreen().components[0]?.timers).toEqual([
+      { ...timers[0], remaining: 40, running: false },
+      { ...timers[1], remaining: 60, running: true },
+    ]);
+  } finally {
+    controller.dispose();
+  }
+});
+
 const records = [{ value: 7 }];
 const previewDeviceData = vi.fn<NonNullable<Definition["meta"]["previewDeviceData"]>>(({ input, state }) => ({
   readings: state === "filled" ? [{ value: input.value }] : [],

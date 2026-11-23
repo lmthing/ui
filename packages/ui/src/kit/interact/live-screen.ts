@@ -91,6 +91,12 @@ function omitDerivedSelection(def: Definition, result: Entry) {
   )
     delete result[part];
 }
+
+function seedDrawDefaults(def: Definition, result: Entry, parsed: Values) {
+  for (const key of Object.keys(def.props.shape))
+    if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
+}
+
 function projectEntry(
   entry: Entry,
   screen: ScreenLike,
@@ -105,27 +111,25 @@ function projectEntry(
   const def = defs[entry.c];
   if (!def) return result;
   const { meta } = def;
-  const { wire } = hostItemInput(def, input);
-  const ids = hostWireItemIds(def, input);
-  const parsed = def.props.parse(wire);
-  if (meta.draw)
-    for (const key of Object.keys(def.props.shape))
-      if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
-  Object.assign(result, projectControlInput(def, input, get, ids));
+  const parsed = def.props.parse(hostItemInput(def, input).wire);
+  if (meta.draw) seedDrawDefaults(def, result, parsed);
+  const projected = projectControlInput(def, input, get);
+  Object.assign(result, projected);
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
+  const ids = hostWireItemIds(def, projected);
   Object.assign(result, projectControls(meta, result, get, "wire", ids));
   omitDerivedSelection(def, result);
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result, ids);
   Object.assign(result, projectAdjustments(meta, result, get, false, ids));
-  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now, "legacy"));
+  if (clocks || meta.draw)
+    Object.assign(result, projectClocks(meta, result, get, now, "legacy", undefined, ids));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
-  // Playback seconds and running state reach views through liveControls, not through wire props.
   if (clocks && hasPlaybackClock(meta)) {
     const state = projectClocks(meta, parseControlProps(def, input, get), get, now, "playback").state;
     if (state !== undefined) result.state = state as NonNullable<Entry["state"]>;
