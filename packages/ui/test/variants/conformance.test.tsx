@@ -21,6 +21,44 @@ type Choice = ReturnType<typeof variantChoices>[number];
 type Pair = ReturnType<typeof variantPairs>[number];
 type Id = keyof typeof renderers;
 
+function listTrailVariant(value: Props, index: number) {
+  const row = (value.rows as Props[])[index]!;
+  const trail = String(row.trail ?? value.trail);
+  return trail === "chevron" && (!row.goto || value.style === "expand") ? "none" : trail;
+}
+
+function checkListTrail(item: string, trail: string, addresses: string[]) {
+  const row = `home/c1/${item}`;
+  if (addresses.includes(`${row}/root`))
+    expect(addresses.includes(`${row}/trail`), `${row}/trail with ${trail}`).toBe(trail !== "none");
+}
+
+function listTrailChange(
+  item: string,
+  index: number,
+  before: { props: Props; addresses: string[] },
+  after: { props: Props; addresses: string[] },
+) {
+  const from = listTrailVariant(before.props, index);
+  const to = listTrailVariant(after.props, index);
+  checkListTrail(item, from, before.addresses);
+  checkListTrail(item, to, after.addresses);
+  return { from, to };
+}
+
+function variantOverflow(
+  choice: Choice,
+  from: unknown,
+  to: unknown,
+  items: string[],
+  before: string[],
+  after: string[],
+) {
+  if (choice.axis !== "overflow") return { hidden: [], issues: [] };
+  if (choice.value === "peek") return peekHiddenItems(items, after, from === "all" ? before : undefined);
+  return { hidden: [], issues: to === "all" ? overflowAllIssues(items, after) : [] };
+}
+
 function checkPair(
   id: Id,
   def: Definition,
@@ -38,31 +76,28 @@ function checkPair(
   const options = { resolvePhoto: (ref: string) => ref };
   const { html: beforeHTML, deviceData } = renderExample(id, baseline, "filled", theme, options);
   // Vary the axis, not the host's data snapshot.
-  const afterHTML = renderInstance(id, input, "filled", theme, {
-    ...options,
-    deviceData,
-  });
+  const afterHTML = renderInstance(id, input, "filled", theme, { ...options, deviceData });
   const before = renderedAddresses(beforeHTML);
   const after = renderedAddresses(afterHTML);
   const derived = !!(deviceData && key && !Array.isArray(baseProps[key]));
   const items = derived ? derivedItemIds(before) : authoredIds;
-  const isPeek = choice.axis === "overflow" && choice.value === "peek";
-  const { hidden, issues } = isPeek
-    ? peekHiddenItems(items, after, baseline.overflow === "all" ? before : undefined)
-    : {
-        hidden: [],
-        issues: choice.axis === "overflow" && input.overflow === "all" ? overflowAllIssues(items, after) : [],
-      };
+  const { hidden, issues } = variantOverflow(choice, baseline.overflow, input.overflow, items, before, after);
   const item = itemIndex === undefined ? undefined : items[itemIndex];
+  const trailChange =
+    id === "List" && choice.axis === "trail" && item && itemIndex !== undefined
+      ? listTrailChange(item, itemIndex, { props: baseProps, addresses: before }, { props, addresses: after })
+      : undefined;
   const inheritedTrail =
-    inheritsTrail && itemIndex !== undefined ? (rows[itemIndex]?.trail ?? baseProps.trail) : undefined;
+    trailChange?.from ??
+    (inheritsTrail && itemIndex !== undefined ? (rows[itemIndex]?.trail ?? baseProps.trail) : undefined);
+  const variant = trailChange ? { ...choice, value: trailChange.to } : choice;
   expect([
     ...issues,
     ...(derived
       ? [...derivedItemIssues(def.meta, baseProps, before), ...derivedItemIssues(def.meta, props, after)]
       : []),
     ...rowAddressIssues(rows, beforeHTML, afterHTML),
-    ...variantPartIssues(def.meta, choice, before, after, {
+    ...variantPartIssues(def.meta, variant, before, after, {
       ...(item ? { item } : {}),
       ...(typeof inheritedTrail === "string" ? { inheritedTrail } : {}),
       items,
