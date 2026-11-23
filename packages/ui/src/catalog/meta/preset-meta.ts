@@ -14,7 +14,19 @@ export type PresetMeta = {
   weight: "regular" | "strong";
   shape: "sharp" | "soft" | "round";
   density: "compact" | "regular" | "airy";
-  surface: "soft" | "solid" | "hairline";
+  surface:
+    | "soft"
+    | "solid"
+    | "hairline"
+    | "flat"
+    | "accentBlock"
+    | "tinted"
+    | "pastel"
+    | "editorial"
+    | "ruled"
+    | "highContrast"
+    | "raised"
+    | "monochrome";
   roles: { light: BaseRoles; dark: BaseRoles };
 };
 export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };

@@ -8,7 +8,7 @@ export const editorial = {
   weight: "regular",
   shape: "sharp",
   density: "airy",
-  surface: "hairline",
+  surface: "editorial",
   roles: {
     light: {
       bg: "#fbf7ef",

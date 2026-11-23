@@ -107,7 +107,7 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
     style === "cards"
       ? "plain"
       : (surface ?? (style === "plain" ? "plain" : look === "surface" ? "card" : look));
-  const gutter = variants.bleed[bleed ?? "inset"];
+  const gutter = variants.bleed[bleed ?? "inset"] && ks.frame.gutter;
   return {
     ...variantSurfaceOf(finish ?? "card", ks.surface, tone ?? "neutral"),
     borderRadius: shifted("md", ks.radiusShift),

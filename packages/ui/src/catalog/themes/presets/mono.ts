@@ -8,7 +8,7 @@ export const mono = {
   weight: "regular",
   shape: "soft",
   density: "regular",
-  surface: "hairline",
+  surface: "monochrome",
   roles: {
     light: {
       bg: "#f4f4f4",

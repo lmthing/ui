@@ -382,9 +382,12 @@ text on background must reach 7:1, muted text and text on accent must reach 4.5:
 tints must retain their existing contrast.
 
 **Shapes.** Presets are plain data: id, mood, font, optional heading font, numbers, weight, shape, density, surface and
-light/dark base roles. Current surfaces are `soft`, `solid`, `hairline`; `weight` is `regular` or
-`strong`. Accents supply `accent`, `accentSoft` and `onAccent`. Generated themes merge those role sets.
-Raw colours belong only in tokens and themes.
+light/dark base roles. The surface treatment selects a shared card recipe and may set the screen gutter, field
+chrome, action shape or shadow, and row rules. `strong` increases weight and uses the display step for normal
+titles. Accents supply `accent`, `accentSoft` and `onAccent`. The no-tint treatments use a neutral raised fill
+instead of a decorative accent tint, while retaining semantic status colours and the chosen solid accent.
+Raw colours belong only in tokens and themes. Night works in either explicit mode, with raised surfaces and an
+accent glow on enabled primary actions.
 
 `KitStyle` is everything a preset changes that is not a colour, derived from the preset by a pure function and handed to `KitProvider`:
 
@@ -394,11 +397,21 @@ export type KitStyle = {
   radiusShift: -1 | 0 | 1; // steps along sm, md, lg, xl (sharp, soft, round)
   fonts: { text: FontName; heading: FontName; number: FontName };
   density: { gap: SpaceToken; rowPad: SpaceToken; cardPad: SpaceToken };
-  surface: "soft" | "solid" | "hairline";
-  strong: boolean; // bold preset increases text weight
+  surface: PresetMeta["surface"];
+  strong: boolean;
+  frame: {
+    gutter: SpaceToken;
+    field: "filled" | "outlined" | "ruled";
+    action: "standard" | "pill" | "glow";
+    rowRule: boolean;
+    neutralTint: boolean;
+  };
 };
 export function kitStyleOf(preset: PresetMeta): KitStyle;
 ```
+
+`pnpm look --theme-reference` draws the same list, dashboard and form at 390px in every preset in light
+and dark mode. It keeps the accent fixed so the contact sheets show what the presets change.
 
 ### 4.4 Components, packs and archetypes
 

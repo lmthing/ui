@@ -9,8 +9,30 @@ export type KitStyle = {
   densityKind: PresetMeta["density"];
   surface: PresetMeta["surface"];
   strong: boolean;
+  frame: {
+    gutter: SpaceToken;
+    field: "filled" | "outlined" | "ruled";
+    action: "standard" | "pill" | "glow";
+    rowRule: boolean;
+    neutralTint: boolean;
+  };
 };
 const shifts = { sharp: -1, soft: 0, round: 1 } as const;
+const frame: KitStyle["frame"] = {
+  gutter: "gutter",
+  field: "filled",
+  action: "standard",
+  rowRule: false,
+  neutralTint: false,
+};
+const treatments: Partial<Record<KitStyle["surface"], Partial<KitStyle["frame"]>>> = {
+  hairline: { field: "outlined", neutralTint: true },
+  tinted: { action: "pill" },
+  editorial: { gutter: "2xl", field: "ruled" },
+  ruled: { field: "ruled", rowRule: true },
+  raised: { action: "glow" },
+  monochrome: { field: "outlined", neutralTint: true },
+};
 
 export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comfortable"): KitStyle {
   return {
@@ -24,5 +46,6 @@ export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comforta
     densityKind: preset.density,
     surface: preset.surface,
     strong: preset.weight === "strong",
+    frame: { ...frame, ...treatments[preset.surface] },
   };
 }

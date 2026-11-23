@@ -5,6 +5,7 @@ import { component, fontFamilies, size, space, type as typography } from "../../
 import { useKit, useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { shifted } from "../text";
+import { fieldFinish } from "./field-finish";
 
 /**
  * A text box that grows with what is written (role textbox, multiline), at least `lines` tall, with its
@@ -30,10 +31,8 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
       minHeight={size.control.md + typography.body.lineHeight * (lines - 1)}
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
-      borderRadius={shifted("md", ks.radiusShift)}
-      backgroundColor="$raised"
-      borderWidth={component.base.borderWidth}
-      borderColor="$line"
+      borderRadius={ks.frame.field === "ruled" ? component.base.none : shifted("md", ks.radiusShift)}
+      {...fieldFinish(ks.frame.field)}
     >
       <TextArea
         {...(address as Record<string, unknown>)}

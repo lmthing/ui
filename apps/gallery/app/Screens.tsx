@@ -10,7 +10,8 @@ import {
   type ComponentName,
   type Definition,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, renderers, useKitStyle } from "@lmthing/ui/kit";
+import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
@@ -23,6 +24,20 @@ function screenCells(id: ComponentName): Cell[] {
   // Keep the folder skeleton beside its filled example for visual review only.
   const folders = cells[components.Documents.examples.findIndex(({ style }) => style === "folders")];
   return folders ? [...cells, { ...folders, state: "loading" }] : cells;
+}
+
+function LookFrame({ screen, width, children }: { screen: string; width: number; children: ReactNode }) {
+  return (
+    <YStack
+      width={width}
+      backgroundColor="$bg"
+      paddingHorizontal={space[useKitStyle().frame.gutter]}
+      paddingVertical={space.lg}
+      data-look-frame={screen}
+    >
+      {children}
+    </YStack>
+  );
 }
 
 function Screen({
@@ -56,13 +71,7 @@ function Screen({
         interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
-        <YStack
-          width={width}
-          backgroundColor="$bg"
-          paddingHorizontal={space.gutter}
-          paddingVertical={space.lg}
-          data-look-frame={screen}
-        >
+        <LookFrame {...{ width, screen }}>
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
             {id === "Signature" && cell.state === "filled" ? (
               <SignaturePreview style={input.style}>{view}</SignaturePreview>
@@ -70,7 +79,7 @@ function Screen({
               view
             )}
           </PartScope>
-        </YStack>
+        </LookFrame>
       </KitProvider>
     </YStack>
   );

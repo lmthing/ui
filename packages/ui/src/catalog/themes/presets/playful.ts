@@ -8,7 +8,7 @@ export const playful = {
   weight: "regular",
   shape: "round",
   density: "regular",
-  surface: "soft",
+  surface: "tinted",
   roles: {
     light: {
       bg: "#fff0dd",

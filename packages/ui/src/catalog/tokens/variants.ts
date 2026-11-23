@@ -11,7 +11,13 @@ export type SurfaceFinish = "plain" | "card" | "tinted" | "outlined";
 type Tone = AxisValue<"tone">;
 type Role = (typeof roles)[number];
 type Border = keyof Pick<typeof component.base, "none" | "borderWidth" | "strongBorder">;
-type CardSurface = { fill: Role; rule: Role | null; border: Border; elevation: keyof typeof elevation };
+type CardSurface = {
+  fill: Role;
+  rule: Role | null;
+  border: Border;
+  elevation: keyof typeof elevation;
+  band?: "accent" | "text";
+};
 
 const identity = {
   display: "display",
@@ -36,6 +42,7 @@ const strong = {
 } as const;
 
 const card = { fill: "surface", rule: null, border: "none", elevation: "flat" } as const;
+const hairline = { ...card, rule: "line", border: "borderWidth" } as const;
 
 /** Preset kinds supply finish tokens without naming presets in the kit. */
 export const variants = {
@@ -69,7 +76,16 @@ export const variants = {
     card: {
       soft: { ...card, elevation: "card" },
       solid: card,
-      hairline: { ...card, rule: "line", border: "borderWidth" },
+      hairline,
+      flat: card,
+      accentBlock: { ...card, band: "accent" },
+      tinted: { ...card, fill: "raised" },
+      pastel: { ...card, elevation: "card" },
+      editorial: { ...hairline, fill: "bg" },
+      ruled: { ...card, fill: "surface" },
+      highContrast: { ...hairline, band: "text" },
+      raised: { ...hairline, fill: "raised", elevation: "sheet" },
+      monochrome: { ...card, rule: "text", border: "borderWidth" },
     } satisfies Record<PresetMeta["surface"], CardSurface>,
     tinted: {
       fill: { neutral: "accentSoft", good: "goodSoft", warn: "warnSoft", bad: "badSoft" },

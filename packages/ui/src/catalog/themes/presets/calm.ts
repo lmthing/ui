@@ -8,11 +8,11 @@ export const calm = {
   weight: "regular",
   shape: "soft",
   density: "airy",
-  surface: "soft",
+  surface: "flat",
   roles: {
     light: {
       bg: "#f4f5f1",
-      surface: "#ffffff",
+      surface: "#fafbf7",
       raised: "#eef1ea",
       line: "#d2d9cc",
       text: "#1b221e",

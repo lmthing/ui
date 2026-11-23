@@ -3,7 +3,7 @@ import { YStack } from "tamagui";
 import { space } from "../../catalog";
 import { RowLabelContext } from "../a11y";
 import { PartContext, usePartContext } from "../part";
-import { useKit } from "../provider";
+import { useKit, useKitStyle } from "../provider";
 
 type Slots = Map<string, { screen: string; owner: string; order: number; node: ReactNode }>;
 type SetSlots = React.Dispatch<React.SetStateAction<Slots>>;
@@ -68,8 +68,9 @@ function PinnedSlot({
   const scope = usePartContext();
   const rowLabel = useContext(RowLabelContext);
   const { insets } = useKit().environment;
-  const left = Math.max(0, insets.left - space.gutter);
-  const right = Math.max(0, insets.right - space.gutter);
+  const gutter = space[useKitStyle().frame.gutter];
+  const left = Math.max(0, insets.left - gutter);
+  const right = Math.max(0, insets.right - gutter);
   // The outlet shares the screen provider; restore the source's component/item scope there.
   useLayoutEffect(() => {
     const node = (

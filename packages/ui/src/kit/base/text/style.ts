@@ -3,6 +3,7 @@ import {
   component,
   elevation,
   radius,
+  space,
   variants,
   type AxisValue,
   type KitStyle,
@@ -32,17 +33,17 @@ export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiu
   const index = Math.max(0, Math.min(steps.length - 1, steps.indexOf(token) + shift));
   return radius[steps[index]!];
 }
-/**
- * How a card sits on the screen, per preset: `soft` (calm) white card with a gentle shadow,
- * `solid` (bold) a crisp card on a contrasting background, `hairline` (editorial) paper with a rule.
- */
+/** How an inset surface sits on the screen, independent of its content. */
 export function surfaceOf(treatment: KitStyle["surface"]) {
-  const { fill, rule, border, elevation: depth } = variants.surface.card[treatment];
+  const tokens = variants.surface.card[treatment];
+  const { fill, rule, border, elevation: depth } = tokens;
+  const band = "band" in tokens ? tokens.band : undefined;
   const shadow = elevation[depth];
   return {
     backgroundColor: `$${fill}`,
     ...(rule ? { borderColor: `$${rule}` as const } : {}),
     borderWidth: component.base[border],
+    ...(band ? { borderTopColor: `$${band}` as const, borderTopWidth: space.sm } : {}),
     ...(depth !== "flat"
       ? {
           shadowColor: "$text",

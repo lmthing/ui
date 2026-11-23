@@ -6,6 +6,7 @@ import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
 import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
+import { fieldFinish } from "./field-finish";
 
 export const inputRadius = (kind: InputProps["kind"], shift: KitStyle["radiusShift"]) =>
   shifted(kind === "search" ? "lg" : "md", shift);
@@ -91,10 +92,8 @@ export function KitInput(props: InputProps) {
         minHeight={size.control.md}
         paddingLeft={start}
         paddingRight={end}
-        borderRadius={inputRadius(kind, ks.radiusShift)}
-        backgroundColor={loading ? "$line" : inactive ? "$surface" : "$raised"}
-        borderWidth={component.base.borderWidth}
-        borderColor="$line"
+        borderRadius={ks.frame.field === "ruled" ? component.base.none : inputRadius(kind, ks.radiusShift)}
+        {...fieldFinish(ks.frame.field, loading, inactive)}
       >
         {lead && (
           <YStack opacity={loading ? component.base.none : undefined}>

@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useState } from "react";
 import { XStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
+  accentGlow,
   component,
   layoutType,
   motion,
@@ -260,10 +261,19 @@ export function KitAction(props: ActionProps) {
         borderColor={kind === "secondary" && inactive ? "$line" : undefined}
         borderWidth={bare ? component.base.none : undefined}
         backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        {...(ks.frame.action === "glow" && kind === "primary" && !inactive && !copied
+          ? {
+              ...accentGlow,
+              shadowColor: "$accent",
+              shadowOffset: { width: component.base.none, height: component.base.none },
+            }
+          : {})}
         loading={loading}
         iconOnly={!label}
         {...(isWeb && copy && !loading ? webCopyButton : {})}
-        borderRadius={label || full ? shifted("md", ks.radiusShift) : radius.pill}
+        borderRadius={
+          ks.frame.action === "pill" || (!label && !full) ? radius.pill : shifted("md", ks.radiusShift)
+        }
         alignSelf={full ? "stretch" : "flex-start"}
         accessibilityRole={loading ? undefined : "button"}
         aria-busy={loading || undefined}

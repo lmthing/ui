@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { accents } from "./accents";
-import { presets } from "./index";
+import { minimal, mono, presets } from "./index";
 import { themeRoles } from "./theme-roles";
 
 function luminance(hex: string) {
@@ -61,6 +61,20 @@ describe("themeRoles control labels", () => {
     expect(resolved.onAccent).not.toBe(darkOnDark.light.onAccent);
     expect(contrast(resolved.onAccent, resolved.accent)).toBeGreaterThanOrEqual(4.5);
   });
+
+  it.each([minimal, mono])(
+    "uses a neutral soft accent fill in $id without losing status colors",
+    (preset) => {
+      for (const accent of accents) {
+        for (const mode of ["light", "dark"] as const) {
+          const roles = themeRoles(preset, accent, mode);
+          expect(roles.accentSoft).toBe(preset.roles[mode].raised);
+          expect(roles.accent).toBe(accent[mode].accent);
+          expect(roles.badSoft).not.toBe(roles.raised);
+        }
+      }
+    },
+  );
 
   it.each(["fresh", "playful", "soft"] as const)("separates dark Moss controls from %s cards", (id) => {
     const preset = presets.find((preset) => preset.id === id)!;
