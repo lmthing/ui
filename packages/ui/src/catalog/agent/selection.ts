@@ -52,7 +52,7 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
       [target]: found.value,
       [named.runtime ? `$selection/${named.prop}` : `$${named.prop}`]: found.value,
     };
-  if (!select) return {};
+  if (!select || ("host" in select && select.host)) return {};
   const values: Values = {};
   rowsOf(meta, props).forEach((row, index) => {
     const id = idOf(meta, row, index);
@@ -84,7 +84,7 @@ export function projectLegacySelection(
   ids?: readonly (string | undefined)[],
 ): Values {
   const select = meta.select;
-  if (!select) return props;
+  if (!select || ("host" in select && select.host)) return props;
   if (select.mode === "flags" && meta.items?.key) {
     if (select.runtime && !Array.isArray(props[meta.items.key])) return props;
     const rows = rowsOf(meta, props).map((row, index) => ({

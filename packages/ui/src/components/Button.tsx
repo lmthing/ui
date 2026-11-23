@@ -11,11 +11,12 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitAction } from "../kit";
+import { KitAction, useVariant } from "../kit";
 import { prompt } from "../entry/prompt-Button.generated";
 
 export const meta = {
   id: "Button",
+  status: "ready",
   group: "action",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -24,6 +25,7 @@ export const meta = {
   tier: "phone",
   realPath: "A press runs an on-device action or opens the linked screen.",
   variants: {
+    emphasis: ["normal", "quiet"],
     media: ["icon", "none"],
   },
   variantParts: { "media.none": { hides: ["root_icon"] } },
@@ -60,7 +62,7 @@ export const examples = [
   { label: "Log watering", icon: "drop" },
   { label: "Log watering", icon: "drop" },
   { label: "Book a walk", goto: "book_walk" },
-  { label: "Back to walks", goto: "back" },
+  { label: "View schedule", icon: "calendar", emphasis: "quiet", goto: "schedule" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Button");
@@ -73,11 +75,18 @@ export const probes = [
     ...write("Keep the normal filled Log watering button. Store its water drop icon but hide the icon."),
     variant: { axis: "media", value: "none" },
   },
+  {
+    ...write(
+      'Add a low-key "View schedule" link below the content that opens the screen with id "schedule".',
+    ),
+    variant: { axis: "emphasis", value: "quiet" },
+  },
   read("Press the main button", { address: "b1/root", action: "press" }),
 ] satisfies Probe[];
 
-export function Button({ label, kind, media, icon, goto }: Props<typeof props, typeof meta>) {
-  const action = kind ?? "primary";
+export function Button({ label, kind, emphasis, media, icon, goto }: Props<typeof props, typeof meta>) {
+  const finish = useVariant("emphasis", meta.variants.emphasis, emphasis);
+  const action = kind ?? (finish === "quiet" ? "quiet" : "primary");
   return (
     <KitAction
       label={label}
@@ -85,7 +94,7 @@ export function Button({ label, kind, media, icon, goto }: Props<typeof props, t
       kind={action}
       goto={goto}
       part="root"
-      full={action === "primary" || action === "danger"}
+      full={finish !== "quiet"}
     />
   );
 }

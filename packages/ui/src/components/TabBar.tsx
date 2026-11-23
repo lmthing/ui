@@ -21,6 +21,7 @@ import { prompt } from "../entry/prompt-TabBar.generated";
 const trails = ["badge", "none"] as const;
 export const meta = {
   id: "TabBar",
+  status: "ready",
   group: "structure",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -32,7 +33,7 @@ export const meta = {
   variants: { trail: trails },
   items: { key: "tabs", parts: ["root", "icon", "label", "badge"], variants: { trail: trails } },
   variantParts: { "trail.none": { hides: ["badge"] }, "trail.badge": { adds: ["badge"] } },
-  select: { prop: "at", value: "index" },
+  select: { prop: "at", value: "index", host: true },
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
@@ -114,6 +115,16 @@ export const examples = [
   { tabs: [...badgeTabs] },
   { trail: "none", tabs: [...badgeTabs] },
   { tabs: [badgeTabs[0], { ...badgeTabs[1], trail: "none" }, badgeTabs[2]] },
+  {
+    tabs: [
+      { icon: "sun", label: "Today", goto: "today" },
+      { icon: "leaf", label: "Plants", goto: "plants" },
+      { icon: "calendar", label: "Schedule", goto: "schedule" },
+      { icon: "bookmark", label: "Saved", goto: "saved" },
+      { icon: "settings", label: "Settings", goto: "settings" },
+    ],
+    at: 2,
+  },
 ] satisfies z.input<typeof props>[];
 
 const { read } = probesFor("TabBar");

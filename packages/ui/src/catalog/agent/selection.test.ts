@@ -69,6 +69,13 @@ describe("declared selection", () => {
       { ...props.rows[1], chosen: true },
     ]);
   });
+  it("resolves host-owned choices without persisting or replaying the selection", () => {
+    const host = { ...meta, select: { prop: "at", value: "index", host: true } } satisfies Meta;
+    const input = { ...props, at: 0 };
+    expect(selectionAt(host, input, "r2")).toMatchObject({ value: 1 });
+    expect(selectionChanges(host, input, "r2")).toEqual({});
+    expect(projectSelection(host, input, (part) => (part === "$at" ? 1 : undefined))).toBe(input);
+  });
 });
 
 it("resolves explicit values from a prop list without accepting indexes or inferring a choice", () => {

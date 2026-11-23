@@ -7,6 +7,7 @@ import { DeviceDataContext, type ScreenController } from "../interact";
 import {
   space,
   parseItemProps,
+  regionOf,
   sortByRegion,
   gapBetween,
   projectAdjustments,
@@ -54,7 +55,7 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
   const { controller, screen } = props;
   const components = controller.defs;
   const entries = sortByRegion(screen.components, components).filter(
-    (entry) => (components[entry.c]?.meta.region ?? "body") === name,
+    (entry) => regionOf(entry, components) === name,
   );
   return (
     <KitPresence>
@@ -80,33 +81,35 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
   const { environment } = useKit();
   const gutter = space[useKitStyle().frame.gutter];
+  const { insets, keyboardHeight } = environment;
+  const horizontal = {
+    paddingLeft: Math.max(gutter, insets.left),
+    paddingRight: Math.max(gutter, insets.right),
+  };
   const bodyOrder = props.screen.components
-    .filter(({ c }) => (props.controller.defs[c]?.meta.region ?? "body") === "body")
+    .filter((entry) => regionOf(entry, props.controller.defs) === "body")
     .map(({ id }) => id);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
-        <YStack
-          paddingLeft={Math.max(gutter, environment.insets.left)}
-          paddingRight={Math.max(gutter, environment.insets.right)}
-          paddingTop={Math.max(space.lg, environment.insets.top)}
-          gap={space.md}
-        >
+        <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
           <ScreenRegion {...props} name="top" />
         </YStack>
         <ScrollView
           flex={1}
+          minHeight={0}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={{ paddingVertical: space.gutter, paddingHorizontal: gutter }}
+          contentContainerStyle={{ paddingVertical: space.gutter, ...horizontal }}
         >
           <ScreenBottomSource>
             <ScreenRegion {...props} name="body" />
           </ScreenBottomSource>
         </ScrollView>
         <YStack
-          paddingHorizontal={gutter}
-          paddingBottom={Math.max(space.lg, environment.keyboardHeight ? 0 : environment.insets.bottom)}
+          flexShrink={0}
+          {...horizontal}
+          paddingBottom={Math.max(space.lg, keyboardHeight ? 0 : insets.bottom)}
           gap={space.md}
         >
           <ScreenBottomOutlet screen={props.screen.id} order={bodyOrder} />

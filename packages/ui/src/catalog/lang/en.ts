@@ -27,6 +27,7 @@ import { words as ReviewWords } from "./en/Review";
 import { words as ArticleWords } from "./en/Article";
 import { words as PassCardWords } from "./en/PassCard";
 import { words as FileListWords } from "./en/FileList";
+import { words as HeaderWords } from "./en/Header";
 
 export const en = {
   ...SwipeStackWords,
@@ -58,6 +59,7 @@ export const en = {
   ...ArticleWords,
   ...PassCardWords,
   ...FileListWords,
+  ...HeaderWords,
 };
 
 export type Words = typeof en;

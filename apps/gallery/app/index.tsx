@@ -6,6 +6,7 @@ import { Runtime } from "./Runtime";
 import { Controls } from "./Controls";
 import { MotionPreview } from "./Motion";
 import { ThemeReference } from "./ThemeReference";
+import { NavigationShell } from "./NavigationShell";
 import { ComponentTitle, Overview, SharedVariants, VariantGrid } from "./overview";
 
 const query = new URLSearchParams(globalThis.location?.search ?? "");
@@ -14,6 +15,7 @@ const width = Number(query.get("w")) || 0;
 const mode = query.get("mode");
 
 export function Gallery() {
+  if (query.has("nav-shell")) return <NavigationShell start={query.get("nav-shell") ?? ""} />;
   if (query.has("theme-reference"))
     return <ThemeReference mode={mode === "dark" ? "dark" : "light"} screenId={query.get("screen")} />;
   if (query.has("motion")) return <MotionPreview name={query.get("motion") as SignatureName} />;

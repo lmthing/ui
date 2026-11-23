@@ -25,6 +25,7 @@ const screen: ScreenLike = {
     {
       id: "nav",
       c: "TabBar",
+      at: 0,
       tabs: [
         { icon: "home", label: "Home", goto: "home" },
         { icon: "mail", label: "Inbox", goto: "inbox", count: 3 },
@@ -114,7 +115,7 @@ describe("live control state", () => {
     expect(runtime.store.snapshot()).toEqual(before);
     runtime.dispose();
   });
-  it("ticks a checklist, opens a row and updates calendar, scale, tabs and filters", () => {
+  it("updates local controls but leaves tab selection to the navigation host", () => {
     const { runtime, agent, links } = setup();
     expect(agent.read()).not.toContain("An answer");
     agent.act({ address: "q1/r1/check", action: "check" });
@@ -129,8 +130,9 @@ describe("live control state", () => {
     expect(input(runtime, "p1").at).toBe(1);
     agent.act({ address: "h1/r2", action: "select" });
     expect((input(runtime, "h1").items as { on: boolean }[]).map((row) => row.on)).toEqual([false, true]);
-    agent.act({ address: "nav/r2", action: "select" });
-    expect(input(runtime, "nav").at).toBe(1);
+    const tab = agent.act({ address: "nav/r2", action: "select" });
+    expect(tab.ok).toBe(true);
+    expect(input(runtime, "nav").at).toBe(0);
     expect(links).toHaveBeenLastCalledWith("inbox", "controls/nav/r2");
     runtime.dispose();
   });
