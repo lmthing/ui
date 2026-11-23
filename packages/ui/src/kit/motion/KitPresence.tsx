@@ -11,7 +11,14 @@ import {
 import { durations } from "../../catalog";
 import { useKit } from "../provider";
 /** Keep the same motion node/key at its old position until its disabled exit finishes. */
-export function KitPresence({ children }: { children: ReactNode }) {
+export function KitPresence({
+  children,
+  keepExit,
+}: {
+  children: ReactNode;
+  /** A live item moved to another region should not linger in its old one. */
+  keepExit?: (node: ReactNode) => boolean;
+}) {
   const { environment } = useKit();
   const current = Children.toArray(children);
   const previous = useRef<ReactNode[]>(current);
@@ -45,7 +52,8 @@ export function KitPresence({ children }: { children: ReactNode }) {
       .filter(
         (item, index, all) =>
           all.findIndex((candidate) => keyOf(candidate.node) === keyOf(item.node)) === index &&
-          !keys.has(keyOf(item.node)),
+          !keys.has(keyOf(item.node)) &&
+          (keepExit?.(item.node) ?? true),
       )
       .reverse()) {
       const index = item.before ? result.findIndex((node) => keyOf(node) === item.before) + 1 : 0;

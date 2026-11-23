@@ -1,9 +1,7 @@
 import { createContext, useContext, useId, useLayoutEffect, useState, type ReactNode } from "react";
 import { YStack } from "tamagui";
-import { space } from "../../catalog";
 import { RowLabelContext } from "../a11y";
 import { PartContext, usePartContext } from "../part";
-import { useKit, useKitStyle } from "../provider";
 
 type Slots = Map<string, { screen: string; owner: string; order: number; node: ReactNode }>;
 type SetSlots = React.Dispatch<React.SetStateAction<Slots>>;
@@ -67,25 +65,19 @@ function PinnedSlot({
   const id = useId();
   const scope = usePartContext();
   const rowLabel = useContext(RowLabelContext);
-  const { insets } = useKit().environment;
-  const gutter = space[useKitStyle().frame.gutter];
-  const left = Math.max(0, insets.left - gutter);
-  const right = Math.max(0, insets.right - gutter);
   // The outlet shares the screen provider; restore the source's component/item scope there.
   useLayoutEffect(() => {
     const node = (
       <PartContext.Provider key={id} value={scope}>
         <RowLabelContext.Provider value={rowLabel}>
-          <YStack marginLeft={left} marginRight={right}>
-            {children}
-          </YStack>
+          <YStack>{children}</YStack>
         </RowLabelContext.Provider>
       </PartContext.Provider>
     );
     setSlots((slots) =>
       new Map(slots).set(id, { screen: scope.screen, owner: scope.component, order, node }),
     );
-  }, [id, setSlots, scope, rowLabel, children, left, right, order]);
+  }, [id, setSlots, scope, rowLabel, children, order]);
   useLayoutEffect(
     () => () =>
       setSlots((slots) => {

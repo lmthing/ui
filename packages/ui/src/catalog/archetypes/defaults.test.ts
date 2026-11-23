@@ -75,6 +75,30 @@ describe("core archetype defaults", () => {
   });
 });
 
+describe("optional task actions", () => {
+  it.each(layouts.filter(([id]) => ["home", "list", "detail", "success"].includes(id)))(
+    "%s/%s permits a screen-owned action but does not fill one",
+    (id, layout) => {
+      const registry = createRegistry();
+      expect(archetypes[id].meta.layouts[layout]!.slots.at(-1)).toMatchObject({
+        allow: ["Button"],
+        min: 0,
+        max: 1,
+      });
+      for (const cast of casts) {
+        const screen = registry.defaultLines(id, layout, cast);
+        expect(screen.components.map(({ c }) => c)).not.toContain("Button");
+        expect(
+          checkScreen(
+            { ...screen, components: [...screen.components, { c: "Button", id: "btn", label: "Save" }] },
+            registry,
+          ),
+        ).toEqual([]);
+      }
+    },
+  );
+});
+
 const barsDefault: CoreArchetypeMeta = {
   id: "bars_default",
   purpose: "Compare amounts",

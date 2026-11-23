@@ -1,6 +1,6 @@
 import type { ScreenLike } from "../../agent";
 import type { Definition } from "../../probes";
-import { at, resolveDefinition, type Issue } from "../shared";
+import { at, regionOf, resolveDefinition, type Issue } from "../shared";
 function containsSheetLink(value: unknown): boolean {
   return Boolean(
     value &&
@@ -46,7 +46,9 @@ export function checkCore(
       });
   }
   issues.push(...checkSheetLinks(screen, flowOpensSheet));
-  const body = screen.components.filter((entry) => resolveDefinition(defs, entry.c)?.meta.region === "body");
+  const body = screen.components.filter(
+    (entry) => resolveDefinition(defs, entry.c) && regionOf(entry, defs) === "body",
+  );
   for (const [index, entry] of body.entries())
     if (entry.c === "Composer" && entry.style === "reply") {
       if (
