@@ -3,8 +3,7 @@ import {
   probesFor,
   clip,
   itemsOf,
-  placeholderTitle,
-  placeholderValue,
+  placeholderTitles,
   text,
   thingOf,
   type FallbackInput,
@@ -30,6 +29,7 @@ import { prompt } from "../entry/prompt-Stats.generated";
 
 export const meta = {
   id: "Stats",
+  status: "ready",
   signature: "count_up",
   group: "data",
   purpose: prompt.purpose,
@@ -45,22 +45,23 @@ export const meta = {
   states: ["filled", "empty", "loading"],
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  tiles: z
-    .array(
-      z.strictObject({
-        label: text(20),
-        value: text(8),
-        unit: text(8).optional(),
-        trend: z.enum(["up", "down", "flat"]).optional(),
-      }),
-    )
-    .min(2)
-    .max(4),
+const tileProps = z.strictObject({
+  label: text(20).refine(
+    (label) =>
+      !placeholderTitles.some((title) => title.toLowerCase() === label.replace(/\s+/g, " ").toLowerCase()),
+    "Use the name of a measured quantity, not a placeholder",
+  ),
+  value: text(8).regex(/^[+−-]?(?:\d+(?:[.,]\d+)*|[.,]\d+)$/, "Use a numeric measurement"),
+  unit: text(8).optional(),
+  trend: z.enum(["up", "down", "flat"]).optional(),
 });
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+export const props = z.strictObject({
+  ...variantProps(meta.variants),
+  tiles: z.array(tileProps).max(4).meta({ repair: "drop_invalid_items" }),
+});
+
+export function fallback({ cast }: FallbackInput): z.input<typeof props> {
   const tiles = itemsOf(cast, 2)
     .flatMap((item) => {
       const fields =
@@ -79,15 +80,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
           .replace(/[_-]+/g, " ")
           .trim();
         const label = clip(readable.charAt(0).toUpperCase() + readable.slice(1), 20);
-        return label && /^[+-]?(?:\d+(?:[.,]\d+)*|\.\d+)$/.test(value)
-          ? [{ label, value: clip(value, 8) }]
-          : [];
+        const tile = tileProps.safeParse({ label, value });
+        return tile.success ? [tile.data] : [];
       });
     })
     .slice(0, 2);
-  while (tiles.length < 2) {
-    tiles.push({ label: placeholderTitle(tiles.length, lang), value: placeholderValue });
-  }
   return { tiles };
 }
 
@@ -106,7 +103,7 @@ export const examples = [
   },
   { tiles: walkTiles },
   { arrange: "rows", tiles: walkTiles },
-  { tiles: walkTiles },
+  { tiles: [{ label: "Overdue returns", value: "0" }] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Stats");
@@ -120,21 +117,15 @@ export const probes = [
     ),
     variant: { axis: "arrange", value: "rows" },
   },
+  {
+    ...write("Show the measured total Returns: 0. The exchange count is unavailable, so omit its tile."),
+    expectProps: { tiles: [{ label: "Returns", value: "0" }] },
+  },
 ] satisfies Probe[];
 
 type Tile = Props<typeof props, typeof meta>["tiles"][number];
 
-function TileValue({
-  tile,
-  density,
-  grid,
-  reserveUnit,
-}: {
-  tile: Tile;
-  density: ThemeDensity;
-  grid: boolean;
-  reserveUnit: boolean;
-}) {
+function TileValue({ tile, density, grid }: { tile: Tile; density: ThemeDensity; grid: boolean }) {
   const unit = tile.unit && (
     <KitText role="caption" tone="muted" part="unit" density={density} align={grid ? "start" : "end"}>
       {grid ? " " : ""}
@@ -152,27 +143,12 @@ function TileValue({
   ) : (
     <>
       {value}
-      {unit ||
-        (reserveUnit && (
-          <KitText role="caption" part={null} density={density}>
-            {"\u00a0"}
-          </KitText>
-        ))}
+      {unit}
     </>
   );
 }
 
-function TileRow({
-  tile,
-  grid,
-  density,
-  reserveUnit,
-}: {
-  tile: Tile;
-  grid: boolean;
-  density: ThemeDensity;
-  reserveUnit: boolean;
-}) {
+function TileRow({ tile, grid, density }: { tile: Tile; grid: boolean; density: ThemeDensity }) {
   const trend = tile.trend && (
     <KitIcon
       name={tile.trend === "up" ? "trending_up" : tile.trend === "down" ? "trending_down" : "minus"}
@@ -188,13 +164,13 @@ function TileRow({
       </KitText>
     </KitContent>
   );
-  const value = <TileValue {...{ tile, density, grid, reserveUnit }} />;
+  const value = <TileValue {...{ tile, density, grid }} />;
   return (
     <KitRow
       item={tile.id}
       label={tile.label}
       lineRole="number"
-      density={density}
+      density={grid ? density : "compact"}
       inset={grid ? "none" : "md"}
     >
       {grid ? (
@@ -212,32 +188,42 @@ function TileRow({
   );
 }
 
+function TileLoading({ tile, density }: { tile: Tile; density: ThemeDensity }) {
+  return (
+    <KitRow label={tile.label} part={null} inset="none" density={density}>
+      <KitSkeleton
+        shape="figure"
+        inset="none"
+        density={density}
+        content={[
+          ["number", tile.value],
+          ["body", tile.label],
+        ]}
+      />
+    </KitRow>
+  );
+}
+
 export function Stats({ arrange, tiles }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const density = useKit().density;
-  const grid = arrange === "grid";
-  const reserveUnit = tiles.some((tile) => tile.unit);
+  const grid = arrange === "grid" && tiles.length !== 1;
   const columns = tiles.length === 3 ? 3 : 2;
+  const layout = tiles.length <= 1 ? "rows" : arrange;
+  const empty = state === "empty" || (!tiles.length && state !== "loading");
   return (
-    <KitCard style="inset" part="root" padded={grid && state !== "empty"} density={density}>
-      {state === "empty" ? (
+    <KitCard style="inset" part="root" padded={grid && !empty} density={density}>
+      {empty ? (
         <KitEmpty part="label" />
-      ) : state === "loading" && !grid ? (
-        <KitSkeleton rows={tiles.length} lead="none" shape="pairs" density={density} />
+      ) : state === "loading" && (!grid || !tiles.length) ? (
+        <KitSkeleton rows={Math.max(1, tiles.length)} lead="none" shape="pairs" density="compact" />
       ) : (
-        <KitGrid {...{ arrange, columns, density }}>
+        <KitGrid arrange={layout} {...{ columns, density }}>
           {tiles.map((tile) =>
             state === "loading" ? (
-              <KitSkeleton
-                key={tile.id}
-                rows={1}
-                lead="none"
-                shape="headline"
-                inset="none"
-                density={density}
-              />
+              <TileLoading key={tile.id} {...{ tile, density }} />
             ) : (
-              <TileRow key={tile.id} {...{ tile, grid, density, reserveUnit }} />
+              <TileRow key={tile.id} {...{ tile, grid, density }} />
             ),
           )}
         </KitGrid>

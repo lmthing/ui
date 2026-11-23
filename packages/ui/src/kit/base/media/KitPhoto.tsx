@@ -37,6 +37,8 @@ type PhotoProps = {
   part?: string | null;
   label?: string;
   initials?: string | undefined;
+  /** When the adjacent title already names the item, the image or its monogram is decorative. */
+  decorative?: boolean;
   ring?: "none" | "accent" | "muted";
   loading?: boolean;
 };
@@ -70,7 +72,7 @@ function PhotoInitials({
  */
 export function KitPhoto(props: PhotoProps) {
   const { photo, shape: fallbackShape = "thumb", aspect = "auto", part = "icon" } = props;
-  const { label, initials, ring = "none", loading = false } = props;
+  const { label, initials, ring = "none", loading = false, decorative = false } = props;
   const inheritedBleed = useContext(EdgeMediaContext);
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
   const { layer } = usePhotoLayer(loading ? undefined : photo);
@@ -94,10 +96,13 @@ export function KitPhoto(props: PhotoProps) {
       shape={shape}
       {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: corners })}
-      aria-hidden={loading || undefined}
-      accessibilityRole={loading ? undefined : "image"}
+      aria-hidden={loading || decorative || undefined}
+      accessibilityElementsHidden={decorative || undefined}
+      accessibilityRole={loading || decorative ? undefined : "image"}
       accessibilityLabel={
-        loading ? undefined : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
+        loading || decorative
+          ? undefined
+          : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
       }
       {...(ring !== "none"
         ? {
@@ -108,8 +113,12 @@ export function KitPhoto(props: PhotoProps) {
       alignItems="center"
       justifyContent="center"
     >
-      {!loading && !layer && initials && (!photo || circle) && (
-        <PhotoInitials value={initials} avatar={shape === "avatar"} decorative={Boolean(photo)} />
+      {!loading && !layer && initials && (!photo || circle || decorative) && (
+        <PhotoInitials
+          value={initials}
+          avatar={shape === "avatar"}
+          decorative={decorative || Boolean(photo)}
+        />
       )}
       {layer && <PhotoLayer {...layer} />}
     </Frame>

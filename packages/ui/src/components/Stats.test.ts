@@ -4,7 +4,10 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  lineCodes,
   migrateLine,
+  readComponent,
+  repairComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -26,13 +29,15 @@ describe("Stats schema", () => {
   });
   it.each([
     {},
-    { tiles: [] },
-    { tiles: [tile] },
     { tiles: Array.from({ length: 5 }, () => tile) },
     { tiles: [{ ...tile, label: "" }, tile] },
     { tiles: [{ ...tile, label: " ".repeat(4) }, tile] },
     { tiles: [{ ...tile, label: "a".repeat(21) }, tile] },
     { tiles: [{ ...tile, value: "" }, tile] },
+    { tiles: [{ ...tile, value: "—" }, tile] },
+    { tiles: [{ ...tile, value: "N/A" }, tile] },
+    { tiles: [{ ...tile, value: "Not in" }, tile] },
+    { tiles: [{ label: " ITEM  ONE ", value: "0" }, tile] },
     { tiles: [{ ...tile, value: " ".repeat(4) }, tile] },
     { tiles: [{ ...tile, value: "a".repeat(9) }, tile] },
     { tiles: [{ ...tile, value: 12 }, tile] },
@@ -94,10 +99,7 @@ describe("Stats fallback and metadata", () => {
       { things: [], items: [{ id: "first", type: "record", sample: true, count: Infinity }] },
     ];
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
-    expect(fallback({ cast: casts[0]! }).tiles).toEqual([
-      { label: "Item one", value: "0" },
-      { label: "Item two", value: "0" },
-    ]);
+    expect(fallback({ cast: casts[0]! }).tiles).toEqual([]);
     expect(fallback({ cast: casts[1]! }).tiles).toEqual([
       { label: "Total Count", value: "12" },
       { label: "Due today", value: "3" },
@@ -106,16 +108,46 @@ describe("Stats fallback and metadata", () => {
       { label: "Amount", value: "-1.5" },
       { label: "Completed", value: "1,200" },
     ]);
-    expect(fallback({ cast: casts[3]! }).tiles[0]).toEqual({
-      label: `X${"x".repeat(19)}`,
-      value: "1".repeat(8),
-    });
+    expect(fallback({ cast: casts[3]! }).tiles).toEqual([{ label: "Second", value: "4" }]);
     expect(fallback({ cast: casts[4]! }).tiles).toEqual(fallback({ cast: casts[0]! }).tiles);
-    expect(fallback({ cast: casts[5]! }).tiles).toEqual([
-      { label: "Count", value: "0" },
-      { label: "Item two", value: "0" },
-    ]);
+    expect(fallback({ cast: casts[5]! }).tiles).toEqual([{ label: "Count", value: "0" }]);
   });
+});
+
+it("drops unavailable tiles in R2 without substituting a metric, even with usable cast data", () => {
+  const cast: CastLike = { things: [], items: [{ id: "one", type: "record", sample: true, count: 9 }] };
+  const invalid = [
+    { label: "Item two", value: "0" },
+    { label: "Pending", value: "—" },
+    { label: "Late", value: "" },
+    { label: "Total", value: "123456789" },
+  ];
+  const registry = createRegistry();
+  const reject = (tiles: unknown[]) => repairComponent({ id: "s1", c: "Stats", tiles }, registry, { cast });
+  const zero = { label: "Returned", value: "0" };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  for (const kept of [[], [zero]]) {
+    const padded = kept.map(({ label, value }) => ({ label: ` ${label} `, value: ` ${value} `, unit: null }));
+    const repaired = reject([invalid[0], ...padded, ...invalid.slice(1)]);
+    expect(repaired).toEqual({
+      component: { id: "s1", c: "Stats", tiles: kept },
+      codes: [lineCodes.array],
+    });
+    const { id: _id, c: _c, ...input } = repaired.component!;
+    const html = renderInstance("Stats", input, "filled", theme);
+    expect(html).not.toMatch(/Item two|Pending|Late|Total|123456789/);
+    expect(html).toContain(kept.length ? ">0</span>" : "Nothing here yet");
+  }
+});
+
+it("reads saved screens without their obsolete tiles or readdressing a surviving host tile", () => {
+  const tiles = [
+    { label: "Item one", value: "0", id: "r2" },
+    { label: "Returned", value: "0", id: "r5" },
+  ];
+  const read = readComponent(components.Stats, { tiles }, "s1").join("\n");
+  expect(read).toContain('r5 "Returned" · "0"');
+  expect(read).not.toContain("Item one");
 });
 
 describe("Stats fallback and metadata", () => {

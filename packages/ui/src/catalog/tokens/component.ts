@@ -42,6 +42,7 @@ export const component = {
     ringLg: 168,
     codeScanner: 232,
     timeWidth: 64,
+    keyColumnWidth: 76,
     barsHeight: 120,
     dayMinWidth: 40,
     hourHeight: 56,

@@ -301,9 +301,29 @@ export function hostWireItemIds(def: Definition, input: Values): readonly (strin
 export function parseItemProps(def: Definition, input: unknown): Values {
   if (!input || typeof input !== "object" || Array.isArray(input))
     return stampItemIds(def.meta, def.props.parse(input));
-  const { parsed } = safeParseItemProps(def, input as Values);
-  if (!parsed.success) throw parsed.error;
-  return parsed.data;
+  const source = input as Values;
+  const { parsed } = safeParseItemProps(def, source);
+  if (parsed.success) return parsed.data;
+  // Saved screens predate some item constraints. Keep survivor addresses and never show rejected data.
+  const repaired = omitRejectedItems(def, source, parsed.error);
+  if (repaired) {
+    const result = safeParseItemProps(def, repaired).parsed;
+    if (result.success) return result.data;
+  }
+  throw parsed.error;
+}
+
+function omitRejectedItems(def: Definition, input: Values, error: z.ZodError) {
+  const key = def.meta.items?.key;
+  if (!key || def.props.shape[key]?.meta()?.repair !== "drop_invalid_items") return;
+  const rows = input[key];
+  if (!Array.isArray(rows)) return;
+  const invalid = new Set(
+    error.issues.flatMap(({ path: [field, index] }) =>
+      field === key && typeof index === "number" ? [index] : [],
+    ),
+  );
+  if (invalid.size) return { ...input, [key]: rows.filter((_, index) => !invalid.has(index)) };
 }
 
 /** High water marks for a single screen. Keep them when deleting components or rows. */

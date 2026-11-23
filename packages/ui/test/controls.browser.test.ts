@@ -25,6 +25,30 @@ async function open(kind: string) {
   await page.goto(`${server.resolvedUrls!.local[0]}?controls=${kind}`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
+
+it("keeps a wrapping record title, both facts, and the deadline visible at phone width", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?c=List&w=390&preset=calm&mode=light`);
+  const frame = page.locator("[data-look-frame]").filter({ hasText: "WHEN WE BUILD WITH HARD WOOD" });
+  const title = frame.getByText("WHEN WE BUILD WITH HARD WOOD", { exact: true });
+  await title.waitFor();
+  await page.evaluate(() => document.fonts.ready);
+  const lines = await title.evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    return [...range.getClientRects()].map(({ right, top }) => ({ right, top }));
+  });
+  expect(new Set(lines.map(({ top }) => top)).size).toBeGreaterThan(1);
+  const bounds = (await frame.boundingBox())!;
+  expect(Math.max(...lines.map(({ right }) => right))).toBeLessThan(bounds.x + bounds.width);
+  for (const fact of [
+    "Second edition, reference copy",
+    "West reading room · upper shelf",
+    "Available after Thursday",
+  ])
+    expect(await frame.getByText(fact, { exact: true }).isVisible()).toBe(true);
+  expect(await frame.getByRole("link").count()).toBe(1);
+});
+
 describe("human and agent control paths", () => {
   it("selects and toggles real options", async () => {
     await open("choice");
@@ -93,6 +117,9 @@ describe("human and agent control paths", () => {
     await part("l2/r1/trail").click();
     expect(await page.evaluate("links.length")).toBe(0);
     expect(await part("l2/r1/trail").getAttribute("aria-checked")).toBe("true");
+    expect(await part("l1/r1/trail").count()).toBe(0);
+    await part("l2/r1/root").click();
+    expect(await page.evaluate("links.map(({ goto }) => goto)")).toEqual(["care"]);
     expect(errors).toEqual([]);
   });
   it("uses counter steps, runs and pauses time, and selects a level", async () => {
