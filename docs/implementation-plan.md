@@ -383,8 +383,9 @@ tints must retain their existing contrast.
 
 **Shapes.** Presets are plain data: id, mood, font, optional heading font, numbers, weight, shape, density, surface and
 light/dark base roles. The surface treatment selects a shared card recipe and may set the screen gutter, field
-chrome, action shape or shadow, and row rules. `strong` increases weight and uses the display step for normal
-titles. Accents supply `accent`, `accentSoft` and `onAccent`. The no-tint treatments use a neutral raised fill
+chrome, action shape or shadow, and row rules. `strong` increases weight; the display-title treatment enlarges
+normal titles outside cards without competing with the figures and headings inside. Accents supply `accent`,
+`accentSoft` and `onAccent`. The no-tint treatments use a neutral canvas fill
 instead of a decorative accent tint, while retaining semantic status colours and the chosen solid accent.
 Raw colours belong only in tokens and themes. Night works in either explicit mode, with raised surfaces and an
 accent glow on enabled primary actions.
@@ -401,8 +402,10 @@ export type KitStyle = {
   strong: boolean;
   frame: {
     gutter: SpaceToken;
-    field: "filled" | "outlined" | "ruled";
-    action: "standard" | "pill" | "glow";
+    field: "filled" | "outlined" | "ruled" | "ink";
+    action: "standard" | "block" | "pill" | "glow";
+    corner: "md" | "lg";
+    displayTitle: boolean;
     rowRule: boolean;
     neutralTint: boolean;
   };

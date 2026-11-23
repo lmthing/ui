@@ -23,7 +23,7 @@ export const calm = {
     },
     dark: {
       bg: "#121614",
-      surface: "#1a201d",
+      surface: "#222b25",
       raised: "#222b25",
       line: "#3f4d43",
       text: "#f1f6ef",

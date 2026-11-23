@@ -232,6 +232,24 @@ function ActionContent({
   );
 }
 
+function useActionFinish(kind: ActionKind, standaloneIcon: boolean, active: boolean) {
+  const { frame, radiusShift } = useKitStyle();
+  const filled = kind === "primary";
+  return {
+    borderRadius: frame.action === "pill" || standaloneIcon ? radius.pill : shifted("md", radiusShift),
+    ...(filled && frame.action === "block" && !standaloneIcon
+      ? { minHeight: size.control.lg + space.xs }
+      : {}),
+    ...(filled && frame.action === "glow" && active
+      ? {
+          ...accentGlow,
+          shadowColor: "$accent",
+          shadowOffset: { width: component.base.none, height: component.base.none },
+        }
+      : {}),
+  } as const;
+}
+
 export function KitAction(props: ActionProps) {
   const {
     label,
@@ -244,8 +262,8 @@ export function KitAction(props: ActionProps) {
     copiedLabel,
     holdToPause,
   } = props;
-  const ks = useKitStyle();
   const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
+  const finish = useActionFinish(kind, !label && !full, !inactive && !copied);
   const bare = kind === "quiet" || (kind === "danger" && !label);
   const neutral = props.tone === "neutral" || (props.tone === undefined && (!label || icon === "close"));
   const tone = kind === "quiet" && neutral ? "muted" : toneOf[kind];
@@ -261,19 +279,10 @@ export function KitAction(props: ActionProps) {
         borderColor={kind === "secondary" && inactive ? "$line" : undefined}
         borderWidth={bare ? component.base.none : undefined}
         backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
-        {...(ks.frame.action === "glow" && kind === "primary" && !inactive && !copied
-          ? {
-              ...accentGlow,
-              shadowColor: "$accent",
-              shadowOffset: { width: component.base.none, height: component.base.none },
-            }
-          : {})}
+        {...finish}
         loading={loading}
         iconOnly={!label}
         {...(isWeb && copy && !loading ? webCopyButton : {})}
-        borderRadius={
-          ks.frame.action === "pill" || (!label && !full) ? radius.pill : shifted("md", ks.radiusShift)
-        }
         alignSelf={full ? "stretch" : "flex-start"}
         accessibilityRole={loading ? undefined : "button"}
         aria-busy={loading || undefined}

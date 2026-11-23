@@ -17,6 +17,7 @@ export const themeReferenceScreens = [
           { title: "Otis", meta: "4:30 PM · Riverside", icon: "paw" },
         ],
       },
+      { id: "new_walk", c: "Button", label: "New walk", icon: "plus" },
     ],
   },
   {
@@ -51,6 +52,7 @@ export const themeReferenceScreens = [
       { id: "dog", c: "Field", label: "Dog name", value: "Clover" },
       { id: "route", c: "Field", label: "Route", value: "Riverside" },
       { id: "time", c: "Field", label: "Start time", kind: "time", value: "08:30" },
+      { id: "notes", c: "Field", label: "Notes", value: "Use the south entrance" },
       { id: "save", c: "Button", label: "Save walk" },
     ],
   },

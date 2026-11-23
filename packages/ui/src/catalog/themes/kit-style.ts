@@ -11,8 +11,10 @@ export type KitStyle = {
   strong: boolean;
   frame: {
     gutter: SpaceToken;
-    field: "filled" | "outlined" | "ruled";
-    action: "standard" | "pill" | "glow";
+    field: "filled" | "outlined" | "ruled" | "ink";
+    action: "standard" | "block" | "pill" | "glow";
+    corner: "md" | "lg";
+    displayTitle: boolean;
     rowRule: boolean;
     neutralTint: boolean;
   };
@@ -22,16 +24,19 @@ const frame: KitStyle["frame"] = {
   gutter: "gutter",
   field: "filled",
   action: "standard",
+  corner: "md",
+  displayTitle: false,
   rowRule: false,
   neutralTint: false,
 };
 const treatments: Partial<Record<KitStyle["surface"], Partial<KitStyle["frame"]>>> = {
   hairline: { field: "outlined", neutralTint: true },
-  tinted: { action: "pill" },
-  editorial: { gutter: "2xl", field: "ruled" },
+  accentBlock: { action: "block", displayTitle: true },
+  tinted: { action: "pill", corner: "lg" },
+  editorial: { gutter: "2xl", field: "ruled", displayTitle: true },
   ruled: { field: "ruled", rowRule: true },
   raised: { action: "glow" },
-  monochrome: { field: "outlined", neutralTint: true },
+  monochrome: { field: "ink", neutralTint: true },
 };
 
 export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comfortable"): KitStyle {

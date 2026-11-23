@@ -68,7 +68,8 @@ describe("themeRoles control labels", () => {
       for (const accent of accents) {
         for (const mode of ["light", "dark"] as const) {
           const roles = themeRoles(preset, accent, mode);
-          expect(roles.accentSoft).toBe(preset.roles[mode].raised);
+          expect(roles.accentSoft).toBe(preset.roles[mode].bg);
+          expect(roles.accentSoft).not.toBe(roles.raised);
           expect(roles.accent).toBe(accent[mode].accent);
           expect(roles.badSoft).not.toBe(roles.raised);
         }

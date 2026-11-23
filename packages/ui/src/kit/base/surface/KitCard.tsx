@@ -108,10 +108,11 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
       ? "plain"
       : (surface ?? (style === "plain" ? "plain" : look === "surface" ? "card" : look));
   const gutter = variants.bleed[bleed ?? "inset"] && ks.frame.gutter;
+  const flush = finish === "plain" && inset === "none";
   return {
     ...variantSurfaceOf(finish ?? "card", ks.surface, tone ?? "neutral"),
-    borderRadius: shifted("md", ks.radiusShift),
-    padding: padded ? space.md : style === "inset" ? space.xs : component.base.none,
+    borderRadius: shifted(ks.frame.corner, ks.radiusShift),
+    padding: padded && !flush ? space.md : style === "inset" ? space.xs : component.base.none,
     ...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {}),
     gap: style === "cards" ? space[spacing.gap] : padded ? space[spacing.contentGap] : component.base.none,
     ...(align === "center" ? { alignItems: variants.align.center.content } : {}),

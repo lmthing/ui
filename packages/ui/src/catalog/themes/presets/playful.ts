@@ -22,10 +22,10 @@ export const playful = {
       bad: "#a52f24",
     },
     dark: {
-      bg: "#23182c",
+      bg: "#291824",
       surface: "#35223e",
-      raised: "#442c4e",
-      line: "#71527d",
+      raised: "#4c2c41",
+      line: "#79536f",
       text: "#fff0fc",
       muted: "#dcc3e6",
       good: "#83cca0",

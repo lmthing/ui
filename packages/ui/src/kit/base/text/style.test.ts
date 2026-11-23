@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { radius, component, space } from "../../../catalog";
+import { radius, component, elevation, space } from "../../../catalog";
 import { shifted, surfaceOf } from "./style";
 
 it("shifts corners by one step and clamps the scale ends", () => {
@@ -12,11 +12,15 @@ it("shifts corners by one step and clamps the scale ends", () => {
 it("keeps solid bands separate from the card's readable foreground and background", () => {
   expect(surfaceOf("accentBlock")).toMatchObject({
     backgroundColor: "$surface",
-    borderTopColor: "$accent",
+    borderTopColor: "$line",
     borderTopWidth: space.sm,
   });
   expect(surfaceOf("highContrast")).toMatchObject({ backgroundColor: "$surface", borderTopColor: "$text" });
-  expect(surfaceOf("raised")).toMatchObject({ backgroundColor: "$raised", shadowColor: "$text" });
+  expect(surfaceOf("raised")).toMatchObject({
+    backgroundColor: "$raised",
+    shadowColor: "$text",
+    elevationAndroid: elevation.sheet.elevation,
+  });
   expect(surfaceOf("editorial")).toMatchObject({ backgroundColor: "$bg", borderColor: "$line" });
   expect(surfaceOf("flat")).not.toHaveProperty("shadowColor");
 });

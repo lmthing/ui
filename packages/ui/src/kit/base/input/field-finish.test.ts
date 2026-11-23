@@ -5,7 +5,7 @@ import { fieldFinish } from "./field-finish";
 it("uses a single bottom rule in notebook and editorial treatments", () => {
   expect(fieldFinish("ruled")).toEqual({
     backgroundColor: "transparent",
-    borderColor: "$line",
+    borderColor: "$muted",
     borderWidth: component.base.none,
     borderBottomWidth: component.base.borderWidth,
   });
@@ -16,4 +16,5 @@ it("can outline fields instead of using the default raised fill", () => {
   expect(fieldFinish("filled").backgroundColor).toBe("$raised");
   expect(fieldFinish("filled", false, true).backgroundColor).toBe("$surface");
   expect(fieldFinish("outlined").backgroundColor).toBe("$surface");
+  expect(fieldFinish("ink")).toMatchObject({ backgroundColor: "$surface", borderColor: "$text" });
 });

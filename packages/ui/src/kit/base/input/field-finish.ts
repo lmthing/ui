@@ -8,10 +8,10 @@ export function fieldFinish(treatment: KitStyle["frame"]["field"], loading = fal
       ? "$line"
       : ruled
         ? "transparent"
-        : inactive || treatment === "outlined"
+        : inactive || treatment === "outlined" || treatment === "ink"
           ? "$surface"
           : "$raised",
-    borderColor: "$line",
+    borderColor: ruled ? "$muted" : treatment === "ink" ? "$text" : "$line",
     borderWidth: ruled ? component.base.none : component.base.borderWidth,
     ...(ruled ? { borderBottomWidth: component.base.borderWidth } : {}),
   } as const;

@@ -16,7 +16,7 @@ type CardSurface = {
   rule: Role | null;
   border: Border;
   elevation: keyof typeof elevation;
-  band?: "accent" | "text";
+  band?: "line" | "text";
 };
 
 const identity = {
@@ -78,7 +78,7 @@ export const variants = {
       solid: card,
       hairline,
       flat: card,
-      accentBlock: { ...card, band: "accent" },
+      accentBlock: { ...card, band: "line" },
       tinted: { ...card, fill: "raised" },
       pastel: { ...card, elevation: "card" },
       editorial: { ...hairline, fill: "bg" },

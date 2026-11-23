@@ -46,7 +46,7 @@ export function themeRoles(preset: PresetMeta, accent: AccentMeta, mode: "light"
   return {
     ...base,
     ...colors,
-    accentSoft: kitStyleOf(preset).frame.neutralTint ? base.raised : colors.accentSoft,
+    accentSoft: kitStyleOf(preset).frame.neutralTint ? base.bg : colors.accentSoft,
     onAccent: onAccentOf(colors.accent, colors.onAccent, base.text),
     goodSoft: mix(tones.good, base.surface, share),
     warnSoft: mix(tones.warn, base.surface, share),

@@ -30,7 +30,7 @@ function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | und
       {cells.map((cell, index) => (
         <YStack key={index} accessibilityRole="listitem">
           {cell}
-          {ruled && (
+          {ruled && index < cells.length - 1 && (
             <YStack
               height={component.base.borderWidth}
               backgroundColor="$line"

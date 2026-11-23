@@ -8,8 +8,11 @@ import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
 import { fieldFinish } from "./field-finish";
 
-export const inputRadius = (kind: InputProps["kind"], shift: KitStyle["radiusShift"]) =>
-  shifted(kind === "search" ? "lg" : "md", shift);
+export const inputRadius = (
+  kind: InputProps["kind"],
+  shift: KitStyle["radiusShift"],
+  corner: KitStyle["frame"]["corner"] = "md",
+) => shifted(kind === "search" ? "lg" : corner, shift);
 
 function useInputLayout({ kind, icon, inset, compact }: InputProps) {
   const spacing = useVariantDensity();
@@ -92,7 +95,11 @@ export function KitInput(props: InputProps) {
         minHeight={size.control.md}
         paddingLeft={start}
         paddingRight={end}
-        borderRadius={ks.frame.field === "ruled" ? component.base.none : inputRadius(kind, ks.radiusShift)}
+        borderRadius={
+          ks.frame.field === "ruled"
+            ? component.base.none
+            : inputRadius(kind, ks.radiusShift, ks.frame.corner)
+        }
         {...fieldFinish(ks.frame.field, loading, inactive)}
       >
         {lead && (

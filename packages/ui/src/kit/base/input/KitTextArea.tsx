@@ -31,7 +31,9 @@ export function KitTextArea({ hint, value, lines = 4, part = "field", label, max
       minHeight={size.control.md + typography.body.lineHeight * (lines - 1)}
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
-      borderRadius={ks.frame.field === "ruled" ? component.base.none : shifted("md", ks.radiusShift)}
+      borderRadius={
+        ks.frame.field === "ruled" ? component.base.none : shifted(ks.frame.corner, ks.radiusShift)
+      }
       {...fieldFinish(ks.frame.field)}
     >
       <TextArea
