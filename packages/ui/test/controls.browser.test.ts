@@ -35,7 +35,7 @@ it("keeps a wrapping record title, both facts, and the deadline visible at phone
   const lines = await title.evaluate((node) => {
     const range = document.createRange();
     range.selectNodeContents(node);
-    return [...range.getClientRects()].map(({ right, top }) => ({ right, top }));
+    return Array.from(range.getClientRects(), ({ right, top }) => ({ right, top }));
   });
   expect(new Set(lines.map(({ top }) => top)).size).toBeGreaterThan(1);
   const bounds = (await frame.boundingBox())!;
