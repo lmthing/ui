@@ -4,8 +4,7 @@ import { fileURLToPath, URL } from "node:url";
 import { expect, it } from "vitest";
 import { build, preview, type Manifest } from "vite";
 import type { Page } from "playwright-core";
-import { buildKit } from "../scripts/build/build-kit";
-import { bundleCheck } from "../scripts/build/bundle-check";
+import { buildKit, bundleCheck } from "../scripts/build";
 import { webResolve } from "../scripts/look";
 import { launchChrome } from "../scripts";
 

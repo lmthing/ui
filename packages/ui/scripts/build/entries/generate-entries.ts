@@ -2,7 +2,7 @@ import { dataExports, scanEntries } from "./scan-entries";
 import { generateDoors } from "./generate-doors";
 import { publishEntries } from "./publish-entries";
 import { promptModule } from "./prompt-source";
-import { iconTable } from "../../../src/catalog/icons";
+import { iconTable } from "../../../src/catalog/icon-vocabulary";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
 
