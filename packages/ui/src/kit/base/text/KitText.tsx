@@ -62,6 +62,8 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
+  /** Part to report if a control label cannot be drawn in full. */
+  reportClipping?: string;
   goto?: string | undefined;
   item?: string | undefined;
   emphasis?: TextFinish["emphasis"] | "strong" | "emphasis";
@@ -211,6 +213,7 @@ function TextRun(props: TextProps) {
       {...(weight ? { fontWeight: weight } : {})}
       {...(emphasis === "emphasis" ? { fontStyle: "italic" as const } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
+      {...(isWeb && props.reportClipping ? { dataSet: { reportClipped: props.reportClipping } } : {})}
       {...wrapProse(props)}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
       {...(linked

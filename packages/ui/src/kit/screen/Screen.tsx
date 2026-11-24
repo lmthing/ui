@@ -1,10 +1,11 @@
 import { useWords, useKit } from "../provider";
-import { useCallback, useEffect, useContext } from "react";
+import { useCallback, useContext } from "react";
 import { YStack } from "tamagui";
-import { checkScreen, filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
+import { filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
+import { useReport } from "../report";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
 import { filterVisibleContent } from "./visible-content";
 
@@ -17,13 +18,9 @@ type ScreenProps = {
 export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
-  const { environment, resolvePhoto } = useKit();
+  const { environment, resolvePhoto, root } = useKit();
   const screen = controller.snapshotScreen();
-  const fingerprint = JSON.stringify(screen);
-  useEffect(() => {
-    const timer = setTimeout(() => onReport?.(checkScreen(screen, components, { hostItemIds: true })), 150);
-    return () => clearTimeout(timer);
-  }, [fingerprint, components, onReport]);
+  useReport(screen, components, root, onReport);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
   const confirmation = controller.confirmationFor(data);
   const permitted = filterDeviceDataScreen(screen, components, data);
