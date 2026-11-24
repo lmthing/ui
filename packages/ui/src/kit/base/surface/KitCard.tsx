@@ -13,6 +13,7 @@ import {
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
+import { NativeClipFrames, useNativeClipFrame } from "../../report";
 import {
   CardStyleContext,
   EdgeMediaContext,
@@ -141,6 +142,7 @@ function useCardPress(address: string, goto: CardProps["goto"], loading: boolean
 export function KitCard(props: CardProps) {
   const { children, style = "inset", part = "root", clip = false, goto, label, swatch } = props;
   const root = usePart(part);
+  const frameClip = useNativeClipFrame(clip, root.ref, root.onLayout);
   const loading = useComponentState() === "loading" && Boolean(swatch);
   const theme = swatchTheme(useThemeName(), swatch);
   const finish = useCardFinish({ ...props, style });
@@ -150,12 +152,14 @@ export function KitCard(props: CardProps) {
       <Theme name={theme}>
         <Frame
           {...root}
+          onLayout={frameClip.onLayout}
           cardStyle={style}
           {...finish}
           {...(props.orientation === "opposing" ? { rotate: "180deg" } : {})}
           {...(swatch ? { backgroundColor: loading ? "$line" : component.swatch[swatch] } : {})}
           {...(swatch && isWeb ? { className: `kit-swatch-${swatch}` } : {})}
           {...(clip ? { overflow: "hidden" as const } : {})}
+          {...(frameClip.tracking ? { collapsable: false } : {})}
           accessibilityRole={loading ? undefined : goto ? "link" : label ? "group" : undefined}
           accessibilityLabel={loading ? undefined : label}
           {...action}
@@ -174,7 +178,9 @@ export function KitCard(props: CardProps) {
           <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
             <CardEdgeContext.Provider value={style === "inset" && finish.padding === space.xs}>
               <EdgeMediaContext.Provider value={props.bleed === "edge" && !props.padded}>
-                <CardChildren loading={loading}>{children}</CardChildren>
+                <NativeClipFrames.Provider value={frameClip.frames}>
+                  <CardChildren loading={loading}>{children}</CardChildren>
+                </NativeClipFrames.Provider>
               </EdgeMediaContext.Provider>
             </CardEdgeContext.Provider>
           </CardGutterContext.Provider>

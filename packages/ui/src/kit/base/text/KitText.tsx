@@ -4,6 +4,7 @@ import { fontFamilies, motion, size, space, type as typography, variants } from 
 import { useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { useReportedText } from "../../report";
 import { useTextStep, type TextFinish, type TextRole } from "./text-step";
 
 const roleOf = (role: keyof typeof typography) => ({
@@ -62,20 +63,31 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
+  /** Fallback report address for a label without its own part. */
+  reportClipping?: string | undefined;
   goto?: string | undefined;
   item?: string | undefined;
   emphasis?: TextFinish["emphasis"] | "strong" | "emphasis";
 } & Omit<TextFinish, "emphasis">;
 
-function useTextLink(part: TextProps["part"], goto: TextProps["goto"], enabled: boolean) {
+function useTextTarget(props: TextProps, goto: TextProps["goto"], enabled: boolean) {
+  const { part = "root", reportClipping, children, lines } = props;
   const kit = useKit();
   const address = usePart(part ?? "root", part !== null && enabled);
+  const report = useReportedText(
+    enabled && reportClipping ? (part === null ? reportClipping : address.testID) : undefined,
+    typeof children === "string" ? children : undefined,
+    lines,
+    address.ref,
+    part === null ? undefined : address.onLayout,
+  );
   const link = Boolean(goto && part !== null && enabled);
   const press = () => {
     if (goto) kit.onLink?.(goto, address.testID);
   };
   return {
     ...(part !== null && enabled ? address : {}),
+    ...report,
     ...(link ? { accessibilityRole: "link" as const } : {}),
     ...(link && kit.interactive
       ? {
@@ -193,7 +205,7 @@ function TextRun(props: TextProps) {
   const nested = loading && Children.toArray(children).some(isValidElement);
   const linkSlot = Boolean(goto && part !== null && state !== "empty" && children);
   const linked = linkSlot && !loading;
-  const target = useTextLink(part, linked ? goto : undefined, !loading);
+  const target = useTextTarget(props, linked ? goto : undefined, !loading);
   const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   const webLink = linkSlot && isWeb;

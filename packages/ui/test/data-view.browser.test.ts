@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from "node:url";
 import { afterAll, afterEach, beforeAll, expect, it } from "vitest";
-import type { Browser, Page } from "playwright-core";
+import type { Browser, Locator, Page } from "playwright-core";
+import type { Issue } from "@lmthing/ui/catalog";
 import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig, launchChrome } from "../scripts/look";
 
@@ -41,6 +42,90 @@ async function open(example: string) {
   await page.goto(`${server.resolvedUrls!.local[0]}data-view-test?example=${example}`);
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
+
+async function intactLabels(track: Locator) {
+  return track.locator("[data-report-clipped]").evaluateAll((labels) =>
+    labels
+      .filter((label) => {
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        const box = label.getBoundingClientRect();
+        return Array.from(range.getClientRects()).every(
+          (run) => run.left >= box.left - 1 && run.right <= box.right + 1,
+        );
+      })
+      .map((label) => label.textContent),
+  );
+}
+
+async function clippedIssues() {
+  const raw = await page.getByTestId("render-report").textContent();
+  return (JSON.parse(raw!) as Issue[])
+    .filter(({ code }) => code === "clipped_text")
+    .map(({ address }) => address);
+}
+
+it("preserves short Field segments and fits the full Setpoint choices in a padded phone card", async () => {
+  await open("choices");
+  const short = page.getByRole("radiogroup", { name: "Walk length" });
+  const shortLayout = await short.getByRole("radio").evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { top, width } = node.getBoundingClientRect();
+      return `${top}/${Math.round(width)}`;
+    }),
+  );
+  expect(new Set(shortLayout).size).toBe(1);
+  const classes = page.getByRole("radiogroup", { name: "Class type" });
+  const radios = classes.getByRole("radio");
+  expect(await intactLabels(classes)).toEqual(["Strength circuit", "Spin express", "Mobility flow"]);
+  expect(
+    new Set(await radios.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().top))).size,
+  ).toBeGreaterThan(1);
+  await classes.getByRole("radio", { name: "Spin express" }).click();
+  await expect.poll(() => radios.nth(1).getAttribute("aria-checked")).toBe("true");
+  expect(await clippedIssues()).toEqual([]);
+});
+
+it("keeps wrapped data-view tabs readable and keyboard-selectable", async () => {
+  await open("long_tabs");
+  const group = page.getByRole("tablist");
+  const tabs = group.getByRole("tab");
+  expect(await intactLabels(group)).toEqual([
+    "All classes",
+    "Strength work",
+    "Cardio express",
+    "Mobility flow",
+  ]);
+  const rows = await tabs.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().top));
+  expect(rows[0]).toBe(rows[1]);
+  expect(rows[2]).toBe(rows[3]);
+  expect(rows[0]!).toBeLessThan(rows[2]!);
+  await tabs.first().focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect.poll(() => tabs.nth(2).getAttribute("aria-selected")).toBe("true");
+  await page.getByText("Spin express", { exact: true }).waitFor();
+  expect(await page.getByText("Strength circuit", { exact: true }).count()).toBe(0);
+  expect(await clippedIssues()).toEqual([]);
+});
+
+it("reports ellipsized and masked track labels at the part address, then clears the resolved issues", async () => {
+  await open("long_tabs");
+  const id = "class_schedule/classes";
+  const fault = await page.addStyleTag({
+    content: `
+    [data-testid="${id}/r2/label"] {
+      white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 30px;
+    }
+    [data-testid="${id}/r3/label"] {
+      overflow: hidden; height: 6px;
+    }
+  `,
+  });
+  await expect.poll(clippedIssues).toEqual([`${id}/r2/label`, `${id}/r3/label`]);
+  await fault.evaluate((el) => el.parentNode?.removeChild(el));
+  await expect.poll(clippedIssues).toEqual([]);
+});
 
 it("switches Segmented panels by keyboard, reads the empty option and returns to the original addresses", async () => {
   await open("dashboard");
@@ -83,6 +168,7 @@ it("scrolls many Chips on one line and filters by keyboard, including empty and 
   });
   expect(new Set(geometry.tops).size).toBe(1);
   expect(geometry.overflowing).toBe(true);
+  expect(await clippedIssues()).toEqual([]);
   const lastChipFits = () =>
     chips.last().evaluate((node) => {
       const bounds = node.getBoundingClientRect();

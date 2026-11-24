@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
+import { choiceFitScreen } from "./choice-fit";
 import {
   lookPhoto,
   mediaProgressFixtures,
@@ -85,6 +86,8 @@ function Screen({
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
             {id === "Signature" && cell.state === "filled" ? (
               <SignaturePreview style={input.style}>{view}</SignaturePreview>
+            ) : id === "Field" && input.kind === "choice" ? (
+              <YStack paddingHorizontal={space.xl}>{view}</YStack>
             ) : (
               view
             )}
@@ -95,7 +98,7 @@ function Screen({
   );
 }
 
-function MediaProgressScreen({
+function FixtureScreen({
   id,
   screen,
   theme,
@@ -117,7 +120,7 @@ function MediaProgressScreen({
         <PhoneScreen
           {...{ screen, theme }}
           resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
-          interactive={screen.id === "garden_gallery"}
+          interactive={screen.id === "garden_gallery" || screen.id === choiceFitScreen.id}
           reduceMotion
           agentMode
         />
@@ -155,7 +158,7 @@ export function Screens({
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
             ))}
             {mediaProgressFixtures[id]?.map((screen) => (
-              <MediaProgressScreen
+              <FixtureScreen
                 key={screen.id}
                 id={id}
                 screen={omitHidden ? withoutHiddenFixtureSlots(screen) : screen}
@@ -163,6 +166,14 @@ export function Screens({
                 theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
               />
             ))}
+            {id === "Segmented" && (
+              <FixtureScreen
+                id={id}
+                screen={choiceFitScreen}
+                width={width}
+                theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
+              />
+            )}
           </YStack>
         ))}
       </XStack>

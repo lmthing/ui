@@ -20,7 +20,13 @@ type FieldProps = {
 function ChoiceField({ kind, label, choices = [], chosen }: FieldProps) {
   const pills = kind === "repeat";
   return (
-    <KitTrack look={pills ? "pills" : "segments"} part="field" role="radiogroup" label={label}>
+    <KitTrack
+      look={pills ? "pills" : "segments"}
+      part="field"
+      role="radiogroup"
+      label={label}
+      wrapAsPills={!pills}
+    >
       {choices.map((option) => (
         <KitChip
           key={option}

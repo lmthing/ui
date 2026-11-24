@@ -3,6 +3,7 @@ import { ScrollView, XStack, isWeb, type TamaguiElement } from "tamagui";
 import { component } from "../../../catalog";
 import { useKit, type NativeHost } from "../../provider";
 import { useAddressedJump } from "../../interact";
+import { NativeClipFrames, useNativeScrollFrames } from "../../report";
 import { matrixKey } from "./matrix-layout";
 
 type MatrixJump = { part: string; offset: number; anchor: RefObject<TamaguiElement | null> };
@@ -57,6 +58,7 @@ export function MatrixScroll({
 }: MatrixScrollProps) {
   const scroll = useRef<ScrollNode>(null);
   const kit = useKit();
+  const frames = useNativeScrollFrames("x", !fitted);
   if (fitted) return <>{children}</>;
   return (
     <ScrollView
@@ -96,7 +98,7 @@ export function MatrixScroll({
     >
       <XStack>
         {jump && <JumpEffect jump={jump} scroll={scroll} />}
-        {children}
+        <NativeClipFrames.Provider value={frames}>{children}</NativeClipFrames.Provider>
       </XStack>
     </ScrollView>
   );

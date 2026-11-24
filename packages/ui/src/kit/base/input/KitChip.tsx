@@ -1,10 +1,29 @@
-import { createContext, useContext, type KeyboardEvent, type ReactNode } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Line, Svg } from "react-native-svg";
-import { ScrollView, XStack, YStack, isWeb, styled, useTheme } from "tamagui";
-import { component, radius, size, space, type IconName, type Swatch } from "../../../catalog";
+import { ScrollView, XStack, YStack, isWeb, styled, useTheme, type TamaguiElement } from "tamagui";
+import {
+  component,
+  radius,
+  size,
+  space,
+  type as typography,
+  type IconName,
+  type Swatch,
+} from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
-import { KitIcon, KitText, shifted } from "../text";
+import { NativeClipFrames, useNativeClipFrame, useNativeScrollFrames } from "../../report";
+import { KitIcon, KitText, shifted, useTextStep, type TextTone } from "../text";
+import { segmentColumns } from "./segment-fit";
 // The 44×44px touch area carries the role; the visible pill or segment sits inside it.
 const Hit = styled(YStack, {
   minHeight: size.control.md,
@@ -12,6 +31,8 @@ const Hit = styled(YStack, {
   justifyContent: "center",
 });
 const ChoiceTarget = createContext<string | undefined>(undefined);
+type Fit = "equal" | "pills" | number;
+const SegmentFit = createContext<Fit>("equal");
 const diagonal = { x1: "0%", y1: "100%", x2: "100%", y2: "0%" };
 type ChipProps = {
   label: string;
@@ -31,8 +52,14 @@ type ChipProps = {
   roving?: boolean;
   focusable?: boolean;
 };
-function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
-  const { label, on, icon, look, stamped, disabled, swatch, loading, labelPart = "label" } = props;
+type ChipContentProps = ChipProps & {
+  stamped: boolean;
+  loading: boolean;
+  segmentLabel: boolean;
+  reportClipping: string | undefined;
+};
+function ChipContent(props: ChipContentProps) {
+  const { on, icon, look, disabled, swatch, loading } = props;
   const ks = useKitStyle();
   const segment = look === "segment";
   const box = look === "box";
@@ -47,14 +74,9 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       : !loading && on && !custom && !segment
         ? "onAccent"
         : "text";
-  const labelProps = { role: "label", tone, part: stamped ? labelPart : null, lines: 1 } as const;
-  const text = <KitText {...labelProps}>{label}</KitText>;
   const slashed = disabled && !loading;
-  const labelLayer = loading
-    ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
-    : slashed
-      ? { position: "relative" as const }
-      : undefined;
+  const clipRef = useRef<TamaguiElement>(null);
+  const clip = useNativeClipFrame(Boolean(slashed), clipRef);
   return (
     <XStack
       alignItems="center"
@@ -70,6 +92,7 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       borderColor={segment && !custom && !on ? undefined : loading || (segment && !custom) ? "$line" : edge}
       backgroundColor={loading ? "$line" : fill}
       overflow={slashed ? "hidden" : undefined}
+      {...(clip.tracking ? { ref: clipRef, onLayout: clip.onLayout, collapsable: false } : {})}
     >
       {slashed && <DisabledSlash />}
       {swatch && <SwatchMark {...props} swatch={swatch} />}
@@ -80,15 +103,47 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
         ) : (
           <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
         ))}
-      {labelLayer ? (
-        <YStack {...labelLayer}>
-          {slashed && <YStack fullscreen backgroundColor={fill} aria-hidden />}
-          {slashed ? <YStack position="relative">{text}</YStack> : text}
-        </YStack>
-      ) : (
-        text
-      )}
+      <NativeClipFrames.Provider value={clip.frames}>
+        <ChipLabel {...props} tone={tone} fill={fill} />
+      </NativeClipFrames.Provider>
     </XStack>
+  );
+}
+
+function ChipLabel(props: ChipContentProps & { tone: TextTone; fill: string }) {
+  const {
+    label,
+    stamped,
+    labelPart = "label",
+    disabled,
+    loading,
+    segmentLabel,
+    reportClipping,
+    tone,
+    fill,
+  } = props;
+  const part = stamped ? labelPart : null;
+  const labelProps = {
+    role: "label",
+    tone,
+    part,
+    ...(segmentLabel ? { align: "center" as const, breakLongWords: true } : { lines: 1 }),
+    reportClipping: loading ? undefined : reportClipping,
+  } as const;
+  const text = <KitText {...labelProps}>{label}</KitText>;
+  const slashed = disabled && !loading;
+  const layer = loading
+    ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
+    : slashed
+      ? { position: "relative" as const }
+      : undefined;
+  return layer || segmentLabel ? (
+    <YStack {...layer} flexShrink={segmentLabel ? component.base.bodyFlex : undefined}>
+      {slashed && <YStack fullscreen backgroundColor={fill} aria-hidden />}
+      {slashed ? <YStack position="relative">{text}</YStack> : text}
+    </YStack>
+  ) : (
+    text
   );
 }
 function DisabledSlash() {
@@ -129,25 +184,17 @@ function activateByKey(press: () => void) {
 }
 
 function Chip(input: ChipProps & { stamped: boolean }) {
-  const {
-    label,
-    value = label,
-    on,
-    role,
-    look,
-    stamped,
-    part = "root",
-    disabled,
-    roving,
-    focusable,
-    ...props
-  } = input;
-  const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
+  const { label, value = label, on, role, look, stamped, part = "root" } = input;
+  const { disabled, roving, focusable } = input;
+  const variant = look === "box" || disabled !== undefined || Boolean(input.swatch);
   const loading = useComponentState() === "loading" && variant;
   const addressed = stamped && part !== null && !loading;
   const address = usePart(part ?? "root", addressed);
   const kit = useKit();
   const parent = useContext(ChoiceTarget);
+  const fit = useContext(SegmentFit);
+  const segment = look === "segment";
+  const draw = segment && fit === "pills" ? "pill" : look;
   const target = part === null ? undefined : stamped ? address.testID : parent;
   const press =
     kit.interactive && kit.controller && target && !disabled && !loading
@@ -159,8 +206,8 @@ function Chip(input: ChipProps & { stamped: boolean }) {
   return (
     <Hit
       {...(addressed ? address : {})}
-      {...(look === "segment" ? { flex: component.base.bodyFlex, flexBasis: component.base.none } : {})}
-      paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
+      {...(draw === "segment" ? segmentFlex(fit) : segment ? { maxWidth: "100%" as const } : {})}
+      paddingHorizontal={draw === "segment" && variant ? space.xs : undefined}
       {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
       {...(press ? { onPress: press } : {})}
       {...(isWeb && press && roving !== undefined ? ({ onKeyDown: activateByKey(press) } as object) : {})}
@@ -173,11 +220,21 @@ function Chip(input: ChipProps & { stamped: boolean }) {
       accessibilityLabel={loading ? undefined : label}
     >
       <ChipContent
-        {...{ ...props, label, on, role, look, disabled, loading }}
+        {...input}
+        look={draw}
+        loading={loading}
         stamped={stamped && !loading}
+        segmentLabel={segment}
+        reportClipping={parent && !stamped ? parent : parent || segment ? address.testID : undefined}
       />
     </Hit>
   );
+}
+
+function segmentFlex(fit: Fit) {
+  return typeof fit === "number"
+    ? { flexBasis: `${100 / fit}%` as const, flexShrink: component.base.none, maxWidth: "100%" as const }
+    : { flex: component.base.bodyFlex, flexBasis: component.base.none, maxWidth: "100%" as const };
 }
 /** One selectable pill, segment or box. Pass `item: null` for a track-owned control. */
 export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: string | null }) {
@@ -215,7 +272,39 @@ type TrackProps = {
   children: ReactNode;
   scroll?: boolean;
   keyboard?: boolean;
+  /** A choice field uses pills instead of segmented rows when equal slots are too narrow. */
+  wrapAsPills?: boolean;
 };
+
+function useSegmentFit(children: ReactNode, segments: boolean, wrapAsPills: boolean) {
+  const [width, setWidth] = useState<number>();
+  const fontSize = typography[useTextStep({})("label")].size;
+  const chips = segments ? Children.toArray(children) : [];
+  const labels = chips.flatMap((node) => {
+    if (!isValidElement<ChipProps>(node) || node.type !== KitChip || node.props.look !== "segment") return [];
+    const { label, swatch, disabled } = node.props;
+    return [{ label, custom: Boolean(swatch) || disabled !== undefined }];
+  });
+  const direct = labels.length > 0 && labels.length === chips.length;
+  const columns = direct ? segmentColumns(width, fontSize, labels) : labels.length;
+  const fit: Fit = columns === labels.length ? "equal" : wrapAsPills ? "pills" : columns;
+  return { fit, setWidth, direct };
+}
+
+function trackStyle(segments: boolean, wrapping: boolean, ks: ReturnType<typeof useKitStyle>) {
+  return segments
+    ? {
+        backgroundColor: "$raised",
+        borderRadius: shifted("md", ks.radiusShift),
+        paddingHorizontal: space.xs,
+        flexWrap: wrapping ? ("wrap" as const) : undefined,
+      }
+    : {
+        flexWrap: wrapping ? ("wrap" as const) : ("nowrap" as const),
+        columnGap: space.sm,
+        rowGap: space.sm,
+      };
+}
 export function KitTrack({
   look = "pills",
   part = "root",
@@ -224,34 +313,39 @@ export function KitTrack({
   children,
   scroll,
   keyboard,
+  wrapAsPills = false,
 }: TrackProps) {
   const ks = useKitStyle();
   const address = usePart(part);
   const segments = look === "segments";
+  const { fit, setWidth, direct } = useSegmentFit(children, segments && !scroll, wrapAsPills);
+  const frames = useNativeScrollFrames("x", scroll);
   const track = (
     <XStack
       {...address}
-      {...(segments
-        ? {
-            backgroundColor: "$raised",
-            borderRadius: shifted("md", ks.radiusShift),
-            paddingHorizontal: space.xs,
-          }
-        : {
-            flexWrap: scroll ? ("nowrap" as const) : ("wrap" as const),
-            columnGap: space.sm,
-            rowGap: space.sm,
-          })}
+      onLayout={
+        direct
+          ? (event) => {
+              // Only the available width is an input. Changing rows never feeds their height back into fit.
+              const width = isWeb ? (address.ref.current as HTMLElement | null)?.clientWidth : undefined;
+              setWidth(width ?? event.nativeEvent.layout.width);
+              address.onLayout();
+            }
+          : address.onLayout
+      }
+      {...trackStyle(segments && fit !== "pills", !scroll && (!segments || fit !== "equal"), ks)}
       {...({ role: role ?? (segments ? "tablist" : "group") } as object)}
       {...(label ? { "aria-label": label } : {})}
       {...(isWeb && keyboard ? ({ onKeyDown: trackKey } as object) : {})}
     >
-      <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
+      <ChoiceTarget.Provider value={address.testID}>
+        <SegmentFit.Provider value={fit}>{children}</SegmentFit.Provider>
+      </ChoiceTarget.Provider>
     </XStack>
   );
   return scroll ? (
     <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator>
-      {track}
+      <NativeClipFrames.Provider value={frames}>{track}</NativeClipFrames.Provider>
     </ScrollView>
   ) : (
     track

@@ -172,6 +172,12 @@ export const examples = [
   walkRange,
   { ...walkRange },
   { kind: "voice", label: "Voice note" },
+  {
+    kind: "choice",
+    label: "Class type",
+    options: ["Strength circuit", "Spin express", "Mobility flow"],
+    value: "Strength circuit",
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
 export const probes = [

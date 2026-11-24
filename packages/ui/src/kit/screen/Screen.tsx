@@ -1,10 +1,11 @@
 import { useWords, useKit } from "../provider";
-import { useCallback, useEffect, useContext } from "react";
+import { useCallback, useContext } from "react";
 import { YStack } from "tamagui";
-import { checkScreen, filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
+import { filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
+import { RenderReportContext, useReport } from "../report";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
 import { filterVisibleContent } from "./visible-content";
 
@@ -17,13 +18,9 @@ type ScreenProps = {
 export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
-  const { environment, resolvePhoto } = useKit();
+  const { environment, resolvePhoto, root } = useKit();
   const screen = controller.snapshotScreen();
-  const fingerprint = JSON.stringify(screen);
-  useEffect(() => {
-    const timer = setTimeout(() => onReport?.(checkScreen(screen, components, { hostItemIds: true })), 150);
-    return () => clearTimeout(timer);
-  }, [fingerprint, components, onReport]);
+  const publish = useReport(screen, components, root, onReport);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
   const confirmation = controller.confirmationFor(data);
   const permitted = filterDeviceDataScreen(screen, components, data);
@@ -38,29 +35,31 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   }, [controller]);
   if (!controller.admitted) return null;
   return (
-    <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
-      <ScreenContent
-        controller={controller}
-        renderers={renderers}
-        screen={visible}
-        views={resolveDataViews(visible, components)}
-        covered={Boolean(sheet || confirmation)}
-      />
-      {sheet && !confirmation && (
-        <KitOverlay label={String(sheet.title)} onDismiss={dismiss}>
-          <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
-        </KitOverlay>
-      )}
-      {confirmation && (
-        <KitOverlay label={confirmation.message} onDismiss={dismiss}>
-          <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
-            <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
-              <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
-              <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
-            </KitSheet>
-          </PartScope>
-        </KitOverlay>
-      )}
-    </YStack>
+    <RenderReportContext.Provider value={publish}>
+      <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
+        <ScreenContent
+          controller={controller}
+          renderers={renderers}
+          screen={visible}
+          views={resolveDataViews(visible, components)}
+          covered={Boolean(sheet || confirmation)}
+        />
+        {sheet && !confirmation && (
+          <KitOverlay label={String(sheet.title)} onDismiss={dismiss}>
+            <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
+          </KitOverlay>
+        )}
+        {confirmation && (
+          <KitOverlay label={confirmation.message} onDismiss={dismiss}>
+            <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
+              <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
+                <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
+                <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
+              </KitSheet>
+            </PartScope>
+          </KitOverlay>
+        )}
+      </YStack>
+    </RenderReportContext.Provider>
   );
 }
