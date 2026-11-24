@@ -68,6 +68,14 @@ export const examples = [
   { options: [{ label: "Today" }, { label: "Week" }, { label: "All" }], at: 0 },
   { options: [{ label: "Upcoming" }, { label: "Past" }], at: 1 },
   { options: [{ label: "Today" }, { label: "Week" }] },
+  {
+    options: [
+      { label: "Strength class" },
+      { label: "Endurance work" },
+      { label: "Mobility class" },
+      { label: "Recovery class" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Segmented");
