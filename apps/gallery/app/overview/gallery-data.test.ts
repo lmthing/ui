@@ -19,15 +19,14 @@ it("selects only requested screen presets in catalog order and keeps the unfilte
 });
 
 describe("gallery overview data", () => {
-  it("shows all 45 core components once, in stable group and id order", () => {
+  it("shows every component once, in stable group and id order", () => {
     const sections = groupedIds("");
     expect(sections.map(({ group }) => group)).toEqual([
       ...groups,
       ...[...new Set(Object.values(packOf))].sort(),
     ]);
     const ids = sections.flatMap((section) => section.ids);
-    expect(ids).toHaveLength(45 + Object.keys(packOf).length);
-    expect(new Set(ids).size).toBe(45 + Object.keys(packOf).length);
+    expect(new Set(ids).size).toBe(componentIds.length);
     expect([...ids].sort()).toEqual(componentIds);
     for (const section of sections) expect(section.ids).toEqual([...section.ids].sort());
   });
@@ -73,6 +72,13 @@ describe("gallery overview data", () => {
     );
     expect(new Set(cells.map(cellKey)).size).toBe(cells.length);
     expect(variantCount(id)).toBe(cells.length * presets.length * modes.length);
+  });
+});
+
+it("places SignInOptions in the core action gallery with provider examples", () => {
+  expect(groupedIds("SignInOptions")).toEqual([{ kind: "core", group: "action", ids: ["SignInOptions"] }]);
+  expect(cellsOf("SignInOptions")[0]?.example).toMatchObject({
+    items: [{ provider: "apple" }, { provider: "google" }, { provider: "email" }],
   });
 });
 

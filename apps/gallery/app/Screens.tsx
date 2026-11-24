@@ -10,7 +10,14 @@ import {
   type ComponentName,
   type Definition,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, PhoneScreen, renderers, useKitStyle } from "@lmthing/ui/kit";
+import {
+  CredentialPreviewContext,
+  KitProvider,
+  PartScope,
+  PhoneScreen,
+  renderers,
+  useKitStyle,
+} from "@lmthing/ui/kit";
 import type { ReactNode } from "react";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController, SignaturePreview } from "./draw";
@@ -51,6 +58,16 @@ function LookFrame({ screen, width, children }: { screen: string; width: number;
   );
 }
 
+function lookView(id: ComponentName, state: Cell["state"], input: Record<string, unknown>, view: ReactNode) {
+  if (id === "Signature" && state === "filled")
+    return <SignaturePreview style={input.style}>{view}</SignaturePreview>;
+  if (id !== "Field") return view;
+  if (input.kind === "choice") return <YStack paddingHorizontal={space.xl}>{view}</YStack>;
+  if (input.kind === "password" || input.kind === "code")
+    return <CredentialPreviewContext.Provider value>{view}</CredentialPreviewContext.Provider>;
+  return view;
+}
+
 function Screen({
   id,
   cell,
@@ -84,13 +101,7 @@ function Screen({
       >
         <LookFrame {...{ width, screen }}>
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
-            {id === "Signature" && cell.state === "filled" ? (
-              <SignaturePreview style={input.style}>{view}</SignaturePreview>
-            ) : id === "Field" && input.kind === "choice" ? (
-              <YStack paddingHorizontal={space.xl}>{view}</YStack>
-            ) : (
-              view
-            )}
+            {lookView(id, cell.state, input, view)}
           </PartScope>
         </LookFrame>
       </KitProvider>

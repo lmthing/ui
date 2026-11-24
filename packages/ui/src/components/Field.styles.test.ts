@@ -3,9 +3,9 @@ import { components, size, space } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { examples } = components.Field;
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 describe("Field rendering", () => {
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   it.each(examples)("draws unique parts and the actual control value", (example) => {
     const html = renderInstance("Field", example, "filled", theme);
     const controls =
@@ -58,4 +58,12 @@ describe("Field rendering", () => {
       expect(styleAt(html, target.children[0]!)).toContain(`min-height:${size.control.md}px`);
     }
   });
+});
+
+it("uses the phone keyboard and six empty code cells by default", () => {
+  const phone = renderInstance("Field", { kind: "phone", label: "Phone number" }, "filled", theme);
+  expect(elementAt(phone, "home/c1/field").attributes).toMatch(/inputmode="tel"/i);
+  const code = renderInstance("Field", { kind: "code", label: "Code" }, "filled", theme);
+  expect(code.match(/data-kit-code-cell=""/g)).toHaveLength(6);
+  expect(elementAt(code, "home/c1/field").attributes).toContain('value=""');
 });

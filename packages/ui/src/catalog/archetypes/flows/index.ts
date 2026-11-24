@@ -4,4 +4,7 @@ import * as success from "./success";
 import * as onboarding from "./onboarding";
 import * as capture from "./capture";
 import * as plans from "./plans";
-export { form, settings, success, onboarding, capture, plans };
+import * as signin from "./signin";
+import * as signup from "./signup";
+import * as verify from "./verify";
+export { form, settings, success, onboarding, capture, plans, signin, signup, verify };

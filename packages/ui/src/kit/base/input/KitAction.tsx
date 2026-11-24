@@ -1,5 +1,5 @@
 import { useId, useLayoutEffect, useState } from "react";
-import { XStack, styled, isWeb, VisuallyHidden } from "tamagui";
+import { XStack, YStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
   accentGlow,
   component,
@@ -68,9 +68,12 @@ const inactiveSurface = {
 type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
+  /** Decorative text mark in the same rail as a labelled action's icon. */
+  mark?: string | undefined;
   kind?: ActionKind;
-  /** Glyph tone for quiet actions. */
+  /** Neutral treatment for secondary and quiet actions. */
   tone?: "accent" | "neutral";
+  align?: "start";
   goto?: string | undefined;
   part?: string | null;
   /** When supplied, only these explicit parts are drawn for the label and icon. */
@@ -179,15 +182,32 @@ function useActionBehavior({
   };
 }
 
+function ActionMark({ mark, tone }: { mark: string; tone: TextTone }) {
+  return (
+    <XStack
+      width={size.icon.sm}
+      alignItems="center"
+      justifyContent="center"
+      aria-hidden
+      accessibilityElementsHidden
+    >
+      <KitText role={layoutType.meta} tone={tone} part={null}>
+        {mark}
+      </KitText>
+    </XStack>
+  );
+}
+
 function ActionContent({
   label,
   icon,
+  mark,
   part,
   contentParts,
   tone,
   loading,
   quiet,
-}: Pick<ActionProps, "label" | "icon" | "part" | "contentParts"> & {
+}: Pick<ActionProps, "label" | "icon" | "mark" | "part" | "contentParts"> & {
   tone: TextTone & IconTone;
   loading: boolean;
   quiet: boolean;
@@ -210,6 +230,7 @@ function ActionContent({
             decorative={loading || part === null || !iconPart}
           />
         )}
+        {!icon && mark && <ActionMark mark={mark} tone={tone} />}
         {label && (
           <KitText
             role={layoutType.meta}
@@ -258,6 +279,30 @@ function useActionFinish(kind: ActionKind, standaloneIcon: boolean, active: bool
   } as const;
 }
 
+function actionAppearance(
+  props: ActionProps,
+  kind: ActionKind,
+  loading: boolean,
+  inactive: boolean,
+  copied: boolean,
+) {
+  const bare = kind === "quiet" || (kind === "danger" && !props.label);
+  const neutral =
+    props.tone === "neutral" || (props.tone === undefined && (!props.label || props.icon === "close"));
+  const neutralOutline = kind === "secondary" && props.tone === "neutral";
+  const tone = neutralOutline ? "text" : kind === "quiet" && neutral ? "muted" : toneOf[kind];
+  const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
+  const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
+  const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];
+  const frame = {
+    justifyContent: props.align === "start" ? ("flex-start" as const) : undefined,
+    borderColor: neutralOutline || (kind === "secondary" && inactive) ? "$line" : undefined,
+    borderWidth: bare ? component.base.none : undefined,
+    backgroundColor: inactive ? fill : copied ? "$goodSoft" : neutralOutline ? "$surface" : undefined,
+  } as const;
+  return { bare, captionTone, frame };
+}
+
 export function KitAction(props: ActionProps) {
   const {
     label,
@@ -272,21 +317,14 @@ export function KitAction(props: ActionProps) {
   } = props;
   const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
   const finish = useActionFinish(kind, !label && !full, !inactive && !copied);
-  const bare = kind === "quiet" || (kind === "danger" && !label);
-  const neutral = props.tone === "neutral" || (props.tone === undefined && (!label || icon === "close"));
-  const tone = kind === "quiet" && neutral ? "muted" : toneOf[kind];
-  const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
-  const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
-  const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];
+  const { bare, captionTone, frame } = actionAppearance(props, kind, loading, inactive, copied);
   const statusId = useId();
   return (
     <>
       <Frame
         {...(part === null ? {} : address)}
         kind={kind}
-        borderColor={kind === "secondary" && inactive ? "$line" : undefined}
-        borderWidth={bare ? component.base.none : undefined}
-        backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        {...frame}
         {...finish}
         loading={loading}
         iconOnly={!label}
@@ -304,6 +342,7 @@ export function KitAction(props: ActionProps) {
         <ActionContent
           label={copied && label ? (copiedLabel ?? label) : label}
           icon={copied && icon ? "check" : icon}
+          mark={props.mark}
           {...{ part, tone: captionTone, loading, quiet: bare }}
           {...(contentParts ? { contentParts } : {})}
         />
@@ -314,5 +353,19 @@ export function KitAction(props: ActionProps) {
         </VisuallyHidden>
       )}
     </>
+  );
+}
+
+/** A separator label on the text rail of start-aligned actions with leading marks. */
+export function KitActionDivider({ label, part }: { label: string; part: string }) {
+  return (
+    <YStack
+      paddingLeft={space.lg + component.base.borderWidth + size.icon.sm + space.sm}
+      paddingBottom={space.sm}
+    >
+      <KitText part={part} role="caption" tone="muted">
+        {label}
+      </KitText>
+    </YStack>
   );
 }

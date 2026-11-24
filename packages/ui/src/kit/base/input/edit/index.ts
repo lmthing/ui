@@ -1,4 +1,5 @@
 import { useControlValue, useDateEdit, useNumericControl } from "../../../interact";
+import type { ReactNode } from "react";
 import { isWeb } from "tamagui";
 import { snapNumber, type IconName } from "../../../../catalog";
 import { useKit } from "../../../provider";
@@ -7,7 +8,7 @@ import { useComponentState, type usePart } from "../../../part";
 export type InputProps = {
   hint: string;
   value?: string | undefined;
-  kind?: "text" | "search" | "number" | "date" | "time";
+  kind?: "text" | "search" | "number" | "date" | "time" | "email" | "phone";
   icon?: IconName | undefined;
   /** Null reserves the loading drawing without an address. */
   part?: string | null;
@@ -27,6 +28,9 @@ export type InputProps = {
   min?: number | undefined;
   max?: number | undefined;
   step?: number | undefined;
+  /** Private text belongs to its mounted control, not the controller. */
+  privateEntry?: { value: string; onChange: (value: string) => void; masked: boolean };
+  trailing?: ReactNode;
 };
 
 function useInputEdit(props: InputProps, address: string, declared: boolean) {
@@ -72,6 +76,19 @@ function numericRange(value: string | undefined, { min, max }: Pick<InputProps, 
   };
 }
 
+function privateBinding(entry: NonNullable<InputProps["privateEntry"]>, editable: boolean) {
+  return {
+    value: entry.value,
+    onChangeText: editable ? entry.onChange : undefined,
+    secureTextEntry: entry.masked,
+    type: entry.masked ? "password" : "text",
+    autoComplete: "off",
+    autoCapitalize: "none",
+    autoCorrect: false,
+    spellCheck: false,
+  };
+}
+
 export function useInputBinding({
   address,
   hint,
@@ -99,6 +116,7 @@ export function useInputBinding({
         : value;
   const dateEdit = useDateEdit(address.testID, shown, dateSet && editable);
   const role = loading ? undefined : numericSet ? "spinbutton" : kind === "search" ? "searchbox" : "textbox";
+  const privateEntry = options.privateEntry;
   return {
     role,
     loading,
@@ -108,9 +126,8 @@ export function useInputBinding({
       ...(numericSet && !loading ? numericRange(shown, options) : {}),
       onFocus: () => kit.nativeHost?.ensureVisible?.(address.ref.current),
       ...(dateSet ? dateEdit : { value: shown, onChangeText: editable && kit.controller ? edit : undefined }),
-      type: kind === "search" ? "search" : kind === "date" || kind === "time" ? kind : "text",
-      inputMode: kind === "number" ? "decimal" : undefined,
-      keyboardType: kind === "number" ? "decimal-pad" : "default",
+      ...inputKind(kind),
+      ...(privateEntry ? privateBinding(privateEntry, editable) : {}),
       ...(numericSet ? { type: "number" } : {}),
       ...(dateSet ? { type: "text", autoCorrect: false, autoCapitalize: "none" } : {}),
       min: options.min,
@@ -118,5 +135,22 @@ export function useInputBinding({
       step: options.step,
       ...(isWeb && dateSet && !loading ? { "data-set-kind": "date" } : {}),
     },
+  };
+}
+
+function inputKind(kind: NonNullable<InputProps["kind"]>) {
+  if (kind === "email")
+    return {
+      type: "email",
+      inputMode: "email",
+      keyboardType: "email-address",
+      autoCapitalize: "none",
+      autoCorrect: false,
+    };
+  if (kind === "phone") return { type: "tel", inputMode: "tel", keyboardType: "phone-pad" };
+  return {
+    type: kind === "number" ? "text" : kind,
+    inputMode: kind === "number" ? "decimal" : undefined,
+    keyboardType: kind === "number" ? "decimal-pad" : "default",
   };
 }

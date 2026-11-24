@@ -459,15 +459,20 @@ A large clock counting down or up with start and stop, or the time left until a 
 ### Input (8)
 
 ### `Field` · built · pending: photo permission tier · input · phone · body · weight 1
-One labelled piece of information: text, number, date, time, a choice, a repeat, a toggle, a slider or a photo.
+One labelled piece of information, including contact details or a private account credential.
 - Pick: one value on a form. Not several lines of writing (`Composer`), not options that need a sentence
   each (`Choice`).
-- Writes: `kind` (`text` default, `number`, `date`, `time`, `choice`, `repeat`, `toggle`, `slider`, `photo`),
+- Writes: `kind` (`text` default, `number`, `date`, `time`, `choice`, `repeat`, `toggle`, `slider`, `photo`,
+  `range`, `voice`, `email`, `password`, `code`, `phone`),
   `label` text(24), `value` text(40) optional (one line), `hint` text(60) optional, `options` text(16),
   2–4 (required for `choice` only). Kind `repeat` uses its own `repeat` prop (`never`, `daily`, `weekdays`,
   `weekly`, `monthly`, `yearly`), never `value`; omit `repeat` for other kinds.
+- `email` and `phone` use the corresponding keyboards. `password` starts masked and has a local Show/Hide
+  control. `code` uses 4–8 digit boxes (`length`, six if omitted). Do not prefill either private kind.
 - Parts → actions: `field` `type`, `select`, `toggle`, `set` or `press` (photo) by kind.
-- Tier: `phone` today. **Pending:** kind `photo` needs your OK and must read `!needs-ok`.
+  `password` and `code` have local-only entry, not an agent `type` action.
+- Tier: `phone`, except `photo` and `voice` require your OK, and the `password`/`code` input and password
+  reveal parts need an outside service for real account flows.
 
 ### `Chips` · built · input · phone · body · weight 1
 A wrapping row of two to six short pills to filter, or to pick one.
@@ -507,7 +512,7 @@ See section 2.
 ### `Composer` · built · pending: empty/sent states · input · phone · body · weight 2
 See section 2.
 
-### Action (4)
+### Action (5)
 
 ### `Button` · built · action · phone · bottom · weight 1
 The one thing to do next as a full-width button (`primary` at most once per screen), or a quieter one.
@@ -524,6 +529,16 @@ Two to four shortcuts as icon tiles.
 - Pick: a few different things the person can do next. Not the one main thing (`Button`), not a menu of
   extra actions (`Sheet` style `menu`).
 - Writes: `items` of icon, label text(16), `goto`, 2–4. · Parts → actions: items `root press`.
+
+### `SignInOptions` · built · action · service · body · weight 2
+A short stack of provider buttons for account access. Labels are built in; the buttons only navigate
+between mock screens.
+- Pick: offer ways to log in or create an account. Not ordinary shortcuts (`Actions`) or the main
+  form submit control (`Button`).
+- Writes: `items` of `provider` (`apple`, `google`, `email`, `phone`) and `goto`, 1–4 distinct providers;
+  optional `divider` text(12), such as “or”.
+- Styles: `emphasis`: `normal`, `quiet`; `detail`: `full`, `brief` (hides divider).
+- Parts → actions: items `root press`.
 
 ### `Success` · built · pending: toast placement/expiry · action · phone · body · weight 2
 Proof something worked: a large tick, a title and a line; or a toast at the bottom for a few seconds with an
@@ -593,10 +608,11 @@ logged as a miss and feeds the catalog review.
 
 ## 5. Archetypes
 
-All seventeen core archetypes are implemented as data. `defaultLines` validates every layout, and `runComposeProbes` scores required slots, screen rules and the text-first rubric.
+All twenty core archetypes are implemented as data. `defaultLines` validates every layout, and `runComposeProbes` scores required slots, screen rules and the text-first rubric.
 
 The built ids are `home`, `dashboard`, `list`, `detail`, `form`, `checklist`, `calendar`, `tracker`,
-`journal`, `profile`, `settings`, `success`, `onboarding`, `capture`, `chat`, `plans` and `browse`.
+`journal`, `profile`, `settings`, `success`, `onboarding`, `capture`, `chat`, `plans`, `browse`,
+`signin`, `signup` and `verify`.
 The recipes affected by the added components are:
 
 | Archetype | Built use | Recipe |
@@ -606,9 +622,15 @@ The recipes affected by the added components are:
 | `onboarding` | May ask a question | Hero, Note, Steps, Choice \| Button |
 | `plans` | Pricing and upgrade | Header, Hero, Choice (with `value`), Note, Button |
 | `browse` | Shelves to explore | Header, Search, Chips, SectionTitle, List[shelf], SectionTitle, List[shelf] |
+| `signin` | `credentials`: log in to an account | Header or Hero, Field[email], Field[password], primary Button (Log in), Note or quiet Button (Forgot password?), optional SignInOptions |
+| `signup` | `credentials`: create an account | Header, Field[text], Field[email], Field[password], Note (terms), primary Button (Create account), optional SignInOptions, quiet Button (Log in) |
+| `verify` | `code`: enter a one-time code | Header, Note (where the code went), Field[code], primary Button (Verify), quiet Button (Resend code) |
 
 ## 6. Built screen rules
 
+- Account archetypes carry the `service` tier: their links show the mock flow, not real sign-in.
+  Passwords and one-time codes never enter authored lines or agent actions. Use one primary submit
+  Button; recovery, switching to log in and resending use quiet links.
 - At most one `Sheet` per screen, region `overlay`; something on the screen opens it (a `goto: sheet`)
   unless a flow step does. It does not count toward the screen's weight.
 - At most one `Choice`, one `Player` and one `Composer` per screen; `Composer[reply]` comes last in the body,
