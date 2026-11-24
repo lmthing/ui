@@ -129,7 +129,8 @@ export function scoreComposition(
       );
     available = available.filter((entry) => !found.includes(entry));
   }
-  return issues.length ? { issues } : { issues, screen: decoded };
+  if (issues.length) return { issues };
+  return { issues, screen: meta.tier ? { ...decoded, tier: meta.tier } : decoded };
 }
 export function compositionRubricPrompt(screen: ScreenLike, defs: Record<string, Definition>): string {
   return [

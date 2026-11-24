@@ -48,8 +48,9 @@ export function composeRequest(
     `Real app content: ${JSON.stringify(cast)}`,
   ];
   const listing = names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`);
+  const { tier: _tier, ...example } = defaultLines(meta, layout, cast, defs);
   const after = [
-    `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
+    `A valid default for this layout: ${JSON.stringify(example)}`,
     ...(offersVariants ? [writerVariants] : []),
     "Use the supplied facts, not content from examples. " +
       "Do not invent dates, status, measurements, or zero values for missing data. " +

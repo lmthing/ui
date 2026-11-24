@@ -19,17 +19,23 @@ it("selects only requested screen presets in catalog order and keeps the unfilte
 });
 
 describe("gallery overview data", () => {
-  it("shows all 45 core components once, in stable group and id order", () => {
+  it("shows all 46 core components once, in stable group and id order", () => {
     const sections = groupedIds("");
     expect(sections.map(({ group }) => group)).toEqual([
       ...groups,
       ...[...new Set(Object.values(packOf))].sort(),
     ]);
     const ids = sections.flatMap((section) => section.ids);
-    expect(ids).toHaveLength(45 + Object.keys(packOf).length);
-    expect(new Set(ids).size).toBe(45 + Object.keys(packOf).length);
+    expect(ids).toHaveLength(46 + Object.keys(packOf).length);
+    expect(new Set(ids).size).toBe(46 + Object.keys(packOf).length);
     expect([...ids].sort()).toEqual(componentIds);
     for (const section of sections) expect(section.ids).toEqual([...section.ids].sort());
+  });
+  it("places SignInOptions in the core action gallery with provider examples", () => {
+    expect(groupedIds("SignInOptions")).toEqual([{ kind: "core", group: "action", ids: ["SignInOptions"] }]);
+    expect(cellsOf("SignInOptions")[0]?.example).toMatchObject({
+      items: [{ provider: "apple" }, { provider: "google" }, { provider: "email" }],
+    });
   });
   it("filters by pack, keeping ready and draft components together and excluding core", () => {
     const query = new URLSearchParams("?pack=booking");

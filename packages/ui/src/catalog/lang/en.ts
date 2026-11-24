@@ -9,6 +9,7 @@ import { words as SheetWords } from "./en/Sheet";
 import { words as CalendarWords } from "./en/Calendar";
 import { words as SuccessWords } from "./en/Success";
 import { words as FieldWords } from "./en/Field";
+import { words as SignInOptionsWords } from "./en/SignInOptions";
 import { words as KeyValueWords } from "./en/KeyValue";
 import { words as PeopleWords } from "./en/People";
 import { words as MapPinsWords } from "./en/MapPins";
@@ -43,6 +44,7 @@ export const en = {
   ...CalendarWords,
   ...SuccessWords,
   ...FieldWords,
+  ...SignInOptionsWords,
   ...KeyValueWords,
   ...PeopleWords,
   ...MapPinsWords,

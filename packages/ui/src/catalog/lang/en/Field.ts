@@ -4,6 +4,12 @@ export const words = {
   fieldDateError: "Use a real date in YYYY-MM-DD",
   fieldTimeError: "Use a time in HH:MM",
   fieldValueError: "The value does not fit this field",
+  fieldPassword: {
+    show: "Show",
+    hide: "Hide",
+    showLabel: "Show password",
+    hideLabel: "Hide password",
+  },
   repeatLabels: {
     never: "Never",
     daily: "Daily",

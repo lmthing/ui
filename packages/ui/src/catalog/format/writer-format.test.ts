@@ -53,7 +53,7 @@ it("includes one const/enum branch per writable registry id, generated from Zod 
   expect(branches.map((branch) => branch.properties?.c?.const)).toEqual(
     coreDefs.filter((def) => !def.meta.codeOwned).map((def) => def.meta.id),
   );
-  expect(branches).toHaveLength(48);
+  expect(branches).toHaveLength(49);
   expect(branches.map((branch) => branch.properties?.c?.const)).not.toContain("Ring");
   checkObjects(format.json_schema.schema);
   const line = writerFormatFor(components.List).json_schema.schema;
@@ -61,6 +61,20 @@ it("includes one const/enum branch per writable registry id, generated from Zod 
   expect(line.properties?.rows).toMatchObject({ type: "array", minItems: 1, maxItems: 6 });
   expect(() => writerFormatFor(components.TabBar)).toThrow("code-owned");
   expect(() => writerFormat({ ids: [], defs: [] })).toThrow("no writable");
+});
+it("exports auth components and bounds through the scoped Writer format", () => {
+  const branches = writerFormat(core).json_schema.schema.anyOf!;
+  const field = branches.find(({ properties }) => properties?.c?.const === "Field")!.properties!;
+  expect(field.kind?.anyOf?.[0]?.enum).toEqual(
+    expect.arrayContaining(["email", "password", "code", "phone"]),
+  );
+  expect(field.length?.anyOf?.[0]).toMatchObject({ type: "integer", minimum: 4, maximum: 8 });
+  const options = branches.find(({ properties }) => properties?.c?.const === "SignInOptions")!.properties!;
+  expect(options.items).toMatchObject({
+    minItems: 1,
+    maxItems: 4,
+    items: { properties: { provider: { enum: ["apple", "google", "email", "phone"] } } },
+  });
 });
 it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
   "scopes and measures core plus the existing ten-entry %s fixture",
@@ -75,8 +89,8 @@ it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
     const defs = { ...Object.fromEntries(coreDefs.map((def) => [def.meta.id, def])), ...fixture };
     const absent = writerFormat(registryOf(defs, { includeDrafts: true }, packOf));
     const included = writerFormat(registryOf(defs, { packs: [pack], includeDrafts: true }, packOf));
-    expect(absent.json_schema.schema.anyOf).toHaveLength(48);
-    expect(included.json_schema.schema.anyOf).toHaveLength(58);
+    expect(absent.json_schema.schema.anyOf).toHaveLength(49);
+    expect(included.json_schema.schema.anyOf).toHaveLength(59);
     const text = JSON.stringify(included.json_schema.schema);
     expect(estimateTokens(text)).toBe(Math.ceil(Array.from(text).length / 4));
     expect(text.length).toBeGreaterThan(JSON.stringify(absent.json_schema.schema).length);

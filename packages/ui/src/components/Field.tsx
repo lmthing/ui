@@ -52,9 +52,9 @@ export const meta = {
   realPath: "A field value stored on one record in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
-  parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading"],
-  partTiers: { voice: "ok" },
-  partTiersBy: { field: { prop: "kind", tiers: { photo: "ok" } } },
+  parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading", "reveal"],
+  partTiers: { voice: "ok", reveal: "service" },
+  partTiersBy: { field: { prop: "kind", tiers: { photo: "ok", password: "service", code: "service" } } },
   localState: rangeState,
   states: ["filled"],
   // prettier-ignore
@@ -111,9 +111,10 @@ function fitsRange({ min, max, lower, upper }: Endpoints) {
 // prettier-ignore
 export const props = z.strictObject({
   ...variantProps(meta.variants),
-  kind: z.enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo", "range", "voice"]).default("text"),
+  kind: z.enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo", "range", "voice", "email", "password", "code", "phone"]).default("text"),
   label: text(24),
   value: text(40).refine((value) => !/[\r\n]/.test(value), "A field is one line").optional(),
+  length: z.int().min(4).max(8).optional(),
   repeat: z.enum(repeatOptions).optional(), hint: text(60).optional(),
   options: z.array(text(16)).min(2).max(4).optional(),
   min: endpoint.optional(), max: endpoint.optional(), lower: endpoint.optional(), upper: endpoint.optional(),
@@ -132,10 +133,14 @@ export const props = z.strictObject({
     { path: ["value"], message: "A repeat uses repeat, not value" })
   .refine(({ kind, repeat }) => repeat === undefined || kind === "repeat",
     { path: ["repeat"], message: "Repeat is only for the repeat kind" })
+  .refine(({ kind, length }) => length === undefined || kind === "code",
+    { path: ["length"], message: "Length is only for the code kind" })
+  .refine(({ kind, value }) => value === undefined || (kind !== "password" && kind !== "code"),
+    { path: ["value"], message: "Passwords and codes must start blank" })
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { hint: undefined } : {}),
-    mode: ["text", "number", "date", "time"].includes(value.kind) ? "input" :
+    mode: ["text", "number", "date", "time", "email", "phone"].includes(value.kind) ? "input" :
       value.kind === "choice" || value.kind === "repeat" ? "choice" : "other",
   }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -178,6 +183,12 @@ export const examples = [
     options: ["Strength circuit", "Spin express", "Mobility flow"],
     value: "Strength circuit",
   },
+  { kind: "email", label: "Email address", value: "gardener@example.test" },
+  { kind: "password", label: "Password" },
+  { kind: "code", label: "Email code", length: 4 },
+  { kind: "code", label: "Verification code" },
+  { kind: "code", label: "Text message code", length: 8 },
+  { kind: "phone", label: "Phone number", value: "+1 202-555-0142" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
 export const probes = [
@@ -201,6 +212,22 @@ export const probes = [
   {
     ...write("Add one form input called Voice note that records from my microphone instead of typing."),
     expectProps: { kind: "voice" },
+  },
+  {
+    ...write("Let me enter my email address to log in. Label the blank input Email address."),
+    expectProps: { kind: "email" },
+  },
+  {
+    ...write("Add a blank Password input that masks what I type."),
+    expectProps: { kind: "password" },
+  },
+  {
+    ...write("Let me type the eight-digit one-time code from my text message. Leave the boxes empty."),
+    expectProps: { kind: "code", length: 8 },
+  },
+  {
+    ...write("Add a blank Phone number input that opens the phone keypad."),
+    expectProps: { kind: "phone" },
   },
 ] satisfies Probe[];
 
@@ -248,6 +275,7 @@ export function Field(input: Props<typeof props, typeof meta>) {
           kind={input.kind}
           label={input.label}
           value={input.value}
+          length={input.length}
           choices={
             input.kind === "repeat" ? repeatOptions.map((option) => repeatLabels[option]) : input.options
           }

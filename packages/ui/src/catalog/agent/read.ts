@@ -1,7 +1,7 @@
 import { liveProps, localValues, parseControlProps } from "./live-props";
 import { z } from "zod";
 import type { Definition } from "../probes";
-import type { StateName } from "../types";
+import type { StateName, Tier } from "../types";
 import { formatAffordance } from "./affordances";
 import { visibleNestedProps } from "./selection";
 import { parseAppCurrency, type AppCurrency } from "./app-currency";
@@ -140,6 +140,7 @@ export function readComponent(
 export type ScreenLike = {
   id: string;
   title?: string;
+  tier?: Tier;
   components: ({ id: string; c: string; state?: StateName } & Props)[];
   [disabledSelectionChecks]?: Pick<ReadonlySet<string>, "has">;
   [hostActionPolicy]?: HostActionPolicy;

@@ -274,7 +274,8 @@ export function KitAction(props: ActionProps) {
   const finish = useActionFinish(kind, !label && !full, !inactive && !copied);
   const bare = kind === "quiet" || (kind === "danger" && !label);
   const neutral = props.tone === "neutral" || (props.tone === undefined && (!label || icon === "close"));
-  const tone = kind === "quiet" && neutral ? "muted" : toneOf[kind];
+  const neutralOutline = kind === "secondary" && props.tone === "neutral";
+  const tone = neutralOutline ? "text" : kind === "quiet" && neutral ? "muted" : toneOf[kind];
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];
@@ -284,9 +285,9 @@ export function KitAction(props: ActionProps) {
       <Frame
         {...(part === null ? {} : address)}
         kind={kind}
-        borderColor={kind === "secondary" && inactive ? "$line" : undefined}
+        borderColor={neutralOutline || (kind === "secondary" && inactive) ? "$line" : undefined}
         borderWidth={bare ? component.base.none : undefined}
-        backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        backgroundColor={inactive ? fill : copied ? "$goodSoft" : neutralOutline ? "$surface" : undefined}
         {...finish}
         loading={loading}
         iconOnly={!label}

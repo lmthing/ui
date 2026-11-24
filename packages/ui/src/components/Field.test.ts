@@ -4,6 +4,7 @@ import {
   components,
   createRegistry,
   placeholderDetail,
+  partTierAt,
   readComponent,
   type CastLike,
   type Props,
@@ -33,7 +34,7 @@ describe("Field schema", () => {
     { label: "Name", value: "" },
     { label: "Name", value: "a".repeat(41) },
     { label: "Name", hint: "a".repeat(61) },
-    { label: "Name", kind: "email" },
+    { label: "Name", kind: "address" },
     { label: "Name", density: "airy" },
     { label: "Name", detail: "hidden" },
     { label: "Name", options: ["A", "B"] },
@@ -132,6 +133,8 @@ describe("Field fallback and metadata", () => {
     ["number", "type"],
     ["date", "type"],
     ["time", "type"],
+    ["email", "type"],
+    ["phone", "type"],
     ["choice", "select"],
     ["toggle", "toggle"],
     ["slider", "set"],
@@ -186,7 +189,7 @@ describe("Field fallback and metadata", () => {
       task: "Name the plant Basil",
       expect: { address: "f1/field", action: "type" },
     });
-    expect(new Set(examples.map((example) => example.kind)).size).toBe(11);
+    expect(new Set(examples.map((example) => example.kind)).size).toBe(15);
   });
   it("registers its data-only definition and ids", () => {
     const registry = createRegistry();
@@ -194,5 +197,28 @@ describe("Field fallback and metadata", () => {
     expect(registry.schema("Field")).toBe(props);
     expect(registry.resolve("f-i-e-l-d")).toBe("Field");
     expect(registry.resolve("f-i-e-l-d")).toBe("Field");
+  });
+});
+
+describe("account fields", () => {
+  it.each([4, 6, 8])("accepts %i code boxes", (length) => {
+    expect(props.safeParse({ kind: "code", label: "Verification code", length }).success).toBe(true);
+  });
+  it.each([
+    { kind: "code", length: 3 },
+    { kind: "code", length: 9 },
+    { kind: "code", length: 4.5 },
+    { kind: "phone", length: 6 },
+    { kind: "code", value: "1234" },
+    { kind: "password", value: "mock text" },
+  ])("rejects private seed values and invalid lengths", (input) => {
+    expect(props.safeParse({ label: "Sign in", ...input }).success).toBe(false);
+  });
+  it.each(["password", "code"])("makes %s local-only and marks it as a service part", (kind) => {
+    const field = { kind, label: "Sign in" };
+    const parsed = props.parse(field);
+    expect(partTierAt(meta, parsed, "field")).toBe("service");
+    expect(affordancesOf(meta, parsed, "f1")).toEqual([]);
+    expect(readComponent(components.Field, field, "f1").join("\n")).not.toContain("[f1/field type");
   });
 });

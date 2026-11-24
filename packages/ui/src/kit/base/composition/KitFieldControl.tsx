@@ -1,17 +1,31 @@
 import { useWords } from "../../provider";
 import { placeholderTitle, placeholderValue } from "../../../catalog";
-import { KitAction, KitChip, KitTrack, KitInput } from "../input";
+import { CodeField, KitAction, KitChip, KitTrack, KitInput, PasswordField } from "../input";
 import { KitSlider } from "../slider";
 import { KitContent, KitText } from "../text";
 import { KitPhoto } from "../media";
 import { KitTrail } from "../helpers";
+import { usePartContext } from "../../part";
 
 export type FieldKind =
-  "text" | "number" | "date" | "time" | "choice" | "repeat" | "toggle" | "slider" | "photo";
+  | "text"
+  | "number"
+  | "date"
+  | "time"
+  | "choice"
+  | "repeat"
+  | "toggle"
+  | "slider"
+  | "photo"
+  | "email"
+  | "password"
+  | "code"
+  | "phone";
 type FieldProps = {
   kind: FieldKind;
   label: string;
   value?: string | undefined;
+  length?: number | undefined;
   /** The options of a choice or repeat, and the one that is on. */
   choices?: readonly string[] | undefined;
   chosen?: string | undefined;
@@ -85,7 +99,10 @@ function PhotoField({ value, label }: FieldProps) {
   );
 }
 function TextField({ kind, label, value }: FieldProps) {
-  const inputKind = kind === "number" || kind === "date" || kind === "time" ? kind : "text";
+  const inputKind =
+    kind === "number" || kind === "date" || kind === "time" || kind === "email" || kind === "phone"
+      ? kind
+      : "text";
   const icon = kind === "date" ? "calendar" : kind === "time" ? "clock" : undefined;
   return <KitInput label={label} hint={label} value={value} kind={inputKind} icon={icon} part="field" />;
 }
@@ -99,10 +116,15 @@ const controls = {
   toggle: ToggleField,
   slider: SliderField,
   photo: PhotoField,
+  email: TextField,
+  phone: TextField,
+  password: PasswordField,
+  code: CodeField,
 };
 
 /** One form field's addressed control, with the same part and actions for every kind. */
 export function KitFieldControl(props: FieldProps) {
+  const { screen, component, item } = usePartContext();
   const Control = controls[props.kind];
-  return <Control {...props} />;
+  return <Control key={`${screen}/${component}/${item ?? ""}`} {...props} />;
 }

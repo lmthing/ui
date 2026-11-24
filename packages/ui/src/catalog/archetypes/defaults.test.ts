@@ -28,8 +28,8 @@ const casts: CastLike[] = [
   },
 ];
 describe("core archetype defaults", () => {
-  it("provides all seventeen archetypes and a compose probe for every layout", () => {
-    expect(Object.keys(archetypes)).toHaveLength(17);
+  it("provides all twenty archetypes and a compose probe for every layout", () => {
+    expect(Object.keys(archetypes)).toHaveLength(20);
     for (const def of Object.values(archetypes)) {
       expect(def.probes.map((probe) => probe.layout)).toEqual(Object.keys(def.meta.layouts));
       expect(def.probes.every((probe) => probe.kind === "compose")).toBe(true);
@@ -95,6 +95,25 @@ describe("optional task actions", () => {
       }
     },
   );
+});
+
+it.each([
+  ["signin", "credentials", ["email", "password"], ["Log in"]],
+  ["signup", "credentials", ["text", "email", "password"], ["Create account", "Log in"]],
+  ["verify", "code", ["code"], ["Verify", "Resend code"]],
+] as const)("exposes a service-tier %s pattern with blank credentials", (id, layout, kinds, buttons) => {
+  const registry = createRegistry();
+  expect(registry.archetypes[id]?.meta.tier).toBe("service");
+  const screen = registry.defaultLines(id, layout, casts[1]!);
+  const fields = screen.components.filter(({ c }) => c === "Field");
+  expect(fields.map(({ kind }) => kind)).toEqual(kinds);
+  expect(fields.every(({ value }) => value === undefined)).toBe(true);
+  expect(screen.components.filter(({ c }) => c === "Button").map(({ label }) => label)).toEqual(buttons);
+  expect(screen.tier).toBe("service");
+  expect(scoreComposition(JSON.stringify(screen), archetypes[id].meta, layout, components)).toMatchObject({
+    issues: [],
+    screen: { tier: "service" },
+  });
 });
 
 it("keeps each shelf thumbnail with its source record, even when earlier records are skipped", () => {

@@ -114,6 +114,7 @@ function copySeed(value: unknown): unknown {
 }
 
 function finishInput(def: Definition, line: DefaultLine, input: Record<string, unknown>): void {
+  if (line.example) for (const [key, value] of Object.entries(line.example)) input[key] = copySeed(value);
   if (line.seed) for (const [key, value] of Object.entries(line.seed)) input[key] = copySeed(value);
   const trail = line.seed?.trail;
   // Authored rows are not rewritten. Fallback rows should not show an empty trail.
@@ -179,6 +180,7 @@ export function defaultLines(
   const screen = {
     id: options.id ?? `${meta.id}_${layout}`,
     ...(options.title ? { title: options.title } : {}),
+    ...(meta.tier ? { tier: meta.tier } : {}),
     components,
   };
   const issues = checkScreen(screen, defs);

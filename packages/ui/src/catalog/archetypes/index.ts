@@ -1,6 +1,6 @@
 import { home, dashboard, list, detail, profile, browse } from "./pages";
 import { checklist, calendar, tracker, journal, chat } from "./activity";
-import { form, settings, success, onboarding, capture, plans } from "./flows";
+import { form, settings, success, onboarding, capture, plans, signin, signup, verify } from "./flows";
 import type { ArchetypeMeta } from "../meta";
 export const archetypes = {
   home,
@@ -20,6 +20,9 @@ export const archetypes = {
   chat,
   plans,
   browse,
+  signin,
+  signup,
+  verify,
 } as const;
 export type ArchetypeName = keyof typeof archetypes;
 export type ArchetypeOverrides = Partial<Record<ArchetypeName, Readonly<ArchetypeMeta["layouts"]>>>;

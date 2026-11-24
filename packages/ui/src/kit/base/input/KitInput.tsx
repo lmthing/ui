@@ -110,6 +110,7 @@ export function KitInput(props: InputProps) {
           </YStack>
         )}
         <TextControl {...props} address={address} {...(name === undefined ? {} : { label: name })} />
+        {props.trailing}
       </XStack>
       {error && !loading && (
         <KitText role="caption" tone="bad" part={null}>

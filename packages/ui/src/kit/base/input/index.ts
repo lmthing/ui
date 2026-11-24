@@ -5,3 +5,4 @@ export { KitInput, inputRadius } from "./KitInput";
 export { KitChip, KitTrack } from "./KitChip";
 export { actionGeometry, KitAction, type ActionKind } from "./KitAction";
 export { KitStepper } from "./KitStepper";
+export { CodeField, PasswordField } from "./credential-fields";
