@@ -5,4 +5,5 @@ export {
   useNativeClipFrame,
   useNativeScrollFrames,
   useReportedText,
+  type NativeClipFrameResult,
 } from "./clipped-text";
