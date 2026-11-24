@@ -104,7 +104,17 @@ type ClipFrame = { ref: NativeRef; size: Size; axes: Axes };
 export const NativeClipFrames = createContext<readonly ClipFrame[]>([]);
 
 type TextObservation = Pick<ComponentProps<typeof Text>, "onLayout" | "onTextLayout" | "dataSet">;
-export function useNativeClipFrame(enabled: boolean, ref: NativeRef, register?: () => void) {
+export type NativeClipFrameResult = {
+  frames: readonly ClipFrame[];
+  onLayout: ((event: { nativeEvent: { layout: Size } }) => void) | undefined;
+  tracking: boolean;
+};
+
+export function useNativeClipFrame(
+  enabled: boolean,
+  ref: NativeRef,
+  register?: () => void,
+): NativeClipFrameResult {
   const parents = useContext(NativeClipFrames);
   const tracking = Boolean(useContext(RenderReportContext)) && !isWeb && enabled;
   const [size, setSize] = useState<Size>();
@@ -112,7 +122,7 @@ export function useNativeClipFrame(enabled: boolean, ref: NativeRef, register?: 
     () => (tracking && size ? [...parents, { ref, size, axes: bothAxes }] : parents),
     [parents, ref, size, tracking],
   );
-  const onLayout: TextObservation["onLayout"] = tracking
+  const onLayout: NativeClipFrameResult["onLayout"] = tracking
     ? ({ nativeEvent: { layout } }) => {
         register?.();
         setSize((previous) =>
