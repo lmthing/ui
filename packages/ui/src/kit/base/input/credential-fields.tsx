@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Input, XStack, YStack } from "tamagui";
+import { useContext, useState } from "react";
+import { Input, XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { usePart, usePartDisabled } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitInput, inputRadius } from "./KitInput";
 import { useFieldFinish } from "./field-finish";
+import { CredentialPreviewContext } from "./credential-preview";
 import { KitText } from "../text";
 
 function PasswordReveal({ shown, toggle }: { shown: boolean; toggle: () => void }) {
@@ -12,17 +13,22 @@ function PasswordReveal({ shown, toggle }: { shown: boolean; toggle: () => void 
   const { show, hide, showLabel, hideLabel } = useWords().words.fieldPassword;
   const reveal = usePart("reveal");
   const disabled = usePartDisabled(reveal.testID);
+  const active = interactive && !disabled;
+  const webButton = { tag: "button", type: "button", tabIndex: active ? 0 : -1 } as const;
   return (
     <XStack
       {...reveal}
+      {...(isWeb ? webButton : {})}
       accessibilityRole="button"
       accessibilityLabel={shown ? hideLabel : showLabel}
-      aria-disabled={disabled || undefined}
+      aria-disabled={!active || undefined}
       minWidth={size.control.md}
       minHeight={size.control.md}
       alignItems="center"
       justifyContent="center"
-      onPress={interactive && !disabled ? toggle : undefined}
+      borderWidth={component.base.none}
+      backgroundColor="transparent"
+      onPress={active ? toggle : undefined}
     >
       <KitText part={null} role="label" tone="muted">
         {shown ? hide : show}
@@ -32,7 +38,8 @@ function PasswordReveal({ shown, toggle }: { shown: boolean; toggle: () => void 
 }
 
 export function PasswordField({ label }: { label: string }) {
-  const [value, setValue] = useState("");
+  const preview = useContext(CredentialPreviewContext);
+  const [value, setValue] = useState(preview ? "preview-only" : "");
   const [shown, setShown] = useState(false);
   return (
     <KitInput
@@ -53,6 +60,7 @@ function CodeCells({ value, length, focused }: { value: string; length: number; 
       {Array.from({ length }, (_, index) => (
         <YStack
           key={index}
+          data-kit-code-cell=""
           flex={component.base.bodyFlex}
           minHeight={size.control.md}
           alignItems="center"
@@ -73,7 +81,8 @@ function CodeCells({ value, length, focused }: { value: string; length: number; 
 }
 
 export function CodeField({ label, length = 6 }: { label: string; length?: number | undefined }) {
-  const [draft, setDraft] = useState("");
+  const preview = useContext(CredentialPreviewContext);
+  const [draft, setDraft] = useState(preview ? "12345678" : "");
   const [focused, setFocused] = useState(false);
   const { interactive, nativeHost } = useKit();
   const field = usePart("field");
@@ -84,7 +93,7 @@ export function CodeField({ label, length = 6 }: { label: string; length?: numbe
     <YStack position="relative">
       <CodeCells {...{ value, length, focused }} />
       <Input
-        {...field}
+        {...(field as Record<string, unknown>)}
         position="absolute"
         top={component.base.none}
         left={component.base.none}

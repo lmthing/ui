@@ -19,15 +19,14 @@ it("selects only requested screen presets in catalog order and keeps the unfilte
 });
 
 describe("gallery overview data", () => {
-  it("shows all 46 core components once, in stable group and id order", () => {
+  it("shows every component once, in stable group and id order", () => {
     const sections = groupedIds("");
     expect(sections.map(({ group }) => group)).toEqual([
       ...groups,
       ...[...new Set(Object.values(packOf))].sort(),
     ]);
     const ids = sections.flatMap((section) => section.ids);
-    expect(ids).toHaveLength(46 + Object.keys(packOf).length);
-    expect(new Set(ids).size).toBe(46 + Object.keys(packOf).length);
+    expect(new Set(ids).size).toBe(componentIds.length);
     expect([...ids].sort()).toEqual(componentIds);
     for (const section of sections) expect(section.ids).toEqual([...section.ids].sort());
   });

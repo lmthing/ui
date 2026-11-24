@@ -11,16 +11,24 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitRowGroup, KitText, PartScope, usePartContext, useWords } from "../kit";
+import {
+  KitAction,
+  KitActionDivider,
+  KitCard,
+  KitRowGroup,
+  PartScope,
+  usePartContext,
+  useWords,
+} from "../kit";
 import { prompt } from "../entry/prompt-SignInOptions.generated";
 
 const providers = ["apple", "google", "email", "phone"] as const;
 type Provider = (typeof providers)[number];
-const marks: Record<Provider, IconName> = { apple: "apple", google: "globe", email: "mail", phone: "phone" };
+const icons: Partial<Record<Provider, IconName>> = { email: "mail", phone: "phone" };
 
 export const meta = {
   id: "SignInOptions",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -68,12 +76,13 @@ const ledge = {
     { provider: "email", goto: "email_signin" },
   ],
 } satisfies z.input<typeof props>;
+const trot = { items: [{ provider: "phone", goto: "walker_phone" }] } satisfies z.input<typeof props>;
 export const examples = [
   ledge,
-  { items: [{ provider: "phone", goto: "walker_phone" }], emphasis: "quiet" },
+  { ...trot, emphasis: "quiet" },
   { ...ledge, detail: "brief" },
-  ledge,
-  ledge,
+  trot,
+  { items: [...ledge.items, ...trot.items] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SignInOptions");
@@ -106,20 +115,18 @@ export function SignInOptions({ divider, items, emphasis }: Props<typeof props, 
   const { signInOptions } = useWords().words;
   return (
     <KitCard part="root" style="plain" padded inset="none">
-      {divider && (
-        <KitText part="divider" role="caption" align="center" tone="muted">
-          {divider}
-        </KitText>
-      )}
+      {divider && <KitActionDivider part="divider" label={divider} />}
       <KitRowGroup separators={false} spacing="groups">
         {items.map(({ id, provider, goto }) => (
           <PartScope key={id} {...scope} item={id}>
             <KitAction
               part="root"
               full
+              align="start"
               kind={emphasis === "quiet" ? "quiet" : "secondary"}
               tone="neutral"
-              icon={marks[provider]}
+              icon={icons[provider]}
+              mark={icons[provider] ? undefined : provider.charAt(0).toUpperCase()}
               label={signInOptions[provider]}
               contentParts={{ label: "label" }}
               goto={goto}

@@ -98,7 +98,7 @@ describe("optional task actions", () => {
 });
 
 it.each([
-  ["signin", "credentials", ["email", "password"], ["Log in"]],
+  ["signin", "credentials", ["email", "password"], ["Log in", "Forgot password?"]],
   ["signup", "credentials", ["text", "email", "password"], ["Create account", "Log in"]],
   ["verify", "code", ["code"], ["Verify", "Resend code"]],
 ] as const)("exposes a service-tier %s pattern with blank credentials", (id, layout, kinds, buttons) => {

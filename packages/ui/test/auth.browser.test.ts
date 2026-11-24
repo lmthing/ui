@@ -54,7 +54,7 @@ it("enters a verification code in one accessible control without storing the dig
   const input = page.getByRole("textbox", { name: "Verification code" });
   await input.waitFor();
   expect(await input.getAttribute("inputmode")).toBe("numeric");
-  const cells = input.locator("..").locator(':scope > [aria-hidden="true"] > *');
+  const cells = page.locator("[data-kit-code-cell]");
   expect(await cells.count()).toBe(8);
   await input.fill("a0123-456789");
   expect(await input.inputValue()).toBe("01234567");

@@ -3,6 +3,7 @@ export { KitOption } from "./KitOption";
 export { KitTextArea } from "./KitTextArea";
 export { KitInput, inputRadius } from "./KitInput";
 export { KitChip, KitTrack } from "./KitChip";
-export { actionGeometry, KitAction, type ActionKind } from "./KitAction";
+export { actionGeometry, KitAction, KitActionDivider, type ActionKind } from "./KitAction";
 export { KitStepper } from "./KitStepper";
 export { CodeField, PasswordField } from "./credential-fields";
+export { CredentialPreviewContext } from "./credential-preview";

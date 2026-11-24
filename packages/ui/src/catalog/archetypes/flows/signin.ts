@@ -6,8 +6,8 @@ const recipe = createMeta(
   { credentials: "Header|Hero Field:email Field:password Button Note|Button SignInOptions?" },
   {
     credentials: [
-      'Use a "Log in" heading, blank Email address and Password fields, then the single primary Button labelled "Log in". The button goes to the signed-in home.',
-      'The recovery slot says "Forgot password?" Use a Note, or a quiet Button linked to the password reset screen if requested. Quiet Buttons belong to the body, not beside the pinned primary Button.',
+      'Use a "Log in" heading with a short subtitle explaining to use the email and password for the existing account, e.g. "Use your account email and password." Add blank Email address and Password fields, then the single primary Button labelled "Log in" linked to the signed-in home.',
+      'Use a quiet Button labelled "Forgot password?" linked to the mock password reset screen. A Note is only for recovery guidance that does not invite a tap. Quiet Buttons belong to the body, not beside the pinned primary Button.',
       "Include SignInOptions only if the brief names alternative providers. All destinations are mock screens; real sign-in needs an outside service.",
     ],
   },
@@ -17,11 +17,15 @@ export const meta = {
   tier: "service",
   defaults: {
     credentials: [
-      { c: "Header", example: { title: "Log in" } },
+      { c: "Header", example: { title: "Log in", sub: "Use your account email and password." } },
       { c: "Field", variant: "email", example: { label: "Email address" } },
       { c: "Field", variant: "password", example: { label: "Password" } },
       { c: "Button", example: { label: "Log in", goto: "member_home" } },
-      { c: "Note", example: { text: "Forgot password?" } },
+      {
+        c: "Button",
+        seed: { emphasis: "quiet" },
+        example: { label: "Forgot password?", goto: "reset_password" },
+      },
     ],
   },
 } satisfies ArchetypeMeta;

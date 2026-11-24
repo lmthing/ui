@@ -45,6 +45,13 @@ describe("Field rendering", () => {
     expect(date).toHaveProperty("value", "2026-11-19");
     expect(renderInstance("Field", date, "filled", theme)).toContain('value="2026-11-19"');
   });
+  it("uses the phone keyboard and six empty code cells by default", () => {
+    const phone = renderInstance("Field", { kind: "phone", label: "Phone number" }, "filled", theme);
+    expect(elementAt(phone, "home/c1/field").attributes).toContain('inputmode="tel"');
+    const code = renderInstance("Field", { kind: "code", label: "Code" }, "filled", theme);
+    expect(code.match(/data-kit-code-cell=""/g)).toHaveLength(6);
+    expect(elementAt(code, "home/c1/field").attributes).toContain('value=""');
+  });
   it("uses visible 44px repeat pills and 8px gaps between rows", () => {
     const html = renderInstance(
       "Field",
