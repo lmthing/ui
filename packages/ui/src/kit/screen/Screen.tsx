@@ -5,7 +5,7 @@ import { filterDeviceDataScreen, resolveDataViews, type Issue } from "../../cata
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
-import { useReport } from "../report";
+import { RenderReportContext, useReport } from "../report";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
 import { filterVisibleContent } from "./visible-content";
 
@@ -20,7 +20,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
   const screen = controller.snapshotScreen();
-  useReport(screen, components, root, onReport);
+  const publish = useReport(screen, components, root, onReport);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
   const confirmation = controller.confirmationFor(data);
   const permitted = filterDeviceDataScreen(screen, components, data);
@@ -35,29 +35,31 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   }, [controller]);
   if (!controller.admitted) return null;
   return (
-    <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
-      <ScreenContent
-        controller={controller}
-        renderers={renderers}
-        screen={visible}
-        views={resolveDataViews(visible, components)}
-        covered={Boolean(sheet || confirmation)}
-      />
-      {sheet && !confirmation && (
-        <KitOverlay label={String(sheet.title)} onDismiss={dismiss}>
-          <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
-        </KitOverlay>
-      )}
-      {confirmation && (
-        <KitOverlay label={confirmation.message} onDismiss={dismiss}>
-          <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
-            <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
-              <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
-              <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
-            </KitSheet>
-          </PartScope>
-        </KitOverlay>
-      )}
-    </YStack>
+    <RenderReportContext.Provider value={publish}>
+      <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
+        <ScreenContent
+          controller={controller}
+          renderers={renderers}
+          screen={visible}
+          views={resolveDataViews(visible, components)}
+          covered={Boolean(sheet || confirmation)}
+        />
+        {sheet && !confirmation && (
+          <KitOverlay label={String(sheet.title)} onDismiss={dismiss}>
+            <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
+          </KitOverlay>
+        )}
+        {confirmation && (
+          <KitOverlay label={confirmation.message} onDismiss={dismiss}>
+            <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
+              <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
+                <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
+                <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
+              </KitSheet>
+            </PartScope>
+          </KitOverlay>
+        )}
+      </YStack>
+    </RenderReportContext.Provider>
   );
 }

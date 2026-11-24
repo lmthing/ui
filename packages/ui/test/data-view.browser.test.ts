@@ -68,10 +68,13 @@ async function clippedIssues() {
 it("preserves short Field segments and fits the full Setpoint choices in a padded phone card", async () => {
   await open("choices");
   const short = page.getByRole("radiogroup", { name: "Walk length" });
-  const sizes = await short
-    .getByRole("radio")
-    .evaluateAll((nodes) => nodes.map((node) => Math.round(node.getBoundingClientRect().width)));
-  expect(new Set(sizes).size).toBe(1);
+  const shortLayout = await short.getByRole("radio").evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { top, width } = node.getBoundingClientRect();
+      return `${top}/${Math.round(width)}`;
+    }),
+  );
+  expect(new Set(shortLayout).size).toBe(1);
   const classes = page.getByRole("radiogroup", { name: "Class type" });
   const radios = classes.getByRole("radio");
   expect(await intactLabels(classes)).toEqual(["Strength circuit", "Spin express", "Mobility flow"]);
@@ -119,11 +122,8 @@ it("reports ellipsized and masked track labels at the part address, then clears 
     }
   `,
   });
-  const tabs = page.getByRole("tab");
-  await tabs.nth(1).click();
   await expect.poll(clippedIssues).toEqual([`${id}/r2/label`, `${id}/r3/label`]);
   await fault.evaluate((el) => el.parentNode?.removeChild(el));
-  await tabs.first().click();
   await expect.poll(clippedIssues).toEqual([]);
 });
 

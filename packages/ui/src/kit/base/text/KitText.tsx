@@ -4,6 +4,7 @@ import { fontFamilies, motion, size, space, type as typography, variants } from 
 import { useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { withTextObservation, type TextObservation } from "../../report";
 import { useTextStep, type TextFinish, type TextRole } from "./text-step";
 
 const roleOf = (role: keyof typeof typography) => ({
@@ -62,8 +63,8 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
-  /** Part to report if a control label cannot be drawn in full. */
-  reportClipping?: string;
+  /** Layout callbacks for labels that participate in render reporting. */
+  reportClipping?: TextObservation | undefined;
   goto?: string | undefined;
   item?: string | undefined;
   emphasis?: TextFinish["emphasis"] | "strong" | "emphasis";
@@ -213,7 +214,7 @@ function TextRun(props: TextProps) {
       {...(weight ? { fontWeight: weight } : {})}
       {...(emphasis === "emphasis" ? { fontStyle: "italic" as const } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
-      {...(isWeb && props.reportClipping ? { dataSet: { reportClipped: props.reportClipping } } : {})}
+      {...withTextObservation(props.reportClipping, target.onLayout)}
       {...wrapProse(props)}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
       {...(linked

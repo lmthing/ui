@@ -11,6 +11,7 @@ import { Line, Svg } from "react-native-svg";
 import { ScrollView, XStack, YStack, isWeb, styled, useTheme } from "tamagui";
 import {
   component,
+  formatAddress,
   radius,
   size,
   space,
@@ -20,6 +21,7 @@ import {
 } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
+import { useReportedText } from "../../report";
 import { KitIcon, KitText, shifted, useTextStep, type TextTone } from "../text";
 import { segmentColumns } from "./segment-fit";
 // The 44×44px touch area carries the role; the visible pill or segment sits inside it.
@@ -115,12 +117,17 @@ function ChipLabel(props: ChipContentProps & { tone: TextTone; fill: string }) {
     tone,
     fill,
   } = props;
+  const context = usePartContext();
+  const part = stamped ? labelPart : null;
+  const address =
+    !loading && reportClipping ? (part ? formatAddress({ ...context, part }) : reportClipping) : undefined;
+  const observation = useReportedText(address, label, segmentLabel ? undefined : 1);
   const labelProps = {
     role: "label",
     tone,
-    part: stamped ? labelPart : null,
+    part,
     ...(segmentLabel ? { align: "center" as const, breakLongWords: true } : { lines: 1 }),
-    ...(!loading && reportClipping ? { reportClipping } : {}),
+    reportClipping: observation,
   } as const;
   const text = <KitText {...labelProps}>{label}</KitText>;
   const slashed = disabled && !loading;
