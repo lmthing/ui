@@ -1,7 +1,8 @@
 export { useReport } from "./useReport";
 export {
   RenderReportContext,
+  NativeClipFrames,
+  useNativeClipFrame,
+  useNativeScrollFrames,
   useReportedText,
-  withTextObservation,
-  type TextObservation,
 } from "./clipped-text";

@@ -3,15 +3,15 @@ import {
   createContext,
   isValidElement,
   useContext,
+  useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { Line, Svg } from "react-native-svg";
-import { ScrollView, XStack, YStack, isWeb, styled, useTheme } from "tamagui";
+import { ScrollView, XStack, YStack, isWeb, styled, useTheme, type TamaguiElement } from "tamagui";
 import {
   component,
-  formatAddress,
   radius,
   size,
   space,
@@ -21,7 +21,7 @@ import {
 } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
-import { useReportedText } from "../../report";
+import { NativeClipFrames, useNativeClipFrame, useNativeScrollFrames } from "../../report";
 import { KitIcon, KitText, shifted, useTextStep, type TextTone } from "../text";
 import { segmentColumns } from "./segment-fit";
 // The 44×44px touch area carries the role; the visible pill or segment sits inside it.
@@ -75,6 +75,8 @@ function ChipContent(props: ChipContentProps) {
         ? "onAccent"
         : "text";
   const slashed = disabled && !loading;
+  const clipRef = useRef<TamaguiElement>(null);
+  const clip = useNativeClipFrame(Boolean(slashed), clipRef);
   return (
     <XStack
       alignItems="center"
@@ -90,6 +92,7 @@ function ChipContent(props: ChipContentProps) {
       borderColor={segment && !custom && !on ? undefined : loading || (segment && !custom) ? "$line" : edge}
       backgroundColor={loading ? "$line" : fill}
       overflow={slashed ? "hidden" : undefined}
+      {...(clip.tracking ? { ref: clipRef, onLayout: clip.onLayout, collapsable: false } : {})}
     >
       {slashed && <DisabledSlash />}
       {swatch && <SwatchMark {...props} swatch={swatch} />}
@@ -100,7 +103,9 @@ function ChipContent(props: ChipContentProps) {
         ) : (
           <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
         ))}
-      <ChipLabel {...props} tone={tone} fill={fill} />
+      <NativeClipFrames.Provider value={clip.frames}>
+        <ChipLabel {...props} tone={tone} fill={fill} />
+      </NativeClipFrames.Provider>
     </XStack>
   );
 }
@@ -117,17 +122,13 @@ function ChipLabel(props: ChipContentProps & { tone: TextTone; fill: string }) {
     tone,
     fill,
   } = props;
-  const context = usePartContext();
   const part = stamped ? labelPart : null;
-  const address =
-    !loading && reportClipping ? (part ? formatAddress({ ...context, part }) : reportClipping) : undefined;
-  const observation = useReportedText(address, label, segmentLabel ? undefined : 1);
   const labelProps = {
     role: "label",
     tone,
     part,
     ...(segmentLabel ? { align: "center" as const, breakLongWords: true } : { lines: 1 }),
-    reportClipping: observation,
+    reportClipping: loading ? undefined : reportClipping,
   } as const;
   const text = <KitText {...labelProps}>{label}</KitText>;
   const slashed = disabled && !loading;
@@ -318,6 +319,7 @@ export function KitTrack({
   const address = usePart(part);
   const segments = look === "segments";
   const { fit, setWidth, direct } = useSegmentFit(children, segments && !scroll, wrapAsPills);
+  const frames = useNativeScrollFrames("x", scroll);
   const track = (
     <XStack
       {...address}
@@ -343,7 +345,7 @@ export function KitTrack({
   );
   return scroll ? (
     <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator>
-      {track}
+      <NativeClipFrames.Provider value={frames}>{track}</NativeClipFrames.Provider>
     </ScrollView>
   ) : (
     track
