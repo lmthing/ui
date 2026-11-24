@@ -30333,6 +30333,646 @@
       "{\n  \"id\": \"planner_week\",\n  \"title\": \"Week Planner\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"This Week\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timetable\",\n      \"c\": \"Timetable\",\n      \"detail\": \"full\",\n      \"selected_day\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"periods\": [\n            {\n              \"time\": \"09:00\",\n              \"subject\": \"Japanese\",\n              \"room\": \"B12\",\n              \"teacher\": \"Ms Tanaka\",\n              \"tone\": null\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"section_homework\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Homework\",\n      \"link\": null\n    },\n    {\n      \"id\": \"assignments\",\n      \"c\": \"Assignments\",\n      \"lead\": null,\n      \"items\": [\n        {\n          \"title\": \"Water radical worksheet\",\n          \"subject\": \"Japanese\",\n          \"due\": \"2026-11-25\",\n          \"status\": \"todo\",\n          \"grade\": null,\n          \"goto\": \"worksheet\"\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
+  "compose%2Fplanner%2Fweek%2FShow%20Japanese%20Mondays%20at%2009%3A00%20in%20B12%20with%20Ms%20Tanaka%2C%20followed%20by%20homework%3A%20Water%20radical%20worksheet%20due%20on%202026-11-25%2C%20still%20to%20do%2C%20linked%20to%20worksheet./3da5b7538d89833c/53cdbcebae25efc5": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: planner/week. Job: See this week’s classes and homework.\n\nBrief: Show Japanese Mondays at 09:00 in B12 with Ms Tanaka, followed by homework: Water radical worksheet due on 2026-11-25, still to do, linked to worksheet.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Timetable\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Assignments\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nTimetable: See the week's repeating classes and where to go for each period.\nprops: { detail?: full|brief=\"full\", selected_day?: mon|tue|wed|thu|fri|sat|sun, days: [1..7 { day: mon|tue|wed|thu|fri|sat|sun, periods: [1..8 { time: time HH:MM, subject: text≤24, room?: text≤12, teacher?: text≤24, tone?: neutral|good|warn|bad=\"neutral\" }] }] }\nRule: Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.\nRule: Leave detail null unless requested. For start times and subjects only, use detail \"brief\" and retain any rooms and teachers in the data.\nexample: {\"c\":\"Timetable\",\"days\":[{\"day\":\"mon\",\"periods\":[{\"time\":\"09:00\",\"subject\":\"Fern care\",\"room\":\"B12\",\"teacher\":\"Ms Tanaka\",\"tone\":\"good\"},{\"time\":\"10:15\",\"subject\":\"Potting basics\",\"room\":\"Studio 2\",\"teacher\":\"Ms Tanaka\"},{\"time\":\"11:30\",\"subject\":\"Plant nutrition\",\"room\":\"B12\"}]},{\"day\":\"wed\",\"periods\":[{\"time\":\"10:30\",\"subject\":\"Soil workshop\",\"room\":\"Glasshouse\"},{\"time\":\"12:00\",\"subject\":\"Light and shade\",\"teacher\":\"Mr Patel\"}]}]}\nweight: 3\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nAssignments: Know which coursework is due, handed in or graded.\nprops: { lead?: icon|none=\"icon\", items: [1..6 { title: text≤28, subject: text≤20, due: date YYYY-MM-DD, status: todo|done|graded, grade?: text≤6, goto: id snake_case }] }\nRule: Write a real due date and goto for each assignment. Status is todo, done (handed in) or graded. Write a grade only for a graded item. Never write overdue or a relative due label.\nRule: Use lead \"none\" only when asked to hide the subject icons; keep the subject names. For a request to hide icons only, output lead:\"none\".\nexample: {\"c\":\"Assignments\",\"items\":[{\"title\":\"Fern care worksheet\",\"subject\":\"Plant care\",\"due\":\"2026-11-17\",\"status\":\"todo\",\"goto\":\"worksheet\"},{\"title\":\"Light and shade log\",\"subject\":\"Botany\",\"due\":\"2026-11-18\",\"status\":\"graded\",\"grade\":\"A\",\"goto\":\"light_log\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"planner_week\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"t1\",\"c\":\"Timetable\",\"days\":[{\"day\":\"mon\",\"periods\":[{\"time\":\"00:00\",\"subject\":\"Item one\"}]}]},{\"id\":\"s1\",\"c\":\"SectionTitle\",\"text\":\"Item one\"},{\"id\":\"a1\",\"c\":\"Assignments\",\"items\":[{\"title\":\"Item one\",\"subject\":\"Continue\",\"due\":\"2026-11-24\",\"status\":\"todo\",\"goto\":\"back\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Timetable",
+                        "enum": [
+                          "Timetable"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "selected_day": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "mon",
+                              "tue",
+                              "wed",
+                              "thu",
+                              "fri",
+                              "sat",
+                              "sun"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "days": {
+                        "minItems": 1,
+                        "maxItems": 7,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "day": {
+                              "type": "string",
+                              "enum": [
+                                "mon",
+                                "tue",
+                                "wed",
+                                "thu",
+                                "fri",
+                                "sat",
+                                "sun"
+                              ]
+                            },
+                            "periods": {
+                              "minItems": 1,
+                              "maxItems": 8,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "time": {
+                                    "type": "string",
+                                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                                  },
+                                  "subject": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 24
+                                  },
+                                  "room": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 12
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "teacher": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 24
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "tone": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "neutral",
+                                          "good",
+                                          "warn",
+                                          "bad"
+                                        ]
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "time",
+                                  "subject",
+                                  "room",
+                                  "teacher",
+                                  "tone"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "day",
+                            "periods"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "selected_day",
+                      "days"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "SectionTitle",
+                        "enum": [
+                          "SectionTitle"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "link": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "text",
+                      "link"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Assignments",
+                        "enum": [
+                          "Assignments"
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "subject": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "due": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "todo",
+                                "done",
+                                "graded"
+                              ]
+                            },
+                            "grade": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 6
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "subject",
+                            "due",
+                            "status",
+                            "grade",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "lead",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"planner_week\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_week\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"This Week\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timetable_mon\",\n      \"c\": \"Timetable\",\n      \"detail\": null,\n      \"selected_day\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"periods\": [\n            {\n              \"time\": \"09:00\",\n              \"subject\": \"Japanese\",\n              \"room\": \"B12\",\n              \"teacher\": \"Ms Tanaka\",\n              \"tone\": null\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"section_homework\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Homework\",\n      \"link\": null\n    },\n    {\n      \"id\": \"assignments_homework\",\n      \"c\": \"Assignments\",\n      \"lead\": \"icon\",\n      \"items\": [\n        {\n          \"title\": \"Water radical worksheet\",\n          \"subject\": \"Japanese\",\n          \"due\": \"2026-11-25\",\n          \"status\": \"todo\",\n          \"grade\": null,\n          \"goto\": \"worksheet\"\n        }\n      ]\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"planner_week\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_week\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"This Week\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timetable_mon\",\n      \"c\": \"Timetable\",\n      \"detail\": null,\n      \"selected_day\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"periods\": [\n            {\n              \"time\": \"09:00\",\n              \"subject\": \"Japanese\",\n              \"room\": \"B12\",\n              \"teacher\": \"Ms Tanaka\",\n              \"tone\": null\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"section_homework\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Homework\",\n      \"link\": null\n    },\n    {\n      \"id\": \"assignments_homework\",\n      \"c\": \"Assignments\",\n      \"lead\": \"icon\",\n      \"items\": [\n        {\n          \"title\": \"Water radical worksheet\",\n          \"subject\": \"Japanese\",\n          \"due\": \"2026-11-25\",\n          \"status\": \"todo\",\n          \"grade\": null,\n          \"goto\": \"worksheet\"\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"planner_week\",\n  \"title\": \"This Week\",\n  \"components\": [\n    {\n      \"id\": \"header_schedule\",\n      \"c\": \"Header\",\n      \"emphasis\": \"normal\",\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"This Week\",\n      \"sub\": \"Japanese and homework\",\n      \"action\": null\n    },\n    {\n      \"id\": \"timetable_week\",\n      \"c\": \"Timetable\",\n      \"detail\": \"full\",\n      \"selected_day\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"periods\": [\n            {\n              \"time\": \"09:00\",\n              \"subject\": \"Japanese\",\n              \"room\": \"B12\",\n              \"teacher\": \"Ms Tanaka\",\n              \"tone\": null\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"section_homework\",\n      \"c\": \"SectionTitle\",\n      \"detail\": \"full\",\n      \"text\": \"Homework\",\n      \"link\": null\n    },\n    {\n      \"id\": \"assignments_list\",\n      \"c\": \"Assignments\",\n      \"lead\": \"icon\",\n      \"items\": [\n        {\n          \"title\": \"Water radical worksheet\",\n          \"subject\": \"Japanese\",\n          \"due\": \"2026-11-25\",\n          \"status\": \"todo\",\n          \"grade\": null,\n          \"goto\": \"water_radical_worksheet\"\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"planner_week\",\n  \"title\": \"This Week\",\n  \"components\": [\n    {\n      \"id\": \"header_week\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"This Week\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timetable_week\",\n      \"c\": \"Timetable\",\n      \"detail\": null,\n      \"selected_day\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"periods\": [\n            {\n              \"time\": \"09:00\",\n              \"subject\": \"Japanese\",\n              \"room\": \"B12\",\n              \"teacher\": \"Ms Tanaka\",\n              \"tone\": null\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"id\": \"section_homework\",\n      \"c\": \"SectionTitle\",\n      \"detail\": null,\n      \"text\": \"Homework\",\n      \"link\": null\n    },\n    {\n      \"id\": \"assignments_week\",\n      \"c\": \"Assignments\",\n      \"lead\": null,\n      \"items\": [\n        {\n          \"title\": \"Water radical worksheet\",\n          \"subject\": \"Japanese\",\n          \"due\": \"2026-11-25\",\n          \"status\": \"todo\",\n          \"grade\": null,\n          \"goto\": \"worksheet\"\n        }\n      ]\n    }\n  ]\n}"
+    ]
+  },
   "compose%2Fplanner%2Fweek%2FShow%20Japanese%20Mondays%20at%2009%3A00%20in%20B12%20with%20Ms%20Tanaka%2C%20followed%20by%20homework%3A%20Water%20radical%20worksheet%20due%20on%202026-11-25%2C%20still%20to%20do%2C%20linked%20to%20worksheet./d1d170b8f8772db1/a4bd63e489665f2e": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: planner/week. Job: See this week’s classes and homework.\n\nBrief: Show Japanese Mondays at 09:00 in B12 with Ms Tanaka, followed by homework: Water radical worksheet due on 2026-11-25, still to do, linked to worksheet.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Timetable\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Assignments\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nTimetable: See the week's repeating classes and where to go for each period.\nprops: { detail?: full|brief=\"full\", selected_day?: mon|tue|wed|thu|fri|sat|sun, days: [1..7 { day: mon|tue|wed|thu|fri|sat|sun, periods: [1..8 { time: time HH:MM, subject: text≤24, room?: text≤12, teacher?: text≤24, tone?: neutral|good|warn|bad=\"neutral\" }] }] }\nRule: Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.\nRule: Leave detail null unless requested. For start times and subjects only, use detail \"brief\" and retain any rooms and teachers in the data.\nexample: {\"c\":\"Timetable\",\"days\":[{\"day\":\"mon\",\"periods\":[{\"time\":\"09:00\",\"subject\":\"Fern care\",\"room\":\"B12\",\"teacher\":\"Ms Tanaka\",\"tone\":\"good\"},{\"time\":\"10:15\",\"subject\":\"Potting basics\",\"room\":\"Studio 2\",\"teacher\":\"Ms Tanaka\"},{\"time\":\"11:30\",\"subject\":\"Plant nutrition\",\"room\":\"B12\"}]},{\"day\":\"wed\",\"periods\":[{\"time\":\"10:30\",\"subject\":\"Soil workshop\",\"room\":\"Glasshouse\"},{\"time\":\"12:00\",\"subject\":\"Light and shade\",\"teacher\":\"Mr Patel\"}]}]}\nweight: 3\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nAssignments: Know which coursework is due, handed in or graded.\nprops: { lead?: icon|none=\"icon\", items: [1..6 { title: text≤28, subject: text≤20, due: date YYYY-MM-DD, status: todo|done|graded, grade?: text≤6, goto: id snake_case }] }\nRule: Write a real due date and goto for each assignment. Status is todo, done (handed in) or graded. Write a grade only for a graded item. Never write overdue or a relative due label.\nRule: Use lead \"none\" only when asked to hide the subject icons; keep the subject names. For a request to hide icons only, output lead:\"none\".\nexample: {\"c\":\"Assignments\",\"items\":[{\"title\":\"Fern care worksheet\",\"subject\":\"Plant care\",\"due\":\"2026-11-17\",\"status\":\"todo\",\"goto\":\"worksheet\"},{\"title\":\"Light and shade log\",\"subject\":\"Botany\",\"due\":\"2026-11-18\",\"status\":\"graded\",\"grade\":\"A\",\"goto\":\"light_log\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"planner_week\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"t1\",\"c\":\"Timetable\",\"days\":[{\"day\":\"mon\",\"periods\":[{\"time\":\"00:00\",\"subject\":\"Item one\"}]}]},{\"id\":\"s1\",\"c\":\"SectionTitle\",\"text\":\"Item one\"},{\"id\":\"a1\",\"c\":\"Assignments\",\"items\":[{\"title\":\"Item one\",\"subject\":\"Continue\",\"due\":\"2026-11-23\",\"status\":\"todo\",\"goto\":\"back\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {

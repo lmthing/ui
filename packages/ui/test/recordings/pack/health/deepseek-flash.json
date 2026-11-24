@@ -36859,6 +36859,614 @@
       "{\n  \"id\": \"body_trends_summary\",\n  \"title\": \"How my body is changing\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Body Trends\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"segmented_control\",\n      \"c\": \"Segmented\",\n      \"options\": [\n        {\n          \"label\": \"Week\",\n          \"view\": null\n        },\n        {\n          \"label\": \"Month\",\n          \"view\": null\n        },\n        {\n          \"label\": \"Year\",\n          \"view\": null\n        }\n      ],\n      \"at\": 0,\n      \"filter\": null\n    },\n    {\n      \"id\": \"body_changes_chart\",\n      \"c\": \"Bars\",\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Weight Change\",\n      \"unit\": \"kg\",\n      \"points\": [\n        {\n          \"label\": \"Mon\",\n          \"value\": 72.5\n       \n        ,\n        \"icon\": null,\n        \"goto\": null\n      },\n      {\n        \"label\": \"Tue\",\n        \"value\": 72.3\n      ,\n      \"icon\": null,\n      \"goto\": null\n    },\n    {\n      \"label\": \"Wed\",\n      \"value\": 72.1\n    ,\n    \"icon\": null,\n    \"goto\": null\n  },\n  {\n    \"label\": \"Thu\",\n    \"value\": 71.9\n  ,\n  \"icon\": null,\n  \"goto\": null\n},\n{\n  \"label\": \"Fri\",\n  \"value\": 71.8\n,\n\"icon\": null,\n\"goto\": null\n}\n],\n\"active\": null,\n\"status\": null\n},\n{\n\"id\": \"body_stats\",\n\"c\": \"Stats\",\n\"arrange\": null,\n\"tiles\": []\n}\n]\n}"
     ]
   },
+  "compose%2Fbodylog%2Fcycle%2F/14ee01b3aa179182/4d5e5e2222e0d997": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: bodylog/cycle. Job: Log how my body is.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Cycle\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Calendar\"],\"min\":1,\"max\":1,\"variant\":\"month\"}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nCycle: Follow logged menstrual periods and locally estimated cycle phases.\nprops: { detail?: full|brief=\"full\", start: date YYYY-MM-DD, length: int 21..40, period: int 2..10, mode?: track|conceive|pregnancy=\"track\", symptoms?: { goto: id snake_case } }\nRule: Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.\nRule: Use detail brief only to omit the estimated next-period and fertile-window captions.\nRule: Set mode \"conceive\" if trying to conceive, or \"pregnancy\" if already pregnant. Otherwise use null. Keep the supplied cycle dates and lengths in all modes; pregnancy mode does not show estimates.\nRule: For a link to the symptom log, write symptoms {goto} using the requested screen id. Otherwise symptoms is null.\nexample: {\"c\":\"Cycle\",\"start\":\"2026-11-01\",\"length\":28,\"period\":5}\nweight: 2\n\nCalendar: See which dates have something planned and open a day.\nprops: { emphasis?: normal|quiet=\"normal\", style?: week|month=\"week\", month: text≤16, marked: [0..12 { day: int 1..31, tone?: neutral|good|warn|bad=\"neutral\" }], selected?: int 1..31, start?: int 1..7=1, days?: int 28..31=30, range?: boolean, yearMonth?: text≤7, checkIn?: date YYYY-MM-DD, checkOut?: date YYYY-MM-DD, unavailable?: [0..31 int 1..31] }\nRule: Write JSON null for an unrequested emphasis or day tone. Never write emphasis \"normal\" just to apply the default. Use \"quiet\" only for an explicitly subdued month heading. A dot without a requested status needs only the day.\nRule: For check-in and check-out use range: true, a display month, and yearMonth \"YYYY-MM\"; use checkIn and checkOut as full ISO dates in that month for a preselected span, not selected. Use unavailable for blocked day numbers.\nexample: {\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"start\":1,\"days\":30,\"selected\":12,\"marked\":[{\"day\":5},{\"day\":12},{\"day\":19},{\"day\":26}]}\nweight: 3\n\nA valid default for this layout: {\"id\":\"bodylog_cycle\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"c1\",\"c\":\"Cycle\",\"start\":\"2026-11-24\",\"length\":28,\"period\":5},{\"id\":\"c2\",\"c\":\"Calendar\",\"month\":\"This month\",\"marked\":[],\"style\":\"month\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Cycle",
+                        "enum": [
+                          "Cycle"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "start": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "length": {
+                        "type": "integer",
+                        "minimum": 21,
+                        "maximum": 40
+                      },
+                      "period": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 10
+                      },
+                      "mode": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "track",
+                              "conceive",
+                              "pregnancy"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "symptoms": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "goto": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              }
+                            },
+                            "required": [
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "start",
+                      "length",
+                      "period",
+                      "mode",
+                      "symptoms"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Calendar",
+                        "enum": [
+                          "Calendar"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "week",
+                              "month"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "month": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "marked": {
+                        "minItems": 0,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "day": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 31
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "day",
+                            "tone"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "selected": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "start": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 7
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "days": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 28,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "range": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "yearMonth": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 7
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checkIn": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checkOut": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unavailable": {
+                        "anyOf": [
+                          {
+                            "minItems": 0,
+                            "maxItems": 31,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 31
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "style",
+                      "month",
+                      "marked",
+                      "selected",
+                      "start",
+                      "days",
+                      "range",
+                      "yearMonth",
+                      "checkIn",
+                      "checkOut",
+                      "unavailable"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"bodylog_cycle\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Body Log\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"cycle\",\n      \"c\": \"Cycle\",\n      \"detail\": \"full\",\n      \"start\": \"2026-11-01\",\n      \"length\": 28,\n      \"period\": 5,\n      \"mode\": null,\n      \"symptoms\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"November 2026\",\n      \"marked\": [],\n      \"selected\": null,\n      \"start\": 1,\n      \"days\": 30,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"bodylog_cycle\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Body Log\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"cycle\",\n      \"c\": \"Cycle\",\n      \"detail\": \"full\",\n      \"start\": \"2026-11-01\",\n      \"length\": 28,\n      \"period\": 5,\n      \"mode\": null,\n      \"symptoms\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"November 2026\",\n      \"marked\": [],\n      \"selected\": null,\n      \"start\": 1,\n      \"days\": 30,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"bodylog_cycle\",\n  \"title\": \"Body Log\",\n  \"components\": [\n    {\n      \"id\": \"h1\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Body Log\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"cycle_phase\",\n      \"c\": \"Cycle\",\n      \"detail\": \"full\",\n      \"start\": \"2026-11-24\",\n      \"length\": 28,\n      \"period\": 5,\n      \"mode\": null,\n      \"symptoms\": null\n    },\n    {\n      \"id\": \"calendar_view\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"This month\",\n      \"marked\": [],\n      \"selected\": null,\n      \"start\": 1,\n      \"days\": 30,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"bodylog_cycle\",\n  \"title\": \"Body Log\",\n  \"components\": [\n    {\n      \"id\": \"header_cycle\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Body Log\",\n      \"sub\": \"Cycle and calendar\",\n      \"action\": null\n    },\n    {\n      \"id\": \"cycle_phase\",\n      \"c\": \"Cycle\",\n      \"detail\": \"full\",\n      \"start\": \"2026-11-24\",\n      \"length\": 28,\n      \"period\": 5,\n      \"mode\": null,\n      \"symptoms\": null\n    },\n    {\n      \"id\": \"calendar_month\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"This month\",\n      \"marked\": [],\n      \"selected\": null,\n      \"start\": null,\n      \"days\": null,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    }\n  ]\n}"
+    ]
+  },
   "compose%2Fbodylog%2Fcycle%2F/3a2b92a6e8d2af9d/bf6c6f1a2599f0f3": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: bodylog/cycle. Job: Log how my body is.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Cycle\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Calendar\"],\"min\":1,\"max\":1,\"variant\":\"month\"}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nCycle: Follow logged menstrual periods and locally estimated cycle phases.\nprops: { detail?: full|brief=\"full\", start: date YYYY-MM-DD, length: int 21..40, period: int 2..10, mode?: track|conceive|pregnancy=\"track\", symptoms?: { goto: id snake_case } }\nRule: Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.\nRule: Use detail brief only to omit the estimated next-period and fertile-window captions.\nRule: Set mode \"conceive\" if trying to conceive, or \"pregnancy\" if already pregnant. Otherwise use null. Keep the supplied cycle dates and lengths in all modes; pregnancy mode does not show estimates.\nRule: For a link to the symptom log, write symptoms {goto} using the requested screen id. Otherwise symptoms is null.\nexample: {\"c\":\"Cycle\",\"start\":\"2026-11-01\",\"length\":28,\"period\":5}\nweight: 2\n\nCalendar: See which dates have something planned and open a day.\nprops: { emphasis?: normal|quiet=\"normal\", style?: week|month=\"week\", month: text≤16, marked: [0..12 { day: int 1..31, tone?: neutral|good|warn|bad=\"neutral\" }], selected?: int 1..31, start?: int 1..7=1, days?: int 28..31=30, range?: boolean, yearMonth?: text≤7, checkIn?: date YYYY-MM-DD, checkOut?: date YYYY-MM-DD, unavailable?: [0..31 int 1..31] }\nRule: Write JSON null for an unrequested emphasis or day tone. Never write emphasis \"normal\" just to apply the default. Use \"quiet\" only for an explicitly subdued month heading. A dot without a requested status needs only the day.\nRule: For check-in and check-out use range: true, a display month, and yearMonth \"YYYY-MM\"; use checkIn and checkOut as full ISO dates in that month for a preselected span, not selected. Use unavailable for blocked day numbers.\nexample: {\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"start\":1,\"days\":30,\"selected\":12,\"marked\":[{\"day\":5},{\"day\":12},{\"day\":19},{\"day\":26}]}\nweight: 3\n\nA valid default for this layout: {\"id\":\"bodylog_cycle\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"c1\",\"c\":\"Cycle\",\"start\":\"2026-11-22\",\"length\":28,\"period\":5},{\"id\":\"c2\",\"c\":\"Calendar\",\"month\":\"This month\",\"marked\":[],\"style\":\"month\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {
@@ -57296,6 +57904,15 @@
       "Calendar"
     ]
   },
+  "Cycle%2Fread%2FLog%20a%20new%20period/0e3e1fa4a642f55d/35969e2017688c92": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Cycle Day 24 — Luteal phase — Next period · 29 Nov 2026 (est.) — Fertile window (est.) · 10 ⁠–⁠ 15 Nov 2026 — Log period — Predictions are not a method of contraception. [c1/log press]\n\nTask: Log a new period\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/log\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/log\", \"action\": \"press\"}",
+      "{\"address\": \"c1/log\", \"action\": \"press\"}",
+      "{\"address\": \"c1/log\", \"action\": \"press\"}"
+    ]
+  },
   "Cycle%2Fread%2FLog%20a%20new%20period/257e6777b72943ce/ffdbb5e7b2f78b4a": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Cycle Day 23 — Luteal phase — Next period · 29 Nov 2026 (est.) — Fertile window (est.) · 10 ⁠–⁠ 15 Nov 2026 — Log period — Predictions are not a method of contraception. [c1/log press]\n\nTask: Log a new period\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"c1/log\", \"action\": \"press\"}",
@@ -65891,6 +66508,15 @@
       "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}",
       "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}",
       "{\"address\": \"h1/r1/day_1 check\", \"action\": \"check\"}"
+    ]
+  },
+  "HabitGrid%2Fread%2FOn%20Monday%2C%20mark%20Check%20Ivy%20as%20done%2C%20not%20Mist%20Ivy./66d9977585bb4518/2f5295ae19ce376c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nh1 HabitGrid Monday — Tuesday — Wednesday — Thursday — Friday — Saturday — Sunday — 1 day — 2 days\n  r1 \"Check Ivy\" [h1/r1/day_1 check:todo] [h1/r1/day_2 check:done]\n  r2 \"Mist Ivy\" [h1/r2/day_1 check:done] [h1/r2/day_2 check:done]\n\nTask: On Monday, mark Check Ivy as done, not Mist Ivy.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}",
+      "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}",
+      "{\"address\": \"h1/r1/day_1\", \"action\": \"check\"}"
     ]
   },
   "HabitGrid%2Fwrite%2FShow%20this%20week's%20habits%20in%20a%20seven-day%20grid%3A%20stretch%20and%20water%2C%20both%20only%20Monday%20checked.%20Keep%20a%20check%20icon%20for%20stretch%20and%20a%20drop%20for%20water%20in%20the%20data%2C%20but%20show%20only%20the%20names%20without%20icons%20in%20the%20habit%20headings./c5a131896ef0e628/5563e93f4e86417b": {
