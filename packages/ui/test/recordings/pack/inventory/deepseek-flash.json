@@ -63713,6 +63713,15 @@
       "{\"address\": \"l1\", \"action\": \"press\"}"
     ]
   },
+  "Lease%2Fread%2FOpen%20Ana's%20rental%20agreement%20terms%20for%20Patio%20flat/50f859e7c756f54f/22a72881d237e4dd": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lease Patio flat — Tenant: Ana — Starts 1 Jan 2026 — Ends 30 Dec 2026 — Time left: 36 days — Renewal soon — Rent $950 / month — Next due 12 Dec 2026 — Deposit $950 — \"Ana\" — \"Patio flat\" [l1 press]\n\nTask: Open Ana's rental agreement terms for Patio flat\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1\", \"action\": \"press\"}",
+      "{\"address\": \"l1\", \"action\": \"press\"}",
+      "{\"address\": \"l1\", \"action\": \"press\"}"
+    ]
+  },
   "Lease%2Fread%2FOpen%20Ana's%20rental%20agreement%20terms%20for%20Patio%20flat/91a332846553bd2f/59b86b245765a60c": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lease Patio flat — Tenant: Ana — Starts 1 Jan 2026 — Ends 30 Dec 2026 — Time left: 38 days — Renewal soon — Rent $950 / month — Next due 12 Dec 2026 — Deposit $950 — \"Ana\" — \"Patio flat\" [l1 press]\n\nTask: Open Ana's rental agreement terms for Patio flat\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"l1\", \"action\": \"press\"}",
