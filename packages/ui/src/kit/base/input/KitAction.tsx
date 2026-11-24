@@ -182,6 +182,22 @@ function useActionBehavior({
   };
 }
 
+function ActionMark({ mark, tone }: { mark: string; tone: TextTone }) {
+  return (
+    <XStack
+      width={size.icon.sm}
+      alignItems="center"
+      justifyContent="center"
+      aria-hidden
+      accessibilityElementsHidden
+    >
+      <KitText role={layoutType.meta} tone={tone} part={null}>
+        {mark}
+      </KitText>
+    </XStack>
+  );
+}
+
 function ActionContent({
   label,
   icon,
@@ -214,19 +230,7 @@ function ActionContent({
             decorative={loading || part === null || !iconPart}
           />
         )}
-        {!icon && mark && (
-          <XStack
-            width={size.icon.sm}
-            alignItems="center"
-            justifyContent="center"
-            aria-hidden
-            accessibilityElementsHidden
-          >
-            <KitText role={layoutType.meta} tone={tone} part={null}>
-              {mark}
-            </KitText>
-          </XStack>
-        )}
+        {!icon && mark && <ActionMark mark={mark} tone={tone} />}
         {label && (
           <KitText
             role={layoutType.meta}

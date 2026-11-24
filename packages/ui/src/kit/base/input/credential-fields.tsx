@@ -30,9 +30,11 @@ function PasswordReveal({ shown, toggle }: { shown: boolean; toggle: () => void 
       backgroundColor="transparent"
       onPress={active ? toggle : undefined}
     >
-      <KitText part={null} role="label" tone="muted">
-        {shown ? hide : show}
-      </KitText>
+      <XStack aria-hidden accessibilityElementsHidden>
+        <KitText part={null} role="label" tone="muted">
+          {shown ? hide : show}
+        </KitText>
+      </XStack>
     </XStack>
   );
 }

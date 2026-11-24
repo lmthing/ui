@@ -30,12 +30,6 @@ describe("gallery overview data", () => {
     expect([...ids].sort()).toEqual(componentIds);
     for (const section of sections) expect(section.ids).toEqual([...section.ids].sort());
   });
-  it("places SignInOptions in the core action gallery with provider examples", () => {
-    expect(groupedIds("SignInOptions")).toEqual([{ kind: "core", group: "action", ids: ["SignInOptions"] }]);
-    expect(cellsOf("SignInOptions")[0]?.example).toMatchObject({
-      items: [{ provider: "apple" }, { provider: "google" }, { provider: "email" }],
-    });
-  });
   it("filters by pack, keeping ready and draft components together and excluding core", () => {
     const query = new URLSearchParams("?pack=booking");
     const sections = groupedIds("", query);
@@ -78,6 +72,13 @@ describe("gallery overview data", () => {
     );
     expect(new Set(cells.map(cellKey)).size).toBe(cells.length);
     expect(variantCount(id)).toBe(cells.length * presets.length * modes.length);
+  });
+});
+
+it("places SignInOptions in the core action gallery with provider examples", () => {
+  expect(groupedIds("SignInOptions")).toEqual([{ kind: "core", group: "action", ids: ["SignInOptions"] }]);
+  expect(cellsOf("SignInOptions")[0]?.example).toMatchObject({
+    items: [{ provider: "apple" }, { provider: "google" }, { provider: "email" }],
   });
 });
 
