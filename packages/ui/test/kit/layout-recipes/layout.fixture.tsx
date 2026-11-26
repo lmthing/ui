@@ -35,6 +35,7 @@ import {
 } from "@lmthing/ui/kit";
 import { config } from "../../render";
 import { Article, meta as articleMeta, props as articleProps } from "../../../src/components/Article";
+import { Button, props as buttonProps } from "../../../src/components/Button";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const sample = [
@@ -336,6 +337,33 @@ function BaseControls({ state }: { state: StateName }) {
   );
 }
 
+function Actions() {
+  const kinds = ["primary", "quiet"] as const;
+  return (
+    <PartScope screen="fixture" component="actions" state="filled" rev={1}>
+      <KitCard part="frame" padded>
+        <Button {...buttonProps.parse({ label: "View available classes", goto: "classes" })} />
+        {kinds.flatMap((kind) =>
+          [true, false].flatMap((full) =>
+            [true, false].map((withIcon) => {
+              const part = `${kind}_${full ? "full" : "inline"}_${withIcon ? "icon" : "text"}`;
+              return (
+                <KitAction
+                  key={part}
+                  {...{ part, kind, full }}
+                  label="Continue"
+                  icon={withIcon ? "calendar" : undefined}
+                />
+              );
+            }),
+          ),
+        )}
+        <KitAction part="start" label="Sign in" kind="secondary" full align="start" />
+      </KitCard>
+    </PartScope>
+  );
+}
+
 function Hours({ density }: { density: "comfortable" | "compact" }) {
   return (
     <PartScope screen="fixture" component={density} state="filled" rev={1}>
@@ -382,6 +410,7 @@ function Fixture() {
         <BaseControls state={state} />
         <Hours density="comfortable" />
         <Hours density="compact" />
+        <Actions />
       </KitProvider>
     </TamaguiProvider>
   );

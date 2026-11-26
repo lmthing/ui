@@ -295,7 +295,7 @@ function actionAppearance(
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];
   const frame = {
-    justifyContent: props.align === "start" ? ("flex-start" as const) : undefined,
+    ...(props.align === "start" ? { justifyContent: "flex-start" as const } : {}),
     borderColor: neutralOutline || (kind === "secondary" && inactive) ? "$line" : undefined,
     borderWidth: bare ? component.base.none : undefined,
     backgroundColor: inactive ? fill : copied ? "$goodSoft" : neutralOutline ? "$surface" : undefined,

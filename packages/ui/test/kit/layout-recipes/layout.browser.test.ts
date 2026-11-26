@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, BrowserContext, Locator, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { size, space, type as typography } from "@lmthing/ui/catalog";
+import { component, size, space, type as typography } from "@lmthing/ui/catalog";
 import { launchChrome } from "../../../scripts";
 import { galleryConfig } from "../../../scripts/look";
 
@@ -99,6 +99,42 @@ it("uses neutral empty copy and retains the same rows on error and success", asy
 
 const base = (part: string) => page.getByTestId(`fixture/base/${part}`);
 const edge = (part: string) => page.getByTestId(`fixture/edge/${part}`);
+const action = (part: string) => page.getByTestId(`fixture/actions/${part}`);
+const centerX = (rect: { x: number; width: number }) => rect.x + rect.width / 2;
+
+it("centres the label of the full-width Button", async () => {
+  const [frame, label] = await Promise.all([box(action("root")), box(action("root_label"))]);
+  expect(centerX(label)).toBeCloseTo(centerX(frame), 1);
+  await action("root").click();
+  expect(await page.getByTestId("pressed").textContent()).toBe("classes:fixture/actions/root");
+});
+
+it("centres action content in primary and quiet frames, whether stretched or intrinsic", async () => {
+  for (const kind of ["primary", "quiet"]) {
+    for (const width of ["full", "inline"]) {
+      const textButton = await box(action(`${kind}_${width}_text`));
+      const label = await box(action(`${kind}_${width}_text_label`));
+      expect(centerX(label), `${kind} ${width} label`).toBeCloseTo(centerX(textButton), 1);
+
+      const iconButton = await box(action(`${kind}_${width}_icon`));
+      const withIcon = await box(action(`${kind}_${width}_icon_label`));
+      const icon = await box(action(`${kind}_${width}_icon_icon`));
+      expect(withIcon.x - (icon.x + icon.width)).toBeCloseTo(space.sm, 1);
+      expect((icon.x + withIcon.x + withIcon.width) / 2, `${kind} ${width} icon and label`).toBeCloseTo(
+        centerX(iconButton),
+        1,
+      );
+    }
+    expect((await box(action(`${kind}_full_text`))).width).toBeGreaterThan(
+      (await box(action(`${kind}_inline_text`))).width,
+    );
+  }
+});
+
+it("retains the leading inset when an action explicitly aligns to the start", async () => {
+  const [frame, label] = await Promise.all([box(action("start")), box(action("start_label"))]);
+  expect(label.x - frame.x).toBeCloseTo(space.lg + component.base.borderWidth, 1);
+});
 
 it("aligns an input with its caption and a neighbouring avatar row", async () => {
   const search = page.getByRole("searchbox", { name: "Search caption" });
