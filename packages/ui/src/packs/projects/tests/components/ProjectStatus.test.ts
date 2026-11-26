@@ -15,8 +15,9 @@ const { ProjectStatus } = components;
 const { props, examples, fallback, probes } = ProjectStatus;
 const first = examples[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+const deviceData = { project_calendar: [{ projectRef: first.projectRef, date: first.updatedAt }] };
 const draw = (input: object, state: StateName = "filled", finish: ThemeChoice = theme) =>
-  addressedElements(renderInstance("ProjectStatus", input, state, finish, { component: "p1" }));
+  addressedElements(renderInstance("ProjectStatus", input, state, finish, { component: "p1", deviceData }));
 const screen = (input: object, state: StateName = "filled") => ({
   id: "status",
   components: [{ ...input, c: "ProjectStatus", id: "p1", state }],
