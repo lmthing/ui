@@ -16,6 +16,7 @@ const branches = new Set([
   "Reschedule",
   "Cancel booking",
   "Approve",
+  "Forgot password?",
   "Book open spot",
   "Join waitlist if full",
   "See spot offer",
@@ -144,7 +145,7 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
   await page.goto(`${base()}?flows=login_recovery`);
   await phone().getByLabel("Email address", { exact: true }).fill("not-the-sample@example.test");
   await phone().getByLabel("Password", { exact: true }).fill("made-up-only");
-  await button("Forgot password?").click();
+  await choice("Forgot password?").click();
   await at("member/recover");
   expect(await phone().getByLabel("Email address", { exact: true }).inputValue()).toBe("");
   await button("Request reset code").click();
