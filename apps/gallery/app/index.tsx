@@ -7,6 +7,7 @@ import { Controls } from "./Controls";
 import { MotionPreview } from "./Motion";
 import { MotionLab } from "./MotionLab";
 import { ThemeReference } from "./ThemeReference";
+import { ArtStyles } from "./ArtStyles";
 import { NavigationShell } from "./NavigationShell";
 import { ComponentTitle, Overview, SharedVariants, VariantGrid } from "./overview";
 import { FlowGallery, FlowLook } from "./flows";
@@ -17,6 +18,8 @@ const width = Number(query.get("w")) || 0;
 const mode = query.get("mode");
 
 export function Gallery() {
+  if (query.has("art-styles"))
+    return <ArtStyles name={query.get("art-styles")} preview={query.has("art-preview")} />;
   if (query.has("flows")) return <FlowGallery id={query.get("flows")!} />;
   if (only === "FlowTemplates" && width) return <FlowLook width={width} />;
   if (query.has("nav-shell")) return <NavigationShell start={query.get("nav-shell") ?? ""} />;
