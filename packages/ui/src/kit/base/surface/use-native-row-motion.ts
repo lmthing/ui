@@ -8,7 +8,18 @@ type NativeMeasure = {
   measureLayout?(container: unknown, done: (left: number, top: number) => void, failed: () => void): void;
 };
 
-export function useNativeRowMotion(order: string, exiting: boolean, list: RefObject<TamaguiElement | null>) {
+type NativeRowMotionProps = {
+  ref?: RefObject<TamaguiElement | null>;
+  collapsable?: false;
+  y?: number;
+  onLayout?: ComponentProps<typeof YStack>["onLayout"];
+};
+
+export function useNativeRowMotion(
+  order: string,
+  exiting: boolean,
+  list: RefObject<TamaguiElement | null>,
+): NativeRowMotionProps {
   const { environment, motion } = useKit();
   const still = environment.agentMode || environment.reduceMotion || exiting;
   const previousOrder = useRef(order);
@@ -44,7 +55,7 @@ export function useNativeRowMotion(order: string, exiting: boolean, list: RefObj
     };
   }, [list, motion, order, still]);
   if (isWeb) return {};
-  const onLayout: ComponentProps<typeof YStack>["onLayout"] = ({ nativeEvent }) => {
+  const onLayout: NativeRowMotionProps["onLayout"] = ({ nativeEvent }) => {
     previousTop.current = nativeEvent.layout.y;
   };
   return { ref: row, collapsable: false, y: still ? 0 : y, onLayout };
