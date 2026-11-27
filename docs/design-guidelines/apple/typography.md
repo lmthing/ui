@@ -4,18 +4,18 @@ Choose type by **role**, then let scale, weight, and spacing reinforce its prior
 
 Apple's iOS/iPadOS **Large (default)** Dynamic Type reference, in points, is:
 
-| Role | Size / leading | Weight at default |
-| --- | ---: | --- |
-| Large Title | 34 / 41 | Regular |
-| Title 1 | 28 / 34 | Regular |
-| Title 2 | 22 / 28 | Regular |
-| Title 3 | 20 / 25 | Regular |
-| Headline | 17 / 22 | Semibold |
-| Body | 17 / 22 | Regular |
-| Callout | 16 / 21 | Regular |
-| Subhead | 15 / 20 | Regular |
-| Footnote | 13 / 18 | Regular |
-| Caption 1 / 2 | 12 / 16; 11 / 13 | Regular |
+| Role          |   Size / leading | Weight at default |
+| ------------- | ---------------: | ----------------- |
+| Large Title   |          34 / 41 | Regular           |
+| Title 1       |          28 / 34 | Regular           |
+| Title 2       |          22 / 28 | Regular           |
+| Title 3       |          20 / 25 | Regular           |
+| Headline      |          17 / 22 | Semibold          |
+| Body          |          17 / 22 | Regular           |
+| Callout       |          16 / 21 | Regular           |
+| Subhead       |          15 / 20 | Regular           |
+| Footnote      |          13 / 18 | Regular           |
+| Caption 1 / 2 | 12 / 16; 11 / 13 | Regular           |
 
 These are not a mandate to use 11 pt for metadata or to fit every role into one screen. Apple recommends 17 pt as the iOS default and lists 11 pt as the minimum reference. Use the small end very sparingly. Body moves from 17 pt at Large to 53 pt at AX5; the scale is **not uniform across roles**. At a 390-pt viewport, an accessible row often grows from label + value side by side into a stacked label/value with the action below. Preserve the order of importance, not the row height. Wrap before truncating essential information, scale meaningful glyphs with their text, and never squeeze an action's text to fit a fixed height. Make long identifiers copyable if an abbreviated preview is necessary.
 
