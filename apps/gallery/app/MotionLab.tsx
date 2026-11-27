@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { durations, themeName, type ActStep, type ThemeChoice } from "@lmthing/ui/catalog";
-import { createMemoryParts, PhoneScreen } from "@lmthing/ui/kit";
+import { createMemoryParts, PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
 import { motionLabScreen, type LabPhase } from "../fixtures/motion-lab";
 import { config, resolvePhoto } from "../index";
 
@@ -66,6 +66,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
       <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
         <PhoneScreen
           {...{ theme, onLink, onAction, parts }}
+          onReady={publishBrowserAgent}
           screen={motionLabScreen(route, step, phase, loading, shiftBadge)}
           resolvePhoto={(ref) => resolvePhoto(ref, theme)}
         />

@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import { TamaguiProvider } from "tamagui";
 import { archetypes, components, space, themeName, type Issue, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "../src/kit/screen";
+import { PhoneScreen, publishBrowserAgent } from "../src/kit/screen";
 import { Chips } from "../src/components/Chips";
 import { Field } from "../src/components/Field";
 import { HandoffReceipt } from "../src/components/HandoffReceipt";
@@ -88,6 +88,7 @@ function Fixture() {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <main style={{ paddingInline: example === "choices" ? space.xl : undefined }}>
         <PhoneScreen
+          onReady={publishBrowserAgent}
           defs={components}
           renderers={{
             Approval: Approval.Approval,

@@ -12,6 +12,7 @@ import {
 import { KitAction, KitText, renderers as kitRenderers, useDeviceData, useKit } from "@lmthing/ui/kit";
 import { config } from "../../../../../apps/gallery";
 import { PhoneScreen } from "./PhoneScreen";
+import { publishBrowserAgent } from "./publish-browser-agent";
 
 const theme = { preset: "calm", accent: "moss", mode: "light" } satisfies ThemeChoice;
 const screen = {
@@ -80,7 +81,7 @@ function Scenario() {
       <button onClick={() => release()}>Finish rendering</button>
       <button onClick={() => setDeviceData(before)}>Restore snapshot</button>
       <Suspense fallback={null}>
-        <PhoneScreen {...{ defs, renderers, screen, theme, deviceData }} />
+        <PhoneScreen {...{ defs, renderers, screen, theme, deviceData }} onReady={publishBrowserAgent} />
       </Suspense>
     </TamaguiProvider>
   );

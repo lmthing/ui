@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { KitAction, KitNumberPad, usePrivateStatus, type PrivateValuesHost } from "@lmthing/ui/kit";
-import { PhoneScreen } from "../../../src/kit";
+import { PhoneScreen, publishBrowserAgent } from "../../../src/kit";
 import { config } from "../../render";
 import { copy, defs, fixturePin, generated, screen, verify } from "./private-values.fixture";
 
@@ -40,6 +40,7 @@ const renderers = { PrivateFixture };
 createRoot(document.getElementById("root")!).render(
   <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
     <PhoneScreen
+      onReady={publishBrowserAgent}
       {...{ defs, screen, theme, renderers, privateValues }}
       authenticateReveal={async () => "approved"}
       resolveClipboardText={(address) =>

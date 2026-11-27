@@ -29,14 +29,14 @@ function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   return { label, value: raw.match(figure)![0] };
 }
 
-type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange"> & {
+type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange" | "onReady"> & {
   flow: FilledFlow;
   index: number;
   state?: FlowState | undefined;
   incompleteCode?: boolean;
 };
 
-export function FlowPhone({ flow, index, state, incompleteCode, onLink, onChange }: FlowPhoneProps) {
+export function FlowPhone({ flow, index, state, incompleteCode, onLink, onChange, onReady }: FlowPhoneProps) {
   const screen = flowPreviewScreen(flow, index, state, {
     ...(incompleteCode ? { message: flowWords.codeLength } : {}),
     ...(!state ? { codeHint: flowWords.codeLength } : {}),
@@ -72,6 +72,7 @@ export function FlowPhone({ flow, index, state, incompleteCode, onLink, onChange
           theme={flowTheme}
           onChange={onChange}
           onLink={onLink}
+          onReady={onReady}
           interactive={!state}
           reduceMotion
         />

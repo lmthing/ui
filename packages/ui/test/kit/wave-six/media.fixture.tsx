@@ -11,7 +11,7 @@ import {
   usePartContext,
   type MediaAdapter,
 } from "@lmthing/ui/kit";
-import { PhoneScreen } from "../../../src/kit/screen";
+import { PhoneScreen, publishBrowserAgent } from "../../../src/kit/screen";
 import { config } from "../../render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -71,6 +71,7 @@ function MediaFixture() {
 createRoot(document.getElementById("root")!).render(
   <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
     <PhoneScreen
+      onReady={publishBrowserAgent}
       defs={defs}
       renderers={{ MediaFixture }}
       screen={screen}

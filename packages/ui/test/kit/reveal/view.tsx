@@ -8,7 +8,7 @@ import {
   useAuthenticatedReveal,
   type AuthenticateReveal,
 } from "@lmthing/ui/kit";
-import { PhoneScreen } from "../../../src/kit";
+import { PhoneScreen, publishBrowserAgent } from "../../../src/kit";
 import { config } from "../../render";
 import { defs, screen } from "./fixture";
 
@@ -70,6 +70,7 @@ function App() {
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button onClick={() => setHost(false)}>Disconnect authentication</button>
       <PhoneScreen
+        onReady={publishBrowserAgent}
         {...{ defs, screen, theme, renderers }}
         authenticateReveal={host ? authenticateReveal : undefined}
       />

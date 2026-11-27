@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
+import { publishBrowserAgent } from "@lmthing/ui/kit";
 import {
   component,
   radius,
@@ -38,7 +39,11 @@ function FlowPlaybackPhone({ flow, frame, index, state, incompleteCode, onChange
         borderRadius={radius.lg}
         overflow="hidden"
       >
-        <FlowPhone {...{ flow, index, state, incompleteCode, onChange }} onLink={follow} />
+        <FlowPhone
+          {...{ flow, index, state, incompleteCode, onChange }}
+          onLink={follow}
+          onReady={publishBrowserAgent}
+        />
       </YStack>
     </div>
   );
