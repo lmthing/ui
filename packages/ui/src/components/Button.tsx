@@ -11,7 +11,18 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitAction, useVariant } from "../kit";
+import {
+  KitAction,
+  KitCard,
+  KitIcon,
+  KitRow,
+  KitSkeleton,
+  KitState,
+  KitText,
+  useComponentState,
+  useVariant,
+  useWords,
+} from "../kit";
 import { prompt } from "../entry/prompt-Button.generated";
 
 export const meta = {
@@ -31,7 +42,7 @@ export const meta = {
   variantParts: { "media.none": { hides: ["root_icon"] } },
   writeHints: prompt.writeHints,
   parts: ["root", "root_icon"],
-  states: ["filled"],
+  states: ["filled", "loading"],
   actions: { parts: { root: ["press"] } },
   // Pressing asks first when a confirm sentence is written (a sheet the host draws).
   read: (input, _state, lang?: string) => {
@@ -57,11 +68,9 @@ export function fallback({ lang }: { cast: CastLike; lang?: string | undefined }
 
 export const examples = [
   { label: "Log watering", icon: "drop" },
+  { label: "Book a walk", goto: "book_walk" },
   { label: "Log watering", icon: "drop", media: "none" },
   { label: "Remove plant", kind: "danger", confirm: "Remove this plant and its history?" },
-  { label: "Log watering", icon: "drop" },
-  { label: "Log watering", icon: "drop" },
-  { label: "Book a walk", goto: "book_walk" },
   { label: "View schedule", icon: "calendar", emphasis: "quiet", goto: "schedule" },
 ] satisfies z.input<typeof props>[];
 
@@ -70,6 +79,12 @@ export const probes = [
   choose("Let me log watering with one main tap"),
   choose("Give me three shortcuts to log watering, add a plant and see the schedule", "Actions"),
   write("Let me book a dog walk and open the booking screen"),
+  {
+    ...write(
+      'Give me one main action to open my saved tracks on the "saved_tracks" screen. Call it "View saved tracks".',
+    ),
+    expectProps: { label: "View saved tracks", goto: "saved_tracks" },
+  },
   write("A Remove plant button that, before it does anything, asks Remove this plant and its history?"),
   {
     ...write("Keep the normal filled Log watering button. Store its water drop icon but hide the icon."),
@@ -87,15 +102,49 @@ export const probes = [
 
 export function Button({ label, kind, emphasis, media, icon, goto }: Props<typeof props, typeof meta>) {
   const finish = useVariant("emphasis", meta.variants.emphasis, emphasis);
+  const loading = useComponentState() === "loading";
+  const glyph = media === "none" ? undefined : icon;
   const action = kind ?? (finish === "quiet" ? "quiet" : "primary");
+  if (loading) return <PendingAction link={action === "quiet" && !!goto} />;
+  if (action === "quiet" && goto)
+    return (
+      <KitRow
+        part="root"
+        label={label}
+        goto={goto}
+        lineRole="label"
+        leadingAlign="row"
+        leading={glyph && <KitIcon name={glyph} tone="accent" part="root_icon" />}
+        trailing={<KitIcon name="chevron_right" decorative />}
+      >
+        <KitText role="label" tone="accent" part="root_label" breakLongWords>
+          {label}
+        </KitText>
+      </KitRow>
+    );
   return (
-    <KitAction
-      label={label}
-      icon={media === "none" ? undefined : icon}
-      kind={action}
-      goto={goto}
-      part="root"
-      full={finish !== "quiet"}
-    />
+    <KitAction label={label} icon={glyph} kind={action} goto={goto} part="root" full={finish !== "quiet"} />
+  );
+}
+
+function PendingAction({ link }: { link: boolean }) {
+  const { loadingLabel } = useWords().words;
+  return (
+    <KitCard style="plain" part="root">
+      <KitState
+        loading={
+          <KitRow
+            label={loadingLabel}
+            lineRole="label"
+            inline={!link}
+            leading={<KitSkeleton shape="figure" lead="dot" />}
+          >
+            <KitText part={null} role="label" tone="muted">
+              {loadingLabel}
+            </KitText>
+          </KitRow>
+        }
+      />
+    </KitCard>
   );
 }
