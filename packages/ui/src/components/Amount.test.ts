@@ -110,7 +110,8 @@ describe("Amount fallback, metadata and reading", () => {
       { value: 1240.5, currency: "EUR", per: "month", was: 1500, change: -32, label: "Balance" },
       "a1",
     ).join("\n");
-    for (const text of ["€1,240.50 / month", "€1,500", "Down €32", '"Balance"']) expect(line).toContain(text);
+    for (const text of ["€1,240.50", "Per month", "€1,500", "Down €32", '"Balance"'])
+      expect(line).toContain(text);
     expect(readComponent(components.Amount, { style: "total", value: 54 }, "a1").join("\n")).toContain(
       "Total",
     );
@@ -179,7 +180,7 @@ describe("Amount rendering", () => {
     expect(html).toMatch(/data-testid="home\/c1\/value"[^>]+>\$18<\/span>/);
     expect(html).toMatch(/data-testid="home\/c1\/rate"[^>]+>Each<\/span>/);
     expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
-    expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 / each"]);
+    expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 — Each"]);
   });
   it("keeps the value and price parts while hiding the secondary note", () => {
     const input = { label: "Walks", value: 18, was: 20, change: -2, sub: "Morning routes" };

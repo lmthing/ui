@@ -66,7 +66,7 @@ export const meta = {
   read: (input, state, lang): string[] => {
     const { style, bars, figures, sub, detail } = input as {
       style: "bars" | "ring";
-      bars: (Goal & { label: string })[];
+      bars: (Goal & { id?: string; label: string; goto?: string })[];
       figures: "exact" | "short";
       sub?: string;
       detail: "full" | "brief";
@@ -75,7 +75,11 @@ export const meta = {
     if (state === "empty") return [wordsFor(lang).progressUnavailable];
     if (state !== "filled") return [];
     if (!bars.length) return [wordsFor(lang).progressUnavailable];
-    if (style !== "ring") return bars.flatMap((bar) => goalReading(bar, figures, lang));
+    if (style !== "ring")
+      return bars.flatMap((bar, index) => [
+        ...goalReading(bar, figures, lang),
+        ...(bar.goto ? [`${bar.id ?? `r${index + 1}`} ${progressViewDetails}`] : []),
+      ]);
     const goal = bars[0];
     return goal
       ? [

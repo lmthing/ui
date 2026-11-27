@@ -25,8 +25,10 @@ export const meta = {
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const v = input as AmountData;
-    const { shown, sum, was, change } = amountCopy(v, lang);
-    return [!v.label ? shown : undefined, sum, was, change].filter((s) => s !== undefined);
+    const { shown, price, sum, rate, was, change } = amountCopy(v, lang);
+    return [!v.label ? shown : undefined, rate ? price : sum, rate, was, change].filter(
+      (s) => s !== undefined,
+    );
   },
 } as const satisfies c.Meta;
 
