@@ -1,5 +1,5 @@
 import { Path, Circle, Svg } from "react-native-svg";
-import { YStack, useTheme } from "tamagui";
+import { getVariable, YStack, useTheme } from "tamagui";
 import { motionProfiles, variants } from "../../catalog";
 import { useChangeReveal, useReducedFade } from "./use-change-reveal";
 import { useReveal } from "./use-motion";
@@ -30,7 +30,7 @@ export function DrawnCheck({
   const fade = useReducedFade(active ? "checked" : undefined);
   const progress = play ? arrival * change : 1;
   if (!active) return null;
-  const color = theme[tone]?.val;
+  const color = getVariable(theme[tone]);
   const pulse = complete && motion === "lively" ? Math.sin(progress * Math.PI) : 0;
   const { d, length } = ring ? circled : check;
   return (
