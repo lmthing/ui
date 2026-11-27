@@ -4,6 +4,8 @@ import { formatAddress } from "../../catalog";
 import { useKit } from "../provider";
 import { usePartContext } from "./part-context";
 import { PartRefScope } from "./part-ref-scope";
+import { listenMotionSettled } from "./motion-settled";
+import { noopParts } from "../registry";
 
 const subscribeNone = () => () => {};
 export function usePartDisabled(address: string | undefined) {
@@ -23,12 +25,14 @@ type Measurable = {
     failure: () => void,
   ) => void;
 };
-export function usePart(part = "root", enabled = true) {
+export function usePart(part = "root", register = true) {
   const { screen, component, item, rev } = usePartContext();
-  const { parts, root, controller } = useKit();
+  const { parts, root, controller, visualOnly } = useKit();
+  const enabled = register && !visualOnly;
   const registerRef = useContext(PartRefScope);
   const ref = useRef<TamaguiElement>(null);
   const frame = useRef<number | null>(null);
+  const revision = useRef(0);
   const address = formatAddress({ screen, component, ...(item ? { item } : {}), part });
   const onLayout = useCallback(() => {
     if (!enabled) return;
@@ -38,26 +42,34 @@ export function usePart(part = "root", enabled = true) {
       const node = ref.current as Measurable | null;
       const origin = root.current as Measurable | null;
       if (!node || !origin) return;
+      const requested = revision.current;
+      const measure = (x: number, y: number, width: number, height: number) => {
+        if (requested === revision.current)
+          parts.register({ screen, rev, address, rect: { x, y, width, height } });
+      };
       if (node.getBoundingClientRect && origin.getBoundingClientRect) {
-        const rect = node.getBoundingClientRect();
+        const { x, y, width, height } = node.getBoundingClientRect();
         const base = origin.getBoundingClientRect();
-        parts.register({
-          screen,
-          rev,
-          address,
-          rect: { x: rect.x - base.x, y: rect.y - base.y, width: rect.width, height: rect.height },
-        });
+        measure(x - base.x, y - base.y, width, height);
       } else {
-        node.measureLayout?.(
-          root.current,
-          (x, y, width, height) => parts.register({ screen, rev, address, rect: { x, y, width, height } }),
-          () => {},
-        );
+        node.measureLayout?.(root.current, measure, () => {});
       }
     });
   }, [parts, root, screen, rev, address, enabled]);
-  useEffect(
+  useEffect(() => {
+    if (!enabled || parts === noopParts) return;
+    const installed = revision.current;
+    return listenMotionSettled(
+      root.current,
+      () => ref.current,
+      () => {
+        if (installed === revision.current) onLayout();
+      },
+    );
+  }, [enabled, onLayout, parts, root]);
+  useLayoutEffect(
     () => () => {
+      revision.current++;
       if (frame.current !== null) cancelAnimationFrame(frame.current);
       if (enabled) parts.unregister({ screen, rev, address });
     },
@@ -68,5 +80,5 @@ export function usePart(part = "root", enabled = true) {
     () => (enabled && ref.current ? registerRef?.(address, ref) : undefined),
     [address, enabled, registerRef],
   );
-  return { ref, onLayout, testID: address };
+  return { ref, onLayout, testID: visualOnly ? "" : address };
 }

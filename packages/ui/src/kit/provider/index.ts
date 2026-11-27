@@ -1,4 +1,5 @@
 export { KitProvider } from "./KitProvider";
+export { KitVisualOnly } from "./KitVisualOnly";
 export { useKit } from "./useKit";
 export { useKitStyle } from "./useKitStyle";
 export { useEnvironment } from "./useEnvironment";

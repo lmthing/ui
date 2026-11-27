@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import type { NativeHost } from "./environment";
 
-/** Only lively motion needs this extra OS check; an explicitly calm theme is already neutral. */
+/** Direct kit consumers must also respect the OS preference in either motion profile. */
 export function useReducedMotion(enabled: boolean, host?: NativeHost) {
   const source = useMemo(() => {
     const media =

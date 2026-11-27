@@ -1,7 +1,9 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { ScrollView, YStack, type TamaguiElement } from "tamagui";
+import { isWeb, ScrollView, YStack, type TamaguiElement } from "tamagui";
 import { useKit } from "../../provider";
-import { component, zIndex } from "../../../catalog";
+import { component, durations, motionProfiles, zIndex } from "../../../catalog";
+import { useReveal } from "../../motion";
+import { announceMotionSettled } from "../../part";
 
 function useModalFocus(onDismiss: () => void) {
   const { nativeHost } = useKit();
@@ -62,8 +64,15 @@ export function KitOverlay({
   label: string;
   onDismiss(): void;
 }) {
-  const { environment } = useKit();
+  const { environment, motion } = useKit();
   const panel = useModalFocus(onDismiss);
+  const profile = motionProfiles[motion];
+  const progress = useReveal("open", !environment.agentMode, {
+    ...(environment.reduceMotion ? { duration: durations.fast } : { spring: profile.spring }),
+    done: () => {
+      if (isWeb && panel.current) announceMotionSettled(panel.current as HTMLElement);
+    },
+  });
   return (
     <YStack
       position="absolute"
@@ -81,11 +90,19 @@ export function KitOverlay({
         left={0}
         right={0}
         backgroundColor="$text"
-        opacity={component.base.skeletonOpacity}
+        opacity={component.base.skeletonOpacity * progress}
         onPress={onDismiss}
         aria-hidden
       />
-      <YStack ref={panel} role="dialog" aria-modal aria-label={label} maxHeight="90%">
+      <YStack
+        ref={panel}
+        role="dialog"
+        aria-modal
+        aria-label={label}
+        maxHeight="90%"
+        opacity={progress}
+        y={environment.reduceMotion ? 0 : profile.sheet * (1 - progress)}
+      >
         <ScrollView>{children}</ScrollView>
       </YStack>
     </YStack>

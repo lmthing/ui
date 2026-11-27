@@ -1,12 +1,13 @@
-import { isValidElement, useContext } from "react";
+import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
 import { ScrollView, YStack } from "tamagui";
-import { KitMotion, KitPresence } from "../motion";
+import { KitMotion, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import { KitCard, KitEmpty } from "../base";
 import {
   space,
+  motion,
   parseItemProps,
   regionOf,
   sortByRegion,
@@ -25,7 +26,15 @@ type RenderProps = {
   renderers: RendererMap;
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
+  compactTitle?: boolean;
+  navigationArrival?: boolean;
 };
+function listProjection(views: RenderProps["views"], id: string) {
+  return JSON.stringify(
+    views?.lists.get(id)?.map(({ filter, active }) => [filter.field, active.map(({ match }) => match)]),
+  );
+}
+
 function ScreenEntry({
   controller,
   renderers,
@@ -63,7 +72,9 @@ function ScreenEntry({
           <KitEmpty part="results" title={empty} prominence="body" announce="status" decorativeIcon />
         </KitCard>
       ) : (
-        <View {...props} />
+        <ListProjectionKey.Provider value={listProjection(views, id)}>
+          <View {...props} />
+        </ListProjectionKey.Provider>
       )}
       {emptyPanel && (
         <KitEmpty part="results" title={emptyPanel} prominence="body" announce="status" decorativeIcon />
@@ -71,8 +82,15 @@ function ScreenEntry({
     </PartScope>
   );
 }
-function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
-  const { controller, screen, views } = props;
+function ScreenRegion({
+  name,
+  scroll,
+  ...props
+}: RenderProps & {
+  name: string;
+  scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
+}) {
+  const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
   const elsewhere = new Set(
     screen.components.filter((entry) => regionOf(entry, components) !== name).map(({ id }) => id),
@@ -80,28 +98,41 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
   const entries = sortByRegion(screen.components, components).filter(
     (entry) => regionOf(entry, components) === name && !views?.hidden.has(entry.id),
   );
-  return (
-    <KitPresence
-      keepExit={(node) =>
-        isValidElement<RegionEntryProps>(node) &&
-        !elsewhere.has(node.props.entry.id) &&
-        !views?.hidden.has(node.props.entry.id)
+  const initial = useRef(new Set(entries.map(({ id }) => id)));
+  const rows = entries.map((entry, index) => (
+    <RegionEntry
+      key={entry.id}
+      {...props}
+      entry={
+        compactTitle && name === "top" && entry.c === "Header" && entry.style !== "back"
+          ? { ...entry, emphasis: "quiet", sub: undefined }
+          : entry
       }
-    >
-      {entries.map((entry, index) => (
-        <RegionEntry
-          key={entry.id}
-          {...props}
-          entry={entry}
-          index={index}
-          marginTop={
-            name === "body" && components[entry.c]
-              ? gapBetween(components[entries[index - 1]?.c ?? ""]?.meta, components[entry.c]!.meta)
-              : 0
-          }
-        />
-      ))}
-    </KitPresence>
+      sticky={name === "body" && entry.c === "SectionTitle"}
+      appear={!props.navigationArrival || !initial.current.has(entry.id)}
+      index={index}
+      marginTop={
+        name === "body" && components[entry.c]
+          ? gapBetween(components[entries[index - 1]?.c ?? ""]?.meta, components[entry.c]!.meta)
+          : 0
+      }
+    />
+  ));
+  const keepExit = (node: React.ReactNode) =>
+    isValidElement<RegionEntryProps>(node) &&
+    !elsewhere.has(node.props.entry.id) &&
+    !views?.hidden.has(node.props.entry.id);
+  const present = usePresence(rows, keepExit);
+  if (!scroll) return <>{present}</>;
+  const sticky = present.flatMap((node, index) =>
+    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
+  );
+  return (
+    <ScreenBottomSource>
+      <ScrollView {...scroll} stickyHeaderIndices={sticky}>
+        {present}
+      </ScrollView>
+    </ScreenBottomSource>
   );
 }
 
@@ -110,17 +141,24 @@ type RegionEntryProps = RenderProps & {
   index: number;
   marginTop: number;
   exiting?: boolean;
+  sticky?: boolean;
+  appear?: boolean;
 };
-function RegionEntry({ index, marginTop, exiting, ...props }: RegionEntryProps) {
+function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...props }: RegionEntryProps) {
   return (
-    <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false}>
-      <YStack marginTop={marginTop}>
+    <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false} appear={appear}>
+      <YStack {...(sticky ? { paddingTop: marginTop, backgroundColor: "$bg" } : { marginTop })}>
         <ScreenEntry {...props} />
       </YStack>
     </KitMotion>
   );
 }
-export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
+export function ScreenContent({
+  covered,
+  initialBodyScroll,
+  onBodyScroll,
+  ...props
+}: RenderProps & BodyOptions) {
   const { environment } = useKit();
   const gutter = space[useKitStyle().frame.gutter];
   const { insets, keyboardHeight } = environment;
@@ -133,23 +171,31 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
   const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
+  const [compactTitle, setCompactTitle] = useState((initialBodyScroll ?? 0) >= motion.collapseTitleAt);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
         <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
-          <ScreenRegion {...props} name="top" />
+          <ScreenRegion {...props} name="top" compactTitle={compactTitle} />
         </YStack>
-        <ScrollView
-          flex={1}
-          minHeight={0}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          contentContainerStyle={{ paddingVertical: space.gutter, ...horizontal }}
-        >
-          <ScreenBottomSource>
-            <ScreenRegion {...props} name="body" />
-          </ScreenBottomSource>
-        </ScrollView>
+        <ScreenRegion
+          {...props}
+          name="body"
+          scroll={{
+            flex: 1,
+            minHeight: 0,
+            keyboardShouldPersistTaps: "handled",
+            keyboardDismissMode: "on-drag",
+            onScroll: ({ nativeEvent }) => {
+              const y = nativeEvent.contentOffset.y;
+              onBodyScroll?.(y);
+              if (y >= motion.collapseTitleAt) setCompactTitle(true);
+              else if (y <= motion.expandTitleAt) setCompactTitle(false);
+            },
+            contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
+            ...(initialBodyScroll ? { contentOffset: { x: 0, y: initialBodyScroll } } : {}),
+          }}
+        />
         <YStack
           flexShrink={0}
           {...horizontal}
@@ -164,6 +210,11 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     </ScreenBottomSlots>
   );
 }
+type BodyOptions = {
+  covered: boolean;
+  initialBodyScroll?: number;
+  onBodyScroll?: (top: number) => void;
+};
 export function ScreenSheet({ controller, renderers, screen }: RenderProps) {
   const entry = screen.components.find((item) => item.id === controller.openSheet);
   return entry ? (

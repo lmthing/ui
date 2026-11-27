@@ -13,6 +13,7 @@ export type KitContextValue = {
   parts: PartRegistry;
   root: RefObject<TamaguiElement | null>;
   interactive: boolean;
+  visualOnly?: true;
   environment: Environment;
   nativeHost?: NativeHost;
   controller?: ScreenController;

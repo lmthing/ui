@@ -1,8 +1,8 @@
-import { useSignatureProgress } from "../../motion";
+import { DrawnCheck, useSignatureProgress } from "../../motion";
 import * as icons from "../../../entry/icons.generated";
 import { YStack, styled } from "tamagui";
 import { iconTable, motion, radius, size, type IconName } from "../../../catalog";
-import { usePart } from "../../part";
+import { usePart, usePartContext } from "../../part";
 
 const Frame = styled(YStack, { alignItems: "center", justifyContent: "center" });
 
@@ -27,7 +27,9 @@ export function KitIcon({
   const addressed = !decorative && !loading;
   const address = usePart(part, addressed);
   const progress = useSignatureProgress("streak_flame");
+  const { state } = usePartContext();
   const Icon = icons[iconTable[name]];
+  const complete = tone === "good" && (name === "check" || name === "circle_check");
   return (
     <Frame
       scale={name === "flame" ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}
@@ -42,6 +44,8 @@ export function KitIcon({
           borderRadius={radius.pill}
           backgroundColor="$line"
         />
+      ) : complete && state !== "loading" ? (
+        <DrawnCheck size={size.icon[scale]} tone={tone} ring={name === "circle_check"} complete />
       ) : (
         <Icon size={size.icon[scale]} color={`$${tone}`} />
       )}

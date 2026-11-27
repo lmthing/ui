@@ -12,4 +12,31 @@ export const motion = {
   pressScale: 0.97,
   pulseScale: 0.16,
   spinAngle: 20,
+  chipDip: 0.94,
+  figureRoll: 6,
+  errorTurns: 3,
+  collapseTitleAt: 48,
+  expandTitleAt: 12,
+  reducedFadeStart: 0.72,
 } as const;
+
+export const motionProfiles = {
+  calm: {
+    navigation: durations.base,
+    feedback: durations.fast,
+    push: 20,
+    sheet: 24,
+    error: 3,
+    spring: springs.snappy,
+  },
+  lively: {
+    navigation: durations.slow,
+    feedback: durations.base,
+    push: 40,
+    sheet: 40,
+    error: 6,
+    spring: springs.bouncy,
+  },
+} as const;
+
+export const motionEase = "cubic-bezier(0.2, 0, 0, 1)";

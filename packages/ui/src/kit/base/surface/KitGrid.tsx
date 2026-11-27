@@ -1,9 +1,12 @@
-import { Children, type ReactNode } from "react";
-import { XStack, YStack } from "tamagui";
+import { Children, isValidElement, useRef, type ReactNode, type RefObject } from "react";
+import { isWeb, XStack, YStack, type TamaguiElement } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
-import { useKitStyle, useVariantDensity } from "../../provider";
+import { KitVisualOnly, useKitStyle, useVariantDensity } from "../../provider";
 import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
+import { KitMotion, KitPresence } from "../../motion";
+import { useListReorder } from "./use-list-reorder";
+import { useNativeRowMotion } from "./use-native-row-motion";
 
 type GridProps = {
   columns?: 2 | 3;
@@ -26,22 +29,90 @@ type GridProps = {
   | { arrange: "strip"; overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined }
 );
 
+const rowKey = (cell: ReactNode, index: number) =>
+  isValidElement(cell) && cell.key !== null ? String(cell.key) : String(index);
+
 function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | undefined; ruled: boolean }) {
+  const keys = cells.map(rowKey);
+  const initial = useRef(new Set(keys));
+  const order = JSON.stringify(keys);
+  const ref = useListReorder(order);
   return (
-    <YStack accessibilityRole="list" gap={gap}>
-      {cells.map((cell, index) => (
-        <YStack key={index} accessibilityRole="listitem">
-          {cell}
-          {ruled && index < cells.length - 1 && (
-            <YStack
-              height={component.base.borderWidth}
-              backgroundColor="$line"
-              marginHorizontal={space.md}
-              aria-hidden
-            />
-          )}
-        </YStack>
-      ))}
+    <YStack ref={ref} position="relative" accessibilityRole="list" gap={gap}>
+      <KitPresence>
+        {cells.map((cell, index) => (
+          <MotionRow
+            key={keys[index]}
+            id={keys[index]!}
+            order={order}
+            list={ref}
+            appear={!initial.current.has(keys[index]!)}
+            rule={ruled && index < cells.length - 1}
+          >
+            {cell}
+          </MotionRow>
+        ))}
+      </KitPresence>
+    </YStack>
+  );
+}
+
+const exitProps = {
+  "aria-hidden": true,
+  pointerEvents: "none",
+  ...(isWeb
+    ? { inert: true }
+    : { accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" as const }),
+} as const;
+
+function MotionRow({
+  children,
+  id,
+  order,
+  list,
+  appear,
+  rule,
+  exiting,
+}: {
+  children: ReactNode;
+  id: string;
+  order: string;
+  list: RefObject<TamaguiElement | null>;
+  appear: boolean;
+  rule: boolean;
+  exiting?: boolean;
+}) {
+  const nativePose = useNativeRowMotion(order, exiting ?? false, list);
+  const content = (
+    <>
+      {children}
+      {rule && (
+        <YStack
+          height={component.base.borderWidth}
+          backgroundColor="$line"
+          marginHorizontal={space.md}
+          aria-hidden
+        />
+      )}
+    </>
+  );
+  return (
+    <YStack
+      {...nativePose}
+      data-list-motion={id}
+      data-list-exiting={exiting ? "" : undefined}
+      accessibilityRole="listitem"
+      {...(exiting ? exitProps : {})}
+    >
+      <KitVisualOnly active={exiting ?? false}>
+        {isWeb ? (
+          content
+        ) : (
+          <KitMotion appear={appear} exiting={exiting ?? false}>
+            {content}
+          </KitMotion>
+        )}
+      </KitVisualOnly>
     </YStack>
   );
 }
