@@ -2,6 +2,11 @@ import { checkTemplate, type FlowTemplateLookups } from "./check-template";
 import { flowTemplateSchema, type FlowTemplate } from "./flow-template";
 
 type ReadonlyTree<T> = T extends object ? { readonly [K in keyof T]: ReadonlyTree<T[K]> } : T;
+export type FlowTemplateSource = ReadonlyTree<FlowTemplate>;
+export type FlowTemplateRegistry = {
+  readonly list: readonly FlowTemplateSource[];
+  readonly get: (id: string) => FlowTemplateSource | undefined;
+};
 
 function freezeTree<T>(value: T): ReadonlyTree<T> {
   if (value !== null && typeof value === "object") {
@@ -11,7 +16,10 @@ function freezeTree<T>(value: T): ReadonlyTree<T> {
   return value as ReadonlyTree<T>;
 }
 
-export function flowTemplateRegistryOf(definitions: readonly FlowTemplate[], lookups: FlowTemplateLookups) {
+export function flowTemplateRegistryOf(
+  definitions: readonly FlowTemplateSource[],
+  lookups: FlowTemplateLookups,
+): FlowTemplateRegistry {
   const parsed = definitions.map((definition) => flowTemplateSchema.parse(definition));
   const ids = new Set<string>();
   const issues: string[] = [];

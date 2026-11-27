@@ -1,0 +1,216 @@
+{
+  "signup_onboard%2Ffill_1/982ec6491cf8601d/19a3b16c826ab47a": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nCreate an account, complete essential setup, and reach a first useful task.\nShow the reason for each requested input. Do not request secrets or real contact details in examples.\nKeep verification distinct from first run. Optional preferences should never block the first useful task.\nName slots: member.\nRecord shape: {\"goal\":\"string\",\"task\":\"string\",\"account\":\"string\"}.\nOptional step addresses: member/preferences.\nRequest: My name is Tess and my sign-up email is tess@example.test. My goal is 'Organize notes', and my first task is 'Make a first list'.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "goal": {
+                  "type": "string"
+                },
+                "task": {
+                  "type": "string"
+                },
+                "account": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "goal",
+                "task",
+                "account"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}"
+    ]
+  },
+  "signup_onboard%2Ffill_1/f90eddec634db141/9e38f55cf6de0da1": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nCreate an account, complete essential setup, and reach a first useful task.\nShow the reason for each requested input. Do not request secrets or real contact details in examples.\nKeep verification distinct from first run. Optional preferences should never block the first useful task.\nName slots: member.\nRecord shape: {\"goal\":\"string\",\"task\":\"string\",\"account\":\"string\"}.\nOptional step addresses: member/preferences.\nRequest: Tess signs up as tess@example.test. Her goal is Organize notes, and the first task is Make a first list.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "goal": {
+                  "type": "string"
+                },
+                "task": {
+                  "type": "string"
+                },
+                "account": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "goal",
+                "task",
+                "account"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\n  \"names\": {\n    \"member\": \"tess@example.test\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}"
+    ]
+  },
+  "signup_onboard%2Fpick_1/8d92118d3b3c61f8/dc4ea247ae7440bd": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nRequest: Let a new person create an account and walk them to their first useful action.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"signup_onboard\"}",
+    "replies": [
+      "{\"template\": \"signup_onboard\"}",
+      "{\"template\": \"signup_onboard\"}",
+      "{\"template\": \"signup_onboard\"}"
+    ]
+  },
+  "signup_onboard%2Fpick_2/ff667bc806acc6d1/9ff69c819f1d5100": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nRequest: Let an existing workspace member invite someone who then accepts their access.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"invite_accept\"}",
+    "replies": [
+      "{\"template\": \"invite_accept\"}",
+      "{\"template\": \"invite_accept\"}",
+      "{\"template\": \"invite_accept\"}"
+    ]
+  }
+}

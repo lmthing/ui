@@ -896,18 +896,25 @@ add steps for the person's job. If nothing fits, it writes the journey without a
   (`empty`, `waiting`, `error`, `success`). Steps can be optional. Nonterminal steps describe an
   action (`do`), a hand-off (`hands_off_to`), or both. A hand-off names a required step in another
   role's journey; both roles see the same sample record.
-- Each template definition and its examples and probes live in `src/catalog/flow-templates/<id>.ts`,
+- Each template definition and its examples and probes live in `src/catalog/flow-templates/templates/<id>.ts`,
   with model guidance in `<id>.prompt.md`. Pack definitions may live next to their pack components.
   The full catalog exposes an ordered list and lookup by id for the built-in definitions. Hosts
   can use `flowTemplateRegistryOf` to check scoped definitions with the caller's component and
-  archetype lookups.
+  archetype lookups. Same-role `next` and labeled `choices` model branches. Only implicit sequential
+  steps may be optional, so omitting one cannot strand a hand-off or choice. `fillFlow` substitutes
+  one binding across the journey, checks reachable endings, and keeps screen ids out of model output.
 - Catalog checks reject duplicate ids, undeclared slots, unknown layout ids, broken hand-offs and
   invalid examples. Each example fills all names and one typed record for the whole journey.
   Positive and near-miss pick probes exercise the closed menu. Fill probes validate model output
-  as journeys and replay actions and hand-offs to completion. The gallery plays the examples with
-  existing kit components. No template supplies a renderer.
-- Study 3–5 shipped apps per template through Mobbin before drafting. Use Material and Apple HIG
-  as guidance. Use our own words and components; do not copy product assets, text or visuals.
+  as journeys and replay actions and hand-offs to completion. Run `pnpm llm:check --flows`
+  (or `--flows <id>` for one template) and record replies under `test/recordings/flows/<id>/`.
+  The Node suite replays those replies through the same pick and fill checks without model access.
+- The gallery's Flow templates link opens `?flows`. Use `?flows=<id>` to open a template directly.
+  Play an example or inspect a step/state, including the next role at a hand-off, using existing kit
+  components. No template supplies a renderer.
+- Study 3–5 shipped apps per template before drafting. Use Material and Apple HIG as guidance.
+  Use Mobbin when signed in; otherwise use shipped-app references and record “Mobbin pass pending”
+  for each template. Use our own words and components; do not copy product assets, text or visuals.
 
 | Id                     | Journey                                                        |
 | ---------------------- | -------------------------------------------------------------- |

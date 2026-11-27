@@ -2,6 +2,7 @@ import { dataExports, scanEntries } from "./scan-entries";
 import { generateDoors } from "./generate-doors";
 import { publishEntries } from "./publish-entries";
 import { promptModule } from "./prompt-source";
+import { flowPrompts } from "./flow-prompts";
 import { iconTable } from "../../../src/catalog/icon-vocabulary";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
@@ -44,6 +45,7 @@ function catalogLines() {
     "import { components as packComponents, packOf, packs, packArchetypes, packArchetypeOverrides, " +
       'packComposeProbes, packExamples } from "./packs";',
     `export * from "../catalog";`,
+    `export * from "./flow-catalog";`,
     `export { packOf, packs, packArchetypes, packArchetypeOverrides, packComposeProbes, packExamples };`,
     // Keep declaration emit from expanding each component schema at the catalog boundary.
     "export const components: typeof coreComponents & typeof packComponents & typeof surfaceComponents = " +
@@ -200,6 +202,7 @@ export async function generateEntries(root: string) {
   const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
+    ...(await flowPrompts(root)),
     ...Object.fromEntries(
       entries.defs.flatMap(({ name, prompt }) =>
         prompt
@@ -219,6 +222,14 @@ export async function generateEntries(root: string) {
     "surfaces.ts": componentEntry(surfaces),
     "surface-renderers.ts": rendererEntry(surfaces),
     "catalog.ts": catalogLines(),
+    "flow-catalog.ts": [
+      `import { archetypes, builtInFlowTemplates, flowTemplateRegistryOf, type FlowTemplateRegistry } from "../catalog";`,
+      `import { components } from "./definitions";`,
+      `export const flowTemplates: FlowTemplateRegistry = flowTemplateRegistryOf(builtInFlowTemplates, {`,
+      `  component: (id) => Object.hasOwn(components, id),`,
+      `  archetype: (id) => Object.hasOwn(archetypes, id),`,
+      `});`,
+    ],
     "renderers.ts": [
       `import { renderers as coreRenderers } from "./core-renderers";`,
       `import { renderers as packRenderers } from "./views";`,
