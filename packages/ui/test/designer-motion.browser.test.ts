@@ -85,6 +85,7 @@ changed.each(["no-preference", "reduce"] as const)(
     await page.keyboard.press("Enter");
     await expect.poll(() => page.getByRole("dialog", { name: "Canal route details" }).count()).toBe(1);
     expect(await page.getByRole("dialog").getByRole("button").count()).toBe(0);
+    expect(await page.evaluate(() => window.__lmthingUI === undefined)).toBe(true);
     expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Close route sheet");
     await step("Close route sheet");
     expect(await page.getByRole("dialog").count()).toBe(0);
@@ -179,8 +180,25 @@ async function openMotion(preference: "no-preference" | "reduce", fixture: strin
     timeout: 20000,
   });
   await part("dispatch/receipt/reference").waitFor({ timeout: 15000 });
-  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+  if (fixture !== "journey") await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
+
+changed("cuts round-two screen navigation without suppressing human Back press feedback", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?nav-shell=round2_record`);
+  await part("round2_record/detail/root").click();
+  const back = part("round2_record_staff/h1/back");
+  const bounds = (await back.boundingBox())!;
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  try {
+    await expect
+      .poll(() => back.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a))
+      .toBeLessThan(1);
+  } finally {
+    await page.mouse.up();
+  }
+  await part("round2_record/detail/root").waitFor();
+});
 
 changed.each(["no-preference", "reduce"] as const)(
   "plays an explicit transition across remounted trees in %s",

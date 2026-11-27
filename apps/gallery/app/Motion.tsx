@@ -290,8 +290,6 @@ function OnePhoneJourney() {
             screen={frame.screen}
             theme={theme}
             interactive={false}
-            agentReadOnly
-            onReady={publishBrowserAgent}
             navigationRef={navigationRef}
             navigationTransition={transition}
             navigationOverlay={frame.overlay ?? null}

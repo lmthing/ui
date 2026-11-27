@@ -29,6 +29,7 @@ type Return = ScreenReturnPoint & { from: string };
 type CaptureOptions = {
   reduced: boolean;
   agent: boolean;
+  cut: boolean;
   scrollTop(): number;
   captureNative(): NativeTabShot;
 };
@@ -70,15 +71,22 @@ function captureIntent(
 /** The link tells us why the host changed screens; stage jumps and unrelated updates don't fly. */
 export function useNavigationMotion(
   screen: ScreenLike,
-  { mode, reduced, agent, scrollTop, captureNative, transition }: NavigationOptions,
+  { mode, reduced, agent, cut, scrollTop, captureNative, transition }: NavigationOptions,
 ) {
   const ref = useRef<TamaguiElement>(null);
   const intent = useRef<Intent | undefined>(undefined);
   const [native, setNative] = useState<NativeFlight | undefined>(undefined);
-  const makeIntent = useCaptureIntent(screen, ref, { reduced, agent, scrollTop, captureNative });
+  const makeIntent = useCaptureIntent(screen, ref, { reduced, agent, cut, scrollTop, captureNative });
+  const skipMotion = agent || cut;
   const play = (move: Intent) => playNavigation(ref.current, screen, move, mode, reduced, setNative);
   const scripted = readTransition(transition, screen.id);
-  const startScripted = useScriptedFlight(transition, screen.id, `${mode}:${reduced}:${agent}`, agent, play);
+  const startScripted = useScriptedFlight(
+    transition,
+    screen.id,
+    `${mode}:${reduced}:${skipMotion}`,
+    skipMotion,
+    play,
+  );
   const history = useNavigationHistory(screen.id, scripted ?? intent.current);
   const returnTo = scripted?.restore ?? history.returnTo;
   useLayoutEffect(() => {
@@ -94,12 +102,12 @@ export function useNavigationMotion(
     const move = intent.current;
     intent.current = undefined;
     history.commit(move);
-    if (agent || !matches(move, screen.id) || move.agent) {
+    if (skipMotion || !matches(move, screen.id) || move.agent) {
       if (!isWeb) setNative(undefined);
       return;
     }
     return play(move);
-  }, [screen.id, mode, reduced, agent, transition]);
+  }, [screen.id, mode, reduced, agent, cut, transition]);
   return {
     ref,
     capture: (goto: string, address: string, byAgent: boolean) => {
@@ -107,8 +115,8 @@ export function useNavigationMotion(
     },
     prepare: (request: ScreenTransitionRequest) => captureTransition(moveFor(request, makeIntent)),
     record: scripted ? (scripted.agent ? undefined : scripted.record) : history.record,
-    pose: agent ? undefined : native?.pose,
-    nativeGhost: agent ? undefined : native?.ghost,
+    pose: skipMotion ? undefined : native?.pose,
+    nativeGhost: skipMotion ? undefined : native?.ghost,
     agentArrival: history.agentArrival,
     returnTo,
     restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.skipFocus)),
@@ -166,21 +174,22 @@ function useNavigationHistory(id: string, pending: Intent | undefined) {
 function useCaptureIntent(
   screen: ScreenLike,
   ref: { current: TamaguiElement | null },
-  { reduced, agent, scrollTop, captureNative }: CaptureOptions,
+  { reduced, agent, cut, scrollTop, captureNative }: CaptureOptions,
 ) {
   return useCallback(
     (goto: string, address: string, byAgent: boolean, kind?: Intent["kind"]) => {
-      const canAnimate = !agent && !byAgent;
+      const agentAction = agent || byAgent;
+      const canAnimate = !agentAction && !cut;
       return captureIntent(
         screen,
         isWeb && canAnimate ? (ref.current as HTMLElement | null) : null,
-        { goto, address, scrollTop: scrollTop(), agent: !canAnimate, ...(kind ? { kind } : {}) },
+        { goto, address, scrollTop: scrollTop(), agent: agentAction, ...(kind ? { kind } : {}) },
         reduced,
         canAnimate,
         captureNative,
       );
     },
-    [screen, ref, reduced, agent, scrollTop, captureNative],
+    [screen, ref, reduced, agent, cut, scrollTop, captureNative],
   );
 }
 
@@ -190,7 +199,7 @@ function useScriptedFlight(
   token: ScreenTransition | undefined,
   screen: string,
   preferences: string,
-  agent: boolean,
+  skipMotion: boolean,
   play: (move: Intent) => (() => void) | undefined,
 ) {
   const active = useRef<Flight | undefined>(undefined);
@@ -203,7 +212,7 @@ function useScriptedFlight(
       flight?.stop?.();
       const move = takeTransition(token, screen);
       if (!move) return;
-      flight = { token, key, kept: true, stop: !agent && !move.agent ? play(move) : undefined };
+      flight = { token, key, kept: true, stop: !skipMotion && !move.agent ? play(move) : undefined };
       active.current = flight;
     }
     const retained = flight;

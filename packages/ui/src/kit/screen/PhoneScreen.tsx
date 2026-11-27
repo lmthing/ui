@@ -157,7 +157,8 @@ function usePhoneNavigation(
   const navigation = useNavigationMotion(screen, {
     mode: props.theme.motion ?? "calm",
     reduced: environment.reduceMotion,
-    agent: environment.agentMode || props.navigationMotion === "cut",
+    agent: environment.agentMode,
+    cut: props.navigationMotion === "cut",
     scrollTop,
     captureNative: () => freezeNativeTab(props, controller, scrollTop()),
     transition: props.navigationTransition,
