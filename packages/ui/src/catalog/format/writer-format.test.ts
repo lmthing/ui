@@ -53,7 +53,10 @@ it("includes one const/enum branch per writable registry id, generated from Zod 
   expect(branches.map((branch) => branch.properties?.c?.const)).toEqual(
     coreDefs.filter((def) => !def.meta.codeOwned).map((def) => def.meta.id),
   );
-  expect(branches).toHaveLength(50);
+  expect(branches).toHaveLength(52);
+  expect(branches.map((branch) => branch.properties?.c?.const)).toEqual(
+    expect.arrayContaining(["WorkQueueRow", "RollupRows"]),
+  );
   expect(branches.map((branch) => branch.properties?.c?.const)).not.toContain("Ring");
   checkObjects(format.json_schema.schema);
   const line = writerFormatFor(components.List).json_schema.schema;
@@ -66,7 +69,7 @@ it("exports auth components and bounds through the scoped Writer format", () => 
   const branches = writerFormat(core).json_schema.schema.anyOf!;
   const field = branches.find(({ properties }) => properties?.c?.const === "Field")!.properties!;
   expect(field.kind?.anyOf?.[0]?.enum).toEqual(
-    expect.arrayContaining(["email", "password", "code", "phone"]),
+    expect.arrayContaining(["email", "password", "code", "phone", "file"]),
   );
   expect(field.length?.anyOf?.[0]).toMatchObject({ type: "integer", minimum: 4, maximum: 8 });
   const options = branches.find(({ properties }) => properties?.c?.const === "SignInOptions")!.properties!;
@@ -96,8 +99,8 @@ it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
     const defs = { ...Object.fromEntries(coreDefs.map((def) => [def.meta.id, def])), ...fixture };
     const absent = writerFormat(registryOf(defs, { includeDrafts: true }, packOf));
     const included = writerFormat(registryOf(defs, { packs: [pack], includeDrafts: true }, packOf));
-    expect(absent.json_schema.schema.anyOf).toHaveLength(50);
-    expect(included.json_schema.schema.anyOf).toHaveLength(60);
+    expect(absent.json_schema.schema.anyOf).toHaveLength(52);
+    expect(included.json_schema.schema.anyOf).toHaveLength(62);
     const text = JSON.stringify(included.json_schema.schema);
     expect(estimateTokens(text)).toBe(Math.ceil(Array.from(text).length / 4));
     expect(text.length).toBeGreaterThan(JSON.stringify(absent.json_schema.schema).length);

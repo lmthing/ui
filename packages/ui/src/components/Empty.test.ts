@@ -143,13 +143,16 @@ describe("Empty metadata and probes", () => {
     expect(meta.pick).toContain("Hero");
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Note");
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Empty" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      expect: { address: "e1/retry", action: "press" },
+    });
     for (const probe of probes) {
-      const wording = probe.kind === "choose" ? probe.need : probe.brief;
+      const wording =
+        probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : probe.task;
       for (const name of [meta.id, "Hero", "Note"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
@@ -160,7 +163,7 @@ describe("Empty metadata and probes", () => {
     const nearMiss = probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero");
     expect(nearMiss).toMatchObject({
       kind: "choose",
-      need: "At the top of my plant screen, show 2 as the main headline count with plants need water today underneath. It counts plants, not money.",
+      need: expect.stringContaining("the single big headline of my plant dashboard"),
       expect: "Hero",
     });
     if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");

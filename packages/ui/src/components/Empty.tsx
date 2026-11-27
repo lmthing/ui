@@ -35,7 +35,7 @@ export const meta = {
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
   read: (input, _state, lang?: string) => {
     const { messageLabels } = wordsFor(lang);
-    return (input as { kind: string }).kind === "none" ? [] : [messageLabels.retry];
+    return (input as { retryable?: boolean }).retryable ? [messageLabels.retry] : [];
   },
 } as const satisfies Meta;
 
@@ -45,13 +45,13 @@ export const props = z
     title: text(40),
     sub: text(100).optional(),
     icon: icon.optional(),
-    kind: z.enum(["none", "error", "offline"]).default("none"),
+    kind: z.enum(["none", "filtered", "complete", "error", "offline"]).default("none"),
   })
   // Derived, never written: a failed or offline message offers a retry.
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { sub: undefined } : {}),
-    retryable: value.kind !== "none",
+    retryable: value.kind === "error" || value.kind === "offline",
   }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -67,19 +67,30 @@ export const examples = [
   { title: "No plants yet", icon: "leaf", sub: "Added plants will appear here." },
   { title: "No walks today", sub: "Booked walks will appear here." },
   { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
-  { title: "You're offline", sub: "Reconnect, then try again.", kind: "offline" },
+  {
+    title: "Couldn’t load walks offline",
+    sub: "Reconnect, then try loading your walks again.",
+    kind: "offline",
+  },
   { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
-  { title: "All walk reports filed", sub: "Nothing left to send for today’s walks.", icon: "circle_check" },
-  { title: "No walks match these filters", sub: "Try a different walker or date range.", icon: "search" },
+  {
+    title: "No walks in this filter",
+    sub: "Try showing all routes instead of just the riverside route.",
+    kind: "filtered",
+  },
+  { title: "All plant care done", sub: "The next scheduled check is on Friday.", kind: "complete" },
   { title: "Walk reports are private", sub: "Only the assigned walker can see these reports.", icon: "lock" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = probesFor("Empty");
+const { choose, write, read } = probesFor("Empty");
 export const probes = [
   choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
   choose(
-    "At the top of my plant screen, show 2 as the main headline count with plants need water today underneath. It counts plants, not money.",
+    "Make ‘2 plants need water today’ the single big headline of my plant dashboard, with 2 in large type. This is a count of plants, not money, several statistics or a no-results message.",
     "Hero",
+  ),
+  choose(
+    "Nothing matches the active Riverside filter. Replace the absent results with a short message explaining why nothing is showing.",
   ),
   write("My walks could not be loaded. Show a calm message that says what went wrong."),
   write(
@@ -91,9 +102,22 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "No walks match the Riverside filter. Explain that I can switch to all routes, without suggesting that anything failed.",
+    ),
+    expectProps: { kind: "filtered" },
+  },
+  read("Try loading my walks again", { address: "e1/retry", action: "press" }, 2),
 ] satisfies Probe[];
 
-const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
+const kindIcon = {
+  none: undefined,
+  filtered: "filter",
+  complete: "circle_check",
+  error: "alert",
+  offline: "wifi",
+} as const;
 
 function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
   const { messageLabels } = useWords().words;
@@ -102,7 +126,8 @@ function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
 
 export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
-  if (kind !== "none" && shown)
+  const retry = kind === "error" || kind === "offline";
+  if (retry && shown)
     return (
       <KitCard style="plain" part="root" padded>
         <KitContent lead={<KitIcon name={shown} tone="muted" part="icon" />} lineRole="heading">
@@ -125,6 +150,7 @@ export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof met
         {...(sub ? { sub } : {})}
         {...(shown ? { icon: shown } : {})}
         announce="status"
+        tone={kind === "complete" ? "good" : "neutral"}
         fill
       />
     </KitCard>

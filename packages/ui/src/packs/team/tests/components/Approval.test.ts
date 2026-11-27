@@ -45,6 +45,52 @@ function textOf(node: AddressedElement | undefined): string[] {
   return node ? [...node.text, ...node.children.flatMap(textOf)] : [];
 }
 
+it("keeps the read current through a declined first attempt and one accepted retry", async () => {
+  const input = examples.find((example) => "review" in example && example.style === "review")!;
+  const screen = { id: "home", components: [{ id: "a1", c: "Approval", ...input }] };
+  const run = vi
+    .fn()
+    .mockResolvedValueOnce({ status: "rejected", records: [{ internal: "not public" }] })
+    .mockResolvedValueOnce({ status: "accepted", records: [{ reason: "Replace the bench." }] });
+  const host = { allows: () => true, run };
+  const controller = createScreenController({
+    screen,
+    defs: components,
+    hostCommands: { commands: { "approval.accept": host, "approval.reject": host } },
+  });
+  try {
+    expect(controller.actionsAt("a1/reject")).toEqual([]);
+    expect(controller.act({ address: "a1/reason", action: "type", value: "Replace the bench." }).ok).toBe(
+      true,
+    );
+    expect(controller.press("a1/reject").ok).toBe(true);
+    expect(controller.confirmation).toMatchObject({
+      message: "Decline request GH-142?",
+      label: "Decline request",
+    });
+    expect(run).not.toHaveBeenCalled();
+    expect(controller.press("confirm/confirm").ok).toBe(true);
+    expect(controller.read()).toContain(words.review.pending);
+    expect(controller.read()).not.toContain(words.awaitingDecision);
+    await vi.waitFor(() => expect(controller.read()).toContain(words.review.failed));
+    expect(controller.read()).not.toContain("not public");
+    expect(controller.press("a1/reject").ok).toBe(true);
+    expect(controller.press("confirm/confirm").ok).toBe(true);
+    await vi.waitFor(() => expect(controller.read()).toContain("approval.reject accepted"));
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({ input: { reference: "GH-142", reason: "Replace the bench." } }),
+      expect.anything(),
+    );
+    const settled = controller.read();
+    expect(settled).toContain("Replace the bench.");
+    expect(settled).toContain("Declined");
+    expect(settled).not.toMatch(/\b(?:Awaiting a decision|Approve|Decline)\b/);
+    for (const name of ["accept", "reject", "reason"]) expect(controller.actionsAt(`a1/${name}`)).toEqual([]);
+  } finally {
+    controller.dispose();
+  }
+});
+
 describe("Approval schema and boundaries", () => {
   it.each(examples)("accepts a domain example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -130,7 +176,7 @@ describe("Approval fallback and metadata", () => {
       ]);
   });
   it("retains the people tier, core near miss, write, lead write and decline read", () => {
-    expect(meta).toMatchObject({ tier: "people", confirmParts: ["decline"] });
+    expect(meta).toMatchObject({ tier: "people", confirmParts: ["decline", "reject"] });
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.realPath).not.toBe("");
     expect(meta.pick).toContain("Checklist");
@@ -180,6 +226,18 @@ describe("Approval parts, reading and variants", () => {
 });
 
 describe("Approval states", () => {
+  it.each(["pending", "declined"] as const)("keeps a %s review summary read-only", (status) => {
+    const example = examples.find((entry) => entry.style === "review" && "review" in entry)!;
+    const input = { ...example, requests: [{ ...example.requests[0]!, status }] };
+    const summary =
+      status === "pending"
+        ? words.review.unavailable
+        : `${input.requests[0]!.title}: ${words.statuses.declined}`;
+    const parts = view(input, "success");
+    expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
+    expect(textOf(parts.get("home/c1/message"))).toContain(summary);
+    expect(readComponent(def, input, "a1", "success").join("\n")).toContain(summary);
+  });
   it("shows only acknowledged requests in the success preview", () => {
     const parts = view(sample, "success");
     expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.statuses.approved]);

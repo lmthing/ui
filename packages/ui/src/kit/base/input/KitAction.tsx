@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useState } from "react";
+import { useId, useLayoutEffect, useState, type Ref } from "react";
 import { XStack, YStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
   accentGlow,
@@ -20,7 +20,7 @@ import {
   useRevealControl,
 } from "../../interact";
 import { useMotionValue } from "../../motion";
-import { useComponentState, usePart, usePartContext, usePartDisabled } from "../../part";
+import { useComponentState, usePart, usePartContext, usePartDisabled, usePartFocus } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { useSequenceHold, type HoldToPause } from "../controls";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
@@ -88,6 +88,10 @@ type ActionProps = {
   hostCopy?: boolean;
   /** Tap still activates this part; a continuous press temporarily pauses the addressed sequence. */
   holdToPause?: HoldToPause;
+  /** Return focus to this action when a sibling disappears. */
+  focusRef?: Ref<{ focus(): void }>;
+  /** View feedback after the local controller accepts this press. */
+  onAccepted?: () => void;
 };
 
 function useActionAvailability(
@@ -114,6 +118,7 @@ function useActionAvailability(
   return {
     loading,
     inactive: loading || disabled || blocked || Boolean(interactive && controller && !offered),
+    explicitKeyboard: hostPart || id === "confirm",
   };
 }
 
@@ -135,10 +140,15 @@ function keyboardPress(onPress: () => unknown) {
 }
 
 function useActionPress(
-  props: { action: ActionProps["action"]; value: ActionProps["value"]; goto: ActionProps["goto"] },
+  props: {
+    action: ActionProps["action"];
+    value: ActionProps["value"];
+    goto: ActionProps["goto"];
+    onAccepted?: () => void;
+  },
   address: string,
   inactive: boolean,
-  reveal: boolean,
+  explicitKeyboard: boolean,
 ) {
   const kit = useKit();
   const [pressed, setPressed] = useState(false);
@@ -148,7 +158,7 @@ function useActionPress(
     if (still) setPressed(false);
   }, [still]);
   const scale = useMotionValue(pressed && !still ? motion.pressScale : 1, still);
-  const dispatch = useActionDispatch(props, address, inactive, reveal);
+  const dispatch = useActionDispatch(props, address, inactive, explicitKeyboard);
   const keyboard =
     isWeb && props.action !== "copy" && dispatch.onPress && !dispatch.onKeyDown
       ? keyboardPress(dispatch.onPress)
@@ -181,9 +191,16 @@ function useActionBehavior({
   disabled = false,
   hostCopy = false,
   holdToPause,
+  onAccepted,
+  focusRef,
 }: ActionProps) {
   const address = usePart(part ?? undefined, part !== null);
-  const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
+  usePartFocus(focusRef, address.ref);
+  const {
+    loading,
+    inactive: unavailable,
+    explicitKeyboard,
+  } = useActionAvailability(address.testID, part, action, disabled);
   const copy = action === "copy";
   const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
   const feedback = useCopyState(
@@ -193,7 +210,12 @@ function useActionBehavior({
     loading || disabled,
   );
   const inactive = part === null || unavailable || feedback.missing;
-  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
+  const handlers = useActionPress(
+    { action, value, goto, ...(onAccepted ? { onAccepted } : {}) },
+    address.testID,
+    inactive,
+    reveal || explicitKeyboard,
+  );
   const blocked = usePartDisabled(holdToPause ? address.testID : undefined);
   const hold = useSequenceHold(
     holdToPause,

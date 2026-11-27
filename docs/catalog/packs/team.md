@@ -87,6 +87,10 @@ a note, and approve and decline.
   `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
   `status` (`pending`, `approved`, `declined`) optional, 1–5; `style`.
 - Styles: `queue` (default, manager decisions), `my_requests` (requester status with no decision controls; missing status displays as pending).
+- `review` is a single-record decision review. It takes one request and `review`: `reference` text(24),
+  `evidence` text(180), 1–6 priced `lines` of `label` text(48) and nonnegative `amount`, `total`, and optional settled `reason` text(120).
+  The phone collects `reason type`; `accept press` or confirmed `reject press` goes to the host.
+  A decline needs a nonblank reason. A host acknowledgement settles the review; rejection leaves it retryable.
 - Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `reference`, `dates`, `amount`,
   `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`.
 - States: filled (including awaiting decision and already decided), empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success (read-only requests and their supplied decisions, no inferred outcome).

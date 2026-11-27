@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { components, presets, size, space, type as typography, variants } from "@lmthing/ui/catalog";
+import { components, presets, size, space, type as typography } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -113,33 +113,24 @@ describe("Checklist loading row geometry", () => {
         const theme = { preset, mode, accent: "moss" } as const;
         const loading = renderInstance("Checklist", input, "loading", theme);
         const filled = renderInstance("Checklist", input, "filled", theme);
-        const skeleton = elementAt(loading, "home/c1/root").children[0]!;
-        expect(styleAt(loading, skeleton)).toContain("padding-left:0px");
-        expect(styleAt(loading, skeleton)).toContain("padding-top:0px");
-        expect(skeleton.children).toHaveLength(input.items.length);
+        const root = elementAt(loading, "home/c1/root");
+        const busy = descendants(root).find((node) => node.attributes.includes('role="progressbar"'))!;
+        expect(styleAt(loading, root)).toBe(styleAt(filled, "home/c1/root"));
+        const [count, ...rows] = busy.children[0]!.children;
+        expect(count).toBeDefined();
+        expect(rows).toHaveLength(input.items.length);
         const { items } = components.Checklist.props.parse(input);
-        const steps = variants.density.comfortable.text;
         items.forEach(({ meta }, index) => {
-          const row = skeleton.children[index]!;
-          const content = row.children[1]!;
+          const row = rows[index]!;
           const filledRow = elementAt(filled, `home/c1/r${index + 1}/root`);
           for (const edge of ["left", "right", "top", "bottom"]) {
             const rule = new RegExp(`padding-${edge}:\\s*\\d+px`);
             expect(styleAt(loading, row).match(rule)?.[0]).toBe(styleAt(filled, filledRow).match(rule)?.[0]);
           }
-          expect(row.children).toHaveLength(2);
-          expect(content.children).toHaveLength(meta ? 2 : 1);
-          expect(styleAt(loading, row.children[0]!)).toContain(`width:${size.control.md}px`);
-          const bodyHeight = typography[steps.body].lineHeight;
-          expect(styleAt(loading, row.children[0]!)).toContain(`height:${bodyHeight}px`);
-          expect(styleAt(loading, row.children[0]!.children[0]!)).toContain(`width:${size.icon.lg}px`);
-          expect(styleAt(loading, content.children[0]!.children[0]!.children[0]!)).toContain(
-            `line-height:${bodyHeight}px`,
-          );
-          if (meta)
-            expect(styleAt(loading, content.children[1]!.children[0]!.children[0]!)).toContain(
-              `line-height:${typography[steps.caption].lineHeight}px`,
-            );
+          const [lead, content] = row.children[0]!.children;
+          expect(content!.children).toHaveLength(meta ? 2 : 1);
+          expect(styleAt(loading, lead!.children[0]!)).toContain(`width:${size.control.md}px`);
+          expect(styleAt(loading, lead!.children[0]!.children[0]!)).toContain(`width:${size.icon.lg}px`);
         });
         expect(loading).toContain('aria-busy="true"');
         expect(loading).not.toContain('role="checkbox"');

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { useLayoutEffect, useRef } from "react";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import {
@@ -29,7 +30,19 @@ export const meta = {
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
-  parts: ["root", "message"],
+  parts: [
+    "root",
+    "message",
+    "evidence",
+    "total",
+    "line_items",
+    "reason_label",
+    "reason",
+    "accept",
+    "reject",
+    "decision_state",
+    "decision_reason",
+  ],
   items: {
     key: "requests",
     // prettier-ignore
@@ -38,54 +51,176 @@ export const meta = {
       "approve", "approve_label", "decline", "decline_label", "status",
     ],
   },
-  confirmParts: ["decline"],
+  confirmParts: ["decline", "reject"],
   states: ["filled", "empty", "success"],
-  deviceData: ["approvalDecisions"],
-  live: {
-    derive: (input, _instance, data): c.Values => ({
-      requests: projectApprovalRequests((input as z.output<typeof props>).requests, data).map((row) =>
-        input.style === "my_requests" && row.feedback === "unavailable"
-          ? { ...row, feedback: undefined }
-          : row,
-      ),
-    }),
-  },
   recordRuntime: {
     kind: "approval_decision",
     presses: { decline: { target: approvalRevision, plan: () => ({}) } },
     project: () => ({}),
   },
   actions: {
+    parts: { reason: ["type"], accept: ["press"], reject: ["press"] },
     items: { approve: ["press"], decline: ["press"] },
-    when: { approve: { style: "queue", open: true }, decline: { style: "queue", open: true } },
+    when: {
+      approve: { style: "queue", open: true },
+      decline: { style: "queue", open: true },
+      reason: { reviewOpen: true },
+      accept: { reviewOpen: true },
+      reject: { reviewOpen: true, hasReason: true },
+    },
   },
+  deviceData: ["approvalDecisions"],
   readSuccess: true,
-  read: (input, state, lang): string[] =>
-    approvalReading(input as z.output<typeof props>, lang, state === "filled"),
+  readInState: (input, state) => input.style === "review" && state === "success",
+  live: {
+    text: { reason: { prop: "draftReason", max: 120 } },
+    derive: deriveApproval,
+  },
+  hostCommands: {
+    identity: ({ props, row }) =>
+      row ? undefined : (props.review as { reference?: string } | undefined)?.reference,
+    parts: {
+      "accept.press": reviewRequest("approval.accept"),
+      "reject.press": reviewRequest("approval.reject"),
+    },
+    settle: ["accept.press", "reject.press", "reason.type"],
+    readFields: ["reason"],
+  },
+  read: (input, state, lang, _data, _currency, _live, operations): string[] =>
+    readApproval(input as z.output<typeof props>, state, lang, operations?.[0]),
 } as const satisfies c.Meta;
 
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
-  style: z.enum(["queue", "my_requests"]).default("queue"),
-  requests: z
-    .array(
-      z
-        .strictObject({
-          from: c.text(20),
-          photo: c.photo,
-          kind: z.enum(["time_off", "swap", "expense", "other", "shift_claim"]),
-          title: c.text(32),
-          reference: c.text(24).optional(),
-          dates: c.text(24).optional(),
-          amount: z.number().min(0).optional(),
-          note: c.text(100).optional(),
-          status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
-        })
-        .transform((request) => ({ ...request, open: approvalOpen(request.status) && !!request.reference })),
-    )
+const reviewSheet = z.strictObject({
+  reference: c.text(24),
+  evidence: c.text(180),
+  lines: z
+    .array(z.strictObject({ label: c.text(48), amount: z.number().min(0).max(999999) }))
     .min(1)
-    .max(5),
+    .max(6),
+  total: z.number().min(0).max(5999994),
+  reason: c.text(120).optional(),
 });
+
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    style: z.enum(["queue", "my_requests", "review"]).default("queue"),
+    review: reviewSheet.optional(),
+    requests: z
+      .array(
+        z
+          .strictObject({
+            from: c.text(20),
+            photo: c.photo,
+            kind: z.enum(["time_off", "swap", "expense", "other", "shift_claim"]),
+            title: c.text(32),
+            reference: c.text(24).optional(),
+            dates: c.text(24).optional(),
+            amount: z.number().min(0).optional(),
+            note: c.text(100).optional(),
+            status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
+          })
+          .transform((request) => ({
+            ...request,
+            open: approvalOpen(request.status) && !!request.reference,
+          })),
+      )
+      .min(1)
+      .max(5),
+  })
+  .refine(
+    ({ style, review, requests }) =>
+      style === "review"
+        ? Boolean(review && requests.length === 1 && (!review.reason || !approvalOpen(requests[0]?.status)))
+        : !review,
+    {
+      path: ["review"],
+      message: "Review needs evidence and a single request; a recorded reason belongs to a settled decision",
+    },
+  )
+  .overwrite((value) => ({
+    ...value,
+    reviewOpen: value.style === "review" && approvalOpen(value.requests[0]?.status),
+  }));
+
+function deriveApproval(input: Readonly<c.Values>, _instance: string, data: c.DeviceData): c.Values {
+  if (input.style === "review") {
+    return { hasReason: typeof input.draftReason === "string" && input.draftReason.trim().length > 0 };
+  }
+  return {
+    requests: projectApprovalRequests((input as z.output<typeof props>).requests, data).map((row) =>
+      input.style === "my_requests" && row.feedback === "unavailable" ? { ...row, feedback: undefined } : row,
+    ),
+  };
+}
+
+function reviewRequest(name: "approval.accept" | "approval.reject") {
+  return {
+    kind: "command",
+    name,
+    ...(name === "approval.reject" && { confirmation: reviewConfirmation }),
+    input: ({ props }: { props: Readonly<Record<string, unknown>> }) => {
+      const review = props.review as z.output<typeof reviewSheet>;
+      const reason = typeof props.draftReason === "string" ? props.draftReason.trim() : "";
+      return { reference: review.reference, ...(reason && { reason }) };
+    },
+  } as const;
+}
+
+function reviewConfirmation({ input }: { input: Readonly<Record<string, unknown>> }, lang?: string) {
+  if (typeof input.reference !== "string") return;
+  const { review } = teamWordsFor(lang).approval;
+  return { message: review.confirmDecline(input.reference), label: review.declineRequest };
+}
+
+type Decision = z.output<typeof props>["requests"][number]["status"];
+
+function decisionOf(seeded: Decision, operation: c.HostOperation | undefined): Decision {
+  if (operation?.status !== "accepted") return seeded;
+  return operation.name === "approval.accept" ? "approved" : "declined";
+}
+
+function decisionLine(decision: Decision, phase: c.HostOperation["status"] | undefined, lang?: string) {
+  const { approval } = teamWordsFor(lang);
+  if (decision === "approved" || decision === "declined") return approval.statuses[decision];
+  if (phase === "pending") return approval.review.pending;
+  if (phase === "rejected") return approval.review.failed;
+  return approval.awaitingDecision;
+}
+
+function readApproval(
+  input: z.output<typeof props>,
+  state: c.StateName,
+  lang?: string,
+  operation?: c.HostOperation,
+) {
+  if (!input.review) return approvalReading(input, lang, state === "filled");
+  if (state === "success") return [approvalOutcome(input.requests, lang)];
+  if (state !== "filled") return [];
+  const { review } = input;
+  const { review: copy, approve, decline, kinds } = teamWordsFor(lang).approval;
+  const decision = decisionOf(input.requests[0]?.status, operation);
+  const phase = operation?.status;
+  const showControls = approvalOpen(decision) && phase !== "pending";
+  return [
+    review.reference,
+    review.evidence,
+    kinds[input.requests[0]!.kind],
+    ...review.lines.map((line) => `${line.label} · ${approvalAmount(line.amount, lang)}`),
+    copy.total(approvalAmount(review.total, lang)!),
+    decisionLine(decision, phase, lang),
+    ...(showControls ? [copy.reason, approve, decline] : []),
+    ...(review.reason ? [review.reason] : []),
+  ];
+}
+
+function approvalOutcome(requests: z.output<typeof props>["requests"], lang?: string) {
+  const { statuses, review } = teamWordsFor(lang).approval;
+  const settled = requests.find(({ status }) => !approvalOpen(status));
+  if (settled && (settled.status === "approved" || settled.status === "declined"))
+    return `${settled.title}: ${statuses[settled.status]}`;
+  return review.unavailable;
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -198,6 +333,33 @@ export const examples = [
       },
     ],
   },
+  {
+    style: "review",
+    requests: [{ from: "Rae", photo: "lib:people", kind: "other", title: "Restore irrigation bench" }],
+    review: {
+      reference: "GH-142",
+      evidence: "Inspection found two cracked connectors and a leak at the bench valve.",
+      lines: [
+        { label: "Two hose connectors", amount: 32 },
+        { label: "Replace and pressure-test valve", amount: 48 },
+      ],
+      total: 80,
+    },
+  },
+  {
+    style: "review",
+    lead: "none",
+    requests: [
+      { from: "Sam", photo: "lib:people", kind: "other", title: "Meadow gate repair", status: "declined" },
+    ],
+    review: {
+      reference: "WK-515",
+      evidence: "Gate closes but the latch slips under light pressure.",
+      lines: [{ label: "Fit new latch", amount: 38 }],
+      total: 38,
+      reason: "Wait for the park team to confirm Monday’s gate replacement.",
+    },
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Approval");
@@ -236,6 +398,15 @@ export const probes = [
       "Show Jo's request PTO-26 for Tuesday off on 24 Nov (photo lib:people). No decision has been made yet.",
     ),
     expectProps: { requests: [{ reference: "PTO-26" }] },
+  },
+  choose(
+    "I need to review one repair estimate. Show inspection evidence, each priced line and the total, then let me approve it or decline with a reason.",
+  ),
+  {
+    ...write(
+      "Review one estimate for Rae, photo lib:people, Restore irrigation bench, GH-142. Evidence: two cracked connectors. Two hose connectors cost 32 and valve service costs 48. Total 80; I haven't decided.",
+    ),
+    expectProps: { style: "review", review: { reference: "GH-142", total: 80 } },
   },
 ] satisfies c.Probe[];
 
@@ -331,6 +502,8 @@ export function Approval(input: ApprovalProps) {
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const { requests } = kit.useLiveControls(meta, input) as { requests: RequestRow[] };
   const surface = "card";
+  if (input.review && state === "filled") return <DecisionReview {...input} review={input.review} />;
+  if (input.review && state === "success") return <ReviewOutcome requests={input.requests} />;
   const empty = state === "empty";
   return (
     <kit.KitCard part="root" style={empty ? "inset" : "cards"} density={density} surface={surface}>
@@ -355,5 +528,218 @@ export function Approval(input: ApprovalProps) {
         </kit.KitRowGroup>
       )}
     </kit.KitCard>
+  );
+}
+
+function ReviewOutcome({ requests }: Pick<ApprovalProps, "requests">) {
+  const { lang } = kit.useWords(teamWordsFor);
+  const settled = requests.find(({ status }) => !approvalOpen(status))?.status;
+  return (
+    <kit.KitCard style="inset" part="root" surface="card">
+      <kit.KitEmpty
+        part="message"
+        title={approvalOutcome(requests, lang)}
+        icon={settled === "approved" ? "check" : settled === "declined" ? "close" : "info"}
+        tone={settled === "approved" ? "good" : "neutral"}
+        announce="status"
+        prominence="body"
+        decorativeIcon
+      />
+    </kit.KitCard>
+  );
+}
+
+type DecisionProps = ApprovalProps & { review: z.output<typeof reviewSheet> };
+type FocusHandle = { focus(): void };
+
+function DecisionReview(input: DecisionProps) {
+  const { lang, words } = kit.useWords(teamWordsFor);
+  const { review, requests } = input;
+  const canDecline = kit.useLiveControls(meta, input).hasReason === true;
+  const row = requests[0]!;
+  const [operation] = kit.useHostOperations();
+  const decision = decisionOf(row.status, operation);
+  return (
+    <kit.KitCard part="root" style="inset" padded>
+      <kit.KitLayoutText line={{ text: review.reference, part: "message", role: "meta", tone: "muted" }} />
+      <kit.KitRow item={row.id} label={row.title} inline inset="none">
+        <kit.KitText part="title" role="heading">
+          {row.title}
+        </kit.KitText>
+        <kit.KitText part="from" role="caption">
+          {row.from}
+        </kit.KitText>
+        <kit.KitText part="kind" role="caption">
+          {words.approval.kinds[row.kind]}
+        </kit.KitText>
+        {row.note && <kit.KitText part="note">{row.note}</kit.KitText>}
+        {row.dates && (
+          <kit.KitText part="dates" role="caption">
+            {row.dates}
+          </kit.KitText>
+        )}
+        {row.amount !== undefined && (
+          <kit.KitText part="amount" role="caption">
+            {approvalAmount(row.amount, lang)}
+          </kit.KitText>
+        )}
+      </kit.KitRow>
+      <DecisionStatus decision={decision} phase={operation?.status} />
+      <kit.KitText part="evidence">{review.evidence}</kit.KitText>
+      <ReviewLines review={review} />
+      <ReviewAmount
+        label={words.approval.review.totalLabel}
+        amount={approvalAmount(review.total, lang)!}
+        part="total"
+      />
+      <DecisionControls {...{ decision, operation, canDecline }} recordedReason={review.reason} />
+    </kit.KitCard>
+  );
+}
+
+function DecisionStatus({
+  decision,
+  phase,
+}: {
+  decision: Decision;
+  phase: c.HostOperation["status"] | undefined;
+}) {
+  const { lang } = kit.useWords(teamWordsFor);
+  const focusRef = useRef<FocusHandle>(null);
+  const { environment } = kit.useKit();
+  useLayoutEffect(() => {
+    if (!environment.agentMode && phase === "accepted") focusRef.current?.focus();
+  }, [phase, environment.agentMode]);
+  return (
+    <kit.KitText
+      announce="status"
+      part="decision_state"
+      role="label"
+      focusRef={focusRef}
+      tone={
+        decision === "approved" ? "good" : decision === "declined" || phase === "rejected" ? "bad" : "muted"
+      }
+    >
+      {decisionLine(decision, phase, lang)}
+    </kit.KitText>
+  );
+}
+
+function ReviewLines({ review }: { review: DecisionProps["review"] }) {
+  const { lang } = kit.useWords(teamWordsFor);
+  return (
+    <kit.KitCard part="line_items" style="plain">
+      <kit.KitRowGroup separators={false} density="compact">
+        {review.lines.map(({ label, amount }, index) => (
+          <ReviewAmount label={label} amount={approvalAmount(amount, lang)!} key={index} />
+        ))}
+      </kit.KitRowGroup>
+    </kit.KitCard>
+  );
+}
+
+function ReviewAmount({
+  label,
+  amount,
+  part = null,
+}: {
+  label: string;
+  amount: string;
+  part?: "total" | null;
+}) {
+  const role = part ? "label" : "body";
+  return (
+    <kit.KitRow
+      {...{ part, label }}
+      inline
+      fitContent
+      trailing={
+        <kit.KitText part={null} role={role} tabular>
+          {amount}
+        </kit.KitText>
+      }
+    >
+      <kit.KitText part={null} role={role}>
+        {label}
+      </kit.KitText>
+    </kit.KitRow>
+  );
+}
+
+function DecisionControls({
+  decision,
+  operation,
+  recordedReason,
+  canDecline,
+}: {
+  decision: Decision;
+  operation: c.HostOperation | undefined;
+  recordedReason: string | undefined;
+  canDecline: boolean;
+}) {
+  const { words } = kit.useWords(teamWordsFor);
+  const copy = words.approval;
+  const phase = operation?.status;
+  const hostReason = operation?.records?.[0]?.reason;
+  const reason = recordedReason ?? (typeof hostReason === "string" ? hostReason : undefined);
+  if (decision && decision !== "pending")
+    return reason ? <kit.KitText part="decision_reason">{reason}</kit.KitText> : null;
+  return (
+    <>
+      <kit.KitText part="reason_label" role="label">
+        {copy.review.reason}
+      </kit.KitText>
+      <kit.KitInput
+        part="reason"
+        label={copy.review.reason}
+        hint=""
+        kind="text"
+        max={120}
+        visibleBoundary
+        disabled={phase === "pending"}
+      />
+      <DecisionButtons {...{ operation, canDecline }} />
+    </>
+  );
+}
+
+function DecisionButtons({
+  operation,
+  canDecline,
+}: {
+  operation: c.HostOperation | undefined;
+  canDecline: boolean;
+}) {
+  const { approval: copy } = kit.useWords(teamWordsFor).words;
+  const accept = useRef<FocusHandle>(null);
+  const reject = useRef<FocusHandle>(null);
+  const { environment } = kit.useKit();
+  const phase = operation?.status;
+  const name = operation?.name;
+  useLayoutEffect(() => {
+    if (!environment.agentMode && phase === "rejected")
+      (name === "approval.accept" ? accept : reject).current?.focus();
+  }, [phase, name, environment.agentMode]);
+  return (
+    <kit.KitGrid>
+      <kit.KitAction
+        part="accept"
+        focusRef={accept}
+        label={copy.approve}
+        contentParts={{}}
+        full
+        disabled={phase === "pending"}
+      />
+      <kit.KitAction
+        part="reject"
+        focusRef={reject}
+        label={copy.decline}
+        tone="bad"
+        kind="quiet"
+        contentParts={{}}
+        full
+        disabled={!canDecline || phase === "pending"}
+      />
+    </kit.KitGrid>
   );
 }

@@ -340,7 +340,8 @@ or badge), each tappable.
 ### `KeyValue` · built · content · phone · body · weight 2
 Labelled facts about one thing in rows or a two-column grid.
 - Pick: details of one thing (its room, schedule, size). Not one sum of money (`Amount`).
-- Writes: `pairs` of label text(20), value text(28), icon, 1–6. · Styles: `rows`, `grid`.
+- Writes: `pairs` of label text(20), value text(100), icon, 1–6. Mark at most one unmasked pair as `status` and keep its value to 20 characters. Masked values still have a 28-character limit. · Styles: `rows`, `grid`.
+- Long values wrap below the label; a primary status uses strong text on a semantic surface.
 - States: filled, empty, loading.
 
 ### `Note` · built · content · phone · body · weight 1
@@ -375,9 +376,9 @@ A tinted strip near the top with an icon and a sentence that needs attention now
 
 ### `Empty` · built · content · phone · body · weight 2
 A calm, centred message on a screen with nothing in it yet, with an icon badge.
-- Pick: there is no content yet, or loading it failed. Not a sentence beside content (`Note`).
-- Writes: `title` text(40), `sub` text(100) optional, `icon` optional; `kind` (`none` default, `error`,
-  `offline`). No `goto`; a `Button` below it carries the next step.
+- Pick: there is no content yet, no matches under the current filter, no work left, or loading failed. Not a sentence beside content (`Note`).
+- Writes: `title` text(40), `sub` text(100) optional, `icon` optional; `kind` (`none` default, `filtered`,
+  `complete`, `error`, `offline`). No `goto`; a `Button` below it carries the next step.
 - Parts → actions: `retry press` (error, offline). No root action. · States: filled.
 
 ### `Player` · built · pending: variant layouts/read status · content · phone · body · weight 3
@@ -432,6 +433,7 @@ Things in time order with a time column, as a day plan or a history, or as block
   optional. Only `hours` accepts `end`, `tone` and `goto`; omit `meta` and `done` there. Code orders hour
   blocks by their start time.
 - Styles: `day` (default), `history`, `hours` (blocks sized by duration so gaps show; `DayTimeline` is merged).
+  `record` shows one record's state changes, with `record` text(48), `current` text(24), optional `reference` text(24), and public item `summary` text(80). Only an explicitly authorized `audience: "detail"` view includes item `meta`; public callers omit it from the source line. The presentation is not access control.
   `hours` keeps weight 3. · States: filled, empty, loading.
 - Parts → actions: linked hour blocks `root press`; day and history are read-only.
 - Signature: `day_unfold` (on `hours`).
@@ -463,7 +465,7 @@ One labelled piece of information, including contact details or a private accoun
 - Pick: one value on a form. Not several lines of writing (`Composer`), not options that need a sentence
   each (`Choice`).
 - Writes: `kind` (`text` default, `number`, `date`, `time`, `choice`, `repeat`, `toggle`, `slider`, `photo`,
-  `range`, `voice`, `email`, `password`, `code`, `phone`),
+  `range`, `voice`, `email`, `password`, `code`, `phone`, `file`),
   `label` text(24), `value` text(40) optional (one line), `hint` text(60) optional, `options` text(16),
   2–4 (required for `choice` only). Kind `repeat` uses its own `repeat` prop (`never`, `daily`, `weekdays`,
   `weekly`, `monthly`, `yearly`), never `value`; omit `repeat` for other kinds.
@@ -471,6 +473,7 @@ One labelled piece of information, including contact details or a private accoun
   control. `code` uses 4–8 digit boxes (`length`, six if omitted). Do not prefill either private kind.
 - Parts → actions: `field` `type`, `select`, `toggle`, `set` or `press` (photo) by kind.
   `password` and `code` have local-only entry, not an agent `type` action.
+  `file` has no `value`: `attach press` opens the host picker; `remove_attachment press` detaches the current opaque file without deleting the original.
 - Tier: `phone`, except `photo` and `voice` require your OK, and the `password`/`code` input and password
   reveal parts need an outside service for real account flows.
 
@@ -487,7 +490,7 @@ A tinted track of 2 to 4 equal segments that switches between views of the same 
 - Writes: `options` of label text(14), 2–4, `at`.
 
 ### `Checklist` · built · input · phone · body · weight 2
-Up to six jobs with tick boxes; ticking one strikes it through.
+Up to six jobs with one independently addressable checkbox each and a live completed/total count.
 - Pick: things to do and tick off. Not things to scan and open (`List`), not quiz answers (`Choice`).
 - Writes: `items` of text text(36), done, meta text(24), 1–6. · Parts → actions: items `check check`.
 - States: filled, empty, loading. · Signature: `check_burst`.
@@ -546,6 +549,8 @@ optional undo.
 - Pick: confirm an action worked. Not news to notice later (`Banner`).
 - Writes: `title` text(40), `sub` text(100) optional, `icon`; `undo` boolean (default false).
   `undo: true` makes it a toast, whatever style was written.
+- A structured screen can add `outcome`: `pending` requires `owner` and `next`; `confirmed` requires
+  `subject` and `when`; `done` requires `receipt`. Keep the actual record and do not use a green check for a pending request.
 - Styles: `screen` (default), `toast`. · Parts → actions: `undo press` (with undo), `close dismiss` (toast).
 - Pending: bottom placement and timed expiry. The toast is currently a body-flow card; close and undo
   dismiss it locally. · States: filled.
@@ -676,6 +681,28 @@ Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, off
 - **Are 44 model choices too many for the cheapest model?** Default: no, because overlap is what hurts.
   Keep measuring near misses; fix `pick` lines before adding choices.
 
+## Round 2 operational components
+
+### `WorkQueueRow` · built · action · phone · body · weight 2
+
+- Purpose: Find work awaiting a decision and open the exact record that needs attention.
+- Pick: Work waiting for a decision, with separate record reference, status, owner, due time, priority and action for each task. Not general browsing (`List`) or a request inbox with SLA and completed views (`RequestQueue`).
+- Writes: `rows` of `title` text(40), `recordRef` text(20), `status` text(20), `owner` text(32) optional, `due` text(32) optional, `priority` (`normal`, `high`, `urgent`), `action` text(24) optional, `goto` optional, 1–6. Supply both `action` and `goto`, or neither.
+- Styles: `detail`: `full`, `brief` (hides owner, not urgency or deadline).
+- Parts → actions: `root`; item `root`, `title`, `record`, `status`, `owner`, `due`, `priority`, `action press`, `action_label`. Only the labeled action navigates; an unlinked row is readable, not actionable.
+- States: filled, empty (no work waiting), loading.
+- Real path: opens a stable work record for review; the queue does not complete or decide the record.
+
+### `RollupRows` · built · data · phone · body · weight 2
+
+- Purpose: Compare the same measured total and supporting figures across several entities without a wide table.
+- Pick: Compare one like-for-like number per entity, with its unit and period and optional breakdown or linked detail. Not independent headline measurements (`Stats`) or the attributes of one record (`KeyValue`).
+- Writes: `period` text(28), `metric` text(28), `unit` text(12), `total` number optional; `rows` of `label` text(40), `value` number, `breakdown` text(80) optional, `goto` optional, 1–6. Include a total only when supplied and label the scope in the period.
+- Styles: `detail`: `full`, `brief` (hides breakdowns, not numbers or units).
+- Parts → actions: `root`, `period`, `metric`, `total`, `empty`; item `root press`, `label`, `value`, `detail`.
+- States: filled, empty (no measured records), loading.
+- Real path: shows aggregates for the same reporting period from underlying records; a linked row opens those records.
+
 ## 9. Wave 6 planned core additions, promotions & options
 
 Based on the Wave 6 Google Play Store top-app audit across 32 app categories, 17 game categories, Kids, and Wear OS, two cross-domain core components, three pack-to-core promotions, fifteen targeted option upgrades, and the `copy` action are scheduled alongside the Wave 6 packs so no domain pack ever depends on another pack.
@@ -694,7 +721,7 @@ A digital pass, membership card, coupon, or transit pass displaying issuer brand
 ### `FileList` · planned · content · ok
 A bounded list of 1–6 non-image file attachments (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`) showing format badge, filename, human-readable size, optional page count or duration, and preview, download/share, or remove actions. Prevents `Photo` and `Gallery` misuse for PDFs, CVs, contracts, invoices, and email attachments.
 - Pick: 1–6 attached documents or binary files with size and format metadata. Not photos (`Gallery`, `Photo`), not an interactive file explorer tree (workspace `DriveTree`, utilities `FileBrowser`), and not personal ID vault records with expiries (paperwork `Documents`).
-- Writes: `files` of `fileRef` text(32), `name` text(48), `ext` (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`), `sizeBytes` number ≥ 0, `pages` integer ≥ 1 optional, `status` (`ready`, `downloading`, `missing`), `goto` optional, 1–6; `removable` boolean (default false), `style`. Code formats `sizeBytes` consistently; models never invent download URLs.
+- Writes: `files` of `fileRef` text(32), `name` text(48), `ext` (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`), `sizeBytes` number ≥ 0, `pages` integer ≥ 1 optional, `status` (`ready`, `downloading`, `missing`, `uploading`, `failed`), `goto` optional, 1–6; `removable` boolean (default false), `style`. Code formats `sizeBytes` consistently; models never invent download URLs. Compose with `Field` kind `file` to pick a new document.
 - Styles: `rows` (default, compact attachment rows with action icons), `cards` (wider preview tiles with page count badge).
 - Parts → actions: files `root press` (preview), files `download press`, files `remove press`. `meta.confirmParts: ["remove"]`; `meta.partTiers: { download: "service" }`.
 - States: filled, empty, loading, error (missing local file or failed transfer).

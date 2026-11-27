@@ -4,19 +4,20 @@ import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { examples } = components.Field;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+const specialParts = { range: ["lower", "upper"], voice: ["voice"], file: ["attach"] } as const;
 
 describe("Field rendering", () => {
   it.each(examples)("draws unique parts and the actual control value", (example) => {
     const html = renderInstance("Field", example, "filled", theme);
-    const controls =
-      example.kind === "range" ? ["lower", "upper"] : example.kind === "voice" ? ["voice"] : ["field"];
+    const controls = specialParts[example.kind as keyof typeof specialParts] ?? ["field"];
     for (const part of ["root", "label", ...controls]) {
       expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
     }
-    if (example.kind === "range" || example.kind === "voice") {
+    if (example.kind === "range" || example.kind === "voice" || example.kind === "file") {
       const role = example.kind === "range" ? "slider" : "button";
       for (const part of controls)
         expect(elementAt(html, `home/c1/${part}`).attributes).toContain(`role="${role}"`);
+      if (example.kind === "file") expect(html).not.toContain('role="textbox"');
       return;
     }
     const field = html.match(/<[^>]*data-testid="home\/c1\/field"[^>]*>/)?.[0];

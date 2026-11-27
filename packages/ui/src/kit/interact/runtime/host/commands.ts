@@ -1,6 +1,7 @@
 import {
   hostRecords,
   type CommandRequest,
+  type ActionName,
   type ExternalRequest,
   type HostActionPolicy,
   type HostIntent,
@@ -215,6 +216,15 @@ function bindCommandConfirmation(confirmation: object, intent: HostIntent) {
   intents.set(confirmation, intent);
 }
 
+function confirmationCopy(ctx: ControllerContext, c: string, intent: HostIntent) {
+  const { request, subject, part } = intent;
+  if (request.kind !== "command") return;
+  const meta = ctx.defs[c]?.meta.hostCommands;
+  const bindings = subject.row ? meta?.items : meta?.parts;
+  const binding = bindings?.[`${part}.${request.action as ActionName}`];
+  if (binding?.kind === "command") return binding.confirmation?.(request, ctx.options.lang);
+}
+
 export function runHostCommand(
   ctx: ControllerContext,
   before: ActionState,
@@ -236,6 +246,7 @@ export function runHostCommand(
     const result = normal ?? showConfirmation(before, step, context);
     if (result.error) return result;
     const pending = result.state.confirmation!;
+    Object.assign(pending, confirmationCopy(ctx, context.entry.c, intent));
     pending.host = true;
     bindCommandConfirmation(pending, intent);
     delete pending.goto;

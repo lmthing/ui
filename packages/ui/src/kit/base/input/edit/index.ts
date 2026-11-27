@@ -21,6 +21,8 @@ export type InputProps = {
   caption?: string;
   /** Muted, unraised hours that remain editable before their day is enabled. */
   inactive?: boolean;
+  /** Keep the boundary visible on a soft surrounding surface. */
+  visibleBoundary?: boolean;
   /** Display the supplied live value, not a per-address edit or draft. */
   projected?: boolean;
   action?: "type" | "set";

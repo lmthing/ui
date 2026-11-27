@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { useSyncExternalStore } from "react";
 import {
   probesFor,
   itemsOf,
   itemVariantProps,
+  numberLine,
+  wordsFor,
   placeholderTitle,
   text,
   thingOf,
@@ -13,11 +16,24 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty, useKit } from "../kit";
+import {
+  KitCard,
+  KitCheck,
+  KitRow,
+  KitLayoutText,
+  KitState,
+  KitText,
+  useComponentState,
+  useKit,
+  useWords,
+  useLiveControls,
+  usePartContext,
+} from "../kit";
 import { prompt } from "../entry/prompt-Checklist.generated";
 
 export const meta = {
   id: "Checklist",
+  status: "ready",
   signature: "check_burst",
   group: "input",
   purpose: prompt.purpose,
@@ -34,8 +50,17 @@ export const meta = {
     variants: { mark: ["none", "highlight"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
+  parts: ["root", "count"],
   states: ["filled", "empty", "loading"],
   actions: { items: { check: ["check"] } },
+  live: { checks: { check: "done" } },
+  readInState: (_input, state) => state === "empty",
+  read: (input, state, lang): string[] =>
+    state === "filled"
+      ? [completionLine((input as z.output<typeof props>).items, lang)]
+      : state === "empty"
+        ? [wordsFor(lang).checklist.empty]
+        : [],
 } as const satisfies Meta;
 
 export const props = z
@@ -87,7 +112,7 @@ export const examples = [
       { text: "Bring spare waste bags", done: false },
     ],
   },
-  { items: plantJobs },
+  { items: plantJobs.map((item) => ({ ...item, done: true })) },
   { detail: "brief", items: plantJobs },
   { items: [{ ...plantJobs[0]!, mark: "highlight" }, ...plantJobs.slice(1)] },
 ] satisfies z.input<typeof props>[];
@@ -106,50 +131,76 @@ export const probes = [
   read("Tick off the first job", { address: "k1/r1/check", action: "check" }),
 ] satisfies Probe[];
 
-export function Checklist(input: Props<typeof props, typeof meta>) {
-  const { items } = input;
-  const density = useKit().density;
+function completionLine(items: readonly { done: boolean }[], lang?: string) {
+  return wordsFor(lang).checklist.count(
+    numberLine(items.filter(({ done }) => done).length, lang),
+    numberLine(items.length, lang),
+  );
+}
+
+type ChecklistProps = Props<typeof props, typeof meta>;
+const subscribeNone = () => () => {};
+export function Checklist(input: ChecklistProps) {
+  const { lang, words } = useWords();
+  const { controller, density } = useKit();
+  const { component } = usePartContext();
   const state = useComponentState();
-  if (state === "loading") {
-    return (
-      <KitCard style="inset" part="root" density={density}>
-        <KitSkeleton
-          rows={items.length}
-          lead="box"
-          density={density}
-          items={items.map(({ text, meta }) => ({ title: text, meta }))}
-        />
-      </KitCard>
-    );
-  }
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" part="root" density={density}>
-        <KitEmpty part="text" />
-      </KitCard>
-    );
-  }
-  return (
-    <KitCard style="inset" part="root" density={density}>
+  const snapshot = () => {
+    const live = controller?.liveControls(meta, input, component) as ChecklistProps | undefined;
+    return completionLine(live?.items ?? input.items, lang);
+  };
+  const count = useSyncExternalStore(controller?.store.subscribe ?? subscribeNone, snapshot, snapshot);
+  const { items } = useLiveControls(meta, input) as ChecklistProps;
+  const content = (
+    <>
+      {state === "loading" ? (
+        <KitLayoutText line={{ text: count, strong: true }} density={density} />
+      ) : (
+        <KitText role="body" part="count" announce="status" emphasis="strong" density={density}>
+          {count}
+        </KitText>
+      )}
       {items.map((it) => (
-        <KitRow
-          key={it.id}
-          item={it.id}
-          label={it.text}
-          mark={it.mark}
-          density={density}
-          leading={<KitCheck done={it.done} part="check" label={it.text} />}
-        >
-          <KitText role="body" tone={it.done ? "muted" : "text"} part="text" density={density}>
-            {it.text}
-          </KitText>
-          {it.meta && (
-            <KitText role="caption" tone="muted" part="meta" density={density}>
-              {it.meta}
-            </KitText>
-          )}
-        </KitRow>
+        <ChecklistRow key={it.id} item={it} />
       ))}
+    </>
+  );
+  return (
+    <KitCard style="inset" part="root" density={density} padded={state !== "empty"}>
+      <KitState
+        part="text"
+        icon="clipboard_list"
+        message={words.checklist.empty}
+        loading={content}
+        density={density}
+      >
+        {content}
+      </KitState>
     </KitCard>
+  );
+}
+
+function ChecklistRow({ item }: { item: ChecklistProps["items"][number] }) {
+  const { density } = useKit();
+  const loading = useComponentState() === "loading";
+  return (
+    <KitRow
+      item={item.id}
+      part={loading ? null : "root"}
+      label={item.text}
+      mark={item.mark}
+      inset="none"
+      density={density}
+      leading={<KitCheck done={item.done} part="check" label={item.text} instantMark />}
+    >
+      <KitLayoutText
+        line={{ text: item.text, part: "text", tone: item.done ? "muted" : "text" }}
+        density={density}
+      />
+      <KitLayoutText
+        line={{ text: item.meta, part: "meta", role: "meta", tone: "muted" }}
+        density={density}
+      />
+    </KitRow>
   );
 }

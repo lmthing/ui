@@ -17,5 +17,15 @@ export const words = {
     approve: "Approve",
     decline: "Decline",
     detailSeparator: " · ",
+    review: {
+      confirmDecline: (reference: string) => `Decline request ${reference}?`,
+      declineRequest: "Decline request",
+      reason: "Reason (required to decline)",
+      pending: "Recording decision…",
+      failed: "Decision not recorded. Try again.",
+      unavailable: "Decision details unavailable",
+      totalLabel: "Total",
+      total: (amount: string) => `Total ${amount}`,
+    },
   },
 };

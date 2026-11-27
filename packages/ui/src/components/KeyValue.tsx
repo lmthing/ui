@@ -55,7 +55,7 @@ export const meta = {
 
 const pairProps = z.strictObject({
   label: text(20),
-  value: text(28),
+  value: text(100),
   icon: icon.optional(),
   status: z.boolean().optional(),
   ...itemVariantProps(meta.items.variants),
@@ -70,6 +70,13 @@ export const props = z
     path: ["pairs"],
     message: "Mark at most one unmasked pair as the primary status",
   })
+  .refine(
+    ({ pairs, masked }) => pairs.every((pair) => pair.value.length <= (masked ? 28 : pair.status ? 20 : 100)),
+    {
+      path: ["pairs"],
+      message: "Keep statuses to 20 characters and masked values to 28",
+    },
+  )
   .overwrite((value) =>
     value.lead === "none"
       ? { ...value, pairs: value.pairs.map((pair) => ({ ...pair, icon: undefined })) }
@@ -88,7 +95,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
         .trim();
       const label = clip(readable.charAt(0).toUpperCase() + readable.slice(1), 20);
       return label && typeof value === "string" && value.trim()
-        ? [{ label, value: clip(value.trim(), 28) }]
+        ? [{ label, value: clip(value.trim(), 100) }]
         : [];
     })
     .slice(0, 4);
@@ -146,6 +153,10 @@ export const examples = [
       { label: "Order status", value: "Ready for pickup", tone: "good", status: true },
       { label: "Order no.", value: "LC-104" },
       { label: "Pickup", value: "Friday, 3–5 pm" },
+      {
+        label: "Instructions",
+        value: "Use the side entrance and bring the printed receipt to the collection bench.",
+      },
     ],
   },
   {
@@ -162,7 +173,7 @@ export const examples = [
 const { choose, write, read } = probesFor("KeyValue");
 export const probes = [
   choose("the facts about one plant: room, light, water interval"),
-  choose("show all my plants to pick one", "List"),
+  choose("Show the names of all my plants in tappable rows so I can pick a record, with no photos.", "List"),
   write("One plant in the bathroom, bright indirect light, watered every seven days"),
   {
     ...write(
@@ -171,8 +182,11 @@ export const probes = [
     variant: { axis: "arrange", value: "grid" },
   },
   {
-    ...write("Hide the dog walk's entry code until revealed. Use the fake code DEMO-042."),
+    ...write(
+      "Show one row labelled Walk entry code, with the synthetic example value DEMO-042. Start with that value masked until I tap to reveal it.",
+    ),
     expectProps: { masked: true },
+    fields: { "pairs.0.label": "Walk entry code", "pairs.0.value": "DEMO-042" },
   },
   {
     ...write("Show Order status: Ready for pickup as the primary status, then Order number: LC-104."),
@@ -249,11 +263,15 @@ function PairRow({
         ? { surface: "tinted", tone: pair.tone }
         : !loading && { tone: pair.tone, mark: pair.mark })}
       inline={!horizontal}
-      fitContent
+      fitContent={!horizontal}
       density={density}
       leading={lead}
     >
-      <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} keyColumn density={density}>
+      <kit.KitGrid
+        arrange={horizontal && !masked && pair.value.length <= 28 ? "grid" : "rows"}
+        keyColumn
+        density={density}
+      >
         {loading ? (
           <kit.KitSkeleton
             shape="figure"
@@ -302,7 +320,7 @@ function PairValue({
       part="value"
       density="comfortable"
       {...(role === "number" && horizontal && { align: "end", tabular: true })}
-      {...(pair.status && { emphasis: "strong" })}
+      {...(pair.status && { emphasis: "strong", tone: "text" })}
       breakLongWords
     >
       {pair.value}

@@ -13,6 +13,26 @@ import {
 const { props, meta, examples, fallback, probes } = components.Timeline;
 const item = { time: "09:00", title: "Morning walk" };
 
+it("puts public history on both surfaces and omits internal details from the public read and view", () => {
+  const event = {
+    time: "Wed",
+    title: "Received",
+    summary: "Your request came through.",
+    meta: "Check the north bench",
+  };
+  const shared = { style: "record", record: "Fern inspection", current: "Received", items: [event] };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  for (const audience of ["summary", "detail"] as const) {
+    const input = { ...shared, audience };
+    const html = renderInstance("Timeline", input, "filled", theme);
+    const read = readComponent(components.Timeline, input, "t1").join("\n");
+    for (const evidence of [html, read]) {
+      expect(evidence).toContain("Your request came through.");
+      expect(evidence.includes(event.meta)).toBe(audience === "detail");
+    }
+  }
+});
+
 describe("Timeline schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -120,8 +140,8 @@ describe("Timeline fallback and metadata", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root"],
-      items: { key: "items", parts: ["root", "time", "title", "meta"] },
+      parts: ["root", "record", "reference", "state", "current"],
+      items: { key: "items", parts: ["root", "time", "title", "meta", "summary"] },
       states: ["filled", "empty", "loading"],
     });
     expect(meta.realPath).not.toBe("");
@@ -150,7 +170,7 @@ describe("Timeline fallback and metadata", () => {
     expect(read.indexOf("Morning walk")).toBeLessThan(read.indexOf("Visit"));
   });
   it("has choose probes for event/range needs and a read probe for linked hours", () => {
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(4);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(5);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "List")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Timeline" });

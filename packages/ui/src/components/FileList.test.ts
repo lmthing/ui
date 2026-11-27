@@ -38,7 +38,7 @@ describe("FileList schema", () => {
     { sizeBytes: NaN },
     { pages: 0 },
     { pages: 1.2 },
-    { status: "uploading" },
+    { status: "queued" },
     { goto: "Bad ID" },
     { url: "https://example.org" },
   ])("rejects invalid file data", (patch) =>
@@ -123,7 +123,7 @@ describe("FileList actions and states", () => {
     expect(read).not.toMatch(/4 pages|demo_care/);
     expect(draw(seed, "loading").has("home/c1/r1/download")).toBe(false);
     expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["Nothing here yet"]);
-    expect(draw(seed, "error").get("home/c1/message")?.text).toEqual(["Attachments unavailable"]);
+    expect(draw(seed, "error").get("home/c1/message")?.text).toEqual(["Attachments can’t be recovered here"]);
   });
 });
 

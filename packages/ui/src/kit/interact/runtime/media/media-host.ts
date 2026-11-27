@@ -61,8 +61,9 @@ export function sameAttachment(before: AttachmentOffer, after?: MediaOffer) {
   );
 }
 
-export function attachmentCommand(screen: string, offer: AttachmentOffer): AttachmentCommand {
+export function attachmentCommand(screen: string, offer: AttachmentOffer): AttachmentCommand | undefined {
   const { address, spec } = offer;
+  if (spec.intent === "remove") return;
   const source = attachmentSource(offer);
   return {
     address: `${screen}/${address}`,
@@ -85,7 +86,9 @@ export function mediaHostGate(
           return Boolean(
             options.media && validMediaReference(options.resolvePlayback?.(`${screen}/${request.address}`)),
           );
-        return Boolean(options.attachments?.canRun(attachmentCommand(screen, request)));
+        if (request.spec.intent === "remove") return Boolean(options.attachments);
+        const command = attachmentCommand(screen, request);
+        return Boolean(command && options.attachments?.canRun(command));
       } catch {
         return false;
       }

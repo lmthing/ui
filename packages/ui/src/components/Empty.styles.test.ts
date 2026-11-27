@@ -13,19 +13,25 @@ describe("Empty view", () => {
     expect(view.props).toMatchObject({ style: "plain", part: "root" });
     const [empty] = [view.props.children].flat();
     const { title, sub, icon } = parsed;
-    if (parsed.kind !== "none") {
+    if (parsed.kind === "error" || parsed.kind === "offline") {
       expect(empty.type).toBe(KitContent);
       expect(empty.props.children[0].props.children).toBe(title);
-      expect(empty.props.children[1].props.children).toBe(sub);
+      if (sub) expect(empty.props.children[1].props.children).toBe(sub);
       return;
     }
     expect(empty.type).toBe(KitEmpty);
+    const shown =
+      icon ??
+      { none: undefined, filtered: "filter", complete: "circle_check", error: "alert", offline: "wifi" }[
+        parsed.kind
+      ];
     expect(empty.props).toEqual({
       title,
       ...(sub ? { sub } : {}),
-      ...(icon ? { icon } : {}),
+      ...(shown ? { icon: shown } : {}),
       announce: "status",
       fill: true,
+      tone: parsed.kind === "complete" ? "good" : "neutral",
     });
   });
   it.each(examples)("reads the shown content and offers a retry only after a failure", (example) => {
@@ -34,7 +40,9 @@ describe("Empty view", () => {
     expect(read).toContain(`"${parsed.title}"`);
     if (parsed.sub) expect(read).toContain(`"${parsed.sub}"`);
     expect(affordancesOf(meta, parsed, "e1")).toEqual(
-      parsed.kind === "none" ? [] : [{ address: "e1/retry", part: "retry", action: "press", detail: "" }],
+      ["error", "offline"].includes(parsed.kind)
+        ? [{ address: "e1/retry", part: "retry", action: "press", detail: "" }]
+        : [],
     );
   });
 });

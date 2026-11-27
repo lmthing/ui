@@ -8,8 +8,26 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Checklist;
+
+it("updates the count one item at a time and reverses the addressed item", () => {
+  const screen = { id: "home", components: [{ id: "k1", c: "Checklist", ...examples[0]! }] };
+  const controller = createScreenController({ screen, defs: components });
+  try {
+    expect(controller.read()).toContain("1 of 3 complete");
+    expect(controller.press("k1/r1/check").ok).toBe(true);
+    expect(controller.read()).toContain("2 of 3 complete");
+    expect(controller.press("k1/r3/check").ok).toBe(true);
+    expect(controller.read()).toContain("3 of 3 complete");
+    expect(controller.press("k1/r1/check").ok).toBe(true);
+    expect(controller.read()).toContain("2 of 3 complete");
+    expect(controller.read()).toContain("k1/r1/check check:todo");
+  } finally {
+    controller.dispose();
+  }
+});
 
 describe("Checklist schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -154,26 +172,33 @@ describe("Checklist metadata and probes", () => {
     };
     const viewProps = stampItemIds(meta, props.parse(input));
     expect(affordancesOf(meta, viewProps, "k1")).toEqual([
-      { address: "k1/r1/check", part: "check", action: "check", detail: done ? ":done" : ":todo" },
-      { address: "k1/r2/check", part: "check", action: "check", detail: ":todo" },
+      {
+        address: "k1/r1/check",
+        part: "check",
+        action: "check",
+        detail: done ? ":done" : ":todo",
+        input: { kind: "check" },
+      },
+      { address: "k1/r2/check", part: "check", action: "check", detail: ":todo", input: { kind: "check" } },
     ]);
     expect(readComponent(components.Checklist, input, "k1")).toEqual([
-      "k1 Checklist",
+      `k1 Checklist ${done ? 1 : 0} of 2 complete`,
       `  r1 "First job" [k1/r1/check check:${done ? "done" : "todo"}]`,
       '  r2 "Second job" · "Later" [k1/r2/check check:todo]',
     ]);
   });
   it.each(["empty", "loading"] as const)("does not offer hidden item actions in %s", (state) => {
     expect(readComponent(components.Checklist, examples[0], "k1", state)).toEqual([
-      `k1 Checklist (${state})`,
+      `k1 Checklist (${state})${state === "empty" ? " No checklist items yet" : ""}`,
     ]);
   });
-  it("builds a data-only registry with case and separator tolerant ids", () => {
-    const registry = createRegistry();
-    expect(registry.ids).toContain("Checklist");
-    expect(registry.schema("Checklist")).toBe(props);
-    expect(registry.resolve("check-list")).toBe("Checklist");
-    expect(registry.resolve("c-h-e-c-k-l-i-s-t")).toBe("Checklist");
-    expect(registry.resolve("unknown")).toBeUndefined();
-  });
+});
+
+it("builds a data-only registry with case and separator tolerant ids", () => {
+  const registry = createRegistry();
+  expect(registry.ids).toContain("Checklist");
+  expect(registry.schema("Checklist")).toBe(props);
+  expect(registry.resolve("check-list")).toBe("Checklist");
+  expect(registry.resolve("c-h-e-c-k-l-i-s-t")).toBe("Checklist");
+  expect(registry.resolve("unknown")).toBeUndefined();
 });

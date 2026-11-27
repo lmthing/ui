@@ -1,9 +1,9 @@
 import { Text, isWeb, styled, useTheme } from "tamagui";
-import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
+import { Children, createContext, isValidElement, useContext, type ReactNode, type Ref } from "react";
 import { fontFamilies, motion, size, space, type as typography, variants } from "../../../catalog";
 import { useChangeReveal, useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { PartContext, usePart, usePartContext, usePartFocus } from "../../part";
 import { useReportedText } from "../../report";
 import { useTextStep, type TextFinish, type TextRole } from "./text-step";
 
@@ -63,6 +63,10 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
+  /** A stable addressed text region for live status updates. */
+  announce?: "status" | "alert";
+  /** A programmatically focusable result, not another stop in the tab order. */
+  focusRef?: Ref<{ focus(): void }>;
   /** Fallback report address for a label without its own part. */
   reportClipping?: string | undefined;
   goto?: string | undefined;
@@ -74,6 +78,7 @@ function useTextTarget(props: TextProps, goto: TextProps["goto"], enabled: boole
   const { part = "root", reportClipping, children, lines } = props;
   const kit = useKit();
   const address = usePart(part ?? "root", part !== null && enabled);
+  usePartFocus(props.focusRef, address.ref);
   const report = useReportedText(
     enabled && reportClipping ? (part === null ? reportClipping : address.testID) : undefined,
     typeof children === "string" ? children : undefined,
@@ -87,6 +92,7 @@ function useTextTarget(props: TextProps, goto: TextProps["goto"], enabled: boole
   };
   return {
     ...(part !== null && enabled ? address : {}),
+    ...(isWeb && props.focusRef && !link ? { tabIndex: -1 as const } : {}),
     ...report,
     ...(link ? { accessibilityRole: "link" as const } : {}),
     ...(link && kit.interactive
@@ -232,6 +238,10 @@ function TextRun(props: TextProps & { figureProgress?: number }) {
   const text = (
     <Frame
       {...(!webLink ? target : {})}
+      {...(props.announce && {
+        "aria-live": props.announce === "alert" ? ("assertive" as const) : ("polite" as const),
+        accessibilityRole: props.announce,
+      })}
       {...(figure < 1 ? { y: motion.figureRoll * (1 - figure) } : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}

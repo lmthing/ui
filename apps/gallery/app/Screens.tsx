@@ -63,7 +63,6 @@ function lookView(id: ComponentName, state: Cell["state"], input: Record<string,
   if (id === "Signature" && state === "filled")
     return <SignaturePreview style={input.style}>{view}</SignaturePreview>;
   if (id !== "Field") return view;
-  if (input.kind === "choice") return <YStack paddingHorizontal={space.xl}>{view}</YStack>;
   if (input.kind === "password" || input.kind === "code")
     return <CredentialPreviewContext.Provider value>{view}</CredentialPreviewContext.Provider>;
   return view;
