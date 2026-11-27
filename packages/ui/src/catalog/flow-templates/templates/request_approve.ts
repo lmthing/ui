@@ -37,19 +37,20 @@ export const requestApprove: FlowTemplate = {
         },
         {
           id: "pending",
-          see: "{record.reference} is with {name.approver} for review.",
+          see: "{name.approver} hasn't decided yet. {record.reference} remains open.",
           do: "Tap Open for review",
           hands_off_to: {
             role: "approver",
             step: "review",
           },
           layout: {
-            components: ["Note"],
+            components: ["KeyValue"],
           },
           states: ["waiting"],
           preview: {
             title: "Awaiting a decision",
             action: "Open for review",
+            fields: ["reference", "request"],
           },
         },
         {
@@ -67,7 +68,7 @@ export const requestApprove: FlowTemplate = {
         },
         {
           id: "rejected",
-          see: "{name.approver} declined {record.reference}. Reason: {record.reason}.",
+          see: "{name.approver} declined {record.reference}: {record.request}. {record.reason}",
           next: null,
           layout: {
             components: ["KeyValue"],
@@ -75,7 +76,7 @@ export const requestApprove: FlowTemplate = {
           states: ["error"],
           preview: {
             title: "Request declined",
-            fields: ["reference", "reason"],
+            fields: ["reference", "request", "reason"],
           },
         },
       ],
@@ -119,12 +120,14 @@ export const requestApprove: FlowTemplate = {
             step: "approved",
           },
           layout: {
-            components: ["Note"],
+            components: ["KeyValue"],
           },
           states: ["waiting"],
           preview: {
             title: "Approve request",
             action: "Confirm approval",
+            fields: ["reference", "request"],
+            back: true,
           },
         },
         {
@@ -142,7 +145,9 @@ export const requestApprove: FlowTemplate = {
           preview: {
             title: "Reason for declining",
             action: "Send decision",
+            back: true,
             fields: ["reason"],
+            invalidField: "reason",
             messages: {
               error: "Enter a reason so the requester knows what to change.",
             },

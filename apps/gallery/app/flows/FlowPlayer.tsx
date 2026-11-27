@@ -11,6 +11,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { flowWords, readableId } from "./flow-copy";
 import { FlowPhone } from "./FlowPhone";
+import { activateFlowControl } from "./flow-keyboard";
 import { useFlowPlayback } from "./useFlowPlayback";
 
 type StateControlProps = {
@@ -100,20 +101,20 @@ export function FlowPlayer({
   template: FlowTemplateSource;
   example: FlowTemplateSource["examples"][number];
 }) {
-  const { flow, frame, index, state, inspect, openStep, restart, onChange, onLink } = useFlowPlayback(
-    template,
-    example,
-  );
-  const complete = !frame.forward.length;
+  const playback = useFlowPlayback(template, example);
+  const { flow, frame, index, state, inspection, inspect, openStep, restart, resume } = playback;
+  const complete = !inspection && !frame.forward.length && !frame.back;
   return (
-    <YStack gap={space.sm} data-flow-player={frame.key} data-flow-state={state ?? "play"}>
+    <YStack
+      gap={space.sm}
+      data-flow-player={frame.key}
+      data-flow-state={state ?? (inspection ? "inspect" : "play")}
+    >
       <XStack justifyContent="space-between" gap={space.sm} role="status">
         <Text color="$muted" fontSize="$caption">{`${flowWords.role}: ${readableId(frame.role)}`}</Text>
-        {complete && (
-          <Text color="$muted" fontSize="$caption">
-            {flowWords.done}
-          </Text>
-        )}
+        <Text color="$muted" fontSize="$caption">
+          {inspection ? flowWords.readOnly : flowWords.simulation}
+        </Text>
       </XStack>
       <YStack
         backgroundColor="$bg"
@@ -122,13 +123,21 @@ export function FlowPlayer({
         borderRadius={radius.lg}
         overflow="hidden"
         data-flow-phone
+        onKeyDown={inspection ? undefined : activateFlowControl}
       >
-        <FlowPhone {...{ flow, index, state, onChange, onLink }} onReady={publishBrowserAgent} />
+        <FlowPhone
+          {...{ flow, index, state, inspection }}
+          interaction={playback.interaction}
+          validationError={playback.validationError}
+          onLink={playback.onLink}
+          onSend={playback.onSend}
+          onReady={publishBrowserAgent}
+        />
       </YStack>
-      {(state || complete) && (
+      {(inspection || complete) && (
         <XStack justifyContent="flex-end">
-          <FlowControl active={false} onPress={state ? () => inspect(undefined) : restart}>
-            {state ? flowWords.resume : flowWords.restart}
+          <FlowControl active={false} onPress={inspection ? resume : restart}>
+            {inspection ? flowWords.resume : flowWords.restart}
           </FlowControl>
         </XStack>
       )}

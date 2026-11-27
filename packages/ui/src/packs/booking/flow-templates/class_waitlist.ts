@@ -63,7 +63,7 @@ export const classWaitlist: FlowTemplate = {
         },
         {
           id: "offer",
-          see: "A spot opened for {record.session} at {record.starts}. The spot is not booked yet.",
+          see: "A spot opened for {name.member}: {record.session}, {record.starts}. It hasn't been booked.",
           do: "Tap Review spot.",
           next: "review",
           layout: { components: ["KeyValue", "Waitlist"] },
@@ -77,7 +77,7 @@ export const classWaitlist: FlowTemplate = {
         },
         {
           id: "review",
-          see: "Review {record.session} at {record.starts} before claiming the spot.",
+          see: "Book {record.session}, {record.starts}, for {name.member}. The spot isn't yours until confirmed.",
           do: "Tap Confirm class.",
           next: "booked",
           layout: { components: ["KeyValue"] },
@@ -86,6 +86,7 @@ export const classWaitlist: FlowTemplate = {
             title: "Review class",
             action: "Confirm class",
             fields: ["session", "starts"],
+            back: true,
             messages: {
               waiting: "Holding while the class checks your spot. You are not booked yet.",
               error: "The spot is no longer available. No reservation was made.",
@@ -94,7 +95,7 @@ export const classWaitlist: FlowTemplate = {
         },
         {
           id: "booked",
-          see: "Booked: {record.session} at {record.starts}. Check-in reference: {record.reference}.",
+          see: "{name.member} booked {record.session} at {record.starts}. Use {record.reference} to check in.",
           next: null,
           layout: { components: ["Success"] },
           states: ["success"],
@@ -111,6 +112,7 @@ export const classWaitlist: FlowTemplate = {
             title: "Leave the waitlist?",
             action: "Confirm leave",
             fields: ["session", "starts"],
+            back: true,
             messages: { error: "You could not be removed. Your place in line is unchanged." },
           },
         },

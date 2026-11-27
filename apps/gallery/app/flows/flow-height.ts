@@ -9,10 +9,15 @@ export function flowHeight(screen: ScreenLike) {
   }, 0);
   const textOnly = screen.components.every(({ c }) => c === "Header" || c === "Note" || c === "Button");
   const baseline = component.Gallery.flowHeight;
+  const rowGrowth = Math.max(0, rows - 2) * size.control.md + (rows >= 4 ? 3 * space.lg : 0);
+  if (screen.components.some(({ c }) => c === "Composer")) return baseline + 7 * space.lg;
+  if (screen.components.some(({ c }) => c === "FilterBar")) return baseline + 5 * space.lg;
+  if (screen.components.some(({ c }) => c === "HandoffReceipt")) return baseline + 9 * space.lg;
   if (screen.components.some(({ c }) => c === "Waitlist")) return baseline + 3 * space.lg;
   if (textOnly) return baseline - (hasFooter ? 6 : 8) * space.lg;
-  if (hasStatus) return baseline - (screen.components.some(({ c }) => c === "List") ? 4 : 3) * space.lg;
+  if (hasStatus) return baseline + rowGrowth - (rows < 3 ? 3 * space.lg : 0);
   const choices = screen.components.find(({ id }) => id === "choices");
   const hasChoices = Array.isArray(choices?.rows);
-  return baseline + Math.max(0, rows - 2) * size.control.md - (hasFooter || hasChoices ? 0 : 4 * space.lg);
+  const stacked = screen.components.filter(({ c }) => c === "Steps" || c === "Profile").length;
+  return baseline + rowGrowth + stacked * 4 * space.lg - (hasFooter || hasChoices ? 0 : 4 * space.lg);
 }

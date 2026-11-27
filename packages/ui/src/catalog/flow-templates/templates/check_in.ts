@@ -20,7 +20,7 @@ export const checkIn: FlowTemplate = {
       steps: [
         {
           id: "pass",
-          see: "Show {name.host} the pass for {record.event}: {record.reference}.",
+          see: "Show {name.host} your pass for {record.event}. This does not record arrival.",
           do: "Tap Show pass",
           hands_off_to: {
             role: "host",
@@ -49,7 +49,7 @@ export const checkIn: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "You’re checked in",
-            fields: ["event", "arrival"],
+            fields: ["reference", "event", "arrival"],
           },
         },
       ],
@@ -62,15 +62,15 @@ export const checkIn: FlowTemplate = {
       steps: [
         {
           id: "find",
-          see: "Match {record.reference} to {name.attendee} for {record.event}; search by name if the pass cannot be read.",
-          do: "Tap Review arrival",
+          see: "This sample pass matches {name.attendee}'s reservation for {record.event}. Check the reference before continuing.",
+          do: "Review the matched reservation.",
           layout: {
             components: ["List"],
           },
           states: ["empty", "error"],
           preview: {
-            title: "Find reservation",
-            action: "Review arrival",
+            title: "Matched reservation",
+            action: "Review matched pass",
             fields: ["reference", "event"],
             messages: {
               error: "No reservation matched. Check the event, pass or attendee name.",
@@ -79,7 +79,7 @@ export const checkIn: FlowTemplate = {
         },
         {
           id: "record",
-          see: "Check {name.attendee} in to {record.event} at {record.arrival}.",
+          see: "Confirm {name.attendee}'s arrival for reservation {record.reference}.",
           do: "Tap Mark present",
           hands_off_to: {
             role: "attendee",
@@ -92,7 +92,8 @@ export const checkIn: FlowTemplate = {
           preview: {
             title: "Review arrival",
             action: "Mark present",
-            fields: ["event", "arrival"],
+            fields: ["reference", "event", "arrival"],
+            back: true,
             messages: {
               error: "Attendance is already recorded. No second arrival was added.",
             },
@@ -134,7 +135,7 @@ export const checkIn: FlowTemplate = {
         expect: "check_in",
       },
       {
-        request: "Let visitors pick an open class time and reserve it.",
+        request: "Let a visitor choose an open time for a one-to-one consultation and reserve it.",
         expect: "book_slot",
       },
     ],

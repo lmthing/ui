@@ -8,7 +8,7 @@ import {
 } from "@lmthing/ui/catalog";
 
 const outcomes = {
-  book_slot: ["guest/rescheduled", "guest/cancelled"],
+  book_slot: ["guest/rescheduled", "guest/cancelled", "guest/alternate_booked"],
   invite_accept: ["inviter/joined"],
   request_approve: ["requester/approved", "requester/rejected"],
   order_track: ["customer/delivered"],
@@ -19,6 +19,14 @@ const outcomes = {
   class_waitlist: ["member/booked", "member/left"],
   assign_work_order: ["requester/closed"],
   lead_to_client: ["owner/client", "prospect/declined"],
+  transfer_acknowledge: ["sender/acknowledged", "sender/returned"],
+  find_and_filter: ["browser/first", "browser/second", "browser/third"],
+  message_reply: ["sender/reply_received"],
+  change_preference: ["member/reopened", "member/undone"],
+  edit_profile: ["owner/saved"],
+  complete_form: ["applicant/submitted"],
+  review_notification: ["member/detail_read"],
+  cart_to_order: ["customer/pickup", "customer/deliver"],
 };
 
 test("the full catalog exposes the named core and pack templates", () => {
@@ -59,6 +67,60 @@ test("the proposal hand-off keeps the same record and only accepted proposals re
     expect(frame(key).see).toContain(String(flow.record.reference));
 });
 
+test("sending custody cannot acknowledge it or bypass the receiving queue", () => {
+  const template = flowTemplates.get("transfer_acknowledge")!;
+  const { id: _id, ...example } = template.examples[1]!;
+  const flow = fillFlow(template, example);
+  const index = (key: string) => flow.frames.findIndex((frame) => frame.key === key);
+  const receipt = (key: string) =>
+    flowPreviewScreen(flow, index(key)).components.find(({ c }) => c === "HandoffReceipt");
+  expect(flow.frames[index("sender/sent")]!.forward).toMatchObject([{ target: "receiver/queue" }]);
+  expect(flow.frames[index("receiver/queue")]!.forward).toMatchObject([{ target: "receiver/review" }]);
+  expect(receipt("sender/sent")).toMatchObject({
+    phase: "waiting",
+    reference: "KIT-63",
+    summary: expect.stringContaining("Overdue"),
+  });
+  expect(receipt("receiver/review")).toMatchObject({ phase: "waiting", reference: "KIT-63" });
+  expect(flowPreviewScreen(flow, index("receiver/review")).components.slice(-2)).toMatchObject([
+    {
+      c: "List",
+      rows: [{ title: "Decline transfer", goto: flowPreviewScreen(flow, index("receiver/decline")).id }],
+    },
+    { c: "Button", label: "Confirm receipt", goto: flowPreviewScreen(flow, index("receiver/received")).id },
+  ]);
+  expect(receipt("receiver/received")).toMatchObject({ phase: "received", reference: "KIT-63" });
+  expect(receipt("sender/acknowledged")).toMatchObject({ phase: "received", reference: "KIT-63" });
+  expect(receipt("sender/returned")).toMatchObject({ phase: "returned", reference: "KIT-63" });
+});
+
+test("search intersects the query and category, preserves scope at zero, and clears both", () => {
+  const template = flowTemplates.get("find_and_filter")!;
+  const { id: _id, ...example } = template.examples[1]!;
+  const flow = fillFlow(template, example);
+  const filter = (query: string, category: string) =>
+    flowPreviewScreen(flow, 0, undefined, { search: { query, category } }).components;
+  expect(filter("  BIN C7 ", "Brakes").find(({ c }) => c === "List")).toMatchObject({
+    rows: [{ title: "Brake cable", goto: flowPreviewScreen(flow, 3).id }],
+  });
+  expect(filter("chainring", "Brakes")).toMatchObject([
+    { c: "Header" },
+    { c: "FilterBar", filters: [{ value: "Brakes" }] },
+    { c: "Note", text: "No matches for “chainring” in Brakes. Use Clear filters to see all results." },
+  ]);
+  expect(filter("", "").find(({ c }) => c === "List")).toMatchObject({
+    rows: [{ title: "Brake pads" }, { title: "Chainring 42T" }, { title: "Brake cable" }],
+  });
+  expect(flowPreviewScreen(flow, 3).components[0]).toMatchObject({
+    c: "Header",
+    style: "back",
+    title: "Brake cable",
+  });
+  expect(flowPreviewScreen(flow, 3).components.find(({ c }) => c === "KeyValue")).toMatchObject({
+    pairs: [{ label: "Category", value: "Brakes" }],
+  });
+});
+
 test.each(flowTemplates.list)(
   "$id examples reach all required outcomes and render valid screens",
   (template) => {
@@ -84,7 +146,8 @@ test("optional steps can be skipped, but declared hand-offs still resolve", () =
   const skipped = fillFlow(template, { ...sample, omit: ["reporter/add_context"] });
   expect(skipped.frames.map(({ key }) => key)).not.toContain("reporter/add_context");
   expect(skipped.frames[0]!.forward[0]!.target).toBe("reporter/submit");
-  expect(skipped.frames[1]!.forward[0]!.target).toBe("resolver/triage");
+  expect(skipped.frames[1]!.forward[0]!.target).toBe("reporter/reported");
+  expect(skipped.frames[2]!.forward[0]!.target).toBe("resolver/triage");
   expect(skipped.ends).toEqual(["reporter/resolved"]);
   expect(() => fillFlow(template, { ...sample, omit: ["resolver/triage"] })).toThrow("Cannot omit");
 });

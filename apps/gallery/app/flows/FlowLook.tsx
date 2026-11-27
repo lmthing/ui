@@ -15,6 +15,15 @@ const cases = [
   ["class_waitlist", "member/offer"],
   ["assign_work_order", "dispatcher/verify"],
   ["lead_to_client", "prospect/review"],
+  ["transfer_acknowledge", "receiver/review"],
+  ["find_and_filter", "browser/results"],
+  ["find_and_filter", "browser/results", "empty"],
+  ["message_reply", "recipient/incoming"],
+  ["change_preference", "member/edit"],
+  ["edit_profile", "owner/edit"],
+  ["complete_form", "applicant/review"],
+  ["review_notification", "member/unread"],
+  ["cart_to_order", "customer/review_pickup"],
 ] as const satisfies readonly (readonly [string, string, FlowState?])[];
 
 function LookPhone({
@@ -37,7 +46,7 @@ function LookPhone({
       <Text color="$muted" data-look-label fontSize="$caption">
         {template.title}
       </Text>
-      <YStack width={width} backgroundColor="$surface" data-look-frame={id}>
+      <YStack width={width} backgroundColor="$surface" data-look-frame={state ? `${id}-${state}` : id}>
         <FlowPhone {...{ flow, index, state }} />
       </YStack>
     </YStack>
@@ -49,7 +58,7 @@ export function FlowLook({ width }: { width: number }) {
     <TamaguiProvider config={config} defaultTheme={themeName(flowTheme)}>
       <YStack padding={space.lg} gap={space.md} backgroundColor="$bg">
         {cases.map(([id, step, state]) => (
-          <LookPhone key={id} {...{ id, step, width, ...(state ? { state } : {}) }} />
+          <LookPhone key={`${id}/${state ?? "play"}`} {...{ id, step, width, ...(state ? { state } : {}) }} />
         ))}
       </YStack>
     </TamaguiProvider>

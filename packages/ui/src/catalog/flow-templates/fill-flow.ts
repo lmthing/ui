@@ -39,6 +39,16 @@ export type FlowFrame = {
   states: readonly FlowState[];
   messages: Partial<Record<FlowState, string>>;
   fields: readonly string[];
+  invalidField?: string;
+  back?: true;
+  actionList?: true;
+  retry?: string;
+  receipt?: NonNullable<Step["preview"]>["receipt"];
+  search?: NonNullable<Step["preview"]>["search"];
+  thread?: NonNullable<Step["preview"]>["thread"];
+  progress?: NonNullable<Step["preview"]>["progress"];
+  labels?: NonNullable<Step["preview"]>["labels"];
+  choice?: NonNullable<Step["preview"]>["choice"];
   forward: readonly Transition[];
 };
 
@@ -50,7 +60,7 @@ export function optionalFlowSteps(template: FlowTemplateSource) {
 
 function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill): FlowFrame {
   const forward = (step.choices ?? []).map(({ label, step }) => ({
-    label,
+    label: fill(label),
     target: keyOf(role.role, step),
   }));
   const handoff = step.hands_off_to;
@@ -75,6 +85,18 @@ function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill)
     states: step.states,
     messages,
     fields: step.preview?.fields ?? [],
+    ...(step.preview?.invalidField ? { invalidField: step.preview.invalidField } : {}),
+    ...(step.preview?.back ? { back: step.preview.back } : {}),
+    ...(step.preview?.actionList ? { actionList: step.preview.actionList } : {}),
+    ...(step.preview?.retry ? { retry: step.preview.retry } : {}),
+    ...(step.preview?.receipt ? { receipt: step.preview.receipt } : {}),
+    ...(step.preview?.search
+      ? { search: { ...step.preview.search, hint: fill(step.preview.search.hint) } }
+      : {}),
+    ...(step.preview?.thread ? { thread: step.preview.thread } : {}),
+    ...(step.preview?.progress ? { progress: step.preview.progress } : {}),
+    ...(step.preview?.labels ? { labels: step.preview.labels } : {}),
+    ...(step.preview?.choice ? { choice: step.preview.choice } : {}),
     forward,
   };
 }
