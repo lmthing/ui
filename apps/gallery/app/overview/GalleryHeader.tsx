@@ -74,6 +74,9 @@ export function GalleryHeader({
         <Text tag="a" href="?nav-shell" color="$accent" fontSize="$label">
           Navigation shell
         </Text>
+        <Text tag="a" href="?motion-lab=lively" color="$accent" fontSize="$label">
+          Motion lab
+        </Text>
         <Input
           value={filter}
           onChangeText={onFilter}

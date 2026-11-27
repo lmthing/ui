@@ -7,7 +7,7 @@ import { XStack, YStack, isWeb, styled } from "tamagui";
 import { component, motion, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
-import { useChangeReveal, useMotionValue } from "../../motion";
+import { useChangeReveal, useMotionValue, useReducedFade } from "../../motion";
 
 const Frame = styled(YStack, {
   minWidth: size.control.md,
@@ -73,6 +73,7 @@ function ToggleTrail({
   loading: boolean;
 }) {
   const progress = Math.min(1, Math.max(0, useMotionValue(Number(active), disabled || loading)));
+  const fade = useReducedFade(!disabled && !loading ? String(active) : undefined);
   if (loading)
     return (
       <YStack
@@ -88,11 +89,18 @@ function ToggleTrail({
       <YStack width={progress * (size.control.md - size.icon.md - 4 * component.base.strongBorder)} />
       <Knob
         on={active}
+        {...fade}
         scale={(size.icon.sm + (size.icon.md - size.icon.sm) * progress) / size.icon.md}
         {...(disabled ? { backgroundColor: "$muted" } : {})}
       />
     </Track>
   );
+}
+
+function badgeFill(tone?: TextTone) {
+  if (tone === "good" || tone === "warn" || tone === "bad") return `$${tone}Soft` as const;
+  if (tone === "text" || tone === "muted") return "$raised";
+  return tone === "onAccent" ? "$accent" : "$accentSoft";
 }
 
 function ValueTrail({
@@ -125,17 +133,9 @@ function ValueTrail({
       </KitText>
     </YStack>
   );
-  const fill =
-    tone === "good" || tone === "warn" || tone === "bad"
-      ? `$${tone}Soft`
-      : tone === "onAccent"
-        ? "$accent"
-        : tone === "text" || tone === "muted"
-          ? "$raised"
-          : "$accentSoft";
   return kind === "badge" ? (
     <Badge
-      backgroundColor={loading ? "$line" : fill}
+      backgroundColor={loading ? "$line" : badgeFill(tone)}
       {...(environment.reduceMotion ? { opacity: pose } : { scale: pose })}
     >
       {text}

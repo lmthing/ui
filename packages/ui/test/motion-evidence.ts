@@ -33,8 +33,14 @@ export async function contactSheet(browser: Browser, page: Page, label: string, 
     frames.push(await page.screenshot({ scale: "css" }));
   }
   await inFlight;
+  if (label.endsWith("submit-working-success")) {
+    await page.waitForTimeout(700);
+    frames.push(await page.screenshot({ scale: "css" }));
+    await page.waitForTimeout(150);
+    frames.push(await page.screenshot({ scale: "css" }));
+  }
   // The last frame shows the settled layout, not a later interaction.
-  await page.waitForTimeout(850);
+  await page.waitForTimeout(700);
   frames.push(await page.screenshot({ scale: "css" }));
   const sheet = await browser.newPage({ viewport: { width: 702, height: 1013 } });
   try {

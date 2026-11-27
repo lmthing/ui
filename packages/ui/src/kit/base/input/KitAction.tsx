@@ -125,7 +125,10 @@ function useActionPress(
 ) {
   const kit = useKit();
   const [pressed, setPressed] = useState(false);
-  const settled = inactive || kit.environment.agentMode || kit.environment.reduceMotion;
+  const settled = !kit.interactive || inactive || kit.environment.agentMode || kit.environment.reduceMotion;
+  useLayoutEffect(() => {
+    if (settled) setPressed(false);
+  }, [settled]);
   const scale = useMotionValue(pressed && !settled ? motion.pressScale : 1, settled);
   const dispatch = useActionDispatch(props, address, inactive, reveal);
   if (!kit.interactive || inactive) return { scale };

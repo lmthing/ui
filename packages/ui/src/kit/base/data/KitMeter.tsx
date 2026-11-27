@@ -1,7 +1,7 @@
 import { XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { KitText } from "../text";
-import { useMotionValue } from "../../motion";
+import { useMotionValue, useReducedFade } from "../../motion";
 
 /**
  * One labelled bar toward a target: the label and the amount on a line, a track under them and a fill to
@@ -29,6 +29,7 @@ export function KitMeter({
 }) {
   const target = Math.min(1, Math.max(0, ratio));
   const fill = Math.min(1, Math.max(0, useMotionValue(target)));
+  const fade = useReducedFade(String(target));
   return (
     <YStack gap={space.xs} width="100%">
       <XStack justifyContent="space-between" alignItems="baseline" gap={space.sm}>
@@ -48,6 +49,7 @@ export function KitMeter({
       >
         <YStack
           {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
+          {...fade}
           width={`${fill * 100}%`}
           height="100%"
           backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}

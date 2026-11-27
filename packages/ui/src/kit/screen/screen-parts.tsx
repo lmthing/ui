@@ -1,6 +1,6 @@
-import { isValidElement, useContext, useRef, useState, type ReactElement } from "react";
-import { isWeb, ScrollView, YStack } from "tamagui";
-import { KitMotion, KitPresence } from "../motion";
+import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
+import { ScrollView, YStack } from "tamagui";
+import { KitMotion, usePresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
@@ -8,7 +8,6 @@ import { KitCard, KitEmpty } from "../base";
 import {
   space,
   motion,
-  zIndex,
   parseItemProps,
   regionOf,
   sortByRegion,
@@ -75,7 +74,14 @@ function ScreenEntry({
     </PartScope>
   );
 }
-function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
+function ScreenRegion({
+  name,
+  scroll,
+  ...props
+}: RenderProps & {
+  name: string;
+  scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
+}) {
   const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
   const elsewhere = new Set(
@@ -108,38 +114,18 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
     isValidElement<RegionEntryProps>(node) &&
     !elsewhere.has(node.props.entry.id) &&
     !views?.hidden.has(node.props.entry.id);
-  return name === "body" && isWeb ? (
-    <BodySections rows={rows} keepExit={keepExit} />
-  ) : (
-    <KitPresence keepExit={keepExit}>{rows}</KitPresence>
+  const present = usePresence(rows, keepExit);
+  if (!scroll) return <>{present}</>;
+  const sticky = present.flatMap((node, index) =>
+    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
   );
-}
-
-function BodySections({
-  rows,
-  keepExit,
-}: {
-  rows: ReactElement<RegionEntryProps>[];
-  keepExit(node: React.ReactNode): boolean;
-}) {
-  const sections: { key: string; rows: typeof rows }[] = [];
-  const active = new Set(rows.map(({ props }) => props.entry.id));
-  for (const row of rows) {
-    if (row.props.sticky || !sections.length)
-      sections.push({ key: row.props.sticky ? row.props.entry.id : "", rows: [] });
-    sections.at(-1)!.rows.push(row);
-  }
-  return sections.map(({ key, rows }) => (
-    <YStack key={key}>
-      <KitPresence
-        keepExit={(node) =>
-          isValidElement<RegionEntryProps>(node) && !active.has(node.props.entry.id) && keepExit(node)
-        }
-      >
-        {rows}
-      </KitPresence>
-    </YStack>
-  ));
+  return (
+    <ScreenBottomSource>
+      <ScrollView {...scroll} stickyHeaderIndices={sticky}>
+        {present}
+      </ScrollView>
+    </ScreenBottomSource>
+  );
 }
 
 type RegionEntryProps = RenderProps & {
@@ -151,19 +137,12 @@ type RegionEntryProps = RenderProps & {
   appear?: boolean;
 };
 function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...props }: RegionEntryProps) {
-  const content = (
+  return (
     <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false} appear={appear}>
-      <YStack marginTop={marginTop}>
+      <YStack {...(sticky ? { paddingTop: marginTop, backgroundColor: "$bg" } : { marginTop })}>
         <ScreenEntry {...props} />
       </YStack>
     </KitMotion>
-  );
-  return sticky && isWeb && !exiting ? (
-    <YStack style={{ position: "sticky" } as never} top={0} zIndex={zIndex.sticky} backgroundColor="$bg">
-      {content}
-    </YStack>
-  ) : (
-    content
   );
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
@@ -186,22 +165,22 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
         <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
           <ScreenRegion {...props} name="top" compactTitle={compactTitle} />
         </YStack>
-        <ScrollView
-          flex={1}
-          minHeight={0}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          onScroll={({ nativeEvent }) => {
-            const y = nativeEvent.contentOffset.y;
-            if (y >= motion.collapseTitleAt) setCompactTitle(true);
-            else if (y <= motion.expandTitleAt) setCompactTitle(false);
+        <ScreenRegion
+          {...props}
+          name="body"
+          scroll={{
+            flex: 1,
+            minHeight: 0,
+            keyboardShouldPersistTaps: "handled",
+            keyboardDismissMode: "on-drag",
+            onScroll: ({ nativeEvent }) => {
+              const y = nativeEvent.contentOffset.y;
+              if (y >= motion.collapseTitleAt) setCompactTitle(true);
+              else if (y <= motion.expandTitleAt) setCompactTitle(false);
+            },
+            contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
           }}
-          contentContainerStyle={{ paddingVertical: space.gutter, ...horizontal }}
-        >
-          <ScreenBottomSource>
-            <ScreenRegion {...props} name="body" />
-          </ScreenBottomSource>
-        </ScrollView>
+        />
         <YStack
           flexShrink={0}
           {...horizontal}

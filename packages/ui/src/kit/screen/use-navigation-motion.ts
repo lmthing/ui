@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { isWeb, type TamaguiElement } from "tamagui";
 import { durations, motionEase, motionProfiles, type ScreenLike, type ThemeMotion } from "../../catalog";
 import { captureShared, flyShared } from "./shared-elements";
+import { captureTab, fadeTab } from "./tab-ghost";
 import { animateNumber } from "../motion";
 import { announceMotionSettled } from "../part";
 
@@ -10,6 +11,7 @@ type Intent = {
   goto: string;
   kind: "push" | "back" | "tab";
   shared: ReturnType<typeof captureShared>;
+  ghost: ReturnType<typeof captureTab>;
   agent: boolean;
   expires: number;
 };
@@ -36,16 +38,15 @@ export function useNavigationMotion(screen: ScreenLike, mode: ThemeMotion, reduc
     (goto: string, address: string, byAgent: boolean) => {
       const source = screen.components.find(({ id }) => id === address.split("/")[1]);
       const kind = goto === "back" ? "back" : source?.c === "TabBar" ? "tab" : "push";
+      const node = isWeb && !agent && !byAgent ? (ref.current as HTMLElement | null) : null;
       intent.current = {
         from: screen.id,
         goto,
         kind,
         agent: byAgent,
         expires: Date.now() + durations.slow * 2,
-        shared:
-          isWeb && kind === "push" && !reduced && !agent && !byAgent
-            ? captureShared(ref.current as HTMLElement | null, address)
-            : undefined,
+        shared: kind === "push" && !reduced ? captureShared(node, address) : undefined,
+        ghost: kind === "tab" && goto !== screen.id ? captureTab(node) : undefined,
       };
     },
     [screen, reduced, agent],
@@ -96,6 +97,7 @@ function playNavigation(
     });
   }
   if (!node?.animate) return;
+  if (move.ghost) return fadeTab(node, move.ghost, options);
   const header = screen.components.find(({ c }) => c === "Header");
   const shared =
     !fade && move.shared ? flyShared(node, screen.id, header?.id, move.shared, shift, options) : [];

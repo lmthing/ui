@@ -43,7 +43,7 @@ export function KitProvider({
 }: KitProviderProps) {
   const root = useRef<TamaguiElement>(null);
   const preset = presets.find((value) => value.id === theme.preset)!;
-  const osReduced = useReducedMotion(theme.motion === "lively" && !environment.reduceMotion, nativeHost);
+  const osReduced = useReducedMotion(!environment.agentMode && !environment.reduceMotion, nativeHost);
   const { density, motion } = themePreferencesOf(theme, environment.reduceMotion || osReduced);
   const desired = useMemo(() => kitStyleOf(preset, density), [preset, density]);
   const [style, onLayout] = useScreenGutter(desired, root);

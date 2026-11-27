@@ -6,7 +6,7 @@ import { animateNumber, type Spring } from "./animate";
 export function useReveal(
   key: string | number,
   enabled: boolean,
-  options: { spring?: Spring; duration?: number; delay?: number } = {},
+  options: { spring?: Spring; duration?: number; delay?: number; done?(): void } = {},
 ): number {
   const [value, setValue] = useState(1);
   const config = useRef(options);

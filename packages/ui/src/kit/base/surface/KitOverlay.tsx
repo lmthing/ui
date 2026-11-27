@@ -1,8 +1,9 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { ScrollView, YStack, type TamaguiElement } from "tamagui";
+import { isWeb, ScrollView, YStack, type TamaguiElement } from "tamagui";
 import { useKit } from "../../provider";
 import { component, durations, motionProfiles, zIndex } from "../../../catalog";
 import { useReveal } from "../../motion";
+import { announceMotionSettled } from "../../part";
 
 function useModalFocus(onDismiss: () => void) {
   const { nativeHost } = useKit();
@@ -68,6 +69,9 @@ export function KitOverlay({
   const profile = motionProfiles[motion];
   const progress = useReveal("open", !environment.agentMode, {
     ...(environment.reduceMotion ? { duration: durations.fast } : { spring: profile.spring }),
+    done: () => {
+      if (isWeb && panel.current) announceMotionSettled(panel.current as HTMLElement);
+    },
   });
   return (
     <YStack

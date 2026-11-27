@@ -31,12 +31,18 @@ export type LabPhase = "ready" | "working" | "saved" | "error";
 
 function garden(step: number): ScreenLike["components"] {
   const fern = { ...plants[0], ...(step % 2 ? { badge: "Watered", tone: "good" } : {}) };
-  const rows = [plants[1], fern, plants[2], ...(step % 2 ? [plants[3]] : [])];
+  const rows = [
+    [fern, plants[1], plants[2]],
+    [plants[1], fern, plants[2], plants[3]],
+    [fern, plants[2], plants[3]],
+    [plants[3], plants[2], fern],
+  ][step % 4];
   return [
     { id: "heading", c: "Header", title: "My garden", sub: "Your notes and watering schedule" },
     { id: "today", c: "SectionTitle", text: "Today’s plants", link: { label: "Update list" } },
-    { id: "plants", c: "List", lead: "thumb", rows: step % 2 ? rows : [fern, plants[1], plants[2]] },
-    { id: "care", c: "SectionTitle", text: "Care checklist" },
+    { id: "plants", c: "List", lead: "thumb", rows },
+    ...(step % 2 ? [] : [{ id: "care", c: "SectionTitle", text: "Care checklist" }]),
+    { id: "memo", c: "Field", label: "Care note" },
     {
       id: "tasks",
       c: "Checklist",
@@ -44,6 +50,26 @@ function garden(step: number): ScreenLike["components"] {
     },
     { id: "all", c: "SectionTitle", text: "Other plants" },
     { id: "recent", c: "List", trail: "none", rows: recent },
+    ...(step % 2
+      ? [
+          {
+            id: "backlog",
+            c: "List",
+            trail: "none",
+            rows: recent.map((row, index) => ({
+              ...row,
+              title: [
+                "Palm",
+                "String of pearls",
+                "Philodendron",
+                "Zebra plant",
+                "Rubber plant",
+                "Spider plant",
+              ][index],
+            })),
+          },
+        ]
+      : []),
     { id: "nav", c: "TabBar", tabs, at: 0 },
   ];
 }

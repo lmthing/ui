@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
+import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
 import { baselineMotionKit, contactSheet, sampleMotionFrames } from "./motion-evidence";
@@ -52,6 +53,23 @@ async function transforms(address: string) {
   );
 }
 
+async function pressSave() {
+  const button = await part("fern/save/root").boundingBox();
+  if (!button) throw new Error("Submit is not on screen");
+  await page.mouse.move(button.x + button.width / 2, button.y + button.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(80);
+  await page.mouse.up();
+}
+
+const stickyTop = (address: string) =>
+  part(address).evaluate((node) => {
+    for (let ancestor = node.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      if (getComputedStyle(ancestor).position === "sticky") return ancestor.getBoundingClientRect().top;
+    }
+    throw new Error("Section has no sticky wrapper");
+  });
+
 changed("connects a matching row to its header, shows a rising dialog, and returns back", async () => {
   await tap("garden/plants/r1/root");
   await part("fern/heading/title").waitFor();
@@ -62,6 +80,17 @@ changed("connects a matching row to its header, shows a rising dialog, and retur
   const dialog = page.getByRole("dialog");
   await dialog.waitFor();
   expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
+  const close = part("fern/details/close");
+  await expect
+    .poll(() =>
+      close.evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        const lab = window as Window & { motionLabParts?: () => PartEntry[] };
+        const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
+        return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
+      }),
+    )
+    .toBeLessThan(1);
   await page.keyboard.press("Escape");
   await expect.poll(() => dialog.count()).toBe(0);
   await tap("fern/heading/back");
@@ -83,16 +112,58 @@ changed(
     const basil = part("garden/plants/r2/root");
     await expect.poll(async () => (await basil.boundingBox())!.y < (await fern.boundingBox())!.y).toBe(true);
     await tap("garden/today/link");
-    await expect.poll(() => part("garden/plants/r4/root").count()).toBe(0);
+    await expect.poll(() => basil.count()).toBe(0);
+    const row = fern.locator("xpath=ancestor::*[@data-list-motion][1]");
+    const position = () => row.evaluate((node: HTMLElement) => node.offsetTop);
+    const oldTop = await position();
+    await tap("garden/today/link");
+    const delta = oldTop - (await position());
+    expect(delta).toBeLessThan(0);
+    expect(
+      await row.evaluate((node) =>
+        node
+          .getAnimations()
+          .flatMap((animation) =>
+            (animation.effect as KeyframeEffect).getKeyframes().map((frame) => frame.transform),
+          ),
+      ),
+    ).toContain(`translateY(${delta}px)`);
     await page.mouse.move(180, 360);
-    await page.mouse.wheel(0, 450);
+    await page.mouse.wheel(0, 180);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(0);
     await expect.poll(() => part("garden/heading/title").isVisible()).toBe(true);
+    const pinnedY = await stickyTop("garden/today/text");
+    await page.mouse.wheel(0, 80);
+    await expect.poll(async () => Math.abs((await stickyTop("garden/today/text")) - pinnedY)).toBeLessThan(1);
+    await page.mouse.wheel(0, 450);
+    await expect.poll(async () => Math.abs((await stickyTop("garden/all/text")) - pinnedY)).toBeLessThan(1);
     await page.mouse.wheel(0, -900);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(1);
     expect(errors).toEqual([]);
   },
 );
+
+changed("keeps input focus when a heading is removed", async () => {
+  const input = part("garden/memo/field");
+  await input.fill("Keep this");
+  expect(await input.evaluate((node) => node === document.activeElement)).toBe(true);
+  await page.evaluate(() => window.__lmthingUI!.act({ address: "today/link", action: "press" }));
+  await expect.poll(() => part("garden/care/text").count()).toBe(0);
+  expect(await input.evaluate((node) => node === document.activeElement)).toBe(true);
+  expect(await input.inputValue()).toBe("Keep this");
+  expect(errors).toEqual([]);
+});
+
+changed("replaces tabs with an inert outgoing picture during the cross-fade", async () => {
+  await tap("garden/nav/r2/root");
+  const outgoing = page.locator("[data-kit-outgoing-tab]");
+  expect(await outgoing.getAttribute("inert")).not.toBeNull();
+  expect(await outgoing.textContent()).toContain("My garden");
+  expect(await outgoing.locator("[data-testid]").count()).toBe(0);
+  expect(await part("activity/heading/title").textContent()).toBe("Activity");
+  await expect.poll(() => outgoing.count()).toBe(0);
+  expect(errors).toEqual([]);
+});
 
 changed(
   "reflects real gallery loading, error and completion states and animates progress updates",
@@ -142,6 +213,7 @@ const scenes = [
   ["check", () => tap("garden/tasks/r1/check")],
   ["reorder-insert-status", () => tap("garden/today/link")],
   ["remove", () => tap("garden/today/link")],
+  ["reorder-after-remove", () => tap("garden/today/link")],
   [
     "scroll",
     async () => {
@@ -154,7 +226,7 @@ const scenes = [
   ["sheet", () => tap("fern/heading/action")],
   ["sheet-dismiss", () => page.keyboard.press("Escape")],
   ["error", () => tap("fern/error/root")],
-  ["submit-working-success", () => tap("fern/save/root")],
+  ["submit-working-success", pressSave],
   ["back", () => tap("fern/heading/back")],
   ["tab", () => tap("garden/nav/r2/root")],
   ["roll-progress", () => tap("activity/advance/root")],

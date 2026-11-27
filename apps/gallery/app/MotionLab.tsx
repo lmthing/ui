@@ -1,9 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { durations, themeName, type ActStep, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { createMemoryParts, PhoneScreen } from "@lmthing/ui/kit";
 import { motionLabScreen, type LabPhase } from "../fixtures/motion-lab";
 import { config, resolvePhoto } from "../index";
+
+declare global {
+  interface Window {
+    motionLabParts?: ReturnType<typeof createMemoryParts>["snapshot"];
+  }
+}
+
+function useMotionParts() {
+  const [parts] = useState(createMemoryParts);
+  useEffect(() => {
+    window.motionLabParts = parts.snapshot;
+    return () => {
+      delete window.motionLabParts;
+    };
+  }, [parts]);
+  return parts;
+}
 
 export function MotionLab({ lively }: { lively: boolean }) {
   const [route, setRoute] = useState("garden");
@@ -11,6 +28,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
   const [phase, setPhase] = useState<LabPhase>("ready");
   const [loading, setLoading] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const parts = useMotionParts();
   useEffect(() => () => clearTimeout(timer.current), []);
   const theme = {
     preset: "calm",
@@ -45,7 +63,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
         <PhoneScreen
-          {...{ theme, onLink, onAction }}
+          {...{ theme, onLink, onAction, parts }}
           screen={motionLabScreen(route, step, phase, loading)}
           resolvePhoto={(ref) => resolvePhoto(ref, theme)}
         />

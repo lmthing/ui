@@ -6,6 +6,7 @@ import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
 import { KitMotion, KitPresence } from "../../motion";
 import { useListReorder } from "./use-list-reorder";
+import { useNativeRowMotion } from "./use-native-row-motion";
 
 type GridProps = {
   columns?: 2 | 3;
@@ -34,7 +35,8 @@ const rowKey = (cell: ReactNode, index: number) =>
 function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | undefined; ruled: boolean }) {
   const keys = cells.map(rowKey);
   const initial = useRef(new Set(keys));
-  const ref = useListReorder(JSON.stringify(keys));
+  const order = JSON.stringify(keys);
+  const ref = useListReorder(order);
   return (
     <YStack ref={ref} position="relative" accessibilityRole="list" gap={gap}>
       <KitPresence>
@@ -42,6 +44,7 @@ function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | und
           <MotionRow
             key={keys[index]}
             id={keys[index]!}
+            order={order}
             appear={!initial.current.has(keys[index]!)}
             rule={ruled && index < cells.length - 1}
           >
@@ -56,18 +59,22 @@ function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | und
 function MotionRow({
   children,
   id,
+  order,
   appear,
   rule,
   exiting,
 }: {
   children: ReactNode;
   id: string;
+  order: string;
   appear: boolean;
   rule: boolean;
   exiting?: boolean;
 }) {
+  const nativePose = useNativeRowMotion(order, exiting ?? false);
   return (
     <YStack
+      {...nativePose}
       data-list-motion={id}
       accessibilityRole="listitem"
       {...(exiting ? { "aria-hidden": true, inert: true } : {})}

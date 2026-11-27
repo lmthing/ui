@@ -6,24 +6,26 @@ import { announceMotionSettled } from "../../part";
 
 export function useListReorder(order: string) {
   const { environment, motion } = useKit();
-  const reduce = environment.reduceMotion || environment.agentMode;
+  const { reduceMotion, agentMode } = environment;
   const ref = useRef<TamaguiElement>(null);
   const previous = useRef(new Map<string, number>());
   useLayoutEffect(() => {
-    if (!isWeb || !ref.current) return;
+    if (!isWeb || !ref.current || agentMode) return;
     const root = ref.current as HTMLElement;
     const old = previous.current;
-    const next = new Map<string, number>();
+    const select = () => Array.from(root.querySelectorAll<HTMLElement>(":scope > [data-list-motion]"));
+    const rows = select();
+    const measure = () => new Map(select().map((row) => [row.dataset.listMotion!, row.offsetTop]));
+    const next = measure();
     const animations: Animation[] = [];
     let moved = false;
-    for (const row of Array.from(root.querySelectorAll<HTMLElement>(":scope > [data-list-motion]"))) {
+    for (const row of rows) {
       const key = row.dataset.listMotion!;
-      const y = row.offsetTop;
-      next.set(key, y);
+      const y = next.get(key)!;
       const from = old.get(key);
       if (from === undefined || from === y) continue;
       moved = true;
-      if (!reduce && row.animate) {
+      if (!reduceMotion && row.animate) {
         animations.push(
           row.animate(rowFrames(from - y), {
             duration: motionProfiles[motion].navigation,
@@ -33,12 +35,24 @@ export function useListReorder(order: string) {
       }
     }
     previous.current = next;
+    // Exit height and expanding row content can move siblings without changing key order.
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(() => {
+            previous.current = measure();
+          });
+    for (const row of rows) observer?.observe(row);
+    observer?.observe(root);
     if (moved)
       void Promise.allSettled(animations.map((flight) => flight.finished)).then(() =>
         announceMotionSettled(root),
       );
-    return () => animations.forEach((animation) => animation.cancel());
-  }, [order, motion, reduce]);
+    return () => {
+      observer?.disconnect();
+      animations.forEach((animation) => animation.cancel());
+    };
+  }, [order, motion, reduceMotion, agentMode]);
   return ref;
 }
 

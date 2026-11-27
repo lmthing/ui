@@ -28,14 +28,7 @@ function exitsOf(old: ReactNode[], keys: Set<string>, keepExit: (node: ReactNode
 }
 
 /** Keep the same motion node/key at its old position until its disabled exit finishes. */
-export function KitPresence({
-  children,
-  keepExit,
-}: {
-  children: ReactNode;
-  /** A live item moved to another region should not linger in its old one. */
-  keepExit?: (node: ReactNode) => boolean;
-}) {
+export function usePresence(children: ReactNode, keepExit?: (node: ReactNode) => boolean) {
   const { environment } = useKit();
   const current = Children.toArray(children);
   const previous = useRef<ReactNode[]>(current);
@@ -66,5 +59,16 @@ export function KitPresence({
       : item.node;
     result.splice(Math.max(0, index), 0, node);
   }
-  return <>{result}</>;
+  return result;
+}
+
+export function KitPresence({
+  children,
+  keepExit,
+}: {
+  children: ReactNode;
+  /** A live item moved to another region should not linger in its old one. */
+  keepExit?: (node: ReactNode) => boolean;
+}) {
+  return <>{usePresence(children, keepExit)}</>;
 }

@@ -154,13 +154,15 @@ export function PhoneScreen(props: PhoneScreenProps) {
       {...(nativeHost ? { nativeHost } : {})}
     >
       <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
-        <YStack ref={navigation.ref} flex={1} minHeight={0} {...navigation.pose}>
-          <Screen
-            controller={controller}
-            renderers={props.renderers}
-            navigationArrival={navigation.navigationArrival}
-            {...(props.onReport ? { onReport: props.onReport } : {})}
-          />
+        <YStack flex={1} minHeight={0} position="relative">
+          <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
+            <Screen
+              controller={controller}
+              renderers={props.renderers}
+              navigationArrival={navigation.navigationArrival}
+              {...(props.onReport ? { onReport: props.onReport } : {})}
+            />
+          </YStack>
         </YStack>
       </DeviceDataContext.Provider>
     </KitProvider>

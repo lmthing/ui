@@ -196,12 +196,23 @@ function useFigurePose({ role, part, children, goto }: TextProps, loading: boole
     !goto &&
     role === "number" &&
     part !== "time" &&
+    part !== "range_reading" &&
     typeof children === "string" &&
     /\p{Nd}/u.test(children)
       ? children
       : undefined;
   const progress = useChangeReveal(value, false);
-  return signature === 1 && progress < 1 ? { y: motion.figureRoll * (1 - progress), opacity: progress } : {};
+  return signature === 1 && progress < 1 ? { y: motion.figureRoll * (1 - progress) } : {};
+}
+
+function figureScale(step: TextRole, compact: boolean) {
+  return compact
+    ? {
+        fontSize: typography[step].size,
+        lineHeight: typography[step].lineHeight,
+        letterSpacing: typography.body.tracking,
+      }
+    : {};
 }
 
 function TextRun(props: TextProps) {
@@ -246,13 +257,7 @@ function TextRun(props: TextProps) {
         : strike && !loading
           ? { textDecorationLine: "line-through" as const }
           : {})}
-      {...(role === "number" && numberScale === "compact"
-        ? {
-            fontSize: typography[numberStep].size,
-            lineHeight: typography[numberStep].lineHeight,
-            letterSpacing: typography.body.tracking,
-          }
-        : {})}
+      {...figureScale(numberStep, role === "number" && numberScale === "compact")}
     >
       {nested ? maskRuns(children) : loading && isWeb ? <Text opacity={0}>{content}</Text> : content}
     </Frame>

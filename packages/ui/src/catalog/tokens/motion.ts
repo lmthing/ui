@@ -17,6 +17,7 @@ export const motion = {
   errorTurns: 3,
   collapseTitleAt: 48,
   expandTitleAt: 12,
+  reducedFadeStart: 0.72,
 } as const;
 
 export const motionProfiles = {
