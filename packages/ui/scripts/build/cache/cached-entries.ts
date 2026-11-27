@@ -8,6 +8,7 @@ const inputs = [
   "src/surfaces",
   "src/packs",
   "src/catalog/flow-templates/templates",
+  "src/catalog/images",
   "src/catalog/copy",
   "src/catalog/icons.ts",
   "src/catalog/meta/pack-ids.ts",

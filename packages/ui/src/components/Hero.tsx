@@ -3,7 +3,8 @@ import {
   probesFor,
   detailOf,
   itemsOf,
-  photo,
+  photoOrImage,
+  photoVisible,
   placeholderTitle,
   text,
   thingOf,
@@ -49,7 +50,7 @@ export const props = z
     style: z.enum(["number"]).optional(),
     title: text(40),
     sub: text(80).optional(),
-    photo: photo.optional(),
+    photo: photoOrImage(["hero", "cover", "onboarding"]).optional(),
   })
   .overwrite((value) => ({
     ...value,
@@ -105,7 +106,7 @@ export function Hero(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, photo, media, tone, emphasis } = input;
   const { density, resolvePhoto } = useKit();
   const state = useComponentState();
-  const hasPhoto = media === "cover" && photo && resolvePhoto?.(photo);
+  const hasPhoto = media === "cover" && photoVisible(photo, resolvePhoto);
   const number = style === "number";
   const titleRole = number ? "number" : "title";
   const subRole = number ? "label" : "body";

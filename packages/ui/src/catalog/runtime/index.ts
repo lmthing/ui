@@ -10,6 +10,7 @@ export * from "../cast";
 export * from "../address";
 export * from "../tokens";
 export * from "../themes";
+export * from "../images/runtime";
 export * from "../format/runtime";
 export * from "../lines";
 export * from "../agent/runtime";

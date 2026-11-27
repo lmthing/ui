@@ -1,5 +1,5 @@
 import { YStack } from "tamagui";
-import { component, radius, space, type as typography } from "../../../catalog";
+import { component, radius, space, type as typography, type PhotoInput } from "../../../catalog";
 import { KitContent, KitText, useTextStep, type TextFinish, type TextRole } from "../text";
 
 export type SkeletonLine = {
@@ -20,7 +20,7 @@ export type SkeletonItem = {
   badge?: string | undefined;
   sub?: string | undefined;
   meta?: string | undefined;
-  photo?: string | undefined;
+  photo?: PhotoInput | undefined;
   icon?: string | undefined;
   done?: boolean;
   lead?: "dot" | "box" | "time" | "none";

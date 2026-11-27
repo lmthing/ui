@@ -15,7 +15,7 @@ import {
 } from "../../../kit";
 import {
   wordsFor,
-  photo,
+  photoOrImage,
   probesFor,
   text,
   type FallbackInput,
@@ -53,7 +53,7 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     name: text(28),
-    photo: photo.optional(),
+    photo: photoOrImage(["step_illustration", "item"]).optional(),
     muscles: z.array(text(16)).min(1).max(3),
     cues: z.array(text(60)).min(1).max(3),
     equipment: text(20).optional(),

@@ -28,6 +28,7 @@ type KitProviderProps = {
   controller?: KitContextValue["controller"];
   onLink?: KitContextValue["onLink"];
   resolvePhoto?: KitContextValue["resolvePhoto"];
+  resolveImage?: KitContextValue["resolveImage"];
 };
 export function KitProvider({
   children,
@@ -40,6 +41,7 @@ export function KitProvider({
   controller,
   onLink,
   resolvePhoto,
+  resolveImage,
 }: KitProviderProps) {
   const root = useRef<TamaguiElement>(null);
   const preset = presets.find((value) => value.id === theme.preset)!;
@@ -61,6 +63,7 @@ export function KitProvider({
       ...(controller ? { controller } : {}),
       ...linkHandler(controller, onLink),
       ...(resolvePhoto ? { resolvePhoto } : {}),
+      resolveImage,
     }),
     [
       style,
@@ -75,6 +78,7 @@ export function KitProvider({
       controller,
       onLink,
       resolvePhoto,
+      resolveImage,
     ],
   );
   return (

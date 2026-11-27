@@ -14,6 +14,7 @@ type Json = {
   default?: unknown;
   pattern?: string;
   kind?: string;
+  anyOf?: Json[];
 };
 
 function scalar(node: Json): string {
@@ -33,6 +34,7 @@ function scalar(node: Json): string {
 }
 
 function render(node: Json): string {
+  if (node.kind === "photo_or_image") return node.anyOf?.map(render).join(" or ") ?? "photo or image slot";
   if (node.type === "object" && node.properties) {
     const required = new Set(node.required ?? []);
     const fields = Object.entries(node.properties).map(([key, value]) => {

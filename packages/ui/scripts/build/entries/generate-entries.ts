@@ -3,6 +3,7 @@ import { generateDoors } from "./generate-doors";
 import { publishEntries } from "./publish-entries";
 import { promptModule } from "./prompt-source";
 import { flowPrompts } from "./flow-prompts";
+import { imageTemplateEntry } from "./image-templates";
 import { iconTable } from "../../../src/catalog/icon-vocabulary";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
@@ -216,6 +217,7 @@ export async function generateEntries(root: string) {
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
     ...flows,
+    "image-templates.generated.ts": await imageTemplateEntry(root),
     ...Object.fromEntries(
       entries.defs.flatMap(({ name, prompt }) =>
         prompt

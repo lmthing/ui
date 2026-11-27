@@ -48,7 +48,7 @@ export const props = z
     style: z.enum(["show", "album", "book"]).optional(),
     title: c.text(40),
     by: c.text(32),
-    photo: c.photo,
+    photo: c.photoOrImage(["media_cover", "poster"]),
     about: c.text(200).optional(),
     followed: z.boolean(),
     rating: z.number().min(0).max(5).optional(),

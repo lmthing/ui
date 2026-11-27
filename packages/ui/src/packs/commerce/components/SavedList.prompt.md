@@ -12,3 +12,4 @@ A shop wishlist for saved buy-later products with saved versus current prices, d
 
 - Use a distinct short product id per item, including items without a link. Use numeric prices without a currency sign. Only write stock when known and never write computed badges.
 - Set shared true only for a shared gift list. For two columns set arrange "grid"; otherwise leave arrange null unless requested.
+- For a generated image, use `product` or `dish` or `item` in `photo`. Use only to help identify saved items. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

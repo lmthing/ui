@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Image } from "tamagui";
-import { component } from "../../../catalog";
+import { component, formatAddress, type PhotoInput } from "../../../catalog";
+import { useChangeReveal } from "../../motion";
+import { usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
 export type PhotoLayerSource = { source: string; onLoad: () => void; onError: () => void };
@@ -10,6 +12,28 @@ type Status = "pending" | "ready" | "failed";
 export function usePhotoLayer(reference: string | undefined) {
   const { resolvePhoto } = useKit();
   const source = reference ? resolvePhoto?.(reference) : undefined;
+  return useLayerSource(source);
+}
+
+export function useAddressedPhotoLayer(photo: PhotoInput | undefined, part: string | null) {
+  const { resolvePhoto, resolveImage } = useKit();
+  const { screen, component, item } = usePartContext();
+  const generated = photo && typeof photo !== "string";
+  const source =
+    typeof photo === "string"
+      ? resolvePhoto?.(photo)
+      : photo && part !== null
+        ? resolveImage?.(formatAddress({ screen, component, ...(item ? { item } : {}), part }), photo)
+        : undefined;
+  const { layer, ready, failed } = useLayerSource(source);
+  const opacity = useChangeReveal(generated && ready ? source : undefined, false);
+  return {
+    layer: layer && { ...layer, ...(generated ? { opacity: ready ? opacity : 0 } : {}) },
+    failed: !generated && failed,
+  };
+}
+
+function useLayerSource(source: string | undefined) {
   const [image, setImage] = useState<{ source: string | undefined; status: Status }>({
     source,
     status: "pending",
@@ -34,9 +58,11 @@ export function PhotoLayer({
   onError,
   width = "100%",
   stretch = false,
+  opacity,
 }: PhotoLayerSource & {
   width?: number | "100%";
   stretch?: boolean;
+  opacity?: number;
 }) {
   return (
     <Image
@@ -51,6 +77,7 @@ export function PhotoLayer({
       objectFit={stretch ? "fill" : "cover"}
       resizeMode={stretch ? "stretch" : "cover"}
       pointerEvents="none"
+      {...(opacity === undefined ? {} : { opacity })}
       aria-hidden
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"

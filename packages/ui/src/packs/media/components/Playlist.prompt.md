@@ -11,3 +11,4 @@ An ordered queue of separate tracks or episodes, with durations, played progress
 - Use style "episodes" for dated episodes with a description line in sub, "queue" if asked to show an Up next playback queue, otherwise "tracks" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.
 - Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.
 - Default to "detail":null. Only when explicitly asked to hide episode notes, write "detail":"brief"; keep the supplied notes in sub.
+- For a generated image, use `media_cover` in `photo`. Use only for fictional media with no supplied cover art. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

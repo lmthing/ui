@@ -2,6 +2,9 @@ import { z } from "zod";
 import {
   probesFor,
   photo,
+  photoOrImage,
+  photoVisible,
+  subjectKinds,
   placeholderTitle,
   text,
   thingOf,
@@ -39,11 +42,15 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["caption"] } },
   parts: ["root", "photo", "caption"],
   states: ["filled", "loading", "error"],
-  viewVisible: ({ photo }, resolvePhoto) => typeof photo === "string" && Boolean(resolvePhoto?.(photo)),
+  viewVisible: ({ photo }, resolvePhoto) => photoVisible(photo, resolvePhoto),
 } as const satisfies Meta;
 
 export const props = z
-  .strictObject({ ...variantProps(meta.variants), photo, caption: text(80).optional() })
+  .strictObject({
+    ...variantProps(meta.variants),
+    photo: photoOrImage([...subjectKinds, "cover", "step_illustration"]),
+    caption: text(80).optional(),
+  })
   .overwrite((value) => (value.detail === "brief" ? { ...value, caption: undefined } : value));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {

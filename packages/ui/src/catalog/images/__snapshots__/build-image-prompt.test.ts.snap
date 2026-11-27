@@ -1,0 +1,206 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`image prompts > snapshots every kind and all eight style treatments 1`] = `
+{
+  "app_icon": "Subject: ferns on a greenhouse bench.
+Make a simple symbolic distillation of the subject, not an identity mark for any real brand. Fill the ground to the corners; do not draw the device mask.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Observational photography: real materials, indirect daylight and believable environmental shadows. No studio sweep or illustration.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square icon crop. Use a single central silhouette with generous mask-safe margins on all sides.",
+  "avatar": "Subject: ferns on a greenhouse bench.
+Make a fictional, clearly illustrated head-and-shoulders portrait, never a real or photorealistic person. Give it a distinct contour and readable facial expression at avatar size.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Flat editorial illustration: clean, opaque color shapes, hard edges and no modeling, grain or cast shadows.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square icon crop. Use a single central silhouette with generous mask-safe margins on all sides.",
+  "badge": "Subject: ferns on a greenhouse bench.
+Build a compact pictorial reward from one distinct silhouette. Keep it recognizable without fine detail or visual explanations.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Layered cut paper: crisp scissor edges, overlapping flat sheets with visible paper fibers, and thin directional relief shadows. No clay volume or painted gradients.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square icon crop. Use a single central silhouette with generous mask-safe margins on all sides.",
+  "cover": "Subject: ferns on a greenhouse bench.
+Make an editorial lead image with one identifiable object and enough scene context to distinguish this record from neighboring records.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Soft 3D: softly rounded solid models with visible volume, matte clay surfaces and gentle occlusion. No photographic texture or flat vector outlines.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "dish": "Subject: ferns on a greenhouse bench.
+Show a single prepared serving at a clear three-quarter angle. Make the defining ingredients visible. Keep tableware secondary.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Soft 3D: softly rounded solid models with visible volume, matte clay surfaces and gentle occlusion. No photographic texture or flat vector outlines.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "empty_state": "Subject: ferns on a greenhouse bench.
+Show a quiet visual cue for what belongs here, as a small still life with one to three objects and generous open ground. The scene should feel expectant rather than sad.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Two-ink risograph: coarse printed halftones, economical spot-color shapes and restrained misregistration. No washes, smooth gradients or physical cut edges.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "error": "Subject: ferns on a greenhouse bench.
+Suggest a small, recoverable interruption using an object from the task. Keep it calm and avoid disaster imagery or generic warning graphics.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Observational photography: real materials, indirect daylight and believable environmental shadows. No studio sweep or illustration.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "hero": "Subject: ferns on a greenhouse bench.
+Make an establishing view with one scene-defining object and a purposeful supporting environment. Treat the full frame as artwork, not a screen layout.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Studio product photography: controlled softbox highlights, a seamless matte sweep and crisp material detail. No busy environmental background.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "item": "Subject: ferns on a greenhouse bench.
+Make a legible inventory-style image of one record. Preserve the shape and details that distinguish it from similar objects.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Layered cut paper: crisp scissor edges, overlapping flat sheets with visible paper fibers, and thin directional relief shadows. No clay volume or painted gradients.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "media_cover": "Subject: ferns on a greenhouse bench.
+Create evocative cover art for a fictional work around one clear motif. Compose the image without title space or existing cover references.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Observational photography: real materials, indirect daylight and believable environmental shadows. No studio sweep or illustration.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "onboarding": "Subject: ferns on a greenhouse bench.
+Show one concrete first-use outcome through the arrangement of a few objects. Make the next idea readable without a tutorial diagram.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Flat editorial illustration: clean, opaque color shapes, hard edges and no modeling, grain or cast shadows.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "pattern": "Subject: ferns on a greenhouse bench.
+Build a low-contrast seamless repeat from simplified motifs of the subject. Carry their spacing and scale across all four edges; there is no central focal point.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Pen line art: legible contour strokes and selective hatching on an open ground. No blocks of color, tonal washes or modeling.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "pet": "Subject: ferns on a greenhouse bench.
+Show one animal in a natural, relaxed posture. Preserve coat, ears and proportions that distinguish it. Avoid posed studio props unless specified.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Pen line art: legible contour strokes and selective hatching on an open ground. No blocks of color, tonal washes or modeling.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "place": "Subject: ferns on a greenhouse bench.
+Show a grounded establishing view. Give the place a recognizable landmark or environmental feature without relying on signage or identifiable people.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Two-ink risograph: coarse printed halftones, economical spot-color shapes and restrained misregistration. No washes, smooth gradients or physical cut edges.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "plant": "Subject: ferns on a greenhouse bench.
+Show one botanically recognizable specimen. Keep defining leaf shape, vein or growth habit clear, with the pot secondary.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Flat editorial illustration: clean, opaque color shapes, hard edges and no modeling, grain or cast shadows.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "poster": "Subject: ferns on a greenhouse bench.
+Create a single striking visual for a fictional event or offering. Use a strong scale relationship and carry the art across the frame, with no graphic layout, titles or credits.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Studio product photography: controlled softbox highlights, a seamless matte sweep and crisp material detail. No busy environmental background.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "product": "Subject: ferns on a greenhouse bench.
+Show one unbranded product, accurately shaped and easy to recognize. Keep accessories secondary and do not invent a label or packaging claim.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Studio product photography: controlled softbox highlights, a seamless matte sweep and crisp material detail. No busy environmental background.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a light ground that stays distinct from the motif; retain dark separation where edges matter.
+Include only supporting details that help identify the subject.
+Square crop. Keep the recognizable subject away from the outside edges.",
+  "room": "Subject: ferns on a greenhouse bench.
+Show a plausible room with one clear spatial anchor and believable scale. Keep routes, furniture and architecture coherent.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Watercolor on cold-pressed paper: transparent washes, pigment blooms and uneven wet edges with deliberate white reserves. No hard vector edges or halftones.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "step_illustration": "Subject: ferns on a greenhouse bench.
+Show the object and visible outcome of one task step. Prefer a clear object state over a person performing the action; show a hand only if indispensable to understanding the step.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Soft 3D: softly rounded solid models with visible volume, matte clay surfaces and gentle occlusion. No photographic texture or flat vector outlines.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Wide landscape crop. Keep essential details in the middle horizontal band, even after a shallow crop.",
+  "success": "Subject: ferns on a greenhouse bench.
+Show a specific finished outcome. Use one compact, confident arrangement with no generic confetti or trophy unless the subject calls for it.
+
+No text, numerals, lettering, watermarks, logos or real brands. No real people or recognizable likenesses. No hands unless essential to the subject.
+Watercolor on cold-pressed paper: transparent washes, pigment blooms and uneven wet edges with deliberate white reserves. No hard vector edges or halftones.
+An asymmetric composition with a deliberate point of emphasis.
+Use blue-green teal as a small recurring accent, not a wash over the subject.
+Use a dark ground with distinct midtone or light edges; never bury the motif in the ground.
+Favor the simplest recognizable silhouette; omit tiny details that disappear at small scale.
+Square crop. Keep the recognizable subject away from the outside edges.",
+}
+`;

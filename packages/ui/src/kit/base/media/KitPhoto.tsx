@@ -1,10 +1,18 @@
 import { useContext, type ReactNode } from "react";
 import { YStack, isWeb, styled } from "tamagui";
-import { component, radius, size, variants, type AxisValue, type ContentBleed } from "../../../catalog";
+import {
+  component,
+  radius,
+  size,
+  variants,
+  type AxisValue,
+  type ContentBleed,
+  type PhotoInput,
+} from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { EdgeMediaContext, KitText, shifted } from "../text";
-import { PhotoLayer, usePhotoLayer } from "./photo-layer";
+import { PhotoLayer, useAddressedPhotoLayer } from "./photo-layer";
 
 const Frame = styled(YStack, {
   overflow: "hidden",
@@ -29,7 +37,7 @@ const Frame = styled(YStack, {
 });
 
 type PhotoProps = {
-  photo?: string | undefined;
+  photo?: PhotoInput | undefined;
   shape?: "thumb" | "round" | "wide" | "panorama" | "square" | "tall" | "avatar";
   /** `auto` keeps the caller's usual shape; explicit ratios stay in place even without a photo. */
   aspect?: AxisValue<"aspect">;
@@ -97,7 +105,7 @@ export function KitPhoto(props: PhotoProps) {
   const { label, initials, ring = "none", loading = false, decorative = false } = props;
   const inheritedBleed = useContext(EdgeMediaContext);
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
-  const { layer, failed } = usePhotoLayer(loading ? undefined : photo);
+  const { layer, failed } = useAddressedPhotoLayer(loading ? undefined : photo, part);
   const ks = useKitStyle();
   const address = usePart(part ?? undefined, part !== null);
   const shape =
@@ -117,7 +125,11 @@ export function KitPhoto(props: PhotoProps) {
       {...(part !== null ? address : {})}
       data-kit-photo={isWeb && layer ? "" : undefined}
       shape={shape}
-      {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
+      {...(loading
+        ? { backgroundColor: "$line" }
+        : !layer && typeof photo !== "object"
+          ? { backgroundColor: "$raised" }
+          : {})}
       {...(circle ? {} : { borderRadius: corners })}
       aria-hidden={loading || decorative || undefined}
       accessibilityElementsHidden={decorative || undefined}
@@ -126,7 +138,9 @@ export function KitPhoto(props: PhotoProps) {
       accessibilityLabel={
         loading || decorative
           ? undefined
-          : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
+          : typeof photo === "object"
+            ? photo.subject
+            : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
       }
       {...ringOf(ring, loading)}
       alignItems="center"
