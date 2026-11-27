@@ -914,9 +914,8 @@ add steps for the person's job. If nothing fits, it writes the journey without a
   Play an example or inspect a step/state, including the next role at a hand-off, using existing kit
   components. No template supplies a renderer. `pnpm look --component FlowTemplates --widths 390`
   captures a calm-light reference step from each flow, including empty, waiting, error and success.
-- Study 3–5 shipped apps per template before drafting. Use Material and Apple HIG as guidance.
-  Use Mobbin when signed in; otherwise use shipped-app references and record “Mobbin pass pending”
-  for each template. Use our own words and components; do not copy product assets, text or visuals.
+- Study 3–5 shipped apps per template before drafting. Use Material 3 and Apple HIG as design
+  guidance. Use our own words and components; do not copy product assets, text or visuals.
 
 | Id                | Journey                                                 |
 | ----------------- | ------------------------------------------------------- |
