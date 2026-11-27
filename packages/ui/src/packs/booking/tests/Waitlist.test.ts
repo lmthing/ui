@@ -65,9 +65,12 @@ describe("Waitlist probes and actions", () => {
     expect(html.includes("home/c1/position")).toBe(joined);
     const title = addressedElements(html).get("home/c1/title")?.text.join("");
     expect(title?.replaceAll("&#x27;", "'")).toBe(joined ? queueLabels.joined : "Waitlist");
+    const count = joined ? "2 people ahead" : "2 people on the list";
+    expect(addressedElements(html).get("home/c1/ahead")?.text.join("")).toBe(count);
     expect(readComponent(components.Waitlist, input, "w1").join("\n")).toContain(
       joined ? queueLabels.leave : queueLabels.join,
     );
+    expect(readComponent(components.Waitlist, input, "w1").join("\n")).toContain(count);
   });
   it("renders joined without a position, zero ahead, success and the largest allowed integers", () => {
     for (const state of ["filled", "success"] as const)

@@ -16,10 +16,47 @@ const outcomes = {
   check_in: ["attendee/arrived"],
   pay_receipt: ["payer/receipt"],
   signup_onboard: ["member/ready"],
+  class_waitlist: ["member/booked", "member/left"],
+  assign_work_order: ["requester/closed"],
+  lead_to_client: ["owner/client", "prospect/declined"],
 };
 
-test("the full catalog exposes the eight named templates", () => {
+test("the full catalog exposes the named core and pack templates", () => {
   expect(flowTemplates.list.map(({ id }) => id)).toEqual(Object.keys(outcomes));
+});
+
+test("a released class spot has just the Waitlist review link and loses it when expired", () => {
+  const template = flowTemplates.get("class_waitlist")!;
+  const flow = fillFlow(template, {
+    names: template.examples[0]!.names,
+    record: template.examples[0]!.record,
+  });
+  const offer = flow.frames.findIndex(({ key }) => key === "member/offer");
+  const review = flow.frames.findIndex(({ key }) => key === "member/review");
+  const screen = flowPreviewScreen(flow, offer);
+  expect(screen.components.filter(({ goto }) => goto)).toMatchObject([
+    { c: "Waitlist", respondBy: "Thu at 5:00 PM", goto: flowPreviewScreen(flow, review).id },
+  ]);
+  const expired = flowPreviewScreen(flow, offer, "error");
+  expect(expired.components.some(({ c, goto }) => c === "Waitlist" || goto)).toBe(false);
+  expect(expired.components).toContainEqual(
+    expect.objectContaining({ text: "This offer expired. You have not been booked." }),
+  );
+});
+
+test("the proposal hand-off keeps the same record and only accepted proposals reach conversion", () => {
+  const template = flowTemplates.get("lead_to_client")!;
+  const flow = fillFlow(template, {
+    names: template.examples[0]!.names,
+    record: template.examples[0]!.record,
+  });
+  const frame = (key: string) => flow.frames.find((step) => step.key === key)!;
+  expect(frame("owner/proposal").forward[0]?.target).toBe("prospect/review");
+  expect(frame("prospect/accept").forward[0]?.target).toBe("owner/convert");
+  expect(frame("prospect/decline").forward[0]?.target).toBe("prospect/declined");
+  expect(frame("prospect/declined").forward).toEqual([]);
+  for (const key of ["owner/proposal", "prospect/review", "owner/convert", "owner/client"])
+    expect(frame(key).see).toContain(String(flow.record.reference));
 });
 
 test.each(flowTemplates.list)(

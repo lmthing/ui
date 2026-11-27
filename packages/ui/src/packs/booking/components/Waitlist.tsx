@@ -3,9 +3,10 @@ import {
   useWords,
   useKit,
   KitAction,
-  KitActionFooter,
   KitCard,
-  KitFigure,
+  KitContent,
+  KitGrid,
+  KitLayoutText,
   KitMetaLine,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
@@ -21,7 +22,7 @@ import {
   type Props,
   variantProps,
 } from "../../../catalog";
-import { queueAhead, queueCount, queueExact } from "../copy";
+import { queueAhead, queueCount, queueExact, queueSize } from "../copy";
 import { prompt } from "../../../entry/prompt-Waitlist.generated";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
@@ -62,16 +63,17 @@ export const meta = {
         ...(state === "filled" ? [queueLabels.review] : []),
       ];
     const brief = detail === "brief" && joined && position !== undefined;
+    const exact = joined ? queueExact(ahead, position, lang) : queueSize(ahead, lang, true);
     return [
       joined ? queueLabels.joined : queueLabels.waiting,
       ...(joined && position !== undefined ? [queueCount(position, lang), queueLabels.position] : []),
-      ...(brief ? [] : [queueAhead(ahead, lang)]),
+      ...(brief ? [] : [joined ? queueAhead(ahead, lang) : queueSize(ahead, lang)]),
       ...(brief
         ? position > 999
           ? [queueLabelsForPosition(position, lang)]
           : []
         : ahead > 999 || (joined && position !== undefined && position > 999)
-          ? [queueExact(ahead, joined ? position : undefined, lang)]
+          ? [exact]
           : []),
       ...(state === "filled" ? [joined ? queueLabels.leave : queueLabels.join] : []),
     ];
@@ -138,17 +140,34 @@ function WaitlistOffer({ respondBy, goto }: { respondBy: string; goto: WaitlistP
   const { queueLabels } = words;
   return (
     <KitCard style="inset" padded part="root" density={density}>
-      <KitMetaLine
-        title={{ text: queueLabels.available, part: "title", strong: true }}
-        meta={{ text: words.queueRespondBy(respondBy), part: "deadline" }}
+      <KitGrid fitLast density={density}>
+        <KitMetaLine
+          title={{ text: queueLabels.available, part: "title", strong: true }}
+          meta={{ text: words.queueRespondBy(respondBy), part: "deadline" }}
+          density={density}
+        />
+        {active && <KitAction label={queueLabels.review} part="review" goto={goto} />}
+      </KitGrid>
+    </KitCard>
+  );
+}
+
+function WaitlistPosition({ position, label }: { position: string; label: string }) {
+  const density = useKit().density;
+  return (
+    <KitContent rhythm="flush" density={density}>
+      <KitLayoutText
+        line={{
+          text: position,
+          part: "position",
+          role: "figure",
+          tabular: true,
+          compact: density === "compact",
+        }}
         density={density}
       />
-      {active && (
-        <KitActionFooter density={density}>
-          <KitAction label={queueLabels.review} part="review" goto={goto} />
-        </KitActionFooter>
-      )}
-    </KitCard>
+      <KitLayoutText line={{ text: label, part: "label", role: "meta", tone: "muted" }} density={density} />
+    </KitContent>
   );
 }
 
@@ -161,36 +180,40 @@ export function Waitlist(input: WaitlistProps) {
   if (respondBy) return <WaitlistOffer respondBy={respondBy} goto={goto} />;
   const hasPosition = joined && position !== undefined;
   const brief = detail === "brief" && hasPosition;
-  const label = brief
-    ? queueLabelsForPosition(position, lang)
-    : queueExact(ahead, joined ? position : undefined, lang);
+  const label = !joined
+    ? queueSize(ahead, lang, true)
+    : brief
+      ? queueLabelsForPosition(position, lang)
+      : queueExact(ahead, position, lang);
   const title = { text: joined ? queueLabels.joined : queueLabels.waiting, part: "title", strong: true };
   const count = {
-    text: brief ? undefined : queueAhead(ahead, lang),
+    text: brief ? undefined : joined ? queueAhead(ahead, lang) : queueSize(ahead, lang),
     part: "ahead",
-    role: "caption" as const,
+    role: "meta" as const,
   };
   return (
     <KitCard style="inset" padded part="root" label={label} density={density}>
-      <KitMetaLine title={title} meta={hasPosition ? [] : count} density={density} />
-      {hasPosition && (
-        <KitFigure
-          density={density}
-          value={{ text: queueCount(position, lang), part: "position", compact: density === "compact" }}
-          unit={{ text: queueLabels.position, part: "label" }}
-          caption={<KitMetaLine title={{ ...count, tone: "muted" }} density={density} />}
-        />
-      )}
-      {active && (
-        <KitActionFooter density={density}>
+      <KitGrid fitLast density={density}>
+        <KitContent density={density}>
+          <KitLayoutText line={title} density={density} />
+          {hasPosition && (
+            <WaitlistPosition position={queueCount(position, lang)} label={queueLabels.position} />
+          )}
+          {count.text && (
+            <KitContent group={hasPosition ? "response" : "content"} density={density}>
+              <KitLayoutText line={{ ...count, tone: "muted" }} density={density} />
+            </KitContent>
+          )}
+        </KitContent>
+        {active && (
           <KitAction
             label={joined ? queueLabels.leave : queueLabels.join}
             kind={joined ? "secondary" : "primary"}
-            tone={joined ? "neutral" : undefined}
+            tone={joined ? "neutral" : "accent"}
             part={joined ? "leave" : "join"}
           />
-        </KitActionFooter>
-      )}
+        )}
+      </KitGrid>
     </KitCard>
   );
 }

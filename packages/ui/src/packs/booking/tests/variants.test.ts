@@ -40,8 +40,8 @@ it("ServiceMenu keeps each service link when its photo is hidden", () => {
   expect(readComponent(def, input, "c1").join("\n")).toContain("[c1/r1 press→time]");
 });
 
-it("keeps the ahead count when Waitlist has no joined position to show", () => {
+it("keeps the queue size when Waitlist has no joined position to show", () => {
   const input = { ahead: 2, joined: false, detail: "brief" };
   expect(renderInstance("Waitlist", input, "filled", theme)).toContain("/ahead");
-  expect(readComponent(components.Waitlist, input, "c1").join("\n")).toContain("2 people ahead");
+  expect(readComponent(components.Waitlist, input, "c1").join("\n")).toContain("2 people on the list");
 });
