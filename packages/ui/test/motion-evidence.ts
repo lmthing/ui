@@ -55,9 +55,9 @@ export async function contactSheet(browser: Browser, page: Page, label: string, 
         `<figure><img src="data:image/png;base64,${png.toString("base64")}"><figcaption>${index + 1}</figcaption></figure>`,
     );
     await sheet.setContent(`<style>
-      body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:#e0e2e6;}
-      figure{position:relative;margin:0;border:1px solid #e0e2e6;}
-      img{display:block;width:100%;}figcaption{position:absolute;top:4px;left:4px;background:#21232a;color:white;padding:2px 6px;}
+      body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:rgb(224 226 230);}
+      figure{position:relative;margin:0;border:1px solid rgb(224 226 230);}
+      img{display:block;width:100%;}figcaption{position:absolute;top:4px;left:4px;background:rgb(33 35 42);color:white;padding:2px 6px;}
       </style>${tiles.join("")}`);
     await sheet.screenshot({ path: `${folder}${label}.png`, fullPage: true });
   } finally {

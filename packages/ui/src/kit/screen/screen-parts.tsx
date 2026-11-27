@@ -150,11 +150,7 @@ export function ScreenContent({
   initialBodyScroll,
   onBodyScroll,
   ...props
-}: RenderProps & {
-  covered: boolean;
-  initialBodyScroll?: number;
-  onBodyScroll?: (top: number) => void;
-}) {
+}: RenderProps & BodyOptions) {
   const { environment } = useKit();
   const gutter = space[useKitStyle().frame.gutter];
   const { insets, keyboardHeight } = environment;
@@ -206,6 +202,11 @@ export function ScreenContent({
     </ScreenBottomSlots>
   );
 }
+type BodyOptions = {
+  covered: boolean;
+  initialBodyScroll?: number;
+  onBodyScroll?: (top: number) => void;
+};
 export function ScreenSheet({ controller, renderers, screen }: RenderProps) {
   const entry = screen.components.find((item) => item.id === controller.openSheet);
   return entry ? (
