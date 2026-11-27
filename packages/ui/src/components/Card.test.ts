@@ -141,7 +141,7 @@ describe("Card view and actions", () => {
     const html = renderInstance("Card", examples[0], "filled", theme, { resolvePhoto });
     expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
     if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
-    expect(resolvePhoto).toHaveBeenCalledWith("lib:fern");
+    expect(resolvePhoto).toHaveBeenCalledWith("lib:plants");
   });
 });
 describe("Card actions and loading", () => {

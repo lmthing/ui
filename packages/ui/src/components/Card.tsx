@@ -69,9 +69,9 @@ export const examples = [
   {
     media: "cover",
     title: "Fern",
-    body: "Water today",
-    meta: "Bath · indirect light",
-    photo: "lib:fern",
+    body: "Bathroom · soft indirect light",
+    meta: "Water today",
+    photo: "lib:plants",
     goto: "fern",
   },
   {
@@ -168,7 +168,12 @@ function CardText({ title, emphasis, body, meta, goto, reward, duration, badge, 
         </kit.KitText>
       )}
       {meta && (
-        <kit.KitText role={badge ? "body" : "caption"} tone="muted" part="meta" density={density}>
+        <kit.KitText
+          role={badge || media === "cover" ? "body" : "caption"}
+          tone={media === "cover" ? "text" : "muted"}
+          part="meta"
+          density={density}
+        >
           {meta}
         </kit.KitText>
       )}
@@ -233,7 +238,7 @@ export function Card(input: CardProps) {
             [cover ? "title" : "heading", title],
             ["label", badge],
             ["body", input.body],
-            [badge ? "body" : "caption", input.meta],
+            [badge || cover ? "body" : "caption", input.meta],
           ]}
         />
       ) : (
