@@ -26,7 +26,6 @@ export function Screen({
   initialBodyScroll,
   onBodyScroll,
 }: ScreenProps) {
-  const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
   const screen = controller.snapshotScreen();
@@ -63,22 +62,35 @@ export function Screen({
             <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
           </KitOverlay>
         )}
-        {confirmation && (
-          <KitOverlay label={confirmation.message} onDismiss={dismiss}>
-            <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
-              <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
-                <KitAction
-                  label={confirmation.label ?? confirmLabel}
-                  kind={confirmation.kind}
-                  part="confirm"
-                  full
-                />
-                <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
-              </KitSheet>
-            </PartScope>
-          </KitOverlay>
-        )}
+        {confirmation && <ScreenConfirmation {...{ confirmation, dismiss }} id={screen.id} />}
       </YStack>
     </RenderReportContext.Provider>
+  );
+}
+
+function ScreenConfirmation({
+  confirmation,
+  dismiss,
+  id,
+}: {
+  confirmation: NonNullable<ReturnType<ScreenController["confirmationFor"]>>;
+  dismiss: () => void;
+  id: string;
+}) {
+  const { cancelLabel, confirmLabel } = useWords().words;
+  return (
+    <KitOverlay label={confirmation.message} onDismiss={dismiss}>
+      <PartScope screen={id} component="confirm" rev={1} state="filled">
+        <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
+          <KitAction
+            label={confirmation.label ?? confirmLabel}
+            kind={confirmation.kind}
+            part="confirm"
+            full
+          />
+          <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
+        </KitSheet>
+      </PartScope>
+    </KitOverlay>
   );
 }
