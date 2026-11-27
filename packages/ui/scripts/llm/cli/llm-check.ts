@@ -3,7 +3,8 @@ import { checkCoreMerges } from "../core-merges";
 import { packProbes } from "../pack-probes";
 import { checkDirector } from "./director-probes";
 import { directorMode } from "./director-mode";
-// pnpm llm:check [--component List,Header | --director] [--replay]
+import { checkFlows } from "./flow-probes";
+// pnpm llm:check [--component List,Header | --director | --flows [id]] [--replay]
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
 // Imports the built data-only catalog (dist/catalog.js): the views need React Native, Node does not have it.
@@ -100,6 +101,11 @@ let failed = 0;
 if (directorMode(process.argv.slice(2))) {
   for (const model of probeModels) {
     const failures = await checkDirector(model, replay);
+    if (model.required) failed += failures;
+  }
+} else if (process.argv.includes("--flows")) {
+  for (const model of probeModels) {
+    const failures = await checkFlows(model, replay, arg("--flows"), arg("--flow-probe"));
     if (model.required) failed += failures;
   }
 } else if (process.argv.includes("--compose")) {
