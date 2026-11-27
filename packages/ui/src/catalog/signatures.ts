@@ -10,5 +10,6 @@ export const signatures = {
   day_unfold: { component: "Timeline", style: "hours", duration: durations.slow, spring: springs.gentle },
   streak_flame: { component: "Streak", duration: durations.base, spring: springs.bouncy },
   route_draw: { component: "Route", duration: durations.slow, spring: springs.gentle },
+  record_arrive: { component: "HandoffReceipt", duration: durations.base, spring: springs.gentle },
 } as const;
 export type SignatureName = keyof typeof signatures;

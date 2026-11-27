@@ -1,6 +1,6 @@
-import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
-import { ScrollView, YStack } from "tamagui";
-import { KitMotion, ListProjectionKey, usePresence } from "../motion";
+import { isValidElement, useContext, useLayoutEffect, useRef, useState, type ComponentProps } from "react";
+import { isWeb, ScrollView, YStack } from "tamagui";
+import { KitMotion, KitRecordArrival, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
@@ -15,6 +15,7 @@ import {
   projectAdjustments,
   isDeviceDataVisible,
   projectDataViewList,
+  signatures,
   type resolveDataViews,
   type ScreenLike,
 } from "../../catalog";
@@ -27,7 +28,6 @@ type RenderProps = {
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
   compactTitle?: boolean;
-  navigationArrival?: boolean;
 };
 function listProjection(views: RenderProps["views"], id: string) {
   return JSON.stringify(
@@ -73,7 +73,13 @@ function ScreenEntry({
         </KitCard>
       ) : (
         <ListProjectionKey.Provider value={listProjection(views, id)}>
-          <View {...props} />
+          {c === signatures.record_arrive.component && state === "filled" ? (
+            <KitRecordArrival receipt={props}>
+              <View {...props} />
+            </KitRecordArrival>
+          ) : (
+            <View {...props} />
+          )}
         </ListProjectionKey.Provider>
       )}
       {emptyPanel && (
@@ -85,10 +91,12 @@ function ScreenEntry({
 function ScreenRegion({
   name,
   scroll,
+  initialScroll,
   ...props
 }: RenderProps & {
   name: string;
   scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
+  initialScroll?: number | undefined;
 }) {
   const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
@@ -109,7 +117,7 @@ function ScreenRegion({
           : entry
       }
       sticky={name === "body" && entry.c === "SectionTitle"}
-      appear={!props.navigationArrival || !initial.current.has(entry.id)}
+      appear={!initial.current.has(entry.id)}
       index={index}
       marginTop={
         name === "body" && components[entry.c]
@@ -129,10 +137,30 @@ function ScreenRegion({
   );
   return (
     <ScreenBottomSource>
-      <ScrollView {...scroll} stickyHeaderIndices={sticky}>
+      <ScreenBodyScroll {...scroll} stickyHeaderIndices={sticky} initialScroll={initialScroll}>
         {present}
-      </ScrollView>
+      </ScreenBodyScroll>
     </ScreenBottomSource>
+  );
+}
+
+function ScreenBodyScroll({
+  initialScroll,
+  ...props
+}: ComponentProps<typeof ScrollView> & { initialScroll?: number | undefined }) {
+  const ref = useRef<{ scrollTo(options: { x: number; y: number; animated: boolean }): void }>(null);
+  const initial = useRef(initialScroll);
+  useLayoutEffect(() => {
+    // React Native Web does not consume contentOffset.
+    if (isWeb && initial.current) ref.current?.scrollTo({ x: 0, y: initial.current, animated: false });
+  }, []);
+  return (
+    <ScrollView
+      {...props}
+      ref={ref as never}
+      scrollEventThrottle={motion.scrollSampleMs}
+      {...(!isWeb && initial.current ? { contentOffset: { x: 0, y: initial.current } } : {})}
+    />
   );
 }
 
@@ -153,6 +181,14 @@ function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...prop
     </KitMotion>
   );
 }
+const coveredProps = {
+  "aria-hidden": true,
+  pointerEvents: "none",
+  ...(isWeb
+    ? { inert: true }
+    : { accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" as const }),
+} as const;
+
 export function ScreenContent({
   covered,
   initialBodyScroll,
@@ -174,13 +210,14 @@ export function ScreenContent({
   const [compactTitle, setCompactTitle] = useState((initialBodyScroll ?? 0) >= motion.collapseTitleAt);
   return (
     <ScreenBottomSlots>
-      <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
+      <YStack flex={1} {...(covered ? coveredProps : {})}>
         <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
           <ScreenRegion {...props} name="top" compactTitle={compactTitle} />
         </YStack>
         <ScreenRegion
           {...props}
           name="body"
+          initialScroll={initialBodyScroll}
           scroll={{
             flex: 1,
             minHeight: 0,
@@ -193,7 +230,6 @@ export function ScreenContent({
               else if (y <= motion.expandTitleAt) setCompactTitle(false);
             },
             contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
-            ...(initialBodyScroll ? { contentOffset: { x: 0, y: initialBodyScroll } } : {}),
           }}
         />
         <YStack

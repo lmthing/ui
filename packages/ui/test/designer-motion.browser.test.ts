@@ -31,14 +31,20 @@ afterAll(async () => {
 beforeEach(async () => {
   errors.length = 0;
   await openLab();
-});
+}, 30000);
 
-async function openLab(motion: "no-preference" | "reduce" = "no-preference") {
+async function openLab(
+  motion: "no-preference" | "reduce" = "no-preference",
+  profile: "calm" | "lively" = "lively",
+) {
   await page.emulateMedia({ reducedMotion: motion });
-  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=lively`);
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=${profile}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 20000,
+  });
   await page
     .getByText("My garden")
-    .waitFor()
+    .waitFor({ timeout: 15000 })
     .catch((cause) => {
       throw new Error(`The motion gallery did not render: ${errors.join("; ")}`, { cause });
     });
@@ -49,6 +55,127 @@ const part = (address: string) => page.getByTestId(address);
 const tap = (address: string) => part(address).click({ force: true });
 const styleOf = (address: string, property: "transform" | "opacity") =>
   part(address).evaluate((node, name) => getComputedStyle(node)[name], property);
+
+async function openRecord(preference: "no-preference" | "reduce") {
+  await openMotion(preference, "record_arrive");
+}
+
+async function openMotion(preference: "no-preference" | "reduce", fixture: string) {
+  await page.emulateMedia({ reducedMotion: preference });
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion=${fixture}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 20000,
+  });
+  await part("dispatch/receipt/reference").waitFor({ timeout: 15000 });
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "plays an explicit transition across remounted trees in %s",
+  async (preference) => {
+    await openMotion(preference, "navigation");
+    await page.evaluate(() => {
+      const original = Element.prototype.animate;
+      Element.prototype.animate = function (frames, options) {
+        if (Array.isArray(frames) && frames[0] && "transform" in frames[0])
+          document.body.dataset.transitions = `${document.body.dataset.transitions ?? ""}|${frames[0].transform}`;
+        return original.call(this, frames, options);
+      };
+    });
+    const moves = () => page.locator("body").getAttribute("data-transitions");
+    const forward = preference === "reduce" ? "none" : "translateX(20px)";
+    const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
+    await tap("dispatch/next/root");
+    await expect.poll(moves).toBe(`|${forward}`);
+    expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
+    await tap("walk_notes/header/back");
+    await expect.poll(moves).toBe(`|${forward}|${reverse}`);
+    expect(await part("dispatch/receipt/reference").textContent()).toBe("TROT-92");
+    expect(errors).toEqual([]);
+  },
+);
+
+changed("accents only an acknowledged handoff, without delaying the receipt or nav", async () => {
+  await openRecord("no-preference");
+  const phase = part("dispatch/receipt/phase");
+  const ref = part("dispatch/receipt/reference");
+  const next = part("dispatch/next/root");
+  const mark = page.locator("[data-record-arrival]");
+  expect(await phase.textContent()).toBe("Awaiting receipt");
+  expect(await mark.count()).toBe(0);
+  const origin = await ref.boundingBox();
+  await next.focus();
+  await page.keyboard.press("Enter");
+  expect(await phase.textContent()).toBe("Received");
+  expect(await ref.textContent()).toBe("TROT-92");
+  expect(await ref.boundingBox()).toEqual(origin);
+  expect(await mark.count()).toBe(1);
+  expect(await next.evaluate((node) => document.activeElement === node)).toBe(true);
+  await page.keyboard.press("Enter");
+  await part("walk_notes/header/sub").waitFor();
+  await tap("walk_notes/header/back");
+  expect(await phase.textContent()).toBe("Received");
+  expect(await mark.count()).toBe(0);
+});
+
+changed("cuts the arrival in reduced motion and leaves a returned record quiet", async () => {
+  await openRecord("reduce");
+  await tap("dispatch/next/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Received");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await openRecord("no-preference");
+  await tap("dispatch/return/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Returned");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+});
+
+changed.each(["calm", "lively"] as const)("paints the first working frame in %s", async (profile) => {
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const title = document.querySelector('[data-testid="garden/heading/title"]');
+      const button = document.querySelector('[data-testid="garden/nav/r2/root"]');
+      if (!title || !button) return;
+      observer.disconnect();
+      const opacity = (node: Element) => {
+        let alpha = 1;
+        for (let parent: Element | null = node; parent; parent = parent.parentElement)
+          alpha *= Number(getComputedStyle(parent).opacity);
+        return alpha;
+      };
+      document.body.dataset.firstMotionFrame = JSON.stringify([opacity(title), opacity(button)]);
+    });
+    observer.observe(document, { subtree: true, childList: true });
+  });
+  for (const preference of ["no-preference", "reduce"] as const) {
+    await openLab(preference, profile);
+    expect(await page.locator("body").getAttribute("data-first-motion-frame")).toBe("[1,1]");
+  }
+});
+
+changed("restores keyboard focus on Back even while the push is still running", async () => {
+  const origin = part("garden/plants/r1/root");
+  const top = (next?: number) =>
+    origin.evaluate((node, value) => {
+      for (let frame = node.parentElement; frame; frame = frame.parentElement) {
+        if (["auto", "scroll"].includes(getComputedStyle(frame).overflowY)) {
+          if (value !== undefined) frame.scrollTop = value;
+          return frame.scrollTop;
+        }
+      }
+    }, next);
+  await origin.focus();
+  expect(await top(36)).toBe(36);
+  await page.waitForTimeout(60); // Deliver the native scroll event, then interrupt Back rather than the scroll.
+  await tap("garden/plants/r1/root");
+  const back = part("fern/heading/back");
+  await back.focus();
+  await page.keyboard.press("Enter");
+  await expect
+    .poll(() => origin.evaluate((node) => document.activeElement === node), { timeout: 6000 })
+    .toBe(true);
+  expect(await top()).toBe(36);
+  expect(await page.locator("[data-kit-outgoing-tab]").count()).toBe(0);
+});
 
 async function transforms(address: string) {
   return part(address).evaluate((node) =>
@@ -91,11 +218,13 @@ changed("connects a matching row to its header, shows a rising dialog, and retur
   await dialog.waitFor();
   expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
   await expect
-    .poll(() =>
-      dialog.evaluate((node) => {
-        const transform = getComputedStyle(node).transform;
-        return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
-      }),
+    .poll(
+      () =>
+        dialog.evaluate((node) => {
+          const transform = getComputedStyle(node).transform;
+          return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
+        }),
+      { timeout: 6000 },
     )
     .toBe(true);
   const close = part("fern/details/close");
@@ -218,7 +347,7 @@ changed("does not replay an agent reorder on the next human input", async () => 
   await page.evaluate(() => window.__lmthingUI!.act({ address: "today/link", action: "press" }));
   await part("garden/plants/r4/root").waitFor();
   await tap("garden/plants/r2/trail");
-  expect(await part("garden/plants/r2/trail").getAttribute("aria-checked")).toBe("true");
+  await expect.poll(() => part("garden/plants/r2/trail").getAttribute("aria-checked")).toBe("true");
   expect(
     await page
       .locator("[data-list-motion]")
@@ -340,6 +469,36 @@ it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))("renders contact sheets of eac
   }
   expect(errors).toEqual([]);
 });
+
+it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
+  "captures normal and reduced handoff evidence",
+  async () => {
+    const prefix = baseline ? "before" : "after";
+    for (const preference of ["no-preference", "reduce"] as const) {
+      const mode = preference === "reduce" ? "reduced" : "normal";
+      await openRecord(preference);
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-acknowledge`, async () => {
+        if (baseline) return tap("dispatch/next/root");
+        await part("dispatch/next/root").focus();
+        await page.keyboard.press("Enter");
+      });
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-review`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-back`, () =>
+        tap("walk_notes/header/back"),
+      );
+      await openRecord(preference);
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-return`, () =>
+        tap("dispatch/return/root"),
+      );
+      await openMotion(preference, "navigation");
+      await contactSheet(browser, page, `${prefix}-cross-tree-${mode}-push`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-cross-tree-${mode}-back`, () =>
+        tap("walk_notes/header/back"),
+      );
+    }
+    expect(errors).toEqual([]);
+  },
+);
 
 it.runIf(Boolean(process.env.UI_MOTION_PERF))(
   "measures 390px frame cadence across the gallery journey",

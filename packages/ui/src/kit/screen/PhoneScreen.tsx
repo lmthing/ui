@@ -1,4 +1,13 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Ref,
+  type RefObject,
+} from "react";
 import { YStack } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
@@ -33,6 +42,9 @@ import type { MicCaptureAdapter } from "../interact/runtime";
 import { Screen, type RendererMap } from "./Screen";
 import { useNavigationMotion } from "./use-navigation-motion";
 import { NativeTabGhost, type NativeTabShot } from "./NativeTabGhost";
+import { useReturnFocus } from "./use-return-focus";
+import { PartRefScope } from "../part";
+import type { ScreenNavigation, ScreenTransition } from "./screen-navigation";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
 declare global {
@@ -87,6 +99,10 @@ export type PhoneScreenProps = {
   parts?: PartRegistry | undefined;
   /** The host resolves destinations and history. The Header back control sends `"back"`. */
   onLink?: ((goto: string, address: string) => void) | undefined;
+  /** Capture a scripted transition before the host switches trees, independent of action dispatch. */
+  navigationRef?: Ref<ScreenNavigation> | undefined;
+  /** A new capture animates only this destination; reuse, preference changes and remounts do not replay it. */
+  navigationTransition?: ScreenTransition | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;
   privateValues?: PrivateValuesHost | undefined;
@@ -142,17 +158,23 @@ function usePhoneNavigation(
 ) {
   const { screen } = props;
   const bodyScroll = useRef({ id: screen.id, top: 0 });
-  const navigation = useNavigationMotion(
-    screen,
-    props.theme.motion ?? "calm",
-    environment.reduceMotion,
-    environment.agentMode,
-    () =>
-      freezeNativeTab(props, controller, bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
-  );
+  const scrollTop = () => (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0);
+  const navigation = useNavigationMotion(screen, {
+    mode: props.theme.motion ?? "calm",
+    reduced: environment.reduceMotion,
+    agent: environment.agentMode,
+    scrollTop,
+    captureNative: () => freezeNativeTab(props, controller, scrollTop()),
+    transition: props.navigationTransition,
+  });
+  useImperativeHandle(props.navigationRef, () => ({ prepare: navigation.prepare }), [navigation.prepare]);
   useLayoutEffect(() => {
     observe.current = navigation.capture;
   }, [observe, navigation.capture]);
+  useLayoutEffect(() => {
+    if (bodyScroll.current.id !== screen.id)
+      bodyScroll.current = { id: screen.id, top: navigation.returnTo?.scrollTop ?? 0 };
+  }, [screen.id, navigation.returnTo]);
   return {
     ...navigation,
     onBodyScroll: (top: number) => {
@@ -173,6 +195,11 @@ export function PhoneScreen(props: PhoneScreenProps) {
     cue,
   });
   const navigation = usePhoneNavigation(props, controller, environment, observe);
+  const register = useReturnFocus(
+    navigation.ref,
+    navigation.restoreFocus ? navigation.returnTo?.address : undefined,
+    nativeHost,
+  );
   const agent = useMemo(
     () => createAgentAccess({ defs, store: controller.store, current: () => screen, runtime: controller }),
     [controller, screen, defs],
@@ -197,13 +224,15 @@ export function PhoneScreen(props: PhoneScreenProps) {
         <YStack flex={1} minHeight={0} position="relative">
           {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
           <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
-            <Screen
-              controller={controller}
-              renderers={props.renderers}
-              navigationArrival={navigation.navigationArrival}
-              onBodyScroll={navigation.onBodyScroll}
-              {...(props.onReport ? { onReport: props.onReport } : {})}
-            />
+            <PartRefScope.Provider value={register}>
+              <Screen
+                controller={controller}
+                renderers={props.renderers}
+                onBodyScroll={navigation.onBodyScroll}
+                {...(navigation.returnTo ? { initialBodyScroll: navigation.returnTo.scrollTop } : {})}
+                {...(props.onReport ? { onReport: props.onReport } : {})}
+              />
+            </PartRefScope.Provider>
           </YStack>
         </YStack>
       </DeviceDataContext.Provider>

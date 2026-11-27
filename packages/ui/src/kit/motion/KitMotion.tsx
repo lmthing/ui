@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
-import { durations, motion, motionProfiles, springs } from "../../catalog";
-import { useKit } from "../provider";
-import { animateNumber } from "./animate";
+import { motion, motionProfiles } from "../../catalog";
+import { KitVisualOnly, useKit } from "../provider";
 import { useReveal } from "./use-motion";
+import { useChangeReveal } from "./use-change-reveal";
+import { useMotionValue } from "./use-motion-value";
 type MotionProps = {
   children: ReactNode;
   index?: number;
@@ -17,70 +18,49 @@ export function KitMotion({
   index = 0,
   exiting = false,
   cue = "filled",
-  appear = true,
+  appear = false,
 }: MotionProps) {
   const { environment, motion: mode } = useKit();
-  const [last, setLast] = useState({ cue, changed: false });
-  if (last.cue !== cue) setLast({ cue, changed: true });
-  const stateChange = last.changed || last.cue !== cue;
-  const error = cue === "error";
-  const loading = cue === "loading";
-  const profile = motionProfiles[mode];
-  const { height, measured, onLayout } = useMotionHeight(
-    exiting || environment.agentMode || environment.reduceMotion,
-  );
-  const progress = useReveal(
-    `${cue}:${exiting}`,
-    !environment.agentMode && (exiting || (!loading && (appear || stateChange))),
-    {
-      ...(environment.reduceMotion || exiting || stateChange || error
-        ? { duration: error && !environment.reduceMotion && !exiting ? profile.navigation : durations.fast }
-        : { spring: springs.gentle }),
-      delay: exiting || stateChange || error ? 0 : Math.min(index, motion.staggerLimit - 1) * motion.stagger,
-    },
-  );
   const still = environment.reduceMotion || environment.agentMode;
-  const shake = error && !exiting && !still;
+  const profile = motionProfiles[mode];
+  const measured = useRef<number | undefined>(undefined);
+  const [canArrive, setCanArrive] = useState(appear && cue === "filled" && !still);
+  // A cue update, exit/re-entry or a preference change cannot re-arm this insertion.
+  if (canArrive && (!appear || cue !== "filled" || exiting || still)) setCanArrive(false);
+  const arrival = useReveal("insert", canArrive && !exiting && !still && index < motion.staggerLimit, {
+    spring: profile.arrival,
+    delay: index * motion.stagger,
+  });
+  const change = useChangeReveal(exiting ? undefined : cue);
+  const exit = useMotionValue(exiting ? 0 : 1, still, "timed");
+  const effect = motion.reducedFadeStart + (1 - motion.reducedFadeStart) * change;
+  const size = exiting && measured.current !== undefined ? measured.current * exit : undefined;
   return (
     <YStack
-      opacity={exiting ? 1 - progress : shake ? 1 : progress}
-      x={shake ? Math.sin(progress * motion.errorTurns * Math.PI * 2) * (1 - progress) * profile.error : 0}
-      y={still || exiting || stateChange || error ? 0 : motion.arriveY * (1 - progress)}
+      opacity={exiting ? exit * effect : Math.max(exit, motion.reducedFadeStart) * effect}
+      y={still || exiting ? 0 : motion.arriveY * (1 - arrival)}
+      {...(size === undefined ? {} : { height: size, overflow: "hidden" as const })}
       {...(exiting
         ? {
-            ...(environment.reduceMotion ? {} : { height: (measured.current ?? 0) * (1 - progress) }),
-            overflow: "hidden" as const,
             pointerEvents: "none" as const,
             "aria-hidden": true,
-            ...(isWeb ? { inert: true } : { accessibilityElementsHidden: true }),
+            ...(isWeb
+              ? { inert: true }
+              : {
+                  accessibilityElementsHidden: true,
+                  importantForAccessibility: "no-hide-descendants" as const,
+                }),
           }
-        : height === undefined
-          ? {}
-          : { height, overflow: "hidden" as const })}
+        : {})}
     >
-      <YStack onLayout={onLayout}>{children}</YStack>
+      {/* Keep live layout unconstrained. Local bases animate their own changed rows/marks. */}
+      <YStack
+        onLayout={({ nativeEvent }) => {
+          if (!exiting) measured.current = nativeEvent.layout.height;
+        }}
+      >
+        <KitVisualOnly active={exiting}>{children}</KitVisualOnly>
+      </YStack>
     </YStack>
   );
-}
-
-function useMotionHeight(still: boolean) {
-  const measured = useRef<number | undefined>(undefined);
-  const animation = useRef<(() => void) | undefined>(undefined);
-  const [height, setHeight] = useState<number | undefined>(undefined);
-  useEffect(() => {
-    if (still) setHeight(undefined);
-    return () => animation.current?.();
-  }, [still]);
-  const onLayout = ({ nativeEvent }: { nativeEvent: { layout: { height: number } } }) => {
-    const next = nativeEvent.layout.height;
-    const previous = measured.current;
-    measured.current = next;
-    if (still || previous === undefined || previous === next) return;
-    animation.current?.();
-    animation.current = animateNumber(height ?? previous, next, setHeight, {
-      spring: springs.snappy,
-      done: () => setHeight(undefined),
-    });
-  };
-  return { height: still ? undefined : height, measured, onLayout };
 }

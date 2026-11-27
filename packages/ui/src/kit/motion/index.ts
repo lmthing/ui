@@ -1,4 +1,5 @@
 export { KitMotion } from "./KitMotion";
+export { KitRecordArrival } from "./KitRecordArrival";
 export { DrawnCheck } from "./DrawnCheck";
 export { useMotionValue } from "./use-motion-value";
 export { useChangeReveal, useReducedFade } from "./use-change-reveal";
