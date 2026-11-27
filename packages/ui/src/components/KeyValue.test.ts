@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { renderInstance, styleAt } from "../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
 // prettier-ignore
 import { components, createRegistry, planAct, readComponent, secretRevealKey, secretRevealMatches, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
@@ -24,7 +24,7 @@ describe("KeyValue schema", () => {
     { pairs: [{ label: "a".repeat(21), value: "Bathroom" }] },
     { pairs: [{ label: "Room", value: "a".repeat(29) }] }, { pairs: [{ label: "Room", value: 4 }] },
     { pairs: [{ label: "Room", value: "Bathroom", icon: "unknown" }] },
-    { pairs: [{ label: "Room", value: "Bathroom", goto: "bathroom" }] },
+    { pairs: [{ label: "Room", value: "Bathroom", goto: "https://example.org" }] },
     { pairs: [{ label: "Room", value: "Bathroom", pixels: 4 }] },
     { style: "cards", pairs: [{ label: "Room", value: "Bathroom" }] },
     { arrange: "strip", pairs: [{ label: "Room", value: "Bathroom" }] },
@@ -105,7 +105,7 @@ describe("KeyValue field labels and metadata", () => {
     // prettier-ignore
     expect(meta).toMatchObject({ id: "KeyValue", group: "content", region: "body", weight: 2, tier: "phone",
       items: { key: "pairs" }, states: ["filled", "empty", "loading"] });
-    expect(meta.actions.items).toEqual({ reveal: ["toggle"], copy: ["copy"] });
+    expect(meta.actions.items).toEqual({ reveal: ["toggle"], copy: ["copy"], value: ["press"] });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("List");
@@ -170,6 +170,43 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
 describe("KeyValue rendering", () => {
+  it.each(["rows", "grid"] as const)("offers only the linked value in %s", (arrange) => {
+    const status = { label: "Share status", value: "Ready to share", status: true };
+    const link = { label: "Spotify", value: "Open in Spotify", goto: "spotify" };
+    const fact = { label: "Bandcamp", value: "Artist link", icon: "link" };
+    const wire = { pairs: [status, link, fact], arrange };
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const html = renderInstance("KeyValue", wire, "filled", theme);
+    expect(html.match(/role="link"/g)).toHaveLength(1);
+    expect(elementAt(html, "home/c1/r2/value").attributes).toContain('role="link"');
+    expect(styleAt(html, "home/c1/r1/root")).toBe(
+      styleAt(
+        renderInstance(
+          "KeyValue",
+          { ...wire, pairs: [{ ...status, status: false }, link, fact] },
+          "filled",
+          theme,
+        ),
+        "home/c1/r1/root",
+      ),
+    );
+    expect(renderInstance("KeyValue", wire, "loading", theme)).not.toContain('role="link"');
+    const screen = { id: "home", components: [{ ...wire, c: "KeyValue", id: "c1" }] };
+    const onLink = vi.fn();
+    const controller = createScreenController({ screen, defs: { KeyValue: components.KeyValue }, onLink });
+    expect(controller.read()).toContain("[c1/r2/value press→spotify]");
+    expect(controller.press("c1/r1/value").ok).toBe(false);
+    expect(controller.press("c1/r3/value").ok).toBe(false);
+    expect(controller.press("c1/r2/value").ok).toBe(true);
+    expect(onLink).toHaveBeenCalledExactlyOnceWith("spotify", "home/c1/r2/value");
+    controller.dispose();
+  });
+
+  it("rejects destinations on masked values and primary statuses", () => {
+    const pair = { label: "Entry code", value: "DEMO-042", goto: "gate" };
+    expect(props.safeParse({ pairs: [pair], masked: true }).success).toBe(false);
+    expect(props.safeParse({ pairs: [{ ...pair, status: true }] }).success).toBe(false);
+  });
   it.each(["rows", "grid"] as const)(
     "emphasises only the status value in %s without changing addresses",
     (arrange) => {

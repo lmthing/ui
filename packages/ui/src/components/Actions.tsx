@@ -62,7 +62,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   {
     items: [
-      { icon: "drop", label: "Water", goto: "water" },
+      { icon: "drop", label: "Log watering", goto: "water" },
       { icon: "plus", label: "Add plant", goto: "add_plant" },
       { icon: "calendar", label: "Schedule", goto: "schedule" },
     ],
@@ -130,7 +130,7 @@ export function Actions({ items, arrange }: Props<typeof props, typeof meta>) {
               item={id}
               label={label}
               goto={goto}
-              leading={<KitIcon name={icon} tone="accent" part="icon" />}
+              leading={<KitIcon name={icon} tone="muted" part="icon" />}
               trailing={<KitIcon name="chevron_right" decorative />}
             >
               <KitText role="label" part="label">
@@ -138,7 +138,7 @@ export function Actions({ items, arrange }: Props<typeof props, typeof meta>) {
               </KitText>
             </KitRow>
           ) : (
-            <KitTile key={id} item={id} icon={icon} label={label} goto={goto} />
+            <KitTile key={id} item={id} icon={icon} label={label} goto={goto} badgeTone="muted" />
           ),
         )}
       </KitGrid>
