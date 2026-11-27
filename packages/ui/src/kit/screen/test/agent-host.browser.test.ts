@@ -85,12 +85,12 @@ it("lets the host explicitly expose an inert preview for reading", async () => {
 it("refreshes a selected phone in place without republishing or reclaiming focus after supersession", async () => {
   const main = await publish("main");
   await click("Update main");
-  await page.getByRole("button", { name: "Open main updated", exact: true }).waitFor();
+  await page.getByRole("button", { name: "Open main 1", exact: true }).waitFor();
   expect(await main.evaluate((agent) => agent === window.__lmthingUI)).toBe(true);
-  expect(await main.evaluate((agent) => agent.read())).toContain("Open main updated");
+  expect(await main.evaluate((agent) => agent.read())).toContain("Open main 1");
   const second = await publish("second");
   await click("Update main");
-  await page.getByRole("button", { name: "Open main updated updated", exact: true }).waitFor();
+  await page.getByRole("button", { name: "Open main 2", exact: true }).waitFor();
   expect(await second.evaluate((agent) => agent === window.__lmthingUI)).toBe(true);
   await expectRevoked(main);
   await second.dispose();

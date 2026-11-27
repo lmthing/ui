@@ -25,16 +25,16 @@ function Fixture() {
   const [publishSecond, setPublishSecond] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
   const [readPreview, setReadPreview] = useState(false);
-  const [mainTitle, setMainTitle] = useState("main");
+  const [revision, setRevision] = useState(0);
   const [links, setLinks] = useState<string[]>([]);
-  const main = useMemo(() => screen("main", mainTitle), [mainTitle]);
+  const main = useMemo(() => screen("main", revision ? `main ${revision}` : "main"), [revision]);
   const onLink = (_goto: string, address: string) => setLinks((current) => [...current, address]);
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button onClick={() => setInert(true)}>Mount preview</button>
       <button onClick={() => setPublishMain(true)}>Publish main</button>
       <button onClick={() => setPublishSecond(true)}>Publish second</button>
-      <button onClick={() => setMainTitle((title) => `${title} updated`)}>Update main</button>
+      <button onClick={() => setRevision((value) => value + 1)}>Update main</button>
       <button onClick={() => setReadOnly((current) => !current)}>Toggle read only</button>
       <button onClick={() => setReadPreview(true)}>Read preview</button>
       <button onClick={() => setShowMain(false)}>Dispose main</button>
