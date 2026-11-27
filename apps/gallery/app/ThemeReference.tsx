@@ -59,6 +59,10 @@ const repairs = [
   },
 ] as const;
 
+function repairStatus(repair: (typeof repairs)[number], layout: string | null) {
+  return layout === "long" && repair.id === "cargo" ? "Waiting for brake cable" : repair.status;
+}
+
 // Two abstract stage posters, made of simple shapes so the comparison has no remote image dependency.
 function poster(ref: string) {
   const roles = themeRoles(
@@ -93,7 +97,7 @@ function theater(layout: string | null): ScreenLike {
           title,
           body: `${curtain} · ${stage}`,
           meta: seats,
-          emphasis: layout,
+          emphasis: layout === "hero" && id !== "glass" ? "normal" : layout,
           media: "thumb",
           photo,
           goto: id,
@@ -136,24 +140,29 @@ function dispatch(layout: string | null): ScreenLike {
       {
         id: "jobs",
         c: "List",
-        lead: "none",
+        lead: "icon",
         trail: layout === "badge" ? "badge" : "value",
-        rows: repairs.map(({ id, title, bay, status, eta, tone }) => ({
-          title,
-          meta: bay,
-          goto: id,
-          ...(layout === "badge"
-            ? { fact: eta, value: status }
-            : layout === "value"
-              ? { fact: status, value: eta }
-              : { badge: status, value: eta, tone }),
-        })),
+        rows: repairs.map((repair) => {
+          const { id, title, bay, eta, tone } = repair;
+          const status = repairStatus(repair, layout);
+          return {
+            title,
+            meta: bay,
+            icon: "chevron_right",
+            goto: id,
+            ...(layout === "badge"
+              ? { fact: eta, value: status }
+              : layout === "value"
+                ? { fact: status, value: eta }
+                : { badge: status, value: eta, tone }),
+          };
+        }),
       },
     ],
   };
 }
 
-function recordScreen(id: string): ScreenLike | undefined {
+function recordScreen(id: string, layout: string | null): ScreenLike | undefined {
   const show = shows.find((entry) => entry.id === id);
   const repair = repairs.find((entry) => entry.id === id);
   if (!show && !repair) return;
@@ -166,7 +175,7 @@ function recordScreen(id: string): ScreenLike | undefined {
       ]
     : [
         { label: "Work order", value: repair!.bay },
-        { label: "Status", value: repair!.status, status: true, tone: repair!.tone },
+        { label: "Status", value: repairStatus(repair!, layout), status: true, tone: repair!.tone },
         { label: "Pickup ETA", value: repair!.eta },
       ];
   return {
@@ -192,7 +201,7 @@ function VarietyReference({ domain }: { domain: "theater" | "dispatch" }) {
       focusNext.current = opener.current;
       setRecord(undefined);
     } else {
-      const next = recordScreen(destination);
+      const next = recordScreen(destination, layout);
       if (!next) return;
       opener.current = address;
       focusNext.current = `${next.id}/heading/back`;
@@ -215,14 +224,7 @@ function VarietyReference({ domain }: { domain: "theater" | "dispatch" }) {
     <TamaguiProvider config={config} defaultTheme={themeName(varietyTheme)}>
       <div ref={frame} data-variety-screen={screen.id}>
         <YStack width="100%" maxWidth={width} height="100vh" alignSelf="center" data-look-frame={screen.id}>
-          {/* Inspection is a cut: no receipt arrived and no action changed the record. */}
-          <PhoneScreen
-            key={screen.id}
-            screen={screen}
-            theme={varietyTheme}
-            resolvePhoto={poster}
-            onLink={onLink}
-          />
+          <PhoneScreen screen={screen} theme={varietyTheme} resolvePhoto={poster} onLink={onLink} />
         </YStack>
       </div>
     </TamaguiProvider>
