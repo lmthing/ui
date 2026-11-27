@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { YStack } from "tamagui";
+import { isWeb, YStack } from "tamagui";
 import { durations, motion, motionProfiles, springs } from "../../catalog";
 import { useKit } from "../provider";
 import { animateNumber } from "./animate";
@@ -24,13 +24,14 @@ export function KitMotion({
   if (last.cue !== cue) setLast({ cue, changed: true });
   const stateChange = last.changed || last.cue !== cue;
   const error = cue === "error";
+  const loading = cue === "loading";
   const profile = motionProfiles[mode];
   const { height, measured, onLayout } = useMotionHeight(
     exiting || environment.agentMode || environment.reduceMotion,
   );
   const progress = useReveal(
     `${cue}:${exiting}`,
-    !environment.agentMode && (appear || exiting || stateChange),
+    !environment.agentMode && (exiting || (!loading && (appear || stateChange))),
     {
       ...(environment.reduceMotion || exiting || stateChange || error
         ? { duration: error && !environment.reduceMotion && !exiting ? profile.navigation : durations.fast }
@@ -51,6 +52,7 @@ export function KitMotion({
             overflow: "hidden" as const,
             pointerEvents: "none" as const,
             "aria-hidden": true,
+            ...(isWeb ? { inert: true } : { accessibilityElementsHidden: true }),
           }
         : height === undefined
           ? {}

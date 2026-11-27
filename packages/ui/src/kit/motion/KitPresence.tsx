@@ -3,6 +3,7 @@ import {
   cloneElement,
   isValidElement,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactElement,
@@ -10,6 +11,22 @@ import {
 } from "react";
 import { durations } from "../../catalog";
 import { useKit } from "../provider";
+
+type Exit = { node: ReactNode; before?: string; expires: number };
+const keyOf = (node: ReactNode) => (isValidElement(node) ? String(node.key) : String(node));
+
+function exitsOf(old: ReactNode[], keys: Set<string>, keepExit: (node: ReactNode) => boolean) {
+  const expires = Date.now() + durations.fast;
+  return old.flatMap((node, index) => {
+    if (keys.has(keyOf(node)) || !keepExit(node)) return [];
+    const anchor = old
+      .slice(0, index)
+      .reverse()
+      .find((item) => keys.has(keyOf(item)));
+    return [{ node, expires, ...(anchor ? { before: keyOf(anchor) } : {}) }];
+  });
+}
+
 /** Keep the same motion node/key at its old position until its disabled exit finishes. */
 export function KitPresence({
   children,
@@ -22,45 +39,32 @@ export function KitPresence({
   const { environment } = useKit();
   const current = Children.toArray(children);
   const previous = useRef<ReactNode[]>(current);
-  const [removed, setRemoved] = useState<{ node: ReactNode; before?: string }[]>([]);
-  const keyOf = (node: ReactNode) => (isValidElement(node) ? String(node.key) : String(node));
+  const [removed, setRemoved] = useState<Exit[]>([]);
   const keys = new Set(current.map(keyOf));
-  const old = previous.current;
-  const missing = old.flatMap((node, index) => {
-    if (keys.has(keyOf(node))) return [];
-    const anchor = old
-      .slice(0, index)
-      .reverse()
-      .find((item) => keys.has(keyOf(item)));
-    return [{ node, ...(anchor ? { before: keyOf(anchor) } : {}) }];
+  const missing = environment.agentMode ? [] : exitsOf(previous.current, keys, keepExit ?? (() => true));
+  const retained = environment.agentMode
+    ? []
+    : removed.filter((item) => !keys.has(keyOf(item.node)) && (keepExit?.(item.node) ?? true));
+  useLayoutEffect(() => {
+    previous.current = current;
+    if (missing.length || retained.length !== removed.length) setRemoved([...retained, ...missing]);
   });
-  previous.current = current;
-  const signature = current.map(keyOf).join("|");
   useEffect(() => {
-    if (environment.agentMode) {
-      setRemoved([]);
-      return;
-    }
-    if (!missing.length) return;
-    setRemoved(missing);
-    const timer = setTimeout(() => setRemoved([]), durations.fast);
+    if (!removed.length) return;
+    const first = Math.min(...removed.map(({ expires }) => expires));
+    const timer = setTimeout(
+      () => setRemoved((items) => items.filter(({ expires }) => expires > Date.now())),
+      Math.max(1, first - Date.now()),
+    );
     return () => clearTimeout(timer);
-  }, [signature, environment.agentMode]);
+  }, [removed]);
   const result: ReactNode[] = [...current];
-  if (!environment.agentMode)
-    for (const item of [...removed, ...missing]
-      .filter(
-        (item, index, all) =>
-          all.findIndex((candidate) => keyOf(candidate.node) === keyOf(item.node)) === index &&
-          !keys.has(keyOf(item.node)) &&
-          (keepExit?.(item.node) ?? true),
-      )
-      .reverse()) {
-      const index = item.before ? result.findIndex((node) => keyOf(node) === item.before) + 1 : 0;
-      const node = isValidElement(item.node)
-        ? cloneElement(item.node as ReactElement<{ exiting?: boolean }>, { exiting: true })
-        : item.node;
-      result.splice(Math.max(0, index), 0, node);
-    }
+  for (const item of [...retained, ...missing].reverse()) {
+    const index = item.before ? result.findIndex((node) => keyOf(node) === item.before) + 1 : 0;
+    const node = isValidElement(item.node)
+      ? cloneElement(item.node as ReactElement<{ exiting?: boolean }>, { exiting: true })
+      : item.node;
+    result.splice(Math.max(0, index), 0, node);
+  }
   return <>{result}</>;
 }

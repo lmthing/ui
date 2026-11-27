@@ -85,9 +85,9 @@ function ToggleTrail({
     );
   return (
     <Track on={active} {...(disabled ? { backgroundColor: "$raised", borderColor: "$muted" } : {})}>
+      <YStack width={progress * (size.control.md - size.icon.md - 4 * component.base.strongBorder)} />
       <Knob
         on={active}
-        x={progress * (size.control.md - size.icon.md - 4 * component.base.strongBorder)}
         scale={(size.icon.sm + (size.icon.md - size.icon.sm) * progress) / size.icon.md}
         {...(disabled ? { backgroundColor: "$muted" } : {})}
       />

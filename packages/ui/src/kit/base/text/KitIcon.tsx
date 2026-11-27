@@ -1,9 +1,8 @@
-import { useSignatureProgress } from "../../motion";
+import { DrawnCheck, useSignatureProgress } from "../../motion";
 import * as icons from "../../../entry/icons.generated";
 import { YStack, styled } from "tamagui";
 import { iconTable, motion, radius, size, type IconName } from "../../../catalog";
 import { usePart, usePartContext } from "../../part";
-import { DrawnCheck } from "./DrawnCheck";
 
 const Frame = styled(YStack, { alignItems: "center", justifyContent: "center" });
 

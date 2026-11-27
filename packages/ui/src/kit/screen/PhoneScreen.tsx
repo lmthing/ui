@@ -115,11 +115,12 @@ export type PhoneScreenProps = {
 };
 export function PhoneScreen(props: PhoneScreenProps) {
   const { defs, screen, nativeHost, reduceMotion, agentMode, signature, cue, onReady } = props;
-  const observe = useRef<PhoneScreenProps["onLink"]>(undefined);
-  const controller = usePhoneController(props, (goto, address) => observe.current?.(goto, address));
+  const observe = useRef<ReturnType<typeof useNavigationMotion>["capture"]>(undefined);
+  const controller = usePhoneController(props, (...args) => observe.current?.(...args));
+  const storeAgent = controller.store.get(`${screen.id}/$agentMode`);
   const environment = useEnvironment(nativeHost, {
     reduceMotion,
-    agentMode: agentMode ?? Boolean(controller.store.get(`${screen.id}/$agentMode`)),
+    agentMode: agentMode ?? Boolean(storeAgent),
     signature,
     cue,
   });
@@ -145,7 +146,11 @@ export function PhoneScreen(props: PhoneScreenProps) {
       {...(props.resolvePhoto ? { resolvePhoto: props.resolvePhoto } : {})}
       controller={controller}
       interactive={props.interactive ?? true}
-      environment={environment}
+      environment={
+        agentMode === undefined && storeAgent === undefined && navigation.agentArrival
+          ? { ...environment, agentMode: true }
+          : environment
+      }
       {...(nativeHost ? { nativeHost } : {})}
     >
       <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
@@ -153,6 +158,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
           <Screen
             controller={controller}
             renderers={props.renderers}
+            navigationArrival={navigation.navigationArrival}
             {...(props.onReport ? { onReport: props.onReport } : {})}
           />
         </YStack>

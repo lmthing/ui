@@ -4,6 +4,8 @@ import { formatAddress } from "../../catalog";
 import { useKit } from "../provider";
 import { usePartContext } from "./part-context";
 import { PartRefScope } from "./part-ref-scope";
+import { listenMotionSettled } from "./motion-settled";
+import { noopParts } from "../registry";
 
 const subscribeNone = () => () => {};
 export function usePartDisabled(address: string | undefined) {
@@ -56,6 +58,10 @@ export function usePart(part = "root", enabled = true) {
       }
     });
   }, [parts, root, screen, rev, address, enabled]);
+  useEffect(
+    () => (enabled && parts !== noopParts ? listenMotionSettled(root.current, onLayout) : undefined),
+    [enabled, onLayout, parts, root],
+  );
   useEffect(
     () => () => {
       if (frame.current !== null) cancelAnimationFrame(frame.current);

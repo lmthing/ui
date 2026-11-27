@@ -1,11 +1,10 @@
-import { useSignatureProgress } from "../../motion";
+import { DrawnCheck, useSignatureProgress } from "../../motion";
 import { variants } from "../../../catalog";
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { usePart } from "../../part";
-import { DrawnCheck } from "../text";
 
 const Hit = styled(YStack, {
   width: size.control.md,

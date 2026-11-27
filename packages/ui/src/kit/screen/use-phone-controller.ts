@@ -66,7 +66,9 @@ function createCommittedController(
   });
 }
 
-export function usePhoneController(props: PhoneScreenProps, observeLink?: PhoneScreenProps["onLink"]) {
+type ObserveLink = (goto: string, address: string, agent: boolean) => void;
+
+export function usePhoneController(props: PhoneScreenProps, observeLink?: ObserveLink) {
   const { screen, defs, interaction, interactive = true, media, micCapture } = props;
   const { requestPhoto, parentGate, writeClipboard } = props;
   const { attachments, resolvePlayback } = props;
@@ -78,7 +80,7 @@ export function usePhoneController(props: PhoneScreenProps, observeLink?: PhoneS
     onLink:
       props.onLink &&
       ((goto, address) => {
-        if (!props.agentMode && !store.get(`${screen.id}/$agentMode`)) observeLink?.(goto, address);
+        observeLink?.(goto, address, props.agentMode ?? Boolean(store.get(`${screen.id}/$agentMode`)));
         props.onLink?.(goto, address);
       }),
   };

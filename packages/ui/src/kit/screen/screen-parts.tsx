@@ -1,4 +1,4 @@
-import { isValidElement, useContext, useState } from "react";
+import { isValidElement, useContext, useRef, useState, type ReactElement } from "react";
 import { isWeb, ScrollView, YStack } from "tamagui";
 import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
@@ -28,6 +28,7 @@ type RenderProps = {
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
   compactTitle?: boolean;
+  navigationArrival?: boolean;
 };
 function ScreenEntry({
   controller,
@@ -83,34 +84,62 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
   const entries = sortByRegion(screen.components, components).filter(
     (entry) => regionOf(entry, components) === name && !views?.hidden.has(entry.id),
   );
-  return (
-    <KitPresence
-      keepExit={(node) =>
-        isValidElement<RegionEntryProps>(node) &&
-        !elsewhere.has(node.props.entry.id) &&
-        !views?.hidden.has(node.props.entry.id)
+  const initial = useRef(new Set(entries.map(({ id }) => id)));
+  const rows = entries.map((entry, index) => (
+    <RegionEntry
+      key={entry.id}
+      {...props}
+      entry={
+        compactTitle && name === "top" && entry.c === "Header" && entry.style !== "back"
+          ? { ...entry, emphasis: "quiet", sub: undefined }
+          : entry
       }
-    >
-      {entries.map((entry, index) => (
-        <RegionEntry
-          key={entry.id}
-          {...props}
-          entry={
-            compactTitle && name === "top" && entry.c === "Header" && entry.style !== "back"
-              ? { ...entry, emphasis: "quiet", sub: undefined }
-              : entry
-          }
-          sticky={name === "body" && entry.c === "SectionTitle"}
-          index={index}
-          marginTop={
-            name === "body" && components[entry.c]
-              ? gapBetween(components[entries[index - 1]?.c ?? ""]?.meta, components[entry.c]!.meta)
-              : 0
-          }
-        />
-      ))}
-    </KitPresence>
+      sticky={name === "body" && entry.c === "SectionTitle"}
+      appear={!props.navigationArrival || !initial.current.has(entry.id)}
+      index={index}
+      marginTop={
+        name === "body" && components[entry.c]
+          ? gapBetween(components[entries[index - 1]?.c ?? ""]?.meta, components[entry.c]!.meta)
+          : 0
+      }
+    />
+  ));
+  const keepExit = (node: React.ReactNode) =>
+    isValidElement<RegionEntryProps>(node) &&
+    !elsewhere.has(node.props.entry.id) &&
+    !views?.hidden.has(node.props.entry.id);
+  return name === "body" && isWeb ? (
+    <BodySections rows={rows} keepExit={keepExit} />
+  ) : (
+    <KitPresence keepExit={keepExit}>{rows}</KitPresence>
   );
+}
+
+function BodySections({
+  rows,
+  keepExit,
+}: {
+  rows: ReactElement<RegionEntryProps>[];
+  keepExit(node: React.ReactNode): boolean;
+}) {
+  const sections: { key: string; rows: typeof rows }[] = [];
+  const active = new Set(rows.map(({ props }) => props.entry.id));
+  for (const row of rows) {
+    if (row.props.sticky || !sections.length)
+      sections.push({ key: row.props.sticky ? row.props.entry.id : "", rows: [] });
+    sections.at(-1)!.rows.push(row);
+  }
+  return sections.map(({ key, rows }) => (
+    <YStack key={key}>
+      <KitPresence
+        keepExit={(node) =>
+          isValidElement<RegionEntryProps>(node) && !active.has(node.props.entry.id) && keepExit(node)
+        }
+      >
+        {rows}
+      </KitPresence>
+    </YStack>
+  ));
 }
 
 type RegionEntryProps = RenderProps & {
@@ -119,10 +148,11 @@ type RegionEntryProps = RenderProps & {
   marginTop: number;
   exiting?: boolean;
   sticky?: boolean;
+  appear?: boolean;
 };
-function RegionEntry({ index, marginTop, exiting, sticky, ...props }: RegionEntryProps) {
+function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...props }: RegionEntryProps) {
   const content = (
-    <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false}>
+    <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false} appear={appear}>
       <YStack marginTop={marginTop}>
         <ScreenEntry {...props} />
       </YStack>

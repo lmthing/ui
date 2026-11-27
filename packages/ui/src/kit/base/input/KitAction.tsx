@@ -19,7 +19,7 @@ import {
   usePrivateStatusAt,
   useRevealControl,
 } from "../../interact";
-import { useAnimatedValue } from "../../motion";
+import { useMotionValue } from "../../motion";
 import { useComponentState, usePart, usePartContext, usePartDisabled } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { useSequenceHold, type HoldToPause } from "../controls";
@@ -125,8 +125,8 @@ function useActionPress(
 ) {
   const kit = useKit();
   const [pressed, setPressed] = useState(false);
-  const still = kit.environment.reduceMotion || kit.environment.agentMode;
-  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  const settled = inactive || kit.environment.agentMode || kit.environment.reduceMotion;
+  const scale = useMotionValue(pressed && !settled ? motion.pressScale : 1, settled);
   const dispatch = useActionDispatch(props, address, inactive, reveal);
   if (!kit.interactive || inactive) return { scale };
   return { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false), ...dispatch };

@@ -1,11 +1,12 @@
 import { Path, Circle, Svg } from "react-native-svg";
 import { YStack, useTheme } from "tamagui";
-import { motionProfiles, variants } from "../../../catalog";
-import { useChangeReveal, useReveal } from "../../motion";
-import { useKit } from "../../provider";
-import type { IconTone } from "./KitIcon";
+import { motionProfiles, variants } from "../../catalog";
+import { useChangeReveal } from "./use-change-reveal";
+import { useReveal } from "./use-motion";
+import { useKit } from "../provider";
 
-const pathLength = 19;
+const check = { d: "m5 12 4 4L19 6", length: 19.8 };
+const circled = { d: "m8 12 3 3 5-6", length: 12.06 };
 
 export function DrawnCheck({
   size,
@@ -15,7 +16,7 @@ export function DrawnCheck({
   complete = false,
 }: {
   size: number;
-  tone: IconTone;
+  tone: string;
   active?: boolean;
   ring?: boolean;
   complete?: boolean;
@@ -30,18 +31,19 @@ export function DrawnCheck({
   if (!active) return null;
   const color = theme[tone]?.val;
   const pulse = complete && motion === "lively" ? Math.sin(progress * Math.PI) : 0;
+  const { d, length } = ring ? circled : check;
   return (
     <YStack pointerEvents="none" scale={1 + pulse * variants.motion[motion].pulseScale} aria-hidden>
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         {ring && <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={2} />}
         <Path
-          d={ring ? "m8 12 3 3 5-6" : "m5 12 4 4L19 6"}
+          d={d}
           stroke={color}
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
           {...(progress < 1
-            ? { strokeDasharray: [pathLength, pathLength], strokeDashoffset: pathLength * (1 - progress) }
+            ? { strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress) }
             : {})}
         />
       </Svg>

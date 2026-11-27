@@ -5,6 +5,7 @@ import { Screens } from "./Screens";
 import { Runtime } from "./Runtime";
 import { Controls } from "./Controls";
 import { MotionPreview } from "./Motion";
+import { MotionLab } from "./MotionLab";
 import { ThemeReference } from "./ThemeReference";
 import { NavigationShell } from "./NavigationShell";
 import { ComponentTitle, Overview, SharedVariants, VariantGrid } from "./overview";
@@ -19,6 +20,7 @@ export function Gallery() {
   if (query.has("theme-reference"))
     return <ThemeReference mode={mode === "dark" ? "dark" : "light"} screenId={query.get("screen")} />;
   if (query.has("motion")) return <MotionPreview name={query.get("motion") as SignatureName} />;
+  if (query.has("motion-lab")) return <MotionLab lively={query.get("motion-lab") === "lively"} />;
   if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} query={query} />;
   if (query.has("runtime")) return <Runtime />;
   if (only && query.has("variant-sheet")) {

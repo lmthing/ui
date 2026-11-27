@@ -1,7 +1,6 @@
 import { XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { KitText } from "../text";
-import { useKit } from "../../provider";
 import { useMotionValue } from "../../motion";
 
 /**
@@ -28,9 +27,8 @@ export function KitMeter({
   /** Anchor a comparison fill to the logical end (right in LTR, left in RTL). */
   fillFrom?: "start" | "end";
 }) {
-  const { lang } = useKit();
-  const fill = Math.min(1, Math.max(0, useMotionValue(ratio)));
-  const end = (fillFrom === "end") !== /^(ar|fa|he|ur)(-|$)/.test(lang);
+  const target = Math.min(1, Math.max(0, ratio));
+  const fill = Math.min(1, Math.max(0, useMotionValue(target)));
   return (
     <YStack gap={space.xs} width="100%">
       <XStack justifyContent="space-between" alignItems="baseline" gap={space.sm}>
@@ -49,10 +47,9 @@ export function KitMeter({
         aria-hidden
       >
         <YStack
-          width="100%"
+          {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
+          width={`${fill * 100}%`}
           height="100%"
-          scaleX={fill}
-          transformOrigin={end ? "right center" : "left center"}
           backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}
         />
       </YStack>

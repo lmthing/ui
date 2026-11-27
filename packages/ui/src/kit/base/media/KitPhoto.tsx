@@ -116,6 +116,7 @@ export function KitPhoto(props: PhotoProps) {
   const frame = (
     <Frame
       {...(addressed ? address : {})}
+      data-kit-photo={isWeb && layer ? "" : undefined}
       shape={shape}
       {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: corners })}

@@ -13,9 +13,10 @@ export type RendererMap = Record<string, (props: never) => React.ReactNode>;
 type ScreenProps = {
   controller: ScreenController;
   renderers: RendererMap;
+  navigationArrival?: boolean;
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
-export function Screen({ controller, renderers, onReport }: ScreenProps) {
+export function Screen({ controller, renderers, onReport, navigationArrival }: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
@@ -39,6 +40,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
       <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
         <ScreenContent
           key={visible.id}
+          {...(navigationArrival ? { navigationArrival } : {})}
           controller={controller}
           renderers={renderers}
           screen={visible}
