@@ -241,10 +241,12 @@ Core archetypes export `meta` and compose `probes`. `CoreArchetypeMeta` has `id`
 `variant`. The separate pack `ArchetypeMeta` contract still uses `job`, `layouts: { recipe, defaults }`
 and `defaultLayout`, with `allow`, `required`, `min` and `max` slots. Do not conflate these two APIs.
 
-**Pending surfaces.** `SurfaceMeta` and `LockScreen`, `Widget`, `Message` files must carry `id`,
-`purpose`, `tier`, `realPath`, optional `parts` and `status`, with `props`, `fallback`, `examples`,
-probes and a view. No region, weight, group, items or actions; no component aliases. Surfaces never
-occupy a screen slot or count toward its component limit. The host supplies app name and icon.
+**Outside surface previews.** `SurfaceMeta` describes the `id`, `purpose`, `tier` and `realPath` for
+`LockScreen`, `Widget` and `Message`. The kit validates bounded display text with a neutral fallback,
+and the gallery supplies examples. No component regions, weight, group, items, action parts, or aliases.
+Surfaces never occupy a screen slot or count toward its component limit. The host supplies app name,
+catalog icon and theme. Separate catalog definitions and model probes remain pending; Writers do not
+use this kit API.
 
 **Shared helpers** in `catalog/props` attach schema metadata used by prompts and readers:
 
@@ -453,8 +455,9 @@ acceptance is built in `test/motion.test.ts`; its ring-cue and end-state checks 
 that fits the loop; trailer orchestration stays outside this repo. Native device visual/performance QA remains **pending**. Remaining core option details are listed
 in [catalog/core.md](catalog/core.md#remaining-core-work), not hidden by the built component count.
 
-**Outside surfaces.** `LockScreen` (consent), `Widget` (phone), `Message` (service) remain **pending**.
-Rules and flow steps name surfaces; Writers never place one on a screen.
+**Outside surfaces.** `LockScreen` (consent), `Widget` (phone), and `Message` (service) have kit
+previews. Rules and flow steps name surfaces; Writers never place one on a screen. Studio integration
+is host work.
 
 **Domain scope.** The Director chooses up to three packs from a purpose/pick index. Later Writer,
 edit and Critic calls receive core plus those packs only. Pack count/id validation and adding a pack
@@ -1141,7 +1144,13 @@ hand-polished visual acceptance remain **pending**.
 
 - Core `registry.defaultLines(archetype, layout, cast)` returns a validated cast-driven screen; it is
   catalog data, not a kit default renderer. Pack defaults are **pending**.
-- Outside surfaces are **pending**; they must use the host app name/icon and theme.
+- `OutsideSurface` draws the three preview-only surfaces in the host app name, catalog icon and
+  theme. It accepts a short `title` and optional `body`, with no delivery, recipient, destination,
+  device-data or permission interfaces.
+- Outside surface motion: first view and peer changes cut. An explicit cue briefly tints the card
+  backing with the kit feedback duration. Identity, text, geometry and focus stay put; the cue
+  adds no state or action. A new cue restarts the tint, a different surface or unmount cuts it,
+  and reduced motion and agent mode show the identical resting preview immediately.
 - Signature metadata, shared hooks and browser motion/reduced-motion acceptance are built. The host
   passes signature/cue; reduce motion and agent mode show end state. `test/motion.test.ts` checks cue
   replay and end states in Chrome. Native device visual/performance QA remains **pending**.
