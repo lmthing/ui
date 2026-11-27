@@ -141,7 +141,7 @@ describe("Card view and actions", () => {
     const html = renderInstance("Card", examples[0], "filled", theme, { resolvePhoto });
     expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
     if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
-    expect(resolvePhoto).toHaveBeenCalledWith("lib:plants");
+    expect(resolvePhoto).toHaveBeenCalledWith("lib:fern");
   });
 });
 describe("Card actions and loading", () => {
@@ -185,7 +185,18 @@ it("keeps the title, badge and link when brief hides body and metadata from the 
   for (const output of [html, read]) {
     expect(output).toContain("Fern");
     expect(output).toContain("Due today");
-    expect(output).not.toMatch(/Bathroom|Water today/);
+    expect(output).not.toMatch(/indirect light|Water today/);
   }
   expect(read).toContain("[c1 press");
+});
+
+it("orders a long linked record title before its badge and supporting facts", () => {
+  const input = examples.at(-1)!;
+  const html = renderInstance("Card", input, "filled", theme);
+  const parts = ["title", "badge", "body", "meta"].map((part) =>
+    html.indexOf(`data-testid="home/c1/${part}"`),
+  );
+  expect(parts.every((index) => index >= 0)).toBe(true);
+  expect(parts).toEqual([...parts].sort((a, b) => a - b));
+  expect(elementAt(html, "home/c1/root").attributes).toContain('role="link"');
 });

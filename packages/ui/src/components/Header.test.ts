@@ -141,6 +141,18 @@ describe("Header fallback and metadata", () => {
 });
 
 describe("Header view", () => {
+  it("keeps one announced title and one Back when the input repeats both", () => {
+    const input = {
+      title: "Vaccination records",
+      sub: "Vaccination records",
+      style: "back",
+      action: { icon: "arrow_left", label: "Return", goto: "back" },
+    } as const;
+    const html = renderInstance("Header", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(html).toContain('data-testid="home/c1/back"');
+    expect(html).not.toMatch(/data-testid="home\/c1\/(sub|action)"/);
+    expect(affordancesOf(meta, props.parse(input), "c1").map(({ part }) => part)).toEqual(["back"]);
+  });
   it.each([{}, { emphasis: "quiet" }, { style: "back" }] as const)(
     "offers only rendered buttons for %j with and without optional props",
     (variant) => {

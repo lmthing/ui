@@ -102,8 +102,15 @@ describe("SwipeStack fallback", () => {
       "  +1 more",
     ]);
     expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty")).toEqual([
-      "s1 SwipeStack (empty)",
+      "s1 SwipeStack (empty) No cards left to review",
     ]);
+    const html = renderInstance("SwipeStack", { cards: pair }, "empty", {
+      preset: "calm",
+      mode: "light",
+      accent: "moss",
+    });
+    expect(html).toContain("No cards left to review");
+    expect(html).not.toContain('role="button"');
   });
   it.each([2, 3, 6])("offers swipe only on the first of %i cards", (count) => {
     const cards = Array.from({ length: count }, (_, index) => ({ title: `Choice ${index}` }));

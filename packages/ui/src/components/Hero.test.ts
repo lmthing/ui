@@ -193,6 +193,7 @@ describe("Hero fallback and metadata", () => {
     expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
     if (source) {
       expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*3/);
+      expect(elementAt(html, "home/c1/photo").attributes).toContain('aria-hidden="true"');
       expect(html.indexOf('data-testid="home/c1/title"')).toBeLessThan(
         html.indexOf('data-testid="home/c1/photo"'),
       );

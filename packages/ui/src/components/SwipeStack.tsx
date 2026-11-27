@@ -13,6 +13,7 @@ import {
   type Probe,
   type Props,
   variantProps,
+  wordsFor,
 } from "../catalog";
 import {
   KitCard,
@@ -23,11 +24,13 @@ import {
   KitText,
   useComponentState,
   useKit,
+  useWords,
 } from "../kit";
 import { prompt } from "../entry/prompt-SwipeStack.generated";
 
 export const meta = {
   id: "SwipeStack",
+  status: "ready",
   signature: "card_swipe",
   group: "content",
   purpose: prompt.purpose,
@@ -45,6 +48,8 @@ export const meta = {
   items: { key: "cards", parts: ["root", "photo", "title", "meta"], visible: "first" },
   parts: ["root"],
   states: ["filled", "empty"],
+  readInState: (_input, state) => state === "empty",
+  read: (_input, state, lang) => (state === "empty" ? [wordsFor(lang).swipeStackEmpty] : []),
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
 } as const satisfies Meta;
 
@@ -160,10 +165,11 @@ function SwipeCard({ card, compact }: { card: StackProps["cards"][number]; compa
 export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
   const density = useKit().density;
+  const { swipeStackEmpty } = useWords().words;
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitEmpty part="title" />
+        <KitEmpty part="title" title={swipeStackEmpty} announce="status" />
       </KitCard>
     );
   }
