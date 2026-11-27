@@ -83,6 +83,7 @@ changed.each(["no-preference", "reduce"] as const)(
     await page.getByRole("button", { name: "Show route sheet", exact: true }).focus();
     await page.keyboard.press("Enter");
     await expect.poll(() => page.getByRole("dialog", { name: "Canal route details" }).count()).toBe(1);
+    expect(await page.getByRole("dialog").getByRole("button").count()).toBe(0);
     expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Close route sheet");
     await step("Close route sheet");
     expect(await page.getByRole("dialog").count()).toBe(0);
@@ -94,7 +95,7 @@ changed.each(["no-preference", "reduce"] as const)(
     await expect.poll(() => page.getByRole("dialog", { name: "Review TROT-92 handoff" }).count()).toBe(1);
     await step("Dismiss review dialog");
     expect(await page.getByRole("dialog").count()).toBe(0);
-    await step("Receive TROT-92");
+    await step("Acknowledge TROT-92");
     expect(await part("receiving/receipt/reference").textContent()).toBe("TROT-92");
     expect(await part("receiving/receipt/phase").textContent()).toBe("Received");
     expect(await phone.evaluate((node, first) => node.firstElementChild === first, keys)).toBe(true);

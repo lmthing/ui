@@ -22,6 +22,8 @@ export function KitRecordArrival({
   const previous = useRef(pose);
   const [progress, setProgress] = useState(1);
   const { record, phase } = pose ?? {};
+  // Compute during render so Strict Mode can replay the same commit, but not a new snapshot.
+  const accepted = scripted !== undefined && matchesReceived(scripted, pose);
   const enabled =
     (scripted !== undefined || kit.environment.signature === "record_arrive") &&
     !kit.environment.reduceMotion &&
@@ -32,10 +34,10 @@ export function KitRecordArrival({
     const from = previous.current;
     const to = record === undefined ? undefined : { record, phase };
     previous.current = to;
-    const accept = cue ? scripted && matchesReceived(scripted, to) : isRecordArrival(from, to);
+    const accept = cue ? accepted : isRecordArrival(from, to);
     if (enabled && accept) return animateNumber(0, 1, setProgress, { duration, easing: easeOut });
     setProgress(1);
-  }, [record, phase, enabled, duration, cue, scripted]);
+  }, [record, phase, enabled, duration, cue]);
   return (
     <YStack position="relative">
       {children}

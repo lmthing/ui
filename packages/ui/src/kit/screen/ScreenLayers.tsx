@@ -3,7 +3,7 @@ import { isWeb, ScrollView, YStack } from "tamagui";
 import { component, durations, motionProfiles, zIndex } from "../../catalog";
 import { KitOverlay } from "../base";
 import { animateNumber, usePresence } from "../motion";
-import { KitVisualOnly, useKit } from "../provider";
+import { KitVisualOnly, SheetPreviewContext, useKit } from "../provider";
 
 export type ScreenLayer = {
   key: string;
@@ -64,7 +64,9 @@ function PaintedLayer({ kind, label, content, exiting }: ScreenLayer & { exiting
         {...{ opacity, y }}
       >
         <ScrollView>
-          <KitVisualOnly active={exiting}>{content}</KitVisualOnly>
+          <SheetPreviewContext.Provider value>
+            <KitVisualOnly active={exiting}>{content}</KitVisualOnly>
+          </SheetPreviewContext.Provider>
         </ScrollView>
       </YStack>
     </YStack>

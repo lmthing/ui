@@ -1,5 +1,5 @@
 import { StrictMode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Button as GalleryButton, TamaguiProvider, YStack } from "tamagui";
+import { Button as GalleryButton, TamaguiProvider, Text, YStack } from "tamagui";
 import {
   components,
   signatures,
@@ -181,6 +181,10 @@ const pickup: ScreenLike = {
 
 const dispatch = handoffScreen("received");
 const walkNotes = walkNotesScreen();
+const previewOnly = (screen: ScreenLike): ScreenLike => ({
+  ...screen,
+  components: screen.components.filter(({ c }) => c !== "Button"),
+});
 
 type JourneyFrame = {
   label: string;
@@ -197,18 +201,18 @@ const notesWithSheet: ScreenLike = {
       id: "route_details",
       c: "Sheet",
       title: "Canal route details",
-      items: [{ label: "Leash time", value: "32 min" }],
+      items: [{ label: "Route", value: "Canal towpath" }],
     },
   ],
 };
-const waiting = handoffScreen("waiting");
+const waiting = previewOnly(handoffScreen("waiting"));
 const inboxWithModal: ScreenLike = {
   ...waiting,
   id: "inbox",
   components: [
-    ...waiting.components
-      .filter(({ id }) => id !== "next" && id !== "return")
-      .map((entry) => (entry.id === "header" ? { ...entry, title: "Dispatch inbox demo" } : entry)),
+    ...waiting.components.map((entry) =>
+      entry.id === "header" ? { ...entry, title: "Dispatch inbox demo" } : entry,
+    ),
     {
       id: "check_receipt",
       c: "Sheet",
@@ -220,7 +224,7 @@ const inboxWithModal: ScreenLike = {
 const receiving: ScreenLike = {
   ...dispatch,
   id: "receiving",
-  components: dispatch.components.map((entry) =>
+  components: previewOnly(dispatch).components.map((entry) =>
     entry.id === "header" ? { ...entry, title: "Record received demo" } : entry,
   ),
 };
@@ -240,7 +244,7 @@ const journeyFrames: readonly JourneyFrame[] = [
   { label: "Show review dialog", screen: inboxWithModal, overlay: { kind: "modal", id: "check_receipt" } },
   { label: "Dismiss review dialog", screen: inboxWithModal },
   {
-    label: "Receive TROT-92",
+    label: "Acknowledge TROT-92",
     screen: receiving,
     move: { to: receiving.id, kind: "record", record: receivingRecord },
   },
@@ -260,6 +264,9 @@ function OnePhoneJourney() {
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
+        <Text color="$muted" textAlign="center">
+          Journey playback · read-only phone preview
+        </Text>
         <GalleryButton onPress={advance} accessibilityRole="button">
           {next.label}
         </GalleryButton>

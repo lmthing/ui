@@ -87,7 +87,7 @@ export function useNavigationMotion(
       history.commit(scripted, agent || scripted.agent);
       const cue = scripted.record;
       // Exactly one commit can use this cue, even if no matching receipt was mounted.
-      if (cue) queueMicrotask(() => expireRecordArrival(cue));
+      if (cue) expireRecordArrival(cue);
       return startScripted();
     }
     if (!history.changed()) return;
