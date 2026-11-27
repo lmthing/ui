@@ -15,7 +15,8 @@ export const meta = createMeta(
     charts: [
       "Make the chart the focus. Compare a single supplied measure with a specific title and unit. Every column label must be at most four characters: for Basil, Fern and Monstera use Basi, Fern and Mons.",
       "Use Stats only for quantities supported by the cast, such as the count of records. A recurring interval does not say how many are due, overdue or complete. Do not assert those counts in Stats or the header without actual activity or due dates.",
-      "The List explains the abbreviated bars. Use the same order, with full names and their supplied distinguishing facts. Only offer actions with a specific destination. Leave detail and row mark null unless explicitly requested; a larger or smaller bar does not request a highlight.",
+      "Give the overview one clear path from comparison to record: use a specific Header title and no Header action unless requested. In the same order as the bars, show full names and a distinct supplied fact in the List rather than repeating each bar value. Use each supplied record destination or a record_<name> link for a named record; leave List detail and row mark null unless requested.",
+      'For the plant sample, use "Watering schedules" as the Header title and "Watering interval (days)" as the Bars title. Set Bars detail to brief: the intervals are not additive, so their sum would mislead. Use the supplied rooms in the List and link each row to its plant record.',
     ],
   },
 ) satisfies ArchetypeMeta;
