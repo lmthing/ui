@@ -85,22 +85,22 @@ export const examples = [
   {
     requests: [
       {
-        from: "Anna",
+        from: "Rae",
         photo: "lib:people",
-        kind: "time_off",
-        title: "Friday off",
-        reference: "LV-104",
-        dates: "20 Nov",
-        note: "Rae can water the ferns.",
+        kind: "swap",
+        title: "Sunday greenhouse cover",
+        dates: "22 Nov",
+        note: "Anna can close the vents.",
+        status: "approved",
       },
       {
         from: "Rae",
         photo: "lib:people",
         kind: "expense",
-        title: "Seed trays",
-        reference: "EXP-117",
-        amount: 24,
-        note: "Receipt is in the greenhouse.",
+        title: "Coir starter pots",
+        amount: 32,
+        note: "Already covered by the supplier.",
+        status: "declined",
       },
     ],
   },
@@ -147,11 +147,21 @@ export const examples = [
         from: "Rae",
         photo: "lib:people",
         kind: "expense",
+        title: "Propagation labels",
+        reference: "EXP-120",
+        amount: 18,
+        note: "Receipt is in the potting shed.",
+        status: "approved",
+      },
+      {
+        from: "Rae",
+        photo: "lib:people",
+        kind: "expense",
         title: "Seed trays",
         reference: "EXP-117",
         amount: 24,
         note: "Receipt is in the greenhouse.",
-        status: "approved",
+        status: "pending",
       },
       { from: "Anna", photo: "lib:people", kind: "other", title: "New watering can", status: "declined" },
       { from: "Lee", photo: "lib:people", kind: "expense", title: "Potting soil", status: "pending" },
@@ -177,7 +187,7 @@ export const probes = [
     ),
     variant: { axis: "lead", value: "none" },
   },
-  read("Decline Rae's seed tray expense request", { address: "a1/r2/decline", action: "press" }),
+  read("Decline Rae's seed tray expense request", { address: "a1/r2/decline", action: "press" }, 3),
   {
     ...write(
       "In the manager's approval queue, Anna (photo lib:people) asks to take an open greenhouse shift nobody has. Title it Friday greenhouse shift, dated 20 Nov. This is a claim, not a swap.",
@@ -190,6 +200,12 @@ export const probes = [
     ),
     expectProps: { style: "my_requests", requests: [{ status: "approved" }] },
   },
+  {
+    ...write(
+      "Show Jo's request PTO-26 for Tuesday off on 24 Nov (photo lib:people). No decision has been made yet.",
+    ),
+    expectProps: { requests: [{ reference: "PTO-26" }] },
+  },
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
@@ -199,16 +215,51 @@ type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
   density: c.ThemeDensity;
 };
 
-function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
-  const state = kit.useComponentState();
+function ApprovalDetails({ row, lead, density }: Pick<RequestProps, "row" | "lead" | "density">) {
   const { words, lang } = kit.useWords(teamWordsFor);
-  const { approve, decline, kinds } = words.approval;
+  const { kinds } = words.approval;
   const amount = approvalAmount(row.amount, lang);
   const status = approvalStatus(row.status, words.approval);
   const portrait =
     lead === "avatar" ? (
       <kit.KitPhoto part="photo" {...approvalPortrait(row.from, row.photo)} label={row.from} shape="round" />
     ) : undefined;
+  return (
+    <kit.KitRow part={null} label={row.title} leading={portrait} leadingAlign="row" inline density={density}>
+      <kit.KitContent density={density}>
+        <kit.KitLayoutText line={{ text: row.title, part: "title", strong: true }} density={density} />
+        <kit.KitTrail
+          kind="badge"
+          inline
+          part="status"
+          value={status.label}
+          tone={status.tone}
+          density={density}
+        />
+        <kit.KitMetaLine
+          title={{ text: row.from, part: "from", role: "meta", tone: "muted" }}
+          meta={[
+            { text: kinds[row.kind], part: "kind" },
+            { text: row.reference, part: "reference", breakLongWords: true },
+            { text: row.dates, part: "dates" },
+            { text: amount, part: "amount", role: "figure", compact: true, tabular: true, tone: "text" },
+          ]}
+          density={density}
+        />
+        {row.note && (
+          <kit.KitContent group="response" density={density}>
+            <kit.KitLayoutText line={{ text: row.note, part: "note", tone: "muted" }} density={density} />
+          </kit.KitContent>
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
+  const state = kit.useComponentState();
+  const { words } = kit.useWords(teamWordsFor);
+  const { approve, decline } = words.approval;
   return (
     <kit.KitRow
       item={row.id}
@@ -220,33 +271,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
       surface={surface}
     >
       <kit.KitCard part="content" style="plain" padded density={density}>
-        <kit.KitContent lead={portrait} leadingAlign="row" density={density}>
-          <kit.KitMetaLine
-            title={{ text: row.title, part: "title", role: "body", strong: true }}
-            meta={[
-              { text: row.from, part: "from" },
-              { text: kinds[row.kind], part: "kind" },
-              { text: row.reference, part: "reference", breakLongWords: true },
-            ]}
-            density={density}
-          />
-        </kit.KitContent>
-        <kit.KitMetaLine
-          title={{ text: row.note, part: "note", role: "body", tone: "muted" }}
-          meta={[
-            { text: row.dates, part: "dates" },
-            { text: amount, part: "amount", role: "figure", compact: true, tabular: true, tone: "text" },
-          ]}
-          density={density}
-        />
-        <kit.KitTrail
-          kind="badge"
-          inline
-          part="status"
-          value={status.label}
-          tone={status.tone}
-          {...{ density }}
-        />
+        <ApprovalDetails {...{ row, lead, density }} />
         {state === "filled" && style === "queue" && row.open && (
           <kit.KitActionFooter density={density}>
             <kit.KitGrid density={density}>

@@ -16,7 +16,22 @@ import { teamWordsFor } from "../../lang";
 
 const def = components.Approval;
 const { props, meta, examples, fallback, probes } = def;
-const full = examples[0]!;
+const sample = examples[0]!;
+const full = {
+  requests: [
+    {
+      ...sample.requests[0]!,
+      from: "Anna",
+      kind: "time_off" as const,
+      title: "Friday off",
+      dates: "20 Nov",
+      note: "Rae can water the ferns.",
+      reference: "LV-104",
+      status: "pending" as const,
+    },
+    { ...examples[3]!.requests[1]! },
+  ],
+};
 const row = full.requests[0]!;
 const words = teamWordsFor().approval;
 const emptyCast: CastLike = { things: [], items: [] };
@@ -163,6 +178,11 @@ describe("Approval parts, reading and variants", () => {
 });
 
 describe("Approval states and dispatch", () => {
+  it("shows only acknowledged requests in the success preview", () => {
+    const parts = view(sample, "success");
+    expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.statuses.approved]);
+    expect(textOf(parts.get("home/c1/r2/status"))).toEqual([words.statuses.declined]);
+  });
   it("keeps the request and its acknowledged outcome on the same addressed row", () => {
     const input = { requests: [{ ...row, reference: "LV-104" }] };
     const incoming = view(input);
