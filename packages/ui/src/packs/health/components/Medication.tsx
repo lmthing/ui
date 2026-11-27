@@ -75,7 +75,6 @@ export const meta = {
   },
   localState: medicationLog,
   live: { derive: projectMedication },
-  readInState: (_input, state) => state === "empty",
   readSuccess: true,
   readError: true,
   read: (input, state, lang?: string): string[] =>
@@ -292,7 +291,7 @@ export function Medication(input: Props<typeof props, typeof meta>) {
   if (state === "empty")
     return (
       <KitCard part="root" density={density}>
-        <KitEmpty part="status" title={words.medicationLabels.empty} />
+        <KitEmpty part="status" />
       </KitCard>
     );
   const refill = refillLine(doses, refillAt, lang);

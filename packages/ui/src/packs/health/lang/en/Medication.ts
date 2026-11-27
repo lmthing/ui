@@ -6,7 +6,6 @@ export const words = {
     skip: "Skip",
     markTaken: "Mark taken",
     success: "No more scheduled doses to log",
-    empty: "No doses scheduled",
     notLogged: "Due · Not logged",
     unavailable: "Dose logging unavailable. Check your dose log before trying again.",
   },

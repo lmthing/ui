@@ -144,7 +144,7 @@ describe("Medication state, parts and read/act", () => {
   });
   it("renders neutral empty and completed success states, with no due or skip controls", () => {
     const empty = renderInstance("Medication", examples[0], "empty", theme);
-    expect(empty).toContain("No doses scheduled");
+    expect(empty).toContain("Nothing here yet");
     expect(empty).not.toContain('role="checkbox"');
     expect(
       renderInstance("Medication", { doses: [{ ...dose, status: "taken" }] }, "filled", theme),

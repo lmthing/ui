@@ -94,7 +94,7 @@ export function medicationReading(
   state = "filled",
 ): string[] {
   const { medicationLabels, medicationReading: doseLine } = healthWordsFor(lang);
-  if (state === "empty") return [medicationLabels.empty];
+  if (state === "empty") return [];
   const refill = refillLine(doses, refillAt, lang);
   const { complete, unavailable } = medicationFeedback(doses, state);
   return [
