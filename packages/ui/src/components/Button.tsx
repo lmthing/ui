@@ -17,9 +17,11 @@ import {
   KitIcon,
   KitRow,
   KitSkeleton,
+  KitState,
   KitText,
   useComponentState,
   useVariant,
+  useWords,
 } from "../kit";
 import { prompt } from "../entry/prompt-Button.generated";
 
@@ -69,8 +71,6 @@ export const examples = [
   { label: "Book a walk", goto: "book_walk" },
   { label: "Log watering", icon: "drop", media: "none" },
   { label: "Remove plant", kind: "danger", confirm: "Remove this plant and its history?" },
-  { label: "Log watering", icon: "drop" },
-  { label: "Log watering", icon: "drop" },
   { label: "View schedule", icon: "calendar", emphasis: "quiet", goto: "schedule" },
 ] satisfies z.input<typeof props>[];
 
@@ -105,12 +105,7 @@ export function Button({ label, kind, emphasis, media, icon, goto }: Props<typeo
   const loading = useComponentState() === "loading";
   const glyph = media === "none" ? undefined : icon;
   const action = kind ?? (finish === "quiet" ? "quiet" : "primary");
-  if (loading)
-    return (
-      <KitCard style="plain" part="root">
-        <KitSkeleton shape="control" kind={action} label={label} full={finish !== "quiet" || !!goto} />
-      </KitCard>
-    );
+  if (loading) return <PendingAction link={action === "quiet" && !!goto} />;
   if (action === "quiet" && goto)
     return (
       <KitRow
@@ -129,5 +124,27 @@ export function Button({ label, kind, emphasis, media, icon, goto }: Props<typeo
     );
   return (
     <KitAction label={label} icon={glyph} kind={action} goto={goto} part="root" full={finish !== "quiet"} />
+  );
+}
+
+function PendingAction({ link }: { link: boolean }) {
+  const { loadingLabel } = useWords().words;
+  return (
+    <KitCard style="plain" part="root">
+      <KitState
+        loading={
+          <KitRow
+            label={loadingLabel}
+            lineRole="label"
+            inline={!link}
+            leading={<KitSkeleton shape="figure" lead="dot" />}
+          >
+            <KitText part={null} role="label" tone="muted">
+              {loadingLabel}
+            </KitText>
+          </KitRow>
+        }
+      />
+    </KitCard>
   );
 }

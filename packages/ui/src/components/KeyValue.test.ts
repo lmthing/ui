@@ -169,7 +169,7 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
   return renderInstance("KeyValue", { arrange, pairs, ...(hideIcons ? { lead: "none" } : {}) },
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
-describe("KeyValue rendering", () => {
+describe("KeyValue links", () => {
   it.each(["rows", "grid"] as const)("offers only the linked value in %s", (arrange) => {
     const status = { label: "Share status", value: "Ready to share", status: true };
     const link = { label: "Spotify", value: "Open in Spotify", goto: "spotify" };
@@ -207,6 +207,9 @@ describe("KeyValue rendering", () => {
     expect(props.safeParse({ pairs: [pair], masked: true }).success).toBe(false);
     expect(props.safeParse({ pairs: [{ ...pair, status: true }] }).success).toBe(false);
   });
+});
+
+describe("KeyValue rendering", () => {
   it.each(["rows", "grid"] as const)(
     "emphasises only the status value in %s without changing addresses",
     (arrange) => {

@@ -1459,6 +1459,15 @@
       "Button"
     ]
   },
+  "Actions%2Fread%2FAdd%20a%20plant/261e7793baba80fc/eb3531cfcbf7cc7c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 Actions\n  r1 \"Watering log\" [a1/r1 press→water]\n  r2 \"Add plant\" [a1/r2 press→add_plant]\n  r3 \"Schedule\" [a1/r3 press→schedule]\n\nTask: Add a plant\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"a1/r2\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"a1/r2\", \"action\": \"press\"}",
+      "{\"address\": \"a1/r2\", \"action\": \"press\"}",
+      "{\"address\": \"a1/r2\", \"action\": \"press\"}"
+    ]
+  },
   "Actions%2Fread%2FAdd%20a%20plant/644d73d410857583/ce1e4fbf49f05f80": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 Actions\n  r1 \"Water\" [a1/r1 press→water]\n  r2 \"Add plant\" [a1/r2 press→add_plant]\n  r3 \"Schedule\" [a1/r3 press→schedule]\n\nTask: Add a plant\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"a1/r2\", \"action\": \"press\"}",
@@ -1735,6 +1744,232 @@
       "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
       "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
       "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":\"card\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
+    ]
+  },
+  "Actions%2Fwrite%2FLet%20me%20book%20a%20dog%20walk%2C%20open%20my%20clients%2C%20see%20earnings%20and%20read%20messages/1a2556e8504e47cb/d704d40603348068": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nActions: Two to four shortcuts to different things the person can do next.\nprops: { arrange?: grid|rows=\"grid\", items: [2..4 { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto: id snake_case }] }\nRule: Each item is a peer link to a real screen, never a primary button, a status, or a pressed/selected choice. Name the destination (\"Clients\") or the task it opens (\"Book walk\"). Don't add a \"Ready\" or \"Done\" shortcut to show state. Use Button for the one main task and KeyValue for a record's status.\nRule: Vertically stacked shortcuts set arrange to \"rows\" only. If no arrangement is requested, use null for arrange.\nexample: {\"c\":\"Actions\",\"items\":[{\"icon\":\"drop\",\"label\":\"Watering log\",\"goto\":\"water\"},{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"},{\"icon\":\"calendar\",\"label\":\"Schedule\",\"goto\":\"schedule\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let me book a dog walk, open my clients, see earnings and read messages",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Actions",
+              "enum": [
+                "Actions"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 2,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "dot",
+                      "leaf",
+                      "drop",
+                      "dog",
+                      "cat",
+                      "calendar",
+                      "calendar_days",
+                      "clock",
+                      "check",
+                      "chevron_right",
+                      "plus",
+                      "minus",
+                      "close",
+                      "search",
+                      "settings",
+                      "bell",
+                      "bell_off",
+                      "heart",
+                      "star",
+                      "bookmark",
+                      "share",
+                      "send",
+                      "message",
+                      "mail",
+                      "phone",
+                      "camera",
+                      "image",
+                      "video",
+                      "mic",
+                      "music",
+                      "play",
+                      "pause",
+                      "square",
+                      "undo",
+                      "timer",
+                      "alarm_clock",
+                      "sun",
+                      "moon",
+                      "cloud",
+                      "cloud_rain",
+                      "thermometer",
+                      "wind",
+                      "flame",
+                      "zap",
+                      "battery",
+                      "wifi",
+                      "pin",
+                      "map",
+                      "navigation",
+                      "compass",
+                      "home",
+                      "building",
+                      "store",
+                      "shopping_cart",
+                      "shopping_bag",
+                      "tag",
+                      "gift",
+                      "credit_card",
+                      "wallet",
+                      "banknote",
+                      "piggy_bank",
+                      "receipt",
+                      "trending_up",
+                      "trending_down",
+                      "bar_chart",
+                      "pie_chart",
+                      "activity",
+                      "target",
+                      "trophy",
+                      "medal",
+                      "award",
+                      "flag",
+                      "user",
+                      "users",
+                      "user_plus",
+                      "baby",
+                      "smile",
+                      "dumbbell",
+                      "bike",
+                      "footprints",
+                      "heart_pulse",
+                      "pill",
+                      "stethoscope",
+                      "apple",
+                      "coffee",
+                      "utensils",
+                      "wine",
+                      "pizza",
+                      "carrot",
+                      "sprout",
+                      "flower",
+                      "tree",
+                      "mountain",
+                      "waves",
+                      "car",
+                      "bus",
+                      "plane",
+                      "train",
+                      "briefcase",
+                      "graduation_cap",
+                      "book_open",
+                      "book",
+                      "pencil",
+                      "file_text",
+                      "clipboard",
+                      "clipboard_list",
+                      "checklist",
+                      "lock",
+                      "unlock",
+                      "key",
+                      "shield",
+                      "eye",
+                      "link",
+                      "paperclip",
+                      "download",
+                      "upload",
+                      "trash",
+                      "edit",
+                      "filter",
+                      "sliders",
+                      "info",
+                      "alert",
+                      "help",
+                      "sparkles",
+                      "lightbulb",
+                      "palette",
+                      "scissors",
+                      "wrench",
+                      "hammer",
+                      "package",
+                      "truck",
+                      "recycle",
+                      "globe",
+                      "languages",
+                      "gamepad",
+                      "ticket",
+                      "paw",
+                      "shirt",
+                      "bed",
+                      "bath",
+                      "sofa",
+                      "lamp",
+                      "chevron_left",
+                      "arrow_left",
+                      "more",
+                      "external_link",
+                      "quote",
+                      "circle_check"
+                    ]
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "icon",
+                  "label",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "items"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Actions\",\"arrange\":\"grid\",\"items\":[{\"icon\":\"paw\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+    "replies": [
+      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"items\":[{\"icon\":\"paw\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":null,\"items\":[{\"icon\":\"paw\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"wallet\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
     ]
   },
   "Actions%2Fwrite%2FLet%20me%20book%20a%20dog%20walk%2C%20open%20my%20clients%2C%20see%20earnings%20and%20read%20messages/c2af4f72ced3b231/51d8bd9a8722cbae": {
@@ -2865,6 +3100,232 @@
       "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
       "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
       "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
+    ]
+  },
+  "Actions%2Fwrite%2FStack%20the%20Book%20walk%2C%20Clients%2C%20Earnings%20and%20Messages%20shortcuts%20vertically%2C%20one%20per%20row%2C%20each%20opening%20its%20own%20screen./916c815d4e8fc5b7/6160f003841c47a4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nActions: Two to four shortcuts to different things the person can do next.\nprops: { arrange?: grid|rows=\"grid\", items: [2..4 { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto: id snake_case }] }\nRule: Each item is a peer link to a real screen, never a primary button, a status, or a pressed/selected choice. Name the destination (\"Clients\") or the task it opens (\"Book walk\"). Don't add a \"Ready\" or \"Done\" shortcut to show state. Use Button for the one main task and KeyValue for a record's status.\nRule: Vertically stacked shortcuts set arrange to \"rows\" only. If no arrangement is requested, use null for arrange.\nexample: {\"c\":\"Actions\",\"items\":[{\"icon\":\"drop\",\"label\":\"Watering log\",\"goto\":\"water\"},{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"},{\"icon\":\"calendar\",\"label\":\"Schedule\",\"goto\":\"schedule\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Stack the Book walk, Clients, Earnings and Messages shortcuts vertically, one per row, each opening its own screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Actions",
+              "enum": [
+                "Actions"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 2,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "dot",
+                      "leaf",
+                      "drop",
+                      "dog",
+                      "cat",
+                      "calendar",
+                      "calendar_days",
+                      "clock",
+                      "check",
+                      "chevron_right",
+                      "plus",
+                      "minus",
+                      "close",
+                      "search",
+                      "settings",
+                      "bell",
+                      "bell_off",
+                      "heart",
+                      "star",
+                      "bookmark",
+                      "share",
+                      "send",
+                      "message",
+                      "mail",
+                      "phone",
+                      "camera",
+                      "image",
+                      "video",
+                      "mic",
+                      "music",
+                      "play",
+                      "pause",
+                      "square",
+                      "undo",
+                      "timer",
+                      "alarm_clock",
+                      "sun",
+                      "moon",
+                      "cloud",
+                      "cloud_rain",
+                      "thermometer",
+                      "wind",
+                      "flame",
+                      "zap",
+                      "battery",
+                      "wifi",
+                      "pin",
+                      "map",
+                      "navigation",
+                      "compass",
+                      "home",
+                      "building",
+                      "store",
+                      "shopping_cart",
+                      "shopping_bag",
+                      "tag",
+                      "gift",
+                      "credit_card",
+                      "wallet",
+                      "banknote",
+                      "piggy_bank",
+                      "receipt",
+                      "trending_up",
+                      "trending_down",
+                      "bar_chart",
+                      "pie_chart",
+                      "activity",
+                      "target",
+                      "trophy",
+                      "medal",
+                      "award",
+                      "flag",
+                      "user",
+                      "users",
+                      "user_plus",
+                      "baby",
+                      "smile",
+                      "dumbbell",
+                      "bike",
+                      "footprints",
+                      "heart_pulse",
+                      "pill",
+                      "stethoscope",
+                      "apple",
+                      "coffee",
+                      "utensils",
+                      "wine",
+                      "pizza",
+                      "carrot",
+                      "sprout",
+                      "flower",
+                      "tree",
+                      "mountain",
+                      "waves",
+                      "car",
+                      "bus",
+                      "plane",
+                      "train",
+                      "briefcase",
+                      "graduation_cap",
+                      "book_open",
+                      "book",
+                      "pencil",
+                      "file_text",
+                      "clipboard",
+                      "clipboard_list",
+                      "checklist",
+                      "lock",
+                      "unlock",
+                      "key",
+                      "shield",
+                      "eye",
+                      "link",
+                      "paperclip",
+                      "download",
+                      "upload",
+                      "trash",
+                      "edit",
+                      "filter",
+                      "sliders",
+                      "info",
+                      "alert",
+                      "help",
+                      "sparkles",
+                      "lightbulb",
+                      "palette",
+                      "scissors",
+                      "wrench",
+                      "hammer",
+                      "package",
+                      "truck",
+                      "recycle",
+                      "globe",
+                      "languages",
+                      "gamepad",
+                      "ticket",
+                      "paw",
+                      "shirt",
+                      "bed",
+                      "bath",
+                      "sofa",
+                      "lamp",
+                      "chevron_left",
+                      "arrow_left",
+                      "more",
+                      "external_link",
+                      "quote",
+                      "circle_check"
+                    ]
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "icon",
+                  "label",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "items"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+    "replies": [
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"map\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
     ]
   },
   "Actions%2Fwrite%2FStack%20the%20Book%20walk%2C%20Clients%2C%20Earnings%20and%20Messages%20shortcuts%20vertically%2C%20one%20per%20row%2C%20each%20opening%20its%20own%20screen./a4a90b96a8f732a5/db045deb4c5bcc3e": {

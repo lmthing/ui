@@ -62,14 +62,14 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   {
     items: [
-      { icon: "drop", label: "Log watering", goto: "water" },
+      { icon: "drop", label: "Watering log", goto: "water" },
       { icon: "plus", label: "Add plant", goto: "add_plant" },
       { icon: "calendar", label: "Schedule", goto: "schedule" },
     ],
   },
   {
     items: [
-      { icon: "dog", label: "Book walk", goto: "book_walk" },
+      { icon: "dog", label: "Walk booking", goto: "book_walk" },
       { icon: "users", label: "Clients", goto: "clients" },
       { icon: "wallet", label: "Earnings", goto: "earnings" },
       { icon: "message", label: "Messages", goto: "messages" },
@@ -84,7 +84,7 @@ export const examples = [
   {
     arrange: "rows",
     items: [
-      { icon: "dog", label: "Book walk", goto: "book_walk" },
+      { icon: "dog", label: "Walk booking", goto: "book_walk" },
       { icon: "users", label: "Clients", goto: "clients" },
       { icon: "wallet", label: "Earnings", goto: "earnings" },
       { icon: "message", label: "Messages", goto: "messages" },
@@ -93,13 +93,13 @@ export const examples = [
   {
     items: [
       { icon: "leaf", label: "My plants", goto: "plants" },
-      { icon: "drop", label: "Water", goto: "water" },
+      { icon: "drop", label: "Watering log", goto: "water" },
     ],
   },
   {
     items: [
       { icon: "leaf", label: "My plants", goto: "plants" },
-      { icon: "drop", label: "Water", goto: "water" },
+      { icon: "drop", label: "Watering log", goto: "water" },
     ],
   },
 ] satisfies z.input<typeof props>[];

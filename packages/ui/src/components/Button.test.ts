@@ -152,7 +152,7 @@ describe("Button confirm", () => {
   });
 });
 
-describe("Button variants", () => {
+describe("Button action states", () => {
   it("keeps the primary task separate from a secondary link", () => {
     const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
     const primary = renderInstance("Button", { label: "Share playlist", goto: "share" }, "filled", theme);
@@ -168,7 +168,7 @@ describe("Button variants", () => {
     expect(link).toContain('data-testid="home/c1/root_label"');
   });
 
-  it("keeps the pending slot but removes its action and label", () => {
+  it("keeps the pending slot with visible loading copy but no action", () => {
     const input = { label: "Log watering", icon: "drop" };
     const html = renderInstance("Button", input, "loading", {
       preset: "calm",
@@ -176,9 +176,13 @@ describe("Button variants", () => {
       accent: "moss",
     });
     expect(html).toContain('aria-busy="true"');
+    expect(html).toContain(">Loading</span>");
     expect(html).not.toContain('role="button"');
     expect(readComponent(components.Button, input, "c1", "loading").join()).not.toContain(" press");
   });
+});
+
+describe("Button variants", () => {
   it.each([
     ["primary", {}],
     ["secondary", {}],

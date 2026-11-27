@@ -241,6 +241,7 @@ function PairRow({
   masked: boolean;
 }) {
   const lead = pair.icon && <kit.KitIcon name={pair.icon} tone="muted" part="icon" decorative={loading} />;
+  const linked = !!pair.goto && !loading;
   return (
     <kit.KitRow
       {...(loading ? { part: null } : { item: pair.id })}
@@ -249,8 +250,14 @@ function PairRow({
       inline={!horizontal}
       density={density}
       leading={lead}
+      leadingAlign={linked && horizontal ? "row" : "line"}
     >
-      <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} keyColumn density={density}>
+      <kit.KitGrid
+        arrange={horizontal && !masked ? "grid" : "rows"}
+        keyColumn
+        fitLast={linked}
+        density={density}
+      >
         {loading ? (
           <kit.KitSkeleton
             shape="figure"
@@ -280,12 +287,19 @@ function PairValue({ pair, horizontal, loading }: { pair: Pair; horizontal: bool
     return (
       <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
     );
+  if (pair.goto)
+    return (
+      <kit.KitText part={null} density="comfortable">
+        <kit.KitText part="value" goto={pair.goto} density="comfortable" breakLongWords>
+          {pair.value}
+        </kit.KitText>
+      </kit.KitText>
+    );
   return (
     <kit.KitText
       role={role}
       part="value"
       density="comfortable"
-      goto={pair.goto}
       tabular={figure}
       breakLongWords
       {...(pair.status && { emphasis: "strong", tone: pair.tone === "neutral" ? "text" : pair.tone })}
