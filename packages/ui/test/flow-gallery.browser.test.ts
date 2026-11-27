@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, test } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, test } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig, launchChrome } from "../scripts/look";
@@ -12,18 +12,37 @@ const phone = () => page.locator("[data-flow-phone]");
 const button = (name: string) => phone().getByRole("button", { name, exact: true });
 const playback = (name: string) => page.getByRole("button", { name, exact: true });
 const choice = (name: string) => phone().getByRole("link", { name, exact: true });
-const branches = new Set(["Reschedule", "Cancel booking", "Approve"]);
+const branches = new Set([
+  "Reschedule",
+  "Cancel booking",
+  "Approve",
+  "Book open spot",
+  "Join waitlist if full",
+  "See spot offer",
+  "Leave waitlist",
+  "Accept proposal",
+  "Decline proposal",
+]);
 const at = (key: string) => page.locator(`[data-flow-player="${key}"]`).waitFor();
 
 beforeAll(async () => {
   server = await createServer(galleryConfig(0));
   await server.listen();
   browser = await launchChrome();
+}, 90_000);
+
+beforeEach(async () => {
+  errors.length = 0;
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.setDefaultTimeout(12_000);
   page.setDefaultNavigationTimeout(30_000);
   page.on("pageerror", (e) => errors.push(e.message));
-}, 90_000);
+});
+
+afterEach(async () => {
+  await page?.close();
+  expect(errors).toEqual([]);
+});
 
 afterAll(async () => {
   await browser?.close();
@@ -56,6 +75,28 @@ const cases = [
     ["Create account", "Continue after verifying", "Save goal", "Make a first list"],
     "member/ready",
   ],
+  ["class_waitlist", ["Book open spot", "Confirm class"], "member/booked"],
+  [
+    "class_waitlist",
+    ["Join waitlist if full", "See spot offer", "Review spot", "Confirm class"],
+    "member/booked",
+  ],
+  ["class_waitlist", ["Join waitlist if full", "Leave waitlist", "Confirm leave"], "member/left"],
+  [
+    "assign_work_order",
+    ["Send request", "Assign work order", "Review work outcome", "Submit outcome", "Close and notify"],
+    "requester/closed",
+  ],
+  [
+    "lead_to_client",
+    ["Review inquiry", "Send proposal", "Accept proposal", "Send acceptance", "Create client"],
+    "owner/client",
+  ],
+  [
+    "lead_to_client",
+    ["Review inquiry", "Send proposal", "Decline proposal", "Confirm decline"],
+    "prospect/declined",
+  ],
 ] as const;
 
 test.each(cases)("plays %s through actual kit controls (%j)", async (id, actions, end) => {
@@ -63,6 +104,33 @@ test.each(cases)("plays %s through actual kit controls (%j)", async (id, actions
   for (const action of actions) await (branches.has(action) ? choice(action) : button(action)).click();
   await at(end);
   expect(await page.getByText("Journey complete", { exact: true }).count()).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+test("an expired offer has no booking affordance and can return to the sample", async () => {
+  await page.goto(`${base()}?flows=class_waitlist`);
+  await choice("Join waitlist if full").click();
+  await choice("See spot offer").click();
+  await at("member/offer");
+  await page.getByText("Inspect steps and states", { exact: true }).click();
+  await playback("Error").click();
+  await page.locator("[data-flow-state=error]").waitFor();
+  expect(await button("Review spot").count()).toBe(0);
+  await phone().getByText("This offer expired. You have not been booked.", { exact: true }).waitFor();
+  await playback("Return to playback").click();
+  await button("Review spot").click();
+  await at("member/review");
+});
+
+test("the agenda opens the full session's details without booking or linking the unlinked row", async () => {
+  await page.goto(`${base()}?nav-shell=booking_agenda`);
+  const agenda = page.locator("[data-navigation-shell=booking_agenda]");
+  await agenda.getByText("Booked", { exact: true }).waitFor();
+  expect(await agenda.getByRole("link", { name: /Winter watering/ }).count()).toBe(0);
+  await agenda.getByRole("link", { name: /Plant cuttings exchange/ }).click();
+  const details = page.locator("[data-navigation-shell=cuttings_waitlist]");
+  await details.getByText("Full", { exact: true }).waitFor();
+  await details.getByText("This preview does not reserve a place.", { exact: true }).waitFor();
   expect(errors).toEqual([]);
 });
 

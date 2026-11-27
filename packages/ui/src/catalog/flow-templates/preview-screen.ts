@@ -19,6 +19,29 @@ function pairs(flow: FilledFlow, frame: FlowFrame) {
   }));
 }
 
+function previewTarget(flow: FilledFlow, target: string) {
+  const next = flow.frames.findIndex(({ key }) => key === target);
+  if (next < 0) throw new Error(`Preview has no target: ${target}`);
+  return flowScreenId(next);
+}
+
+function waitlistOffer(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
+  if (state) return [];
+  const { respond_by } = flow.record;
+  if (typeof respond_by !== "string" || frame.forward.length !== 1)
+    throw new Error(`Waitlist offer needs a response deadline and one review destination: ${frame.key}`);
+  return [
+    {
+      id: "offer",
+      c: "Waitlist",
+      ahead: 0,
+      joined: true,
+      respondBy: clip(respond_by, 36),
+      goto: previewTarget(flow, frame.forward[0]!.target),
+    },
+  ];
+}
+
 function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
   const body = frame.see;
   switch (c) {
@@ -44,6 +67,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
       }));
     case "KeyValue":
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
+    case "Waitlist":
+      return waitlistOffer(flow, frame, state);
     case "List":
       return [
         {
@@ -65,11 +90,10 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
 
 function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
   if ((state && state !== "success") || !frame.forward.length) return [];
-  const next = frame.forward.map(({ label, target }) => {
-    const next = flow.frames.findIndex(({ key }) => key === target);
-    if (next < 0) throw new Error(`Preview has no target: ${target}`);
-    return { title: clip(label, 24), goto: flowScreenId(next) };
-  });
+  const next = frame.forward.map(({ label, target }) => ({
+    title: clip(label, 24),
+    goto: previewTarget(flow, target),
+  }));
   if (next.length > 1)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
@@ -110,7 +134,9 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
   return {
     id: flowScreenId(index),
     title: frame.title,
-    components: [...body, ...previewActions(flow, frame, state)],
+    components: body.some(({ c }) => c === "Waitlist")
+      ? body
+      : [...body, ...previewActions(flow, frame, state)],
   };
 }
 

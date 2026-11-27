@@ -6,6 +6,7 @@ import { words as AvailabilityWords } from "./en/Availability";
 import { words as ServiceMenuWords } from "./en/ServiceMenu";
 import { words as SessionPackWords } from "./en/SessionPack";
 import { words as ClassRosterWords } from "./en/ClassRoster";
+import { words as SlotAgendaWords } from "./en/SlotAgenda";
 
 export const en = {
   ...WaitlistWords,
@@ -16,6 +17,7 @@ export const en = {
   ...ServiceMenuWords,
   ...SessionPackWords,
   ...ClassRosterWords,
+  ...SlotAgendaWords,
 };
 
 export type BookingWords = typeof en;
