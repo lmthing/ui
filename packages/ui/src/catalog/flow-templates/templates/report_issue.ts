@@ -10,6 +10,7 @@ export const reportIssue: FlowTemplate = {
     issue: "string",
     reference: "string",
     resolution: "string",
+    evidence: "string",
   },
   journeys: [
     {
@@ -37,26 +38,24 @@ export const reportIssue: FlowTemplate = {
         },
         {
           id: "add_context",
-          see: "You can include extra context if it will help someone find the problem.",
-          do: "Tap Continue",
+          see: "Add a location or name the evidence that helps {name.resolver} find the issue.",
+          do: "Review the evidence with the report.",
           optional: true,
           layout: {
-            components: ["Note"],
+            components: ["Field"],
           },
           states: ["empty"],
           preview: {
             title: "Add context",
-            action: "Continue",
+            action: "Review report",
+            fields: ["evidence"],
+            back: true,
           },
         },
         {
           id: "submit",
           see: "{record.issue} will be filed under {record.reference} for {name.resolver}.",
           do: "Tap Send report",
-          hands_off_to: {
-            role: "resolver",
-            step: "triage",
-          },
           layout: {
             components: ["KeyValue"],
           },
@@ -64,7 +63,21 @@ export const reportIssue: FlowTemplate = {
           preview: {
             title: "Review report",
             action: "Send report",
-            fields: ["issue", "reference"],
+            fields: ["issue", "reference", "evidence"],
+            back: true,
+          },
+        },
+        {
+          id: "reported",
+          see: "{name.resolver} received report {record.reference}. It hasn't been resolved yet.",
+          do: "Open the resolver’s copy of the report.",
+          hands_off_to: { role: "resolver", step: "triage" },
+          layout: { components: ["KeyValue"] },
+          states: ["waiting"],
+          preview: {
+            title: "Issue reported",
+            action: "Open resolver's report",
+            fields: ["reference", "issue", "evidence"],
           },
         },
         {
@@ -99,7 +112,7 @@ export const reportIssue: FlowTemplate = {
           preview: {
             title: "New issue report",
             action: "Start work",
-            fields: ["issue", "reference"],
+            fields: ["issue", "reference", "evidence"],
             messages: {
               error: "This report is already assigned. Reload before taking it.",
             },
@@ -120,6 +133,7 @@ export const reportIssue: FlowTemplate = {
           preview: {
             title: "Record the resolution",
             action: "Resolve and notify",
+            back: true,
             fields: ["resolution"],
             messages: {
               error: "Add the fix before closing this report.",
@@ -140,6 +154,7 @@ export const reportIssue: FlowTemplate = {
         issue: "Loose cabinet hinge",
         reference: "IS-480",
         resolution: "Hinge tightened",
+        evidence: "Cabinet 3 · lower hinge",
       },
     },
     {
@@ -152,6 +167,7 @@ export const reportIssue: FlowTemplate = {
         issue: "Hall light out",
         reference: "IS-582",
         resolution: "Lamp replaced",
+        evidence: "Hall B · second-floor landing",
       },
     },
   ],
@@ -169,7 +185,7 @@ export const reportIssue: FlowTemplate = {
     fill: [
       {
         request:
-          "Uma reports a Loose cabinet hinge to Eli under IS-480. The final resolution is Hinge tightened.",
+          "Uma reports a Loose cabinet hinge to Eli under IS-480 at 'Cabinet 3 · lower hinge'. The final resolution is Hinge tightened.",
         expect: {
           names: {
             reporter: "Uma",
@@ -179,6 +195,7 @@ export const reportIssue: FlowTemplate = {
             issue: "Loose cabinet hinge",
             reference: "IS-480",
             resolution: "Hinge tightened",
+            evidence: "Cabinet 3 · lower hinge",
           },
         },
       },

@@ -20,7 +20,7 @@ export const signupOnboard: FlowTemplate = {
       steps: [
         {
           id: "account",
-          see: "Enter an email so you can verify the account and get back to it later.",
+          see: "Set up access so you can {record.goal}. Use an email you can verify.",
           do: "Tap Create account",
           layout: {
             components: ["Note", "Field"],
@@ -37,7 +37,7 @@ export const signupOnboard: FlowTemplate = {
         },
         {
           id: "verify",
-          see: "A verification message was sent to {record.account}.",
+          see: "In this demo, {record.account} is the verification address. No verification email was sent.",
           do: "Tap Continue after verifying",
           layout: {
             components: ["Note"],
@@ -45,7 +45,7 @@ export const signupOnboard: FlowTemplate = {
           states: ["waiting", "error"],
           preview: {
             title: "Verify your email",
-            action: "Continue after verifying",
+            action: "Preview verified setup",
             messages: {
               error: "The link has expired. Ask for a fresh verification message.",
             },
@@ -64,6 +64,7 @@ export const signupOnboard: FlowTemplate = {
             title: "Choose a goal",
             action: "Save goal",
             fields: ["goal"],
+            back: true,
           },
         },
         {
@@ -117,6 +118,7 @@ export const signupOnboard: FlowTemplate = {
         task: "Add a first milestone",
         account: "vic@example.test",
       },
+      omit: ["member/preferences"],
     },
   ],
   probes: {

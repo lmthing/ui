@@ -6,10 +6,11 @@ export const flowWords = {
   missing: "That flow template is not available.",
   example: "Example",
   inspect: "Inspect steps and states",
-  play: "Playback",
+  play: "Default appearance",
   state: "Preview state",
   role: "Role",
-  done: "Journey complete",
+  simulation: "Demo only",
+  readOnly: "Inspect only",
   resume: "Return to playback",
   restart: "Play again",
   figures: {

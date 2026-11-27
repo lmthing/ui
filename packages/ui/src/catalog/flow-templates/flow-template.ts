@@ -18,12 +18,47 @@ const stepLayout = z.union([
   z.strictObject({ components: z.array(text(60)).min(1).max(12) }),
 ]);
 
+const searchPreview = z.strictObject({
+  hint: text(40),
+  filterLabel: text(14),
+  results: z
+    .array(z.strictObject({ title: id, category: id, detail: id, step: id }))
+    .min(2)
+    .max(6),
+});
+
+const threadPreview = z.strictObject({
+  messages: z
+    .array(
+      z.strictObject({
+        field: id,
+        from: z.enum(["me", "them"]),
+        status: z.enum(["sent", "delivered", "read"]).optional(),
+      }),
+    )
+    .min(1)
+    .max(6),
+  compose: id.optional(),
+});
+
 const preview = z.strictObject({
   title: text(28),
   action: text(24).optional(),
   back: z.literal(true).optional(),
   actionList: z.literal(true).optional(),
+  retry: id.optional(),
   receipt: z.enum(["waiting", "received", "returned"]).optional(),
+  search: searchPreview.optional(),
+  thread: threadPreview.optional(),
+  progress: z.strictObject({ at: z.int().min(1).max(6), count: z.int().min(2).max(6) }).optional(),
+  labels: z.record(id, text(24)).optional(),
+  choice: z
+    .strictObject({
+      field: id,
+      options: z.array(id).min(2).max(5),
+      total: z.strictObject({ field: id, unitPrice: id }).optional(),
+    })
+    .optional(),
   fields: z.array(id).min(1).max(6).optional(),
   messages: z.partialRecord(flowState, text(160)).optional(),
 });

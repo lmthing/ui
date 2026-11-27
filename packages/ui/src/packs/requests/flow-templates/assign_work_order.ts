@@ -94,12 +94,25 @@ export const assignWorkOrder: FlowTemplate = {
       steps: [
         {
           id: "job",
-          see: "Your assigned job is {record.subject}, {record.reference}, scheduled for {record.window}.",
+          see: "{name.dispatcher} assigned {record.subject} to {name.worker}. Receipt hasn't been acknowledged.",
+          do: "Acknowledge that you received the assigned job.",
+          layout: { components: ["KeyValue"] },
+          states: ["waiting", "error"],
+          preview: {
+            title: "New assignment",
+            action: "Acknowledge assignment",
+            fields: ["subject", "reference", "window"],
+            messages: { error: "Receipt wasn't recorded. The job is still assigned to you." },
+          },
+        },
+        {
+          id: "acknowledged",
+          see: "{name.worker} acknowledged {record.reference}. The next job is {record.subject}, {record.window}.",
           do: "Tap Review work outcome after doing the work.",
           layout: { components: ["KeyValue"] },
           states: ["waiting"],
           preview: {
-            title: "Assigned job",
+            title: "Assignment acknowledged",
             action: "Review work outcome",
             fields: ["subject", "reference", "window"],
           },
@@ -115,6 +128,7 @@ export const assignWorkOrder: FlowTemplate = {
             title: "Review work outcome",
             action: "Submit outcome",
             fields: ["reference", "result"],
+            back: true,
             messages: { error: "The outcome was not submitted. The job is still assigned to you." },
           },
         },

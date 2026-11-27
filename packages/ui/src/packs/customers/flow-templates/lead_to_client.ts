@@ -14,6 +14,40 @@ export const leadToClient: FlowTemplate = {
   recordShape: { service: "string", reference: "string", estimate: "string" },
   journeys: [
     {
+      role: "inquirer",
+      id: "send_inquiry",
+      name: "Ask about a service",
+      goal: "{name.prospect} sends inquiry {record.reference} about {record.service}.",
+      steps: [
+        {
+          id: "submit",
+          see: "{name.prospect} can ask {name.owner} about {record.service} without committing to the work.",
+          do: "Send the inquiry to the service provider.",
+          layout: { components: ["Field"] },
+          states: ["empty", "error"],
+          preview: {
+            title: "Ask about a service",
+            action: "Send inquiry",
+            fields: ["service"],
+            messages: { error: "Name the service you want to ask about." },
+          },
+        },
+        {
+          id: "submitted",
+          see: "Inquiry {record.reference} is with {name.owner}. It isn't a booking or a payment.",
+          do: "Open the service provider’s inquiry queue.",
+          hands_off_to: { role: "owner", step: "inbox" },
+          layout: { components: ["KeyValue"] },
+          states: ["waiting"],
+          preview: {
+            title: "Inquiry sent",
+            action: "Open inquiry queue",
+            fields: ["reference", "service"],
+          },
+        },
+      ],
+    },
+    {
       role: "owner",
       id: "qualify_lead",
       name: "Qualify an inquiry",
@@ -100,6 +134,7 @@ export const leadToClient: FlowTemplate = {
           preview: {
             title: "Confirm acceptance",
             action: "Send acceptance",
+            back: true,
             fields: ["service", "estimate", "reference"],
             messages: { error: "Acceptance was not sent. Nothing has changed." },
           },
@@ -113,6 +148,7 @@ export const leadToClient: FlowTemplate = {
           preview: {
             title: "Confirm decline",
             action: "Confirm decline",
+            back: true,
             fields: ["service", "reference"],
             messages: { error: "The decline was not sent. The proposal is still open." },
           },

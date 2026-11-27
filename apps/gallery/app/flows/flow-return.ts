@@ -1,7 +1,10 @@
 export type FlowReturn = { index: number; address: string; scroll: number | undefined };
 
 function part(address: string) {
-  return document.querySelector<HTMLElement>(`[data-testid="${CSS.escape(address)}"]`);
+  return (
+    document.querySelector<HTMLElement>(`[data-testid="${CSS.escape(address)}"]`) ??
+    document.querySelector<HTMLElement>(`[data-testid="${CSS.escape(`${address}/root`)}"]`)
+  );
 }
 
 function scroller(node: HTMLElement | null) {

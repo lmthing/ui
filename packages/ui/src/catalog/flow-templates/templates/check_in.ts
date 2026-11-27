@@ -20,7 +20,7 @@ export const checkIn: FlowTemplate = {
       steps: [
         {
           id: "pass",
-          see: "Show {name.host} the pass for {record.event}: {record.reference}.",
+          see: "Show {name.host} your pass for {record.event}. This does not record arrival.",
           do: "Tap Show pass",
           hands_off_to: {
             role: "host",
@@ -49,7 +49,7 @@ export const checkIn: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "You’re checked in",
-            fields: ["event", "arrival"],
+            fields: ["reference", "event", "arrival"],
           },
         },
       ],
@@ -79,7 +79,7 @@ export const checkIn: FlowTemplate = {
         },
         {
           id: "record",
-          see: "Check {name.attendee} in to {record.event} at {record.arrival}.",
+          see: "Confirm {name.attendee}'s arrival for reservation {record.reference}.",
           do: "Tap Mark present",
           hands_off_to: {
             role: "attendee",
@@ -92,7 +92,8 @@ export const checkIn: FlowTemplate = {
           preview: {
             title: "Review arrival",
             action: "Mark present",
-            fields: ["event", "arrival"],
+            fields: ["reference", "event", "arrival"],
+            back: true,
             messages: {
               error: "Attendance is already recorded. No second arrival was added.",
             },

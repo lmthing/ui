@@ -4,6 +4,8 @@ import { clip } from "../cast";
 import { checkScreen, type RegistryLike } from "../rules";
 import type { FilledFlow, FlowFrame } from "./fill-flow";
 import type { FlowState } from "./flow-template";
+import { previewSearch, type FlowSearch } from "./preview-search";
+import { previewSpecial } from "./preview-special";
 
 export const flowScreenId = (index: number) => `step_${index + 1}`;
 
@@ -14,7 +16,7 @@ function fieldLabel(id: string) {
 
 function pairs(flow: FilledFlow, frame: FlowFrame) {
   return frame.fields.map((key) => ({
-    label: clip(fieldLabel(key), 20),
+    label: clip(frame.labels?.[key] ?? fieldLabel(key), 20),
     value: clip(String(flow.record[key]), 28),
   }));
 }
@@ -76,8 +78,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
       return frame.fields.map((field, i) => ({
         id: `field_${i + 1}`,
         c,
-        label: clip(fieldLabel(field), 24),
-        ...(state === "empty" || state === "error"
+        label: clip(frame.labels?.[field] ?? fieldLabel(field), 24),
+        ...(state === "empty"
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
@@ -102,12 +104,12 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
         { id: "note", c: "Note", text: clip(body, 120), emphasis: "quiet" },
       ];
     default:
-      throw new Error(`Unsupported flow preview component: ${c}`);
+      return previewSpecial(c, flow, frame, state);
   }
 }
 
 function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
-  if ((state && state !== "success") || !frame.forward.length) return [];
+  if ((state && state !== "success") || !frame.forward.length || frame.thread?.compose) return [];
   const next = frame.forward.map(({ label, target }) => ({
     title: clip(label, 24),
     goto: previewTarget(flow, target),
@@ -124,13 +126,40 @@ export function flowPreviewScreen(
   flow: FilledFlow,
   index: number,
   state?: FlowState,
-  { validationError = false }: { validationError?: boolean } = {},
+  { validationError = false, search }: { validationError?: boolean; search?: FlowSearch } = {},
 ): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
   if (state && !frame.states.includes(state))
     throw new Error(`Flow step does not show ${state}: ${frame.key}`);
-  const body = frame.layout.components.flatMap((c) => previewPart(c, flow, frame, state));
+  if (frame.search) {
+    return {
+      id: flowScreenId(index),
+      title: frame.title,
+      components: [
+        { id: "header", c: "Header", title: frame.title },
+        ...previewSearch(flow, frame, (target) => previewTarget(flow, target), state, search),
+      ],
+    };
+  }
+  const body = previewBody(flow, frame, frame.layout.components, state, validationError);
+  return {
+    id: flowScreenId(index),
+    title: frame.title,
+    components: body.some(({ c }) => c === "Waitlist")
+      ? body
+      : [...body, ...previewActions(flow, frame, state)],
+  };
+}
+
+function previewBody(
+  flow: FilledFlow,
+  frame: FlowFrame,
+  layout: readonly string[],
+  state: FlowState | undefined,
+  validationError: boolean,
+) {
+  const body = layout.flatMap((c) => previewPart(c, flow, frame, state));
   const success = body.some(({ id }) => id === "success");
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
@@ -141,7 +170,12 @@ export function flowPreviewScreen(
       title: frame.title,
       ...(frame.back && !state ? { style: "back" } : {}),
     });
-    if (!body.some(({ c }) => c === "Note" || c === "HandoffReceipt" || (c === "List" && frame.actionList)))
+    if (
+      !body.some(
+        ({ c }) =>
+          c === "Note" || c === "HandoffReceipt" || c === "Bubbles" || (c === "List" && frame.actionList),
+      )
+    )
       body.splice(1, 0, {
         id: "note",
         c: "Note",
@@ -152,20 +186,16 @@ export function flowPreviewScreen(
   const message = validationError ? frame.messages.error : state && frame.messages[state];
   if (message && !body.some(({ c }) => c === "HandoffReceipt")) {
     const note = body.findIndex(({ c }) => c === "Note");
-    body.splice(note < 0 ? body.length : note, note < 0 ? 0 : 1, {
+    const composer = body.findIndex(({ c }) => c === "Composer");
+    const insertAt = note >= 0 ? note : composer >= 0 ? composer : body.length;
+    body.splice(insertAt, note < 0 ? 0 : 1, {
       id: "message",
       c: "Note",
       text: clip(message, 120),
       ...(state === "error" || validationError ? { tone: "bad" } : {}),
     });
   }
-  return {
-    id: flowScreenId(index),
-    title: frame.title,
-    components: body.some(({ c }) => c === "Waitlist")
-      ? body
-      : [...body, ...previewActions(flow, frame, state)],
-  };
+  return body;
 }
 
 /** Check fixture props and screen rules, without requiring isolated states to pad to a full screen. */

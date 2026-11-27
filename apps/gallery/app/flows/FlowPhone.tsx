@@ -3,6 +3,7 @@ import { XStack, YStack } from "tamagui";
 import { KitProvider, KitText, PartScope, PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import {
   flowPreviewScreen,
+  flowScreenId,
   space,
   type FilledFlow,
   type FlowState,
@@ -10,6 +11,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { flowWords, readableId } from "./flow-copy";
 import { flowHeight } from "./flow-height";
+import { useFlowSearch } from "./useFlowSearch";
+import { resolvePhoto } from "../../index";
 
 export const flowTheme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 
@@ -18,6 +21,7 @@ const figure = /(?:\b\d{1,2}:\d{2}$)|(?:^[£$€]\d[\d,.]*$)/;
 function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   if (state === "empty" || state === "error") return;
   const frame = flow.frames[index]!;
+  if (frame.back) return;
   const visible = Object.entries(flow.record).find(
     ([field, value]) =>
       typeof value === "string" &&
@@ -30,11 +34,12 @@ function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   return { label, value: raw.match(figure)![0] };
 }
 
-type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange" | "interaction"> & {
+type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onSend" | "interaction"> & {
   flow: FilledFlow;
   index: number;
   state?: FlowState | undefined;
   validationError?: boolean;
+  inspection?: boolean;
 };
 
 export function FlowPhone({
@@ -42,13 +47,15 @@ export function FlowPhone({
   index,
   state,
   onLink,
-  onChange,
+  onSend,
   interaction,
   validationError = false,
+  inspection = false,
 }: FlowPhoneProps) {
+  const search = useFlowSearch(inspection ? undefined : interaction, flowScreenId(index));
   const screen = useMemo(
-    () => flowPreviewScreen(flow, index, state, { validationError }),
-    [flow, index, state, validationError],
+    () => flowPreviewScreen(flow, index, state, { validationError, search }),
+    [flow, index, state, validationError, search],
   );
   const number = primaryNumber(flow, index, state);
   return (
@@ -78,11 +85,12 @@ export function FlowPhone({
         <PhoneScreen
           screen={screen}
           theme={flowTheme}
-          onChange={onChange}
           onLink={onLink}
-          interaction={state ? undefined : interaction}
-          interactive={!state}
-          reduceMotion={state ? true : undefined}
+          onSend={onSend}
+          resolvePhoto={resolvePhoto}
+          interaction={inspection ? undefined : interaction}
+          interactive={!inspection && !state && Boolean(onLink)}
+          reduceMotion={inspection || !onLink ? true : undefined}
         />
       </YStack>
     </YStack>
