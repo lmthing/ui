@@ -17,11 +17,13 @@ const width = 390;
 const height = 576;
 
 const varietyTheme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
+const pickupDate = "27 Nov";
 const shows = [
   {
     id: "glass",
     title: "The Glass Menagerie",
     curtain: "Fri 7:30 pm",
+    date: "Friday, 27 Nov",
     seats: "12 seats left",
     stage: "Main stage",
     photo: "lib:glass",
@@ -31,6 +33,7 @@ const shows = [
     id: "dream",
     title: "Twelfth Night",
     curtain: "Sat 8 pm",
+    date: "Saturday, 28 Nov",
     seats: "Sold out",
     stage: "Studio stage",
     photo: "lib:dream",
@@ -134,7 +137,7 @@ function dispatch(layout: string | null): ScreenLike {
         id: "heading",
         c: "Header",
         title: "Repair dispatch",
-        sub: "27 Nov pickup ETAs · Open a job",
+        sub: `${pickupDate} pickup ETAs · Open a job`,
         emphasis: "quiet",
       },
       {
@@ -181,7 +184,13 @@ function recordScreen(id: string, layout: string | null): ScreenLike | undefined
   return {
     id,
     components: [
-      { id: "heading", c: "Header", title: record.title, style: "back" },
+      {
+        id: "heading",
+        c: "Header",
+        title: record.title,
+        sub: show?.date ?? `Pickup · ${pickupDate}`,
+        style: "back",
+      },
       { id: "facts", c: "KeyValue", lead: "none", pairs: facts },
       { id: "note", c: "Note", text: record.note, emphasis: "quiet" },
     ],
