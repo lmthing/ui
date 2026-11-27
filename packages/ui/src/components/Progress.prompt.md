@@ -13,4 +13,4 @@ One or more measured amounts against their own targets, whether bars or a single
 - Include the supplied unit for each goal (up to 16 characters). When the same measured goal has a due date, include it in due (YYYY-MM-DD) and always supply unit. Remaining work is calculated from of minus value; do not repeat the date or amount remaining in sub.
 - A request to hide the ring caption explicitly asks for "detail":"brief". Set it and keep the caption text verbatim in sub, for example {"detail":"brief","sub":"3 to go"}. If hiding the caption is not requested, leave detail null.
 - For a ring, always set figures to null. Use emphasis "hero" only for a large focal ring. Send null for all other unrequested axes and row options.
-- Set figures to "short" only to abbreviate bar counts without changing stored numbers. A bar crossing a target does not by itself request a special tone.
+- If a bar brief asks for compact numbers, abbreviations, or examples like 4.2K and 6K, set figures to "short" and keep the exact numeric values in value and of. Otherwise leave figures null. Crossing a target does not request a special tone.
