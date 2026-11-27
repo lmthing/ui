@@ -12,6 +12,11 @@ export function queueAhead(ahead: number, lang?: string): string {
     : queuePeopleLine(ahead, lang);
 }
 
+export function queueSize(count: number, lang?: string, exact = false): string {
+  const label = exact ? numberLine(count, lang) : queueCount(count, lang);
+  return bookingWordsFor(lang).queueTotal(label, pluralForm(count, lang));
+}
+
 export function queueCount(count: number, lang?: string): string {
   if (count <= 999) return numberLine(count, lang);
   const quadrillion = count >= 1e15;
