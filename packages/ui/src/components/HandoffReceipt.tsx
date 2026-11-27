@@ -21,9 +21,15 @@ export const meta = {
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
   partTiers: { root: "phone" },
   read: (input, _state, lang): string[] => {
-    const { phase, at, goto } = input as z.output<typeof props>;
+    const { phase, at, fromRole, toRole, goto } = input as z.output<typeof props>;
     const copy = c.wordsFor(lang).handoffReceipt;
-    return [copy.phases[phase], ...(at ? [handoffTime(at, lang)] : []), ...(goto ? [copy.open] : [])];
+    return [
+      copy.phases[phase],
+      ...(at ? [handoffTime(at, lang)] : []),
+      `${copy.from}: ${JSON.stringify(fromRole)}`,
+      `${copy.to}: ${JSON.stringify(toRole)}`,
+      ...(goto ? [copy.open] : []),
+    ];
   },
 } as const satisfies c.Meta;
 
@@ -39,8 +45,8 @@ export const props = z
     ...c.variantProps(meta.variants),
     subject: c.text(36),
     reference: c.text(20),
-    fromRole: c.text(24),
-    toRole: c.text(24),
+    fromRole: c.text(24).meta({ read: false }),
+    toRole: c.text(24).meta({ read: false }),
     phase: z.enum(["waiting", "received", "returned"]).meta({ read: false }),
     at: timestamp.optional(),
     summary: c.text(120).optional(),

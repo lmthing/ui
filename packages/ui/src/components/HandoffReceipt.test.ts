@@ -49,7 +49,10 @@ it.each([
   expect(parts.get("home/c1/sender")?.text).toEqual([sample.fromRole]);
   expect(parts.get("home/c1/recipient")?.text).toEqual([sample.toRole]);
   expect(parts.get("home/c1/time")?.text.join("")).toMatch(/9:30.*UTC/);
-  expect(readComponent(def, input, "receipt").join("\n")).toContain(label);
+  const read = readComponent(def, input, "receipt").join("\n");
+  expect(read).toContain(label);
+  expect(read).toContain(`From: "${sample.fromRole}"`);
+  expect(read).toContain(`To: "${sample.toRole}"`);
 });
 
 it("hides the summary in brief and offers only a link to the original record", () => {

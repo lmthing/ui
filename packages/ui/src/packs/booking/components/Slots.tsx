@@ -232,6 +232,7 @@ export function Slots(input: Props<typeof props, typeof meta>) {
         style={list ? "list" : "grid"}
         part="times"
         loading={state === "loading"}
+        loadingOutline
       />
     </>
   );
