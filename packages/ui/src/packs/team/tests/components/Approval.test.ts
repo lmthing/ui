@@ -177,7 +177,7 @@ describe("Approval parts, reading and variants", () => {
   });
 });
 
-describe("Approval states and dispatch", () => {
+describe("Approval states", () => {
   it("shows only acknowledged requests in the success preview", () => {
     const parts = view(sample, "success");
     expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.statuses.approved]);
@@ -223,6 +223,9 @@ describe("Approval states and dispatch", () => {
     expect(runtime.confirmation).toBeUndefined();
     runtime.dispose();
   });
+});
+
+describe("Approval dispatch", () => {
   it("approves directly; declining can be cancelled or confirmed for the original request", () => {
     const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval" }] };
     const onAction = vi.fn();
