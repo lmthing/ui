@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { YStack } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
@@ -11,7 +11,7 @@ import {
   type Values,
   type Issue,
 } from "../../catalog";
-import { KitProvider, useEnvironment, type NativeHost } from "../provider";
+import { KitProvider, useEnvironment, type Environment, type NativeHost } from "../provider";
 import {
   createAgentAccess,
   DeviceDataContext,
@@ -32,6 +32,7 @@ import type { PartRegistry } from "../registry";
 import type { MicCaptureAdapter } from "../interact/runtime";
 import { Screen, type RendererMap } from "./Screen";
 import { useNavigationMotion } from "./use-navigation-motion";
+import { NativeTabGhost, type NativeTabShot } from "./NativeTabGhost";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
 declare global {
@@ -113,9 +114,56 @@ export type PhoneScreenProps = {
   signature?: string | undefined;
   cue?: number | undefined;
 };
+function freezeNativeTab(
+  { defs, renderers, theme, lang, resolvePhoto, deviceData, screen }: PhoneScreenProps,
+  controller: ScreenController,
+  scrollTop: number,
+): NativeTabShot {
+  return {
+    defs,
+    renderers,
+    theme,
+    lang,
+    resolvePhoto,
+    deviceData,
+    screen: controller.snapshotScreen(),
+    values: controller.store.snapshot(screen.id),
+    scrollTop,
+  };
+}
+
+type LinkObserver = ReturnType<typeof useNavigationMotion>["capture"];
+
+function usePhoneNavigation(
+  props: PhoneScreenProps,
+  controller: ScreenController,
+  environment: Environment,
+  observe: RefObject<LinkObserver | undefined>,
+) {
+  const { screen } = props;
+  const bodyScroll = useRef({ id: screen.id, top: 0 });
+  const navigation = useNavigationMotion(
+    screen,
+    props.theme.motion ?? "calm",
+    environment.reduceMotion,
+    environment.agentMode,
+    () =>
+      freezeNativeTab(props, controller, bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
+  );
+  useLayoutEffect(() => {
+    observe.current = navigation.capture;
+  }, [observe, navigation.capture]);
+  return {
+    ...navigation,
+    onBodyScroll: (top: number) => {
+      bodyScroll.current = { id: screen.id, top };
+    },
+  };
+}
+
 export function PhoneScreen(props: PhoneScreenProps) {
   const { defs, screen, nativeHost, reduceMotion, agentMode, signature, cue, onReady } = props;
-  const observe = useRef<ReturnType<typeof useNavigationMotion>["capture"]>(undefined);
+  const observe = useRef<LinkObserver>(undefined);
   const controller = usePhoneController(props, (...args) => observe.current?.(...args));
   const storeAgent = controller.store.get(`${screen.id}/$agentMode`);
   const environment = useEnvironment(nativeHost, {
@@ -124,15 +172,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
     signature,
     cue,
   });
-  const navigation = useNavigationMotion(
-    screen,
-    props.theme.motion ?? "calm",
-    environment.reduceMotion,
-    environment.agentMode,
-  );
-  useLayoutEffect(() => {
-    observe.current = navigation.capture;
-  }, [navigation.capture]);
+  const navigation = usePhoneNavigation(props, controller, environment, observe);
   const agent = useMemo(
     () => createAgentAccess({ defs, store: controller.store, current: () => screen, runtime: controller }),
     [controller, screen, defs],
@@ -155,11 +195,13 @@ export function PhoneScreen(props: PhoneScreenProps) {
     >
       <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
         <YStack flex={1} minHeight={0} position="relative">
+          {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
           <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
             <Screen
               controller={controller}
               renderers={props.renderers}
               navigationArrival={navigation.navigationArrival}
+              onBodyScroll={navigation.onBodyScroll}
               {...(props.onReport ? { onReport: props.onReport } : {})}
             />
           </YStack>

@@ -190,19 +190,13 @@ function wrapProse({ role = "body", lines, children, breakLongWords }: TextProps
   };
 }
 
-function useFigurePose({ role, part, children, goto }: TextProps, loading: boolean, signature: number) {
+function FigureRun(props: TextProps) {
+  const { state } = usePartContext();
+  const { children } = props;
   const value =
-    !loading &&
-    !goto &&
-    role === "number" &&
-    part !== "time" &&
-    part !== "range_reading" &&
-    typeof children === "string" &&
-    /\p{Nd}/u.test(children)
-      ? children
-      : undefined;
+    state !== "loading" && typeof children === "string" && /\p{Nd}/u.test(children) ? children : undefined;
   const progress = useChangeReveal(value, false);
-  return signature === 1 && progress < 1 ? { y: motion.figureRoll * (1 - progress) } : {};
+  return <TextRun {...props} figureProgress={progress} />;
 }
 
 function figureScale(step: TextRole, compact: boolean) {
@@ -215,7 +209,7 @@ function figureScale(step: TextRole, compact: boolean) {
     : {};
 }
 
-function TextRun(props: TextProps) {
+function TextRun(props: TextProps & { figureProgress?: number }) {
   const { children, role = "body", tone = "text", part = "root", lines } = props;
   const { numberScale = "display", strike = false, emphasis, goto } = props;
   const { align, tabular } = useFigureTypography(props);
@@ -234,11 +228,11 @@ function TextRun(props: TextProps) {
   const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   const webLink = linkSlot && isWeb;
-  const figurePose = useFigurePose(props, loading || state === "loading", count);
+  const figure = !loading && count === 1 ? (props.figureProgress ?? 1) : 1;
   const text = (
     <Frame
       {...(!webLink ? target : {})}
-      {...figurePose}
+      {...(figure < 1 ? { y: motion.figureRoll * (1 - figure) } : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       color={
@@ -274,10 +268,9 @@ function TextRun(props: TextProps) {
 /** All visible text, including nested inline runs and addressed screen links. */
 export function KitText(props: TextProps) {
   const context = usePartContext();
-  if (props.item === undefined) return <TextRun {...props} />;
-  return (
-    <PartContext.Provider value={{ ...context, item: props.item }}>
-      <TextRun {...props} />
-    </PartContext.Provider>
-  );
+  const { role, part, goto } = props;
+  const rolls = role === "number" && !goto && part !== "time" && part !== "range_reading";
+  const view = rolls ? <FigureRun {...props} /> : <TextRun {...props} />;
+  if (props.item === undefined) return view;
+  return <PartContext.Provider value={{ ...context, item: props.item }}>{view}</PartContext.Provider>;
 }

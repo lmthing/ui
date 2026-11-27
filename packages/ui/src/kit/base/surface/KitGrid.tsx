@@ -1,5 +1,5 @@
-import { Children, isValidElement, useRef, type ReactNode } from "react";
-import { XStack, YStack } from "tamagui";
+import { Children, isValidElement, useRef, type ReactNode, type RefObject } from "react";
+import { isWeb, XStack, YStack, type TamaguiElement } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useKitStyle, useVariantDensity } from "../../provider";
 import { KitText } from "../text";
@@ -45,6 +45,7 @@ function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | und
             key={keys[index]}
             id={keys[index]!}
             order={order}
+            list={ref}
             appear={!initial.current.has(keys[index]!)}
             rule={ruled && index < cells.length - 1}
           >
@@ -60,6 +61,7 @@ function MotionRow({
   children,
   id,
   order,
+  list,
   appear,
   rule,
   exiting,
@@ -67,29 +69,40 @@ function MotionRow({
   children: ReactNode;
   id: string;
   order: string;
+  list: RefObject<TamaguiElement | null>;
   appear: boolean;
   rule: boolean;
   exiting?: boolean;
 }) {
-  const nativePose = useNativeRowMotion(order, exiting ?? false);
+  const nativePose = useNativeRowMotion(order, exiting ?? false, list);
+  const content = (
+    <>
+      {children}
+      {rule && (
+        <YStack
+          height={component.base.borderWidth}
+          backgroundColor="$line"
+          marginHorizontal={space.md}
+          aria-hidden
+        />
+      )}
+    </>
+  );
   return (
     <YStack
       {...nativePose}
       data-list-motion={id}
+      data-list-exiting={exiting ? "" : undefined}
       accessibilityRole="listitem"
       {...(exiting ? { "aria-hidden": true, inert: true } : {})}
     >
-      <KitMotion appear={appear} exiting={exiting ?? false}>
-        {children}
-        {rule && (
-          <YStack
-            height={component.base.borderWidth}
-            backgroundColor="$line"
-            marginHorizontal={space.md}
-            aria-hidden
-          />
-        )}
-      </KitMotion>
+      {isWeb ? (
+        content
+      ) : (
+        <KitMotion appear={appear} exiting={exiting ?? false}>
+          {content}
+        </KitMotion>
+      )}
     </YStack>
   );
 }

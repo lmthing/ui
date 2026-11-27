@@ -14,9 +14,18 @@ type ScreenProps = {
   controller: ScreenController;
   renderers: RendererMap;
   navigationArrival?: boolean;
+  initialBodyScroll?: number;
+  onBodyScroll?: (top: number) => void;
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
-export function Screen({ controller, renderers, onReport, navigationArrival }: ScreenProps) {
+export function Screen({
+  controller,
+  renderers,
+  onReport,
+  navigationArrival,
+  initialBodyScroll,
+  onBodyScroll,
+}: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
@@ -41,6 +50,8 @@ export function Screen({ controller, renderers, onReport, navigationArrival }: S
         <ScreenContent
           key={visible.id}
           {...(navigationArrival ? { navigationArrival } : {})}
+          {...(initialBodyScroll !== undefined ? { initialBodyScroll } : {})}
+          {...(onBodyScroll ? { onBodyScroll } : {})}
           controller={controller}
           renderers={renderers}
           screen={visible}

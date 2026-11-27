@@ -145,7 +145,16 @@ function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...prop
     </KitMotion>
   );
 }
-export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
+export function ScreenContent({
+  covered,
+  initialBodyScroll,
+  onBodyScroll,
+  ...props
+}: RenderProps & {
+  covered: boolean;
+  initialBodyScroll?: number;
+  onBodyScroll?: (top: number) => void;
+}) {
   const { environment } = useKit();
   const gutter = space[useKitStyle().frame.gutter];
   const { insets, keyboardHeight } = environment;
@@ -158,7 +167,7 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
   const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
-  const [compactTitle, setCompactTitle] = useState(false);
+  const [compactTitle, setCompactTitle] = useState((initialBodyScroll ?? 0) >= motion.collapseTitleAt);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
@@ -175,10 +184,12 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
             keyboardDismissMode: "on-drag",
             onScroll: ({ nativeEvent }) => {
               const y = nativeEvent.contentOffset.y;
+              onBodyScroll?.(y);
               if (y >= motion.collapseTitleAt) setCompactTitle(true);
               else if (y <= motion.expandTitleAt) setCompactTitle(false);
             },
             contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
+            ...(initialBodyScroll ? { contentOffset: { x: 0, y: initialBodyScroll } } : {}),
           }}
         />
         <YStack

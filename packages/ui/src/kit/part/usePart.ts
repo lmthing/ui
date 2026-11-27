@@ -59,7 +59,10 @@ export function usePart(part = "root", enabled = true) {
     });
   }, [parts, root, screen, rev, address, enabled]);
   useEffect(
-    () => (enabled && parts !== noopParts ? listenMotionSettled(root.current, onLayout) : undefined),
+    () =>
+      enabled && parts !== noopParts
+        ? listenMotionSettled(root.current, () => ref.current, onLayout)
+        : undefined,
     [enabled, onLayout, parts, root],
   );
   useEffect(

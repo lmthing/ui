@@ -4,15 +4,20 @@ import { createServer, type ViteDevServer } from "vite";
 import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-import { baselineMotionKit, contactSheet, sampleMotionFrames } from "./motion-evidence";
+import { baselineMotionKit, contactSheet, releaseGallery, sampleMotionFrames } from "./motion-evidence";
 
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
-let server: ViteDevServer, browser: Browser, page: Page;
+let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
 const errors: string[] = [];
 beforeAll(async () => {
-  server = await createServer({ ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] });
-  await server.listen();
+  const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
+  if (process.env.UI_MOTION_PERF) server = await releaseGallery(config, baseline);
+  else {
+    const dev = await createServer(config);
+    await dev.listen();
+    server = dev;
+  }
   browser = await launchChrome();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.setDefaultTimeout(5000);
@@ -64,8 +69,12 @@ async function pressSave() {
 
 const stickyTop = (address: string) =>
   part(address).evaluate((node) => {
+    let sticky: HTMLElement | undefined;
     for (let ancestor = node.parentElement; ancestor; ancestor = ancestor.parentElement) {
-      if (getComputedStyle(ancestor).position === "sticky") return ancestor.getBoundingClientRect().top;
+      const style = getComputedStyle(ancestor);
+      if (style.position === "sticky") sticky = ancestor;
+      if (sticky && ["auto", "scroll"].includes(style.overflowY))
+        return sticky.getBoundingClientRect().top - ancestor.getBoundingClientRect().top;
     }
     throw new Error("Section has no sticky wrapper");
   });
@@ -80,6 +89,14 @@ changed("connects a matching row to its header, shows a rising dialog, and retur
   const dialog = page.getByRole("dialog");
   await dialog.waitFor();
   expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
+  await expect
+    .poll(() =>
+      dialog.evaluate((node) => {
+        const transform = getComputedStyle(node).transform;
+        return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
+      }),
+    )
+    .toBe(true);
   const close = part("fern/details/close");
   await expect
     .poll(() =>
@@ -132,11 +149,11 @@ changed(
     await page.mouse.wheel(0, 180);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(0);
     await expect.poll(() => part("garden/heading/title").isVisible()).toBe(true);
-    const pinnedY = await stickyTop("garden/today/text");
+    await expect.poll(() => stickyTop("garden/today/text")).toBeCloseTo(0);
     await page.mouse.wheel(0, 80);
-    await expect.poll(async () => Math.abs((await stickyTop("garden/today/text")) - pinnedY)).toBeLessThan(1);
+    await expect.poll(() => stickyTop("garden/today/text")).toBeCloseTo(0);
     await page.mouse.wheel(0, 450);
-    await expect.poll(async () => Math.abs((await stickyTop("garden/all/text")) - pinnedY)).toBeLessThan(1);
+    await expect.poll(() => stickyTop("garden/all/text")).toBeCloseTo(0);
     await page.mouse.wheel(0, -900);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(1);
     expect(errors).toEqual([]);
@@ -152,6 +169,18 @@ changed("keeps input focus when a heading is removed", async () => {
   expect(await input.evaluate((node) => node === document.activeElement)).toBe(true);
   expect(await input.inputValue()).toBe("Keep this");
   expect(errors).toEqual([]);
+});
+
+changed("does not replay an agent reorder on the next human input", async () => {
+  await page.evaluate(() => window.__lmthingUI!.act({ address: "today/link", action: "press" }));
+  await part("garden/plants/r4/root").waitFor();
+  await tap("garden/plants/r2/trail");
+  expect(await part("garden/plants/r2/trail").getAttribute("aria-checked")).toBe("true");
+  expect(
+    await page
+      .locator("[data-list-motion]")
+      .evaluateAll((nodes) => nodes.flatMap((node) => node.getAnimations()).length),
+  ).toBe(0);
 });
 
 changed("replaces tabs with an inert outgoing picture during the cross-fade", async () => {
