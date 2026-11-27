@@ -72,7 +72,10 @@ function connectLink({
     const blank = frame.fields.findIndex((field) => draft[field] === "");
     if (blank >= 0 && frame.states.includes("error")) {
       showError();
-      focusFlowPart(`${screen}/field_${blank + 1}/field`);
+      const field = `${screen}/field_${blank + 1}/field`;
+      if (frame.fields[blank] === frame.invalidField)
+        interaction.set(`${field}/$error`, frame.messages.error);
+      focusFlowPart(field);
       return;
     }
     if (failOnce()) {

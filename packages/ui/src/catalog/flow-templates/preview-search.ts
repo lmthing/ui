@@ -1,4 +1,5 @@
 import { clip } from "../cast";
+import { wordsFor } from "../lang";
 import type { Component } from "../types";
 import type { FilledFlow, FlowFrame } from "./fill-flow";
 import type { FlowState } from "./flow-template";
@@ -35,7 +36,12 @@ export function previewSearch(
     filters: [{ label: filterLabel, options, ...(category ? { value: category } : {}) }],
   };
   // Keep the zero-results message adjacent to the still-active controls in the phone preview.
-  if (state === "empty" || matches.length === 0)
-    return [controls, { id: "results", c: "Note", text: frame.messages.empty }];
+  if (state === "empty" || matches.length === 0) {
+    const scope = `${appliedQuery ? ` for “${query.trim()}”` : ""}${category ? ` in ${category}` : ""}`;
+    const text = scope
+      ? `No matches${scope}. Use ${wordsFor().filterClear} to see all results.`
+      : (frame.messages.empty ?? "No matches.");
+    return [controls, { id: "results", c: "Note", text: clip(text, 120) }];
+  }
   return [controls, { id: "results", c: "List", lead: "none", rows: matches }];
 }

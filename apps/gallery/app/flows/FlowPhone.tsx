@@ -12,7 +12,7 @@ import {
 import { flowWords, readableId } from "./flow-copy";
 import { flowHeight } from "./flow-height";
 import { emptySearchStore, useFlowSearch } from "./useFlowSearch";
-import { keepReceiptAnchor } from "./flow-screen";
+import { invalidFieldStore, keepReceiptAnchor } from "./flow-screen";
 import { focusFlowPart } from "./flow-return";
 import { resolvePhoto } from "../../index";
 
@@ -23,7 +23,7 @@ const figure = /(?:\b\d{1,2}:\d{2}$)|(?:^[£$€]\d[\d,.]*$)/;
 function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   if (state === "empty" || state === "error") return;
   const frame = flow.frames[index]!;
-  if (frame.back) return;
+  if (frame.back || (frame.states.includes("waiting") && frame.fields.includes("amount"))) return;
   const visible = Object.entries(flow.record).find(
     ([field, value]) =>
       typeof value === "string" &&
@@ -79,7 +79,12 @@ export function FlowPhone({
   inspection = false,
 }: FlowPhoneProps) {
   const fixture = useMemo(
-    () => (state === "empty" ? emptySearchStore(flow, index) : undefined),
+    () =>
+      state === "empty"
+        ? emptySearchStore(flow, index)
+        : state === "error"
+          ? invalidFieldStore(flow, index)
+          : undefined,
     [state, flow, index],
   );
   const store = fixture ?? (inspection ? undefined : interaction);

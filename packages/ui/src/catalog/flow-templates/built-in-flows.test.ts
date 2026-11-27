@@ -106,7 +106,7 @@ test("search intersects the query and category, preserves scope at zero, and cle
   expect(filter("chainring", "Brakes")).toMatchObject([
     { c: "Header" },
     { c: "FilterBar", filters: [{ value: "Brakes" }] },
-    { c: "Note", text: "No matches. Try another term or clear." },
+    { c: "Note", text: "No matches for “chainring” in Brakes. Use Clear filters to see all results." },
   ]);
   expect(filter("", "").find(({ c }) => c === "List")).toMatchObject({
     rows: [{ title: "Brake pads" }, { title: "Chainring 42T" }, { title: "Brake cable" }],

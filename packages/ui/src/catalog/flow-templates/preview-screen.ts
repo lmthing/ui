@@ -201,7 +201,7 @@ function previewBody(
       });
   }
   const message = validationError ? frame.messages.error : state && frame.messages[state];
-  if (message && !body.some(({ c }) => c === "HandoffReceipt")) {
+  if (message && !frame.invalidField && !body.some(({ c }) => c === "HandoffReceipt")) {
     const note = body.findIndex(({ c }) => c === "Note");
     const composer = body.findIndex(({ c }) => c === "Composer");
     const insertAt = note >= 0 ? note : composer >= 0 ? composer : body.length;
