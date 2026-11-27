@@ -43,6 +43,30 @@ async function open(example: string) {
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
 
+it("keeps the complete date label inside each timeline row at phone width", async () => {
+  await open("timeline");
+  await page.evaluate(() => document.fonts.ready);
+  for (const [index, label] of ["Wednesday AM", "11:30", "Thursday PM"].entries()) {
+    const row = page.getByTestId(`job_timeline/history/r${index + 1}/root`);
+    const time = row.getByText(label, { exact: true });
+    const title = row.getByTestId(`job_timeline/history/r${index + 1}/title`);
+    const bounds = (await row.boundingBox())!;
+    const titleBounds = (await title.boundingBox())!;
+    const lines = await time.evaluate((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return Array.from(range.getClientRects(), ({ top, right, bottom }) => ({ top, right, bottom }));
+    });
+    expect(lines.length).toBeGreaterThan(0);
+    if (label === "11:30") expect(new Set(lines.map(({ top }) => top)).size).toBe(1);
+    for (const { top, right, bottom } of lines) {
+      expect(right).toBeLessThanOrEqual(titleBounds.x);
+      expect(top).toBeGreaterThanOrEqual(bounds.y);
+      expect(bottom).toBeLessThanOrEqual(bounds.y + bounds.height);
+    }
+  }
+});
+
 async function intactLabels(track: Locator) {
   return track.locator("[data-report-clipped]").evaluateAll((labels) =>
     labels

@@ -199,12 +199,12 @@ it("labels shift claims and leaves requester decisions read-only at their origin
   const own = examples[2]!;
   const parts = view(own);
   expect(parts.get("home/c1/r1/kind")?.text).toEqual(["Shift claim"]);
-  expect(parts.get("home/c1/r1/status")?.text).toEqual(["Pending"]);
+  expect(parts.get("home/c1/r1/status")?.text).toEqual([words.awaitingDecision]);
   expect(parts.get("home/c1/r2/status")?.text).toEqual(["Approved"]);
   expect(parts.has("home/c1/r1/approve")).toBe(false);
   expect(parts.has("home/c1/r1/decline")).toBe(false);
   const reading = readComponent(def, own, "a1").join("\n");
-  expect(reading).toContain("Shift claim · Pending");
+  expect(reading).toContain(`Shift claim · ${words.awaitingDecision}`);
   expect(reading).not.toContain(" press");
   const runtime = createScreenController({
     screen: { id: "home", components: [{ ...own, id: "a1", c: "Approval" }] },

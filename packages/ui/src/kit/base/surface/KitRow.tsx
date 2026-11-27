@@ -45,8 +45,8 @@ type RowProps = {
   rowTone?: TextTone | "neutral" | undefined;
   surface?: SurfaceFinish | undefined;
   mark?: AxisValue<"mark"> | undefined;
-  /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
-  leadingAlign?: "line" | "row";
+  /** Centre on the first line or whole row; `start` lets a leading text column grow from the first line. */
+  leadingAlign?: "line" | "row" | "start";
   /** Reserve the same avatar-width leading column for every row in a mixed list. */
   leadingWidth?: "avatar" | undefined;
   /** An inset-free, tightly spaced row inside an already padded surface. */
@@ -155,7 +155,11 @@ function RowLeading({
 }: Pick<RowProps, "leading" | "leadingAlign" | "leadingWidth"> & { line: number }) {
   return (
     <Edge
-      {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
+      {...(leadingAlign === "row"
+        ? { alignSelf: "center" as const }
+        : leadingAlign === "start"
+          ? { minHeight: line }
+          : { height: line })}
       {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
     >
       {leading}

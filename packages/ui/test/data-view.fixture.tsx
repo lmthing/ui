@@ -12,6 +12,7 @@ import { Search } from "../src/components/Search";
 import { SectionTitle } from "../src/components/SectionTitle";
 import { Segmented } from "../src/components/Segmented";
 import { Stats } from "../src/components/Stats";
+import { Timeline } from "../src/components/Timeline";
 import { config } from "../../../apps/gallery";
 import { choiceFitScreen } from "../../../apps/gallery/app/choice-fit";
 
@@ -24,6 +25,21 @@ const choices = {
     input.kind === "choice" ? [{ ...input, c: "Field", id: `field_${index}` }] : [],
   ),
 };
+const jobTimeline = {
+  id: "job_timeline",
+  components: [
+    {
+      c: "Timeline",
+      id: "history",
+      style: "history",
+      items: [
+        { time: "Wednesday AM", title: "Assigned", done: true },
+        { time: "11:30", title: "En route", done: true },
+        { time: "Thursday PM", title: "In progress", meta: "Waiting for the replacement part" },
+      ],
+    },
+  ],
+};
 const screen =
   example === "long_tabs"
     ? choiceFitScreen
@@ -33,14 +49,16 @@ const screen =
         ? archetypes.browse.dataViewExample
         : example === "list"
           ? list
-          : example === "empty"
-            ? {
-                ...list,
-                components: list.components.map((entry) =>
-                  entry.c === "List" ? { ...entry, state: "empty" as const } : entry,
-                ),
-              }
-            : archetypes.dashboard.dataViewExample;
+          : example === "timeline"
+            ? jobTimeline
+            : example === "empty"
+              ? {
+                  ...list,
+                  components: list.components.map((entry) =>
+                    entry.c === "List" ? { ...entry, state: "empty" as const } : entry,
+                  ),
+                }
+              : archetypes.dashboard.dataViewExample;
 
 function Fixture() {
   const [issues, onReport] = useState<Issue[] | null>(null);
@@ -49,7 +67,18 @@ function Fixture() {
       <main style={{ paddingInline: example === "choices" ? space.xl : undefined }}>
         <PhoneScreen
           defs={components}
-          renderers={{ Chips, Field, Header, List, Progress, Search, SectionTitle, Segmented, Stats }}
+          renderers={{
+            Chips,
+            Field,
+            Header,
+            List,
+            Progress,
+            Search,
+            SectionTitle,
+            Segmented,
+            Stats,
+            Timeline,
+          }}
           screen={screen}
           theme={theme}
           onReport={onReport}

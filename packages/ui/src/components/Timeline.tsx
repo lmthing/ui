@@ -24,6 +24,7 @@ import { prompt } from "../entry/prompt-Timeline.generated";
 
 export const meta = {
   id: "Timeline",
+  status: "ready",
   group: "data",
   purpose: prompt.purpose,
   pick: prompt.pick,

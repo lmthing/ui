@@ -179,7 +179,7 @@ type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
 
 function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
   const { words, lang } = kit.useWords(teamWordsFor);
-  const { approve, decline, kinds, statuses } = words.approval;
+  const { approve, decline, kinds, statuses, awaitingDecision } = words.approval;
   const amount = approvalAmount(row.amount, lang);
   const status = row.status ?? "pending";
   const portrait =
@@ -219,7 +219,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           <kit.KitLayoutText
             line={{
               part: "status",
-              text: statuses[status],
+              text: status === "pending" ? awaitingDecision : statuses[status],
               role: "meta",
               tone: status === "approved" ? "good" : status === "declined" ? "bad" : "muted",
             }}
@@ -229,7 +229,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           <kit.KitActionFooter density={density}>
             <kit.KitGrid density={density}>
               <kit.KitAction part="approve" label={approve} kind="secondary" full />
-              <kit.KitAction part="decline" label={decline} kind="danger" full />
+              <kit.KitAction part="decline" label={decline} kind="quiet" tone="bad" full />
             </kit.KitGrid>
           </kit.KitActionFooter>
         )}
