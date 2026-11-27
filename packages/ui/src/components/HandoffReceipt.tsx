@@ -150,7 +150,7 @@ export function HandoffReceipt(input: c.Props<typeof props, typeof meta>) {
       style="inset"
       padded
       goto={goto}
-      label={words.handoffReceipt.openRecord(subject)}
+      label={goto ? copy.openRecord(subject) : subject}
     >
       <kit.KitContent lineRole="heading">
         <kit.KitText part="subject" role="heading" breakLongWords>

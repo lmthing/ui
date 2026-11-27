@@ -59,6 +59,11 @@ it("hides the summary in brief and offers only a link to the original record", (
   expect(parts.has("home/c1/open_label")).toBe(true);
   expect(readComponent(def, brief, "receipt").join("\n")).not.toContain(sample.summary);
   for (const goto of [sample.goto, undefined]) {
+    const root = addressedElements(renderInstance("HandoffReceipt", { ...brief, goto }, "filled", theme)).get(
+      "home/c1/root",
+    );
+    expect(root?.attributes).toContain(goto ? 'role="link"' : 'role="group"');
+    expect(root?.attributes).toContain(`aria-label="${goto ? "View record: " : ""}${sample.subject}"`);
     const onLink = vi.fn();
     const runtime = createScreenController({
       screen: { id: "home", components: [{ ...brief, goto, c: "HandoffReceipt", id: "receipt" }] },
