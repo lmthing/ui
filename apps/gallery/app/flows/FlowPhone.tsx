@@ -61,7 +61,7 @@ export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhonePro
           </XStack>
         </KitProvider>
       )}
-      <YStack height={flowHeight(screen)}>
+      <YStack height={flowHeight(screen, flow.frames[index]!)}>
         <PhoneScreen
           key={`${screen.id}/${state ?? "play"}`}
           screen={screen}

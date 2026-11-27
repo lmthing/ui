@@ -1,0 +1,205 @@
+{
+  "login_recovery%2Ffill_1/c2d951339aa11fcf/3a8a43d4d2c9ada7": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nLog in to an existing account or recover access before returning to the member area.\nUse fictional contact details and blank password and code fields. Never put passwords or codes in bindings, Writer props, reads, or saved mock state.\nBind account_email to the fictional email, member_area to the real in-app member destination name, and next_up to a useful piece of content there.\nReuse the signin and verify archetype guidance and existing Field and Button controls. Keep Forgot password? secondary to Log in.\nConfirm verification before changing a password. Keep expired or invalid proof from advancing and offer a safe retry without revealing whether an account exists.\nReturn recovery to login, not directly to the signed-in destination. Finish at useful member content, not a generic success card.\nAuthentication, message delivery, verification, password reset, and protected content need an outside service. In the mock use local links only; never send, verify, reset, or create a real session.\nName slots: member.\nRecord shape: {\"account_email\":\"string\",\"member_area\":\"string\",\"next_up\":\"string\"}.\nOptional step addresses: none.\nRequest: For a fictional class app, Ren logs in as ren@example.test and returns to 'Class schedule', where 'Tuesday pottery' is next up. Show verification and how Ren resets a forgotten password.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "account_email": {
+                  "type": "string"
+                },
+                "member_area": {
+                  "type": "string"
+                },
+                "next_up": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "account_email",
+                "member_area",
+                "next_up"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Ren\"\n  },\n  \"record\": {\n    \"account_email\": \"ren@example.test\",\n    \"member_area\": \"Class schedule\",\n    \"next_up\": \"Tuesday pottery\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Ren\"\n  },\n  \"record\": {\n    \"account_email\": \"ren@example.test\",\n    \"member_area\": \"Class schedule\",\n    \"next_up\": \"Tuesday pottery\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"member\": \"Ren\"\n  },\n  \"record\": {\n    \"account_email\": \"ren@example.test\",\n    \"member_area\": \"Class schedule\",\n    \"next_up\": \"Tuesday pottery\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"member\": \"Ren\"\n  },\n  \"record\": {\n    \"account_email\": \"ren@example.test\",\n    \"member_area\": \"Class schedule\",\n    \"next_up\": \"Tuesday pottery\"\n  },\n  \"omit\": []\n}"
+    ]
+  },
+  "login_recovery%2Fpick_1/cbe39a4c47e138c8/5146d08fb3189dd8": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nlogin_recovery: Log in to an existing account or recover access before returning to the member area. Choose for returning members who log in, verify access, or need a forgot-password path in the generated app. Not for first-time sign-up and onboarding, invitations, apps without accounts, or lmthing’s private keep link.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\nRequest: Let returning members log in, and help them get back in if they forgot their password.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "login_recovery",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"login_recovery\"}",
+    "replies": [
+      "{\"template\": \"login_recovery\"}",
+      "{\"template\": \"login_recovery\"}",
+      "{\"template\":\"login_recovery\"}"
+    ]
+  },
+  "login_recovery%2Fpick_2/59c9361423ec5c5b/90fc42c0553edb3d": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nlogin_recovery: Log in to an existing account or recover access before returning to the member area. Choose for returning members who log in, verify access, or need a forgot-password path in the generated app. Not for first-time sign-up and onboarding, invitations, apps without accounts, or lmthing’s private keep link.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\nRequest: Let brand-new members create an account, verify their email and book their first class.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "login_recovery",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"signup_onboard\"}",
+    "replies": [
+      "{\"template\": \"signup_onboard\"}",
+      "{\"template\": \"signup_onboard\"}",
+      "{\"template\": \"signup_onboard\"}"
+    ]
+  },
+  "login_recovery%2Fpick_3/c9395007cf1b9433/d96a0967c7386bbc": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nlogin_recovery: Log in to an existing account or recover access before returning to the member area. Choose for returning members who log in, verify access, or need a forgot-password path in the generated app. Not for first-time sign-up and onboarding, invitations, apps without accounts, or lmthing’s private keep link.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\nRequest: Make an offline tip calculator I can use without signing in or creating an account.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "login_recovery",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": null}",
+    "replies": [
+      "{\"template\": null}",
+      "{\"template\": null}",
+      "{\"template\": null}"
+    ]
+  }
+}

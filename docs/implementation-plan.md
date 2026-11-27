@@ -932,10 +932,10 @@ add steps for the person's job. If nothing fits, it writes the journey without a
 | `login_recovery`  | Log in, verify access, or recover and log in again       |
 
 `login_recovery` is for generated apps with accounts, never lmthing identity or its private keep
-link. The gallery opens on a complete form, cuts between steps on explicit taps, and replaces
-instructions with readable waiting or error feedback in Inspect. Leaving a step unmounts demo
-inputs and their drafts, with no delayed work or decorative exit. Reduced motion uses the same cuts
-and reaches the same member destination.
+link. The gallery opens on a complete form and changes steps on explicit taps, using the kit's
+existing non-spatial entrance fade. Inspect replaces instructions with readable waiting or error
+feedback. Leaving a step unmounts demo inputs and their drafts, with no delayed work or decorative
+exit. The gallery uses the same reduced-motion presentation and destination at either system setting.
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
