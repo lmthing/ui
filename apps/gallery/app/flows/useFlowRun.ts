@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fillFlow, flowScreenId, type FilledFlow, type FlowTemplateSource } from "@lmthing/ui/catalog";
 import { createInteractionStore, type InteractionStore, type PhoneScreenProps } from "@lmthing/ui/kit";
-import { captureReturn, restoreReturn, type FlowReturn } from "./flow-return";
+import { captureReturn, focusFlowPart, restoreReturn, type FlowReturn } from "./flow-return";
 import { draftFields } from "./flow-draft";
 
 export type FlowExample = FlowTemplateSource["examples"][number];
@@ -69,7 +69,13 @@ function connectLink({
     const next = flow.frames.findIndex((_, i) => flowScreenId(i) === goto);
     if (next < 0) return;
     const draft = draftFields(screen, frame, flow.record, interaction.get);
-    if ((Object.values(draft).includes("") && frame.states.includes("error")) || failOnce()) {
+    const blank = frame.fields.findIndex((field) => draft[field] === "");
+    if (blank >= 0 && frame.states.includes("error")) {
+      showError();
+      focusFlowPart(`${screen}/field_${blank + 1}/field`);
+      return;
+    }
+    if (failOnce()) {
       showError();
       return;
     }

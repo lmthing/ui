@@ -82,6 +82,13 @@ test("sending custody cannot acknowledge it or bypass the receiving queue", () =
     summary: expect.stringContaining("Overdue"),
   });
   expect(receipt("receiver/review")).toMatchObject({ phase: "waiting", reference: "KIT-63" });
+  expect(flowPreviewScreen(flow, index("receiver/review")).components.slice(-2)).toMatchObject([
+    {
+      c: "List",
+      rows: [{ title: "Decline transfer", goto: flowPreviewScreen(flow, index("receiver/decline")).id }],
+    },
+    { c: "Button", label: "Confirm receipt", goto: flowPreviewScreen(flow, index("receiver/received")).id },
+  ]);
   expect(receipt("receiver/received")).toMatchObject({ phase: "received", reference: "KIT-63" });
   expect(receipt("sender/acknowledged")).toMatchObject({ phase: "received", reference: "KIT-63" });
   expect(receipt("sender/returned")).toMatchObject({ phase: "returned", reference: "KIT-63" });
@@ -108,6 +115,9 @@ test("search intersects the query and category, preserves scope at zero, and cle
     c: "Header",
     style: "back",
     title: "Brake cable",
+  });
+  expect(flowPreviewScreen(flow, 3).components.find(({ c }) => c === "KeyValue")).toMatchObject({
+    pairs: [{ label: "Category", value: "Brakes" }],
   });
 });
 

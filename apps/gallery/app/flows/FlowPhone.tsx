@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { XStack, YStack } from "tamagui";
 import { KitProvider, KitText, PartScope, PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import {
@@ -11,7 +11,9 @@ import {
 } from "@lmthing/ui/catalog";
 import { flowWords, readableId } from "./flow-copy";
 import { flowHeight } from "./flow-height";
-import { useFlowSearch } from "./useFlowSearch";
+import { emptySearchStore, useFlowSearch } from "./useFlowSearch";
+import { keepReceiptAnchor } from "./flow-screen";
+import { focusFlowPart } from "./flow-return";
 import { resolvePhoto } from "../../index";
 
 export const flowTheme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
@@ -34,6 +36,30 @@ function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   return { label, value: raw.match(figure)![0] };
 }
 
+function FlowFigure({ screen, label, value }: { screen: string; label: string; value: string }) {
+  return (
+    <KitProvider theme={flowTheme}>
+      <XStack
+        paddingHorizontal={space.lg}
+        paddingVertical={space.md}
+        gap={space.md}
+        alignItems="center"
+        justifyContent="space-between"
+        data-flow-figure
+      >
+        <PartScope screen={screen} component="figure" rev={1} state="filled">
+          <KitText part="label" role="label" tone="muted">
+            {label}
+          </KitText>
+          <KitText part="value" role="number" tabular>
+            {value}
+          </KitText>
+        </PartScope>
+      </XStack>
+    </KitProvider>
+  );
+}
+
 type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onSend" | "interaction"> & {
   flow: FilledFlow;
   index: number;
@@ -52,35 +78,24 @@ export function FlowPhone({
   validationError = false,
   inspection = false,
 }: FlowPhoneProps) {
-  const search = useFlowSearch(inspection ? undefined : interaction, flowScreenId(index));
-  const screen = useMemo(
-    () => flowPreviewScreen(flow, index, state, { validationError, search }),
-    [flow, index, state, validationError, search],
+  const fixture = useMemo(
+    () => (state === "empty" ? emptySearchStore(flow, index) : undefined),
+    [state, flow, index],
   );
+  const store = fixture ?? (inspection ? undefined : interaction);
+  const search = useFlowSearch(store, flowScreenId(index));
+  const screen = useMemo(() => {
+    const preview = flowPreviewScreen(flow, index, state, { validationError, search });
+    return !inspection && onLink ? keepReceiptAnchor(flow, index, preview) : preview;
+  }, [flow, index, state, validationError, search, inspection, Boolean(onLink)]);
+  const receiptUpdate = screen.id !== flowScreenId(index);
+  useLayoutEffect(() => {
+    if (receiptUpdate) focusFlowPart(`${screen.id}/action_1/root`);
+  }, [screen.id, receiptUpdate]);
   const number = primaryNumber(flow, index, state);
   return (
     <YStack>
-      {number && (
-        <KitProvider theme={flowTheme}>
-          <XStack
-            paddingHorizontal={space.lg}
-            paddingVertical={space.md}
-            gap={space.md}
-            alignItems="center"
-            justifyContent="space-between"
-            data-flow-figure
-          >
-            <PartScope screen={screen.id} component="figure" rev={1} state="filled">
-              <KitText part="label" role="label" tone="muted">
-                {number.label}
-              </KitText>
-              <KitText part="value" role="number" tabular>
-                {number.value}
-              </KitText>
-            </PartScope>
-          </XStack>
-        </KitProvider>
-      )}
+      {number && <FlowFigure screen={screen.id} {...number} />}
       <YStack height={flowHeight(screen)}>
         <PhoneScreen
           screen={screen}
@@ -88,7 +103,7 @@ export function FlowPhone({
           onLink={onLink}
           onSend={onSend}
           resolvePhoto={resolvePhoto}
-          interaction={inspection ? undefined : interaction}
+          interaction={store}
           interactive={!inspection && !state && Boolean(onLink)}
           reduceMotion={inspection || !onLink ? true : undefined}
         />

@@ -12,8 +12,7 @@ export function flowHeight(screen: ScreenLike) {
   const rowGrowth = Math.max(0, rows - 2) * size.control.md + (rows >= 4 ? 3 * space.lg : 0);
   if (screen.components.some(({ c }) => c === "Composer")) return baseline + 7 * space.lg;
   if (screen.components.some(({ c }) => c === "FilterBar")) return baseline + 5 * space.lg;
-  if (screen.components.some(({ c }) => c === "HandoffReceipt"))
-    return baseline + (screen.components.some(({ id }) => id === "choices") ? 9 : 3) * space.lg;
+  if (screen.components.some(({ c }) => c === "HandoffReceipt")) return baseline + 9 * space.lg;
   if (screen.components.some(({ c }) => c === "Waitlist")) return baseline + 3 * space.lg;
   if (textOnly) return baseline - (hasFooter ? 6 : 8) * space.lg;
   if (hasStatus) return baseline + rowGrowth - (rows < 3 ? 3 * space.lg : 0);

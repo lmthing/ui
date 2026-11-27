@@ -23,3 +23,7 @@ export function restoreReturn({ address, scroll }: FlowReturn) {
   if (body && scroll !== undefined) body.scrollTop = scroll;
   node?.focus({ preventScroll: true });
 }
+
+export function focusFlowPart(address: string) {
+  part(address)?.focus();
+}

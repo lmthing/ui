@@ -1,6 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
-import type { FlowSearch } from "@lmthing/ui/catalog";
-import type { InteractionStore } from "@lmthing/ui/kit";
+import { flowScreenId, type FilledFlow, type FlowSearch } from "@lmthing/ui/catalog";
+import { createInteractionStore, type InteractionStore } from "@lmthing/ui/kit";
 
 export function useFlowSearch(store: InteractionStore | undefined, screen: string): FlowSearch {
   const base = `${screen}/filter`;
@@ -14,3 +14,17 @@ export function useFlowSearch(store: InteractionStore | undefined, screen: strin
 }
 
 const idle = () => () => {};
+
+export function emptySearchStore(flow: FilledFlow, index: number) {
+  const rows = flow.frames[index]?.search?.results;
+  if (!rows) return;
+  const first = rows[0]!;
+  const other = rows.find((row) => flow.record[row.category] !== flow.record[first.category]);
+  if (!other) return;
+  const base = `${flowScreenId(index)}/filter`;
+  return createInteractionStore({
+    [`${base}/field`]: flow.record[other.title],
+    [`${base}/$type/field`]: flow.record[other.title],
+    [`${base}/$selection/r1`]: flow.record[first.category],
+  });
+}

@@ -1,6 +1,7 @@
 import type { Component } from "../types";
 import type { ScreenLike } from "../agent";
 import { clip } from "../cast";
+import { wordsFor } from "../lang";
 import { checkScreen, type RegistryLike } from "../rules";
 import type { FilledFlow, FlowFrame } from "./fill-flow";
 import type { FlowState } from "./flow-template";
@@ -15,8 +16,12 @@ function fieldLabel(id: string) {
 }
 
 function pairs(flow: FilledFlow, frame: FlowFrame) {
+  const search = flow.frames.find((source) =>
+    source.search?.results.some(({ step }) => frame.key === `${source.role}/${step}`),
+  )?.search;
+  const category = search?.results.find(({ step }) => frame.key === `${frame.role}/${step}`)?.category;
   return frame.fields.map((key) => ({
-    label: clip(frame.labels?.[key] ?? fieldLabel(key), 20),
+    label: clip(frame.labels?.[key] ?? (key === category ? search!.filterLabel : fieldLabel(key)), 20),
     value: clip(String(flow.record[key]), 28),
   }));
 }
@@ -114,6 +119,13 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
     title: clip(label, 24),
     goto: previewTarget(flow, target),
   }));
+  if (frame.receipt === "waiting" && next.length === 2) {
+    const [confirm, decline] = next;
+    return [
+      { id: "secondary", c: "List", lead: "none", rows: [{ ...decline!, trail: "chevron" }] },
+      { id: "action_1", c: "Button", label: confirm!.title, goto: confirm!.goto },
+    ];
+  }
   if (next.length > 1 || frame.actionList)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
@@ -164,11 +176,16 @@ function previewBody(
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
   } else {
+    const back = frame.back && !state;
     body.unshift({
       id: "header",
       c: "Header",
       title: frame.title,
-      ...(frame.back && !state ? { style: "back" } : {}),
+      ...(back && frame.receipt
+        ? { action: { icon: "chevron_left", label: wordsFor().backLabel, goto: "back" } }
+        : back
+          ? { style: "back" }
+          : {}),
     });
     if (
       !body.some(
@@ -189,7 +206,7 @@ function previewBody(
     const composer = body.findIndex(({ c }) => c === "Composer");
     const insertAt = note >= 0 ? note : composer >= 0 ? composer : body.length;
     body.splice(insertAt, note < 0 ? 0 : 1, {
-      id: "message",
+      id: note < 0 ? "message" : body[note]!.id,
       c: "Note",
       text: clip(message, 120),
       ...(state === "error" || validationError ? { tone: "bad" } : {}),

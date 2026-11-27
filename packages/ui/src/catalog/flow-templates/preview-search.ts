@@ -36,6 +36,6 @@ export function previewSearch(
   };
   // Keep the zero-results message adjacent to the still-active controls in the phone preview.
   if (state === "empty" || matches.length === 0)
-    return [controls, { id: "no_matches", c: "Note", text: frame.messages.empty }];
+    return [controls, { id: "results", c: "Note", text: frame.messages.empty }];
   return [controls, { id: "results", c: "List", lead: "none", rows: matches }];
 }
