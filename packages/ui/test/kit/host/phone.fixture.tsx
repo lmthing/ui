@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
 import type { Definition, ScreenLike } from "@lmthing/ui/catalog";
-import { KitAction, KitText, PhoneScreen, useHostOperations } from "../../../src/kit";
+import { KitAction, KitText, PhoneScreen, publishBrowserAgent, useHostOperations } from "../../../src/kit";
 import { config } from "../../render";
 
 const frame = {
@@ -75,6 +75,7 @@ function Fixture() {
         Finish handoff
       </button>
       <PhoneScreen
+        onReady={publishBrowserAgent}
         defs={defs}
         renderers={renderers}
         screen={screen}

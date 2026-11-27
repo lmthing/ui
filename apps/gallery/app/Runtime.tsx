@@ -1,6 +1,6 @@
 import { TamaguiProvider, YStack } from "tamagui";
 import { type ScreenLike } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
 import { config } from "../index";
 import { resolveMedia } from "./media";
 import { resolvePhoto } from "./photos";
@@ -45,6 +45,7 @@ export function Runtime() {
       <YStack width="100%" maxWidth={430} height="100vh" alignSelf="center">
         <PhoneScreen
           screen={screen}
+          onReady={publishBrowserAgent}
           theme={{ preset: "calm", mode: "light", accent: "moss" }}
           resolveMedia={resolveMedia}
           resolvePhoto={resolvePhoto}

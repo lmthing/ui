@@ -11,7 +11,7 @@ const fixture = `
   import { createRoot } from "react-dom/client";
   import { TamaguiProvider } from "tamagui";
   import { components } from "@lmthing/ui/catalog";
-  import { PhoneScreen, renderers } from "@lmthing/ui/kit";
+  import { PhoneScreen, publishBrowserAgent, renderers } from "@lmthing/ui/kit";
   import { config } from ${JSON.stringify(renderPath)};
 
   const screen = { id: "home", components: [{
@@ -29,7 +29,7 @@ const fixture = `
   createRoot(document.getElementById("root")).render(h(
     TamaguiProvider, { config, defaultTheme: "kit_calm_light_moss" },
     h(PhoneScreen, { screen, theme, media, defs: components, renderers, interactive: true,
-      onReady: (agent) => { window.__lmthingUI = agent; } }),
+      onReady: publishBrowserAgent }),
   ));
 `;
 
