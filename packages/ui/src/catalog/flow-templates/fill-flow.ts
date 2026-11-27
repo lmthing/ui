@@ -39,6 +39,7 @@ export type FlowFrame = {
   states: readonly FlowState[];
   messages: Partial<Record<FlowState, string>>;
   fields: readonly string[];
+  invalidField?: string;
   back?: true;
   actionList?: true;
   retry?: string;
@@ -84,6 +85,7 @@ function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill)
     states: step.states,
     messages,
     fields: step.preview?.fields ?? [],
+    ...(step.preview?.invalidField ? { invalidField: step.preview.invalidField } : {}),
     ...(step.preview?.back ? { back: step.preview.back } : {}),
     ...(step.preview?.actionList ? { actionList: step.preview.actionList } : {}),
     ...(step.preview?.retry ? { retry: step.preview.retry } : {}),

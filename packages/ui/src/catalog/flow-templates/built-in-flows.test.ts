@@ -25,7 +25,7 @@ const outcomes = {
   change_preference: ["member/reopened", "member/undone"],
   edit_profile: ["owner/saved"],
   complete_form: ["applicant/submitted"],
-  review_notification: ["member/read"],
+  review_notification: ["member/detail_read"],
   cart_to_order: ["customer/pickup", "customer/deliver"],
 };
 

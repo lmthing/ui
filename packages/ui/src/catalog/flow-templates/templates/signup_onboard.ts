@@ -53,16 +53,16 @@ export const signupOnboard: FlowTemplate = {
         },
         {
           id: "preferences",
-          see: "Choose what you want to do first, or skip this setup.",
-          do: "Tap Save goal",
+          see: "This sample suggests {record.goal} as a first goal. You can start without saving a preference.",
+          do: "Skip the optional setup and start the first task.",
           optional: true,
           layout: {
             components: ["KeyValue"],
           },
           states: ["empty"],
           preview: {
-            title: "Choose a goal",
-            action: "Save goal",
+            title: "Suggested first goal",
+            action: "Skip for now",
             fields: ["goal"],
             back: true,
           },

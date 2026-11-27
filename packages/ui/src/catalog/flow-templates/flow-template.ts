@@ -60,6 +60,7 @@ const preview = z.strictObject({
     })
     .optional(),
   fields: z.array(id).min(1).max(6).optional(),
+  invalidField: id.optional(),
   messages: z.partialRecord(flowState, text(160)).optional(),
 });
 

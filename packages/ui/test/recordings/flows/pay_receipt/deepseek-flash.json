@@ -145,6 +145,83 @@
       "{\n  \"names\": {\n    \"payer\": \"Ari\"\n  },\n  \"record\": {\n    \"payee\": \"Workshop desk\",\n    \"amount\": \"$28.00\",\n    \"method\": \"Card ending 2041\",\n    \"order\": \"Workshop WR-528\",\n    \"reference\": \"RC-802\"\n  },\n  \"omit\": []\n}"
     ]
   },
+  "pay_receipt%2Ffill_1/51aa48748ec55e2c/2b53b75aa570db30": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nPay a known amount and find a receipt only after payment succeeds.\nShow amount, currency and payee before committing. Use a safe method label, never raw credentials.\nCopy the full order label (name and reference if both appear) into order. Keep the payment receipt reference separate.\nA pending or failed payment must not produce a receipt. Retrying should not duplicate a settled charge.\nName slots: payer.\nRecord shape: {\"payee\":\"string\",\"amount\":\"string\",\"method\":\"string\",\"order\":\"string\",\"reference\":\"string\",\"first_check_fails\":\"boolean\"}.\nOptional step addresses: none.\nRequest: Ari pays Workshop desk $28.00 for Workshop WR-528 using Card ending 2041. The receipt reference is RC-802.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "payer": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "payer"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "payee": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "first_check_fails": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "payee",
+                "amount",
+                "method",
+                "order",
+                "reference",
+                "first_check_fails"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"payer\": \"Ari\"\n  },\n  \"record\": {\n    \"payee\": \"Workshop desk\",\n    \"amount\": \"$28.00\",\n    \"method\": \"Card ending 2041\",\n    \"order\": \"Workshop WR-528\",\n    \"reference\": \"RC-802\",\n    \"first_check_fails\": false\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"payer\": \"Ari\"\n  },\n  \"record\": {\n    \"payee\": \"Workshop desk\",\n    \"amount\": \"$28.00\",\n    \"method\": \"Card ending 2041\",\n    \"order\": \"Workshop WR-528\",\n    \"reference\": \"RC-802\",\n    \"first_check_fails\": false\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"payer\": \"Ari\"\n  },\n  \"record\": {\n    \"payee\": \"Workshop desk\",\n    \"amount\": \"$28.00\",\n    \"method\": \"Card ending 2041\",\n    \"order\": \"Workshop WR-528\",\n    \"reference\": \"RC-802\",\n    \"first_check_fails\": false\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"payer\": \"Ari\"\n  },\n  \"record\": {\n    \"payee\": \"Workshop desk\",\n    \"amount\": \"$28.00\",\n    \"method\": \"Card ending 2041\",\n    \"order\": \"Workshop WR-528\",\n    \"reference\": \"RC-802\",\n    \"first_check_fails\": false\n  },\n  \"omit\": []\n}"
+    ]
+  },
   "pay_receipt%2Ffill_1/a02072682e33d53f/7a06af6ac5f9149e": {
     "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nPay a known amount and find a receipt only after payment succeeds.\nShow amount, currency and payee before committing. Use a safe method label, never raw credentials.\nA pending or failed payment must not produce a receipt. Retrying should not duplicate a settled charge.\nName slots: payer.\nRecord shape: {\"payee\":\"string\",\"amount\":\"string\",\"method\":\"string\",\"reference\":\"string\"}.\nOptional step addresses: none.\nRequest: Ari pays Workshop desk $28.00 using Card ending 2041. The receipt reference is RC-802.",
     "format": {

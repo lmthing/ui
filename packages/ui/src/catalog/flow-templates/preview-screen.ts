@@ -84,7 +84,7 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
         id: `field_${i + 1}`,
         c,
         label: clip(frame.labels?.[field] ?? fieldLabel(field), 24),
-        ...(state === "empty"
+        ...(state === "empty" || (state === "error" && field === frame.invalidField)
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));

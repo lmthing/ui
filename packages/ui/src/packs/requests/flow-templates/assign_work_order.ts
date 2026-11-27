@@ -43,7 +43,7 @@ export const assignWorkOrder: FlowTemplate = {
         },
         {
           id: "closed",
-          see: "{record.reference} is closed. Work result: {record.result}.",
+          see: "{name.worker} completed {record.subject} on {record.reference}. Work result: {record.result}.",
           layout: { components: ["Success"] },
           states: ["success"],
           preview: { title: "Work order closed", fields: ["subject", "reference", "result"] },

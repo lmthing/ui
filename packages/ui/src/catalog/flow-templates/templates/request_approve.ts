@@ -147,6 +147,7 @@ export const requestApprove: FlowTemplate = {
             action: "Send decision",
             back: true,
             fields: ["reason"],
+            invalidField: "reason",
             messages: {
               error: "Enter a reason so the requester knows what to change.",
             },

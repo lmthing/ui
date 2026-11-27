@@ -12,6 +12,7 @@ export const payReceipt: FlowTemplate = {
     method: "string",
     order: "string",
     reference: "string",
+    first_check_fails: "boolean",
   },
   journeys: [
     {
@@ -49,8 +50,10 @@ export const payReceipt: FlowTemplate = {
             title: "Payment processing",
             action: "Check payment status",
             fields: ["order", "payee", "amount"],
+            retry: "first_check_fails",
             messages: {
-              error: "Payment failed. Check the status of {record.order} before trying again.",
+              error:
+                "{record.order}: payment wasn't recorded. Recheck the status; don't send another payment.",
             },
           },
         },
@@ -96,6 +99,7 @@ export const payReceipt: FlowTemplate = {
         method: "Card ending 2041",
         order: "Workshop WR-528",
         reference: "RC-802",
+        first_check_fails: false,
       },
     },
     {
@@ -109,6 +113,7 @@ export const payReceipt: FlowTemplate = {
         method: "Bank transfer",
         order: "Studio hire SH-113",
         reference: "RC-953",
+        first_check_fails: true,
       },
     },
   ],

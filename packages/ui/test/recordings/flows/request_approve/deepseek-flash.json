@@ -68,6 +68,75 @@
       "{\n  \"names\": {\n    \"requester\": \"Kai\",\n    \"approver\": \"Priya\"\n  },\n  \"record\": {\n    \"request\": \"Equipment loan request\",\n    \"reference\": \"RQ-412\",\n    \"reason\": \"\"\n  },\n  \"omit\": []\n}"
     ]
   },
+  "request_approve%2Ffill_1/4eb1c5cc9bd30c75/f77c763b1ace7f72": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nSend a request to a decision maker and return the decision, including a rejection reason.\nBefore the decision, show who asked, what they need and why.\nRequire a reason before rejection. The requester sees the reason and the same request reference.\nName slots: requester, approver.\nRecord shape: {\"request\":\"string\",\"reference\":\"string\",\"reason\":\"string\"}.\nOptional step addresses: none.\nRequest: I’m Kai. Send a request titled 'Equipment loan' to Priya under RQ-412. On the declined path, show the reason 'Already reserved'.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "requester": {
+                  "type": "string"
+                },
+                "approver": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "requester",
+                "approver"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "request": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "request",
+                "reference",
+                "reason"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"requester\": \"Kai\",\n    \"approver\": \"Priya\"\n  },\n  \"record\": {\n    \"request\": \"Equipment loan\",\n    \"reference\": \"RQ-412\",\n    \"reason\": \"Already reserved\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"requester\": \"Kai\",\n    \"approver\": \"Priya\"\n  },\n  \"record\": {\n    \"request\": \"Equipment loan\",\n    \"reference\": \"RQ-412\",\n    \"reason\": \"Already reserved\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"requester\": \"Kai\",\n    \"approver\": \"Priya\"\n  },\n  \"record\": {\n    \"request\": \"Equipment loan\",\n    \"reference\": \"RQ-412\",\n    \"reason\": \"Already reserved\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"requester\": \"Kai\",\n    \"approver\": \"Priya\"\n  },\n  \"record\": {\n    \"request\": \"Equipment loan\",\n    \"reference\": \"RQ-412\",\n    \"reason\": \"Already reserved\"\n  },\n  \"omit\": []\n}"
+    ]
+  },
   "request_approve%2Ffill_1/af162305a8504203/f77c763b1ace7f72": {
     "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nSend a request to a decision maker and return the decision, including a rejection reason.\nBefore the decision, show who asked, what they need and why.\nRequire a reason before rejection. The requester sees the reason and the same request reference.\nName slots: requester, approver.\nRecord shape: {\"request\":\"string\",\"reference\":\"string\",\"reason\":\"string\"}.\nOptional step addresses: none.\nRequest: I’m Kai. Send a request titled 'Equipment loan' to Priya under RQ-412. On the declined path, show the reason 'Already reserved'.",
     "format": {

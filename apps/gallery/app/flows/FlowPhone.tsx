@@ -88,10 +88,15 @@ export function FlowPhone({
     const preview = flowPreviewScreen(flow, index, state, { validationError, search });
     return !inspection && onLink ? keepReceiptAnchor(flow, index, preview) : preview;
   }, [flow, index, state, validationError, search, inspection, Boolean(onLink)]);
-  const receiptUpdate = screen.id !== flowScreenId(index);
+  const nextFocus =
+    screen.id !== flowScreenId(index)
+      ? "action_1/root"
+      : !inspection && onLink && index > 0 && flow.frames[index]?.actionList
+        ? "choices/r1/root"
+        : undefined;
   useLayoutEffect(() => {
-    if (receiptUpdate) focusFlowPart(`${screen.id}/action_1/root`);
-  }, [screen.id, receiptUpdate]);
+    if (nextFocus) focusFlowPart(`${screen.id}/${nextFocus}`);
+  }, [screen.id, nextFocus]);
   const number = primaryNumber(flow, index, state);
   return (
     <YStack>

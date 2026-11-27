@@ -62,15 +62,15 @@ export const checkIn: FlowTemplate = {
       steps: [
         {
           id: "find",
-          see: "Match {record.reference} to {name.attendee} for {record.event}; search by name if the pass cannot be read.",
-          do: "Tap Review arrival",
+          see: "This sample pass matches {name.attendee}'s reservation for {record.event}. Check the reference before continuing.",
+          do: "Review the matched reservation.",
           layout: {
             components: ["List"],
           },
           states: ["empty", "error"],
           preview: {
-            title: "Find reservation",
-            action: "Review arrival",
+            title: "Matched reservation",
+            action: "Review matched pass",
             fields: ["reference", "event"],
             messages: {
               error: "No reservation matched. Check the event, pass or attendee name.",

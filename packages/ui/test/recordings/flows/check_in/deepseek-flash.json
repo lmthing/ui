@@ -1,4 +1,73 @@
 {
+  "check_in%2Ffill_1/18adb18141aa4396/5fd2bc49e0284d21": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nMatch an arrival to a reservation and record attendance once.\nCheck the event and person before marking attendance. A bad or repeated credential must not create another arrival.\nShow a manual lookup path when a pass cannot be read.\nName slots: attendee, host.\nRecord shape: {\"event\":\"string\",\"reference\":\"string\",\"arrival\":\"string\"}.\nOptional step addresses: none.\nRequest: Rae arrives for Morning practice at 08:55. Dani checks her in using pass reference CK-721.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "attendee": {
+                  "type": "string"
+                },
+                "host": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "attendee",
+                "host"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "arrival": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "event",
+                "reference",
+                "arrival"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"attendee\": \"Rae\",\n    \"host\": \"Dani\"\n  },\n  \"record\": {\n    \"event\": \"Morning practice\",\n    \"reference\": \"CK-721\",\n    \"arrival\": \"08:55\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"attendee\": \"Rae\",\n    \"host\": \"Dani\"\n  },\n  \"record\": {\n    \"event\": \"Morning practice\",\n    \"reference\": \"CK-721\",\n    \"arrival\": \"08:55\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"attendee\": \"Rae\",\n    \"host\": \"Dani\"\n  },\n  \"record\": {\n    \"event\": \"Morning practice\",\n    \"reference\": \"CK-721\",\n    \"arrival\": \"08:55\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"attendee\": \"Rae\",\n    \"host\": \"Dani\"\n  },\n  \"record\": {\n    \"event\": \"Morning practice\",\n    \"reference\": \"CK-721\",\n    \"arrival\": \"08:55\"\n  },\n  \"omit\": []\n}"
+    ]
+  },
   "check_in%2Ffill_1/4b3d9143fd43a1f6/5fd2bc49e0284d21": {
     "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nMatch an arrival to a reservation and record attendance once.\nCheck the event and person before marking attendance. A bad or repeated credential must not create another arrival.\nShow a manual lookup path when a pass cannot be read.\nName slots: attendee, host.\nRecord shape: {\"event\":\"string\",\"reference\":\"string\",\"arrival\":\"string\"}.\nOptional step addresses: none.\nRequest: Rae arrives for Morning practice at 08:55. Dani checks her in using pass reference CK-721.",
     "format": {

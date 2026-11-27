@@ -1,4 +1,81 @@
 {
+  "assign_work_order%2Ffill_1/39f22d346c8c87c3/2957a7a05d70a4c8": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nAssign a service request to a worker, verify the outcome, and show the requester what was done.\nKeep one work reference through request, assignment, result, and closure. Use RequestQueue or RequestTriage for assignment, WorkOrder for the assignee, and HandoffReceipt for the transferred record.\nDistinguish received but unassigned, assigned, outcome submitted, and closed. The worker's submission does not close the request.\nName slots: requester, dispatcher, worker.\nRecord shape: {\"subject\":\"string\",\"reference\":\"string\",\"window\":\"string\",\"result\":\"string\"}.\nOptional step addresses: none.\nRequest: Nia reports Greenhouse latch as WO-108. Dispatcher Mina assigns Ren the window Fri, 9 AM to noon. The outcome is Latch replaced.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "requester": {
+                  "type": "string"
+                },
+                "dispatcher": {
+                  "type": "string"
+                },
+                "worker": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "requester",
+                "dispatcher",
+                "worker"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "subject": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "window": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "subject",
+                "reference",
+                "window",
+                "result"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"requester\": \"Nia\",\n    \"dispatcher\": \"Mina\",\n    \"worker\": \"Ren\"\n  },\n  \"record\": {\n    \"subject\": \"Greenhouse latch\",\n    \"reference\": \"WO-108\",\n    \"window\": \"Fri, 9 AM to noon\",\n    \"result\": \"Latch replaced\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"requester\": \"Nia\",\n    \"dispatcher\": \"Mina\",\n    \"worker\": \"Ren\"\n  },\n  \"record\": {\n    \"subject\": \"Greenhouse latch\",\n    \"reference\": \"WO-108\",\n    \"window\": \"Fri, 9 AM to noon\",\n    \"result\": \"Latch replaced\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"requester\": \"Nia\",\n    \"dispatcher\": \"Mina\",\n    \"worker\": \"Ren\"\n  },\n  \"record\": {\n    \"subject\": \"Greenhouse latch\",\n    \"reference\": \"WO-108\",\n    \"window\": \"Fri, 9 AM to noon\",\n    \"result\": \"Latch replaced\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"requester\": \"Nia\",\n    \"dispatcher\": \"Mina\",\n    \"worker\": \"Ren\"\n  },\n  \"record\": {\n    \"subject\": \"Greenhouse latch\",\n    \"reference\": \"WO-108\",\n    \"window\": \"Fri, 9 AM to noon\",\n    \"result\": \"Latch replaced\"\n  },\n  \"omit\": []\n}"
+    ]
+  },
   "assign_work_order%2Ffill_1/e96a937a71b07e81/2957a7a05d70a4c8": {
     "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nAssign a service request to a worker, verify the outcome, and show the requester what was done.\nKeep one work reference through request, assignment, result, and closure. Use RequestQueue or RequestTriage for assignment, WorkOrder for the assignee, and HandoffReceipt for the transferred record.\nDistinguish received but unassigned, assigned, outcome submitted, and closed. The worker's submission does not close the request.\nName slots: requester, dispatcher, worker.\nRecord shape: {\"subject\":\"string\",\"reference\":\"string\",\"window\":\"string\",\"result\":\"string\"}.\nOptional step addresses: none.\nRequest: Nia reports Greenhouse latch as WO-108. Dispatcher Mina assigns Ren the window Fri, 9 AM to noon. The outcome is Latch replaced.",
     "format": {
