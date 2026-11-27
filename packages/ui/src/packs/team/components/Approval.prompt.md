@@ -11,4 +11,5 @@ A manager decides on staff requests such as time off, swaps or expenses, or a re
 - Use style "my_requests" only for the requester tracking their own submissions, not manager decisions. Write each supplied decision as status ("pending", "approved", "declined"). Use kind "shift_claim" for a request to take an open shift, not a swap of an assigned shift.
 - Write amounts as numbers without a currency. Use lead "none" only when asked to hide requester portraits; keep the photo references.
 - Write reference only if the brief supplies a request number. Keep it unchanged across both views; otherwise write reference null. Do not borrow numbers or decisions from the example.
+- Decision buttons require a unique supplied reference on the request. Without a reference the queue can still show it read-only.
 - Set unrequested axes to null: for requests without portraits use {"lead":"none"}.

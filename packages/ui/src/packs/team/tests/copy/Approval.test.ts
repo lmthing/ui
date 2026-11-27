@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { approvalAmount, approvalPortrait, approvalReading, approvalStatus } from "../../copy";
+import {
+  approvalAmount,
+  approvalPortrait,
+  approvalReading,
+  approvalStatus,
+  projectApprovalRequests,
+} from "../../copy";
 import { teamWordsFor } from "../../lang";
 
 describe("Approval copy", () => {
@@ -33,4 +39,34 @@ describe("Approval copy", () => {
     expect(approvalStatus("approved", approval)).toEqual({ label: "Approved", tone: "good" });
     expect(approvalStatus("declined", approval)).toEqual({ label: "Declined", tone: "bad" });
   });
+});
+
+it("ignores malformed and unmatched receipts and does not reopen a settled wire request", () => {
+  const requests = [
+    { kind: "expense" as const, reference: "EXP-52" },
+    { kind: "time_off" as const, reference: "LV-64", status: "declined" as const },
+  ];
+  const data = {
+    approvalDecisions: [
+      { reference: "EXP-99", status: "approved" },
+      { reference: "EXP-52", status: "success" },
+      { reference: "LV-64", status: "submitting" },
+    ],
+  };
+  expect(projectApprovalRequests(requests, data)).toMatchObject([
+    { reference: "EXP-52", open: true, status: undefined, feedback: undefined },
+    { reference: "LV-64", open: false, status: "declined", feedback: undefined },
+  ]);
+});
+
+it("withholds decisions when a request reference or its host receipt is ambiguous", () => {
+  const first = { kind: "expense" as const, reference: "EXP-52" };
+  const receipt = { reference: "EXP-52", status: "submitting" };
+  expect(projectApprovalRequests([first, first], { approvalDecisions: [receipt] })).toMatchObject([
+    { feedback: "unavailable", open: false },
+    { feedback: "unavailable", open: false },
+  ]);
+  expect(projectApprovalRequests([first], { approvalDecisions: [receipt, receipt] })).toMatchObject([
+    { feedback: "unavailable", open: false },
+  ]);
 });

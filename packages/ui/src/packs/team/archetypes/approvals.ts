@@ -6,6 +6,7 @@ export const approvals = {
   defaultLayout: "requests",
   layouts: {
     requests: {
+      writeHints: ["Use the Requests and Hours labels without option views; each tab has a separate layout."],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
@@ -59,7 +60,7 @@ export const probes = [
     archetype: "approvals",
     layout: "requests",
     brief:
-      "Show a Requests heading, a switch with Requests selected and Hours second, then Lee's Monday off request for 23 Nov with lib:people photo, note Rae can cover, and manager approve and decline buttons.",
+      "Show a Requests heading, a switch with Requests selected and Hours second, then Lee's Monday off request LV-117 for 23 Nov with lib:people photo, note Rae can cover, and manager approve and decline buttons.",
   },
   {
     kind: "compose",

@@ -1,7 +1,15 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { approvalAmount, approvalOpen, approvalPortrait, approvalReading, approvalStatus } from "../copy";
+import {
+  approvalAmount,
+  approvalOpen,
+  approvalPortrait,
+  approvalReading,
+  approvalRevision,
+  approvalStatus,
+  projectApprovalRequests,
+} from "../copy";
 import { teamWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Approval.generated";
 
@@ -32,6 +40,21 @@ export const meta = {
   },
   confirmParts: ["decline"],
   states: ["filled", "empty", "success"],
+  deviceData: ["approvalDecisions"],
+  live: {
+    derive: (input, _instance, data): c.Values => ({
+      requests: projectApprovalRequests((input as z.output<typeof props>).requests, data).map((row) =>
+        input.style === "my_requests" && row.feedback === "unavailable"
+          ? { ...row, feedback: undefined }
+          : row,
+      ),
+    }),
+  },
+  recordRuntime: {
+    kind: "approval_decision",
+    presses: { decline: { target: approvalRevision, plan: () => ({}) } },
+    project: () => ({}),
+  },
   actions: {
     items: { approve: ["press"], decline: ["press"] },
     when: { approve: { style: "queue", open: true }, decline: { style: "queue", open: true } },
@@ -58,7 +81,7 @@ export const props = z.strictObject({
           note: c.text(100).optional(),
           status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
         })
-        .transform((request) => ({ ...request, open: approvalOpen(request.status) })),
+        .transform((request) => ({ ...request, open: approvalOpen(request.status) && !!request.reference })),
     )
     .min(1)
     .max(5),
@@ -111,10 +134,11 @@ export const examples = [
         photo: "lib:people",
         kind: "swap",
         title: "Swap Saturday walks",
+        reference: "SW-217",
         dates: "21 Nov",
         note: "Lee can take the park route.",
       },
-      { from: "Lee", photo: "lib:people", kind: "other", title: "Add a spare lead" },
+      { from: "Lee", photo: "lib:people", kind: "other", title: "Add a spare lead", reference: "REQ-218" },
     ],
   },
   {
@@ -164,7 +188,14 @@ export const examples = [
         status: "pending",
       },
       { from: "Anna", photo: "lib:people", kind: "other", title: "New watering can", status: "declined" },
-      { from: "Lee", photo: "lib:people", kind: "expense", title: "Potting soil", status: "pending" },
+      {
+        from: "Lee",
+        photo: "lib:people",
+        kind: "expense",
+        title: "Potting soil",
+        reference: "EXP-124",
+        status: "pending",
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -209,9 +240,10 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
+type RequestRow = ReturnType<typeof projectApprovalRequests<ApprovalProps["requests"][number]>>[number];
 type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
   surface: c.SurfaceFinish;
-  row: ApprovalProps["requests"][number];
+  row: RequestRow;
   density: c.ThemeDensity;
 };
 
@@ -219,7 +251,7 @@ function ApprovalDetails({ row, lead, density }: Pick<RequestProps, "row" | "lea
   const { words, lang } = kit.useWords(teamWordsFor);
   const { kinds } = words.approval;
   const amount = approvalAmount(row.amount, lang);
-  const status = approvalStatus(row.status, words.approval);
+  const status = approvalStatus(row.status, words.approval, row.feedback);
   const portrait =
     lead === "avatar" ? (
       <kit.KitPhoto part="photo" {...approvalPortrait(row.from, row.photo)} label={row.from} shape="round" />
@@ -272,11 +304,17 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
     >
       <kit.KitCard part="content" style="plain" padded density={density}>
         <ApprovalDetails {...{ row, lead, density }} />
-        {state === "filled" && style === "queue" && row.open && (
+        {state === "filled" && style === "queue" && (row.open || row.feedback === "submitting") && (
           <kit.KitActionFooter density={density}>
             <kit.KitGrid density={density}>
-              <kit.KitAction part="approve" label={approve} kind="secondary" full />
-              <kit.KitAction part="decline" label={decline} kind="quiet" tone="bad" full />
+              <kit.KitAction part={row.open ? "approve" : null} label={approve} kind="secondary" full />
+              <kit.KitAction
+                part={row.open ? "decline" : null}
+                label={decline}
+                kind="quiet"
+                tone="bad"
+                full
+              />
             </kit.KitGrid>
           </kit.KitActionFooter>
         )}
@@ -291,6 +329,7 @@ export function Approval(input: ApprovalProps) {
   const { words } = kit.useWords(teamWordsFor);
   const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
+  const { requests } = kit.useLiveControls(meta, input) as { requests: RequestRow[] };
   const surface = "card";
   const empty = state === "empty";
   return (
@@ -310,7 +349,7 @@ export function Approval(input: ApprovalProps) {
         />
       ) : (
         <kit.KitRowGroup separators={false} spacing="groups" density={density}>
-          {input.requests.map((row) => (
+          {requests.map((row) => (
             <ApprovalRow key={row.id} {...{ row, lead, density, surface }} style={input.style} />
           ))}
         </kit.KitRowGroup>

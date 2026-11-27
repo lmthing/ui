@@ -8,16 +8,18 @@ import {
   readComponent,
   stampItemIds,
   type CastLike,
+  type DeviceData,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
+import type { input as SchemaInput } from "zod";
 import { addressedElements, renderInstance, type AddressedElement } from "../../../../../test/render";
 import { teamWordsFor } from "../../lang";
 
 const def = components.Approval;
 const { props, meta, examples, fallback, probes } = def;
 const sample = examples[0]!;
-const full = {
+const full: SchemaInput<typeof props> = {
   requests: [
     {
       ...sample.requests[0]!,
@@ -36,8 +38,8 @@ const row = full.requests[0]!;
 const words = teamWordsFor().approval;
 const emptyCast: CastLike = { things: [], items: [] };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-const view = (input: unknown, state: "filled" | "empty" | "success" = "filled") =>
-  addressedElements(renderInstance("Approval", input, state, theme));
+const view = (input: unknown, state: "filled" | "empty" | "success" = "filled", deviceData?: DeviceData) =>
+  addressedElements(renderInstance("Approval", input, state, theme, { deviceData }));
 
 function textOf(node: AddressedElement | undefined): string[] {
   return node ? [...node.text, ...node.children.flatMap(textOf)] : [];
@@ -247,6 +249,73 @@ describe("Approval dispatch", () => {
   });
 });
 
+it("gates a supplied submission, allows retry after failure, and settles only on a matching host receipt", () => {
+  let data: DeviceData;
+  const onAction = vi.fn();
+  const runtime = createScreenController({
+    screen: { id: "home", components: [{ ...full, c: "Approval", id: "a1" }] },
+    defs: components,
+    onAction,
+    get deviceData() {
+      return data;
+    },
+  });
+  const receipt = (status: string) => ({ approvalDecisions: [{ reference: "EXP-117", status }] });
+  const statusLabel = (input: unknown) => textOf(view(input, "filled", data).get("home/c1/r2/status"));
+  const offer = "[a1/r2/approve press";
+  expect(runtime.press("a1/r2/approve").ok).toBe(true);
+  expect(runtime.read()).toContain(words.awaitingDecision);
+  data = receipt("submitting");
+  expect(statusLabel(full)).toEqual([words.submitting]);
+  expect(runtime.read()).toContain(words.submitting);
+  expect(runtime.read()).not.toContain(offer);
+  for (const action of ["approve", "decline"]) {
+    expect(runtime.press(`a1/r2/${action}`).ok).toBe(false);
+    expect(view(full, "filled", data).has(`home/c1/r2/${action}`)).toBe(false);
+  }
+  expect(runtime.canPress("a1/r1/approve")).toBe(true);
+  expect(onAction).toHaveBeenCalledOnce();
+
+  data = receipt("failed");
+  expect(statusLabel(full)).toEqual([words.failed]);
+  expect(runtime.read()).toContain(words.failed);
+  expect(runtime.read()).toContain(offer);
+  expect(runtime.press("a1/r2/approve").ok).toBe(true);
+  expect(onAction).toHaveBeenCalledTimes(2);
+
+  data = receipt("approved");
+  expect(statusLabel(full)).toEqual([words.statuses.approved]);
+  expect(runtime.read()).toContain(words.statuses.approved);
+  expect(runtime.read()).not.toContain(offer);
+  expect(runtime.press("a1/r2/approve").ok).toBe(false);
+  const requester = { ...full, style: "my_requests" };
+  expect(statusLabel(requester)).toEqual([words.statuses.approved]);
+  expect(view(requester, "filled", data).has("home/c1/r2/decline")).toBe(false);
+  runtime.dispose();
+});
+
+it("does not route a decline confirmation to a replacement request in the same slot", () => {
+  const onAction = vi.fn();
+  const mount = (
+    requests: typeof full.requests,
+    store?: ReturnType<typeof createScreenController>["store"],
+  ) =>
+    createScreenController({
+      screen: { id: "home", components: [{ c: "Approval", id: "a1", requests }] },
+      defs: components,
+      onAction,
+      ...(store ? { store } : {}),
+    });
+  const original = mount(full.requests);
+  expect(original.press("a1/r1/decline").ok).toBe(true);
+  expect(original.confirmation).toBeDefined();
+  const updated = mount([{ ...row, reference: "LV-105", title: "Wednesday off" }], original.store);
+  expect(updated.press("confirm/confirm").ok).toBe(false);
+  expect(onAction).not.toHaveBeenCalled();
+  updated.dispose();
+  original.dispose();
+});
+
 it("labels shift claims and leaves requester decisions read-only at their original addresses", () => {
   const own = examples[2]!;
   const parts = view(own);
@@ -270,10 +339,10 @@ it("labels shift claims and leaves requester decisions read-only at their origin
 it("shows settled requests without offering a second decision in a mixed manager queue", () => {
   const input = {
     requests: [
-      { ...row, kind: "expense", title: "Train fare", status: "approved" },
-      { ...row, kind: "expense", title: "Courier fee", status: "declined" },
-      { ...row, kind: "expense", title: "Spare keys", status: "pending" },
-      { ...row, kind: "expense", title: "Parking" },
+      { ...row, kind: "expense", title: "Train fare", reference: "EXP-126", status: "approved" },
+      { ...row, kind: "expense", title: "Courier fee", reference: "EXP-127", status: "declined" },
+      { ...row, kind: "expense", title: "Spare keys", reference: "EXP-128", status: "pending" },
+      { ...row, kind: "expense", title: "Parking", reference: "EXP-129" },
     ],
   };
   const parts = view(input);
@@ -302,4 +371,14 @@ it("shows settled requests without offering a second decision in a mixed manager
   expect(runtime.press("a1/r4/approve").ok).toBe(true);
   expect(onAction).toHaveBeenCalledOnce();
   runtime.dispose();
+});
+
+it("keeps an unreferenced manager row readable without offering an untraceable decision", () => {
+  const input = { requests: [{ ...row, reference: undefined }] };
+  const parts = view(input);
+  expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.unavailable]);
+  expect(parts.has("home/c1/r1/approve")).toBe(false);
+  expect(readComponent(def, input, "a1").join("\n")).not.toContain(" press");
+  const own = view({ ...input, style: "my_requests" });
+  expect(textOf(own.get("home/c1/r1/status"))).toEqual([words.awaitingDecision]);
 });
