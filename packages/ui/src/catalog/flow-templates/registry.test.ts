@@ -87,6 +87,19 @@ describe("flow template catalog contract", () => {
     expect(registry.get("constructor")).toBeUndefined();
   });
 
+  test("keeps validated entries and their lookup in sync after attempted mutations", () => {
+    const template = fixture();
+    const registry = flowTemplateRegistryOf([template], lookups);
+    const entry = registry.get("send_item")!;
+    expect(Reflect.set(entry, "id", "renamed")).toBe(false);
+    expect(Reflect.set(entry.examples[0]!.record, "title", "Changed")).toBe(false);
+    expect(Reflect.deleteProperty(registry.list, "0")).toBe(false);
+    template.examples[0]!.record.title = "Changed at source";
+    expect(registry.get("send_item")).toBe(registry.list[0]);
+    expect(entry.examples[0]!.record.title).toBe("Notes");
+    expect(registry.get("renamed")).toBeUndefined();
+  });
+
   test("rejects malformed wire shapes, ambiguous layouts and out-of-contract states", () => {
     const template = fixture();
     expect(flowTemplateSchema.safeParse({ ...template, purpose: "" }).success).toBe(false);
@@ -155,5 +168,11 @@ describe("flow template catalog contract", () => {
     expect(() => flowTemplateRegistryOf([template], lookups)).toThrow(
       "Unknown pick probe result: not_in_registry",
     );
+  });
+
+  test("rejects duplicate journey ids even across distinct roles", () => {
+    const template = fixture();
+    template.journeys[1]!.id = template.journeys[0]!.id;
+    expect(() => flowTemplateRegistryOf([template], lookups)).toThrow("Duplicate journey id: send");
   });
 });

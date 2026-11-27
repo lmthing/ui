@@ -82,6 +82,11 @@ export function checkTemplate(template: FlowTemplate, lookups: FlowTemplateLooku
     "role slot",
     report,
   );
+  unique(
+    template.journeys.map(({ id }) => id),
+    "journey id",
+    report,
+  );
   for (const journey of template.journeys) {
     unique(
       journey.steps.map(({ id }) => id),

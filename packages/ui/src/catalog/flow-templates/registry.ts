@@ -1,24 +1,33 @@
 import { checkTemplate, type FlowTemplateLookups } from "./check-template";
 import { flowTemplateSchema, type FlowTemplate } from "./flow-template";
 
-export function flowTemplateRegistryOf(definitions: readonly FlowTemplate[], lookups: FlowTemplateLookups) {
-  const list = definitions.map((definition) => flowTemplateSchema.parse(definition));
-  const byId = new Map<string, FlowTemplate>();
-  const issues: string[] = [];
-  for (const template of list) {
-    if (byId.has(template.id)) issues.push(`Duplicate template id: ${template.id}`);
-    byId.set(template.id, template);
+type ReadonlyTree<T> = T extends object ? { readonly [K in keyof T]: ReadonlyTree<T[K]> } : T;
+
+function freezeTree<T>(value: T): ReadonlyTree<T> {
+  if (value !== null && typeof value === "object") {
+    for (const child of Object.values(value)) freezeTree(child);
+    Object.freeze(value);
   }
-  for (const template of list) {
+  return value as ReadonlyTree<T>;
+}
+
+export function flowTemplateRegistryOf(definitions: readonly FlowTemplate[], lookups: FlowTemplateLookups) {
+  const parsed = definitions.map((definition) => flowTemplateSchema.parse(definition));
+  const ids = new Set<string>();
+  const issues: string[] = [];
+  for (const template of parsed) {
+    if (ids.has(template.id)) issues.push(`Duplicate template id: ${template.id}`);
+    ids.add(template.id);
+  }
+  for (const template of parsed) {
     const report = (message: string) => issues.push(`${template.id}: ${message}`);
     checkTemplate(template, lookups, report);
     for (const { expect } of template.probes.pick) {
-      if (expect !== null && !byId.has(expect)) report(`Unknown pick probe result: ${expect}`);
+      if (expect !== null && !ids.has(expect)) report(`Unknown pick probe result: ${expect}`);
     }
   }
   if (issues.length > 0) throw new Error(issues.join("\n"));
-  return {
-    list: list as readonly FlowTemplate[],
-    get: (id: string): FlowTemplate | undefined => byId.get(id),
-  };
+  const list = freezeTree(parsed);
+  const byId = new Map(list.map((template) => [template.id, template]));
+  return Object.freeze({ list, get: (id: string) => byId.get(id) });
 }
