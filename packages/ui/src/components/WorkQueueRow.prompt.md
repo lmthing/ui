@@ -1,10 +1,10 @@
 ## Purpose
 
-Find work awaiting a decision and open the exact record that needs attention.
+Find work waiting for a decision.
 
 ## Pick
 
-Work waiting for a decision, with separate record reference, status, owner, due time, priority and action for each task. Not general browsing (List) or a request inbox with SLA and completed views (RequestQueue).
+Tasks by reference, status, owner, due time, priority and review action. Not browsing (List) or SLA inboxes (RequestQueue).
 
 ## Writer
 

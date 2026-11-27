@@ -136,7 +136,7 @@ const onSend = (text: string, address: string) => event("gallery-send", { text, 
 const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
-const previewWait = () => new Promise<void>((resolve) => setTimeout(resolve, 420));
+const previewWait = () => new Promise<void>((resolve) => setTimeout(resolve, 1600));
 
 function useDemoAttachments(): AttachmentHost {
   const attempts = useRef(0);

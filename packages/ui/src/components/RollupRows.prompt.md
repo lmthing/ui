@@ -1,10 +1,10 @@
 ## Purpose
 
-Compare the same measured total and supporting figures across several entities without a wide table.
+Compare one metric across entities.
 
 ## Pick
 
-Compare one like-for-like number per entity, with its unit and period and optional breakdown or linked detail. Not independent headline measurements (Stats) or the attributes of one record (KeyValue).
+Same metric, period and unit for each entity, with breakdowns. Not unrelated totals (Stats) or one record (KeyValue).
 
 ## Writer
 

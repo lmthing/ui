@@ -1,10 +1,10 @@
 ## Purpose
 
-A calm message on a screen that has no content yet.
+Explain missing content or completed work.
 
 ## Pick
 
-When nothing has been added, no results match the current filter, or no work remains. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).
+Nothing added, no filter matches or all done. Not a headline (Hero), alert (Banner) or note (Note).
 
 ## Writer
 

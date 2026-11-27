@@ -1,10 +1,10 @@
 ## Purpose
 
-Label and value details of one single thing, like its room or schedule.
+Read the facts of one record.
 
 ## Pick
 
-Any need about one record's facts or settings. Not picking among named records (List), browsing photos (Gallery), or summary numbers (Stats).
+Labelled facts for one record, not browsing (List, Gallery) or totals (Stats).
 
 ## Writer
 

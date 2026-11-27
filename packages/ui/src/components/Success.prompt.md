@@ -1,10 +1,10 @@
 ## Purpose
 
-Know an action worked, with its result and the saved item's details.
+See a one-time result immediately after your own action.
 
 ## Pick
 
-A one-time outcome immediately after the person's own submission, booking or completed action. Not the appointment record (Appointment), a warning strip (Banner), a shared across-role transfer with sender/recipient acknowledgement (HandoffReceipt), or no content (Empty).
+Local submission receipt, booking confirmation or completed work. Not booking details (Appointment), warnings (Banner), cross-role receipt (HandoffReceipt) or empty (Empty).
 
 ## Writer
 

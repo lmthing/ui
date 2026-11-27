@@ -1,10 +1,10 @@
 ## Purpose
 
-Enter or change one labelled piece of information on a form.
+Enter one form value.
 
 ## Pick
 
-Enter one named form value, such as a date, amount, contact value, form choice or a new file attachment. Not finding things by typing a query (Search), a list of already attached files (FileList), quick filters (Chips), several lines of writing (Composer) or choices that each need a sentence (Choice).
+A labelled input or file picker. Not search (Search), attached files (FileList), filters (Chips), multiline writing (Composer) or explained choices (Choice).
 
 ## Writer
 

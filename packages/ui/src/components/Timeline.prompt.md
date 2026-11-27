@@ -1,10 +1,10 @@
 ## Purpose
 
-Events in time order, or activities sized by duration on an hour rail.
+See timed events in order.
 
 ## Pick
 
-Dated or timed events in order, including state changes of one record. Use hours when duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).
+Event schedules, hour blocks with gaps, or one record’s dated history. Not choosing dates (Calendar), browsing (List) or chores (Checklist).
 
 ## Writer
 
