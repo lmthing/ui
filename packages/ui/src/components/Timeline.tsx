@@ -84,9 +84,9 @@ export const props = z
     style: z.enum(["day", "history", "hours"]).default("day"),
     items: z.array(event).max(8),
   })
-  .refine(({ style, items }) => style === "hours" || items.length <= 6, {
+  .refine(({ style, items }) => (style === "hours" ? items.length > 0 : items.length <= 6), {
     path: ["items"],
-    message: "Day and history take up to six events",
+    message: "Hours takes one to eight activities; day and history take up to six events",
   })
   .refine(
     ({ style, items }) =>
