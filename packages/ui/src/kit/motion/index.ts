@@ -1,4 +1,7 @@
 export { KitMotion } from "./KitMotion";
-export { KitPresence } from "./KitPresence";
-export { useSignatureProgress, useAnimatedValue, countText } from "./use-motion";
+export { DrawnCheck } from "./DrawnCheck";
+export { useMotionValue } from "./use-motion-value";
+export { useChangeReveal, useReducedFade } from "./use-change-reveal";
+export { KitPresence, ListProjectionKey, usePresence } from "./KitPresence";
+export { useSignatureProgress, useAnimatedValue, useReveal, countText } from "./use-motion";
 export { animateNumber, springStep } from "./animate";

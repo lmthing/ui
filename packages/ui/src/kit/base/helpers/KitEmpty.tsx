@@ -58,7 +58,7 @@ function EmptyBadge({
 
 /** A centred state message with a soft icon badge and copy from the shared dictionary or caller. */
 export function KitEmpty({
-  icon = "sparkles",
+  icon = "package",
   part = "title",
   title,
   noun,
@@ -75,7 +75,11 @@ export function KitEmpty({
   const { thing, state } = usePartContext();
   const treatment = prominence ?? (title && (fill || state !== "empty") ? "heading" : "body");
   const textTone =
-    tone === "bad" || (tone === "good" && prominence) ? tone : treatment === "body" ? "muted" : "text";
+    tone === "bad" || (tone === "good" && prominence)
+      ? tone
+      : treatment === "body" && !fill
+        ? "muted"
+        : "text";
   const label = title ?? emptyLine(noun ?? thing, lang);
   if (layout === "inline")
     return (
@@ -89,7 +93,7 @@ export function KitEmpty({
   return (
     <YStack
       alignItems="center"
-      gap={space.md}
+      gap={space[fill ? "lg" : "md"]}
       paddingVertical={space.xl}
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}

@@ -1,7 +1,7 @@
 import { Text, isWeb, styled, useTheme } from "tamagui";
 import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
 import { fontFamilies, motion, size, space, type as typography, variants } from "../../../catalog";
-import { useSignatureProgress, countText } from "../../motion";
+import { useChangeReveal, useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useReportedText } from "../../report";
@@ -190,7 +190,26 @@ function wrapProse({ role = "body", lines, children, breakLongWords }: TextProps
   };
 }
 
-function TextRun(props: TextProps) {
+function FigureRun(props: TextProps) {
+  const { state } = usePartContext();
+  const { children } = props;
+  const value =
+    state !== "loading" && typeof children === "string" && /\p{Nd}/u.test(children) ? children : undefined;
+  const progress = useChangeReveal(value, false);
+  return <TextRun {...props} figureProgress={progress} />;
+}
+
+function figureScale(step: TextRole, compact: boolean) {
+  return compact
+    ? {
+        fontSize: typography[step].size,
+        lineHeight: typography[step].lineHeight,
+        letterSpacing: typography.body.tracking,
+      }
+    : {};
+}
+
+function TextRun(props: TextProps & { figureProgress?: number }) {
   const { children, role = "body", tone = "text", part = "root", lines } = props;
   const { numberScale = "display", strike = false, emphasis, goto } = props;
   const { align, tabular } = useFigureTypography(props);
@@ -209,9 +228,11 @@ function TextRun(props: TextProps) {
   const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   const webLink = linkSlot && isWeb;
+  const figure = !loading && count === 1 ? (props.figureProgress ?? 1) : 1;
   const text = (
     <Frame
       {...(!webLink ? target : {})}
+      {...(figure < 1 ? { y: motion.figureRoll * (1 - figure) } : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       color={
@@ -230,13 +251,7 @@ function TextRun(props: TextProps) {
         : strike && !loading
           ? { textDecorationLine: "line-through" as const }
           : {})}
-      {...(role === "number" && numberScale === "compact"
-        ? {
-            fontSize: typography[numberStep].size,
-            lineHeight: typography[numberStep].lineHeight,
-            letterSpacing: typography.body.tracking,
-          }
-        : {})}
+      {...figureScale(numberStep, role === "number" && numberScale === "compact")}
     >
       {nested ? maskRuns(children) : loading && isWeb ? <Text opacity={0}>{content}</Text> : content}
     </Frame>
@@ -253,10 +268,9 @@ function TextRun(props: TextProps) {
 /** All visible text, including nested inline runs and addressed screen links. */
 export function KitText(props: TextProps) {
   const context = usePartContext();
-  if (props.item === undefined) return <TextRun {...props} />;
-  return (
-    <PartContext.Provider value={{ ...context, item: props.item }}>
-      <TextRun {...props} />
-    </PartContext.Provider>
-  );
+  const { role, part, goto } = props;
+  const rolls = role === "number" && !goto && part !== "time" && part !== "range_reading";
+  const view = rolls ? <FigureRun {...props} /> : <TextRun {...props} />;
+  if (props.item === undefined) return view;
+  return <PartContext.Provider value={{ ...context, item: props.item }}>{view}</PartContext.Provider>;
 }

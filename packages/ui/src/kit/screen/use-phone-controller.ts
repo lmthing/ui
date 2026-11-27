@@ -66,14 +66,24 @@ function createCommittedController(
   });
 }
 
-export function usePhoneController(props: PhoneScreenProps) {
+type ObserveLink = (goto: string, address: string, agent: boolean) => void;
+
+export function usePhoneController(props: PhoneScreenProps, observeLink?: ObserveLink) {
   const { screen, defs, interaction, interactive = true, media, micCapture } = props;
   const { requestPhoto, parentGate, writeClipboard } = props;
   const { attachments, resolvePlayback } = props;
   const callbacks = useRef(props);
-  callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
+  callbacks.current = {
+    ...props,
+    onLink:
+      props.onLink &&
+      ((goto, address) => {
+        observeLink?.(goto, address, props.agentMode ?? Boolean(store.get(`${screen.id}/$agentMode`)));
+        props.onLink?.(goto, address);
+      }),
+  };
   const hasMediaResolver = Boolean(props.resolveMedia);
   const snapshot = useHostSnapshot(props);
   const source = useMemo(() => {

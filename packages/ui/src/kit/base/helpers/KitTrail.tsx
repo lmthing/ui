@@ -4,9 +4,10 @@ import { RowLabelContext } from "../../a11y";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
-import { component, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
+import { component, motion, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
+import { useChangeReveal, useMotionValue, useReducedFade } from "../../motion";
 
 const Frame = styled(YStack, {
   minWidth: size.control.md,
@@ -29,7 +30,7 @@ const Track = styled(XStack, {
   alignItems: "center",
   variants: {
     on: {
-      true: { backgroundColor: "$accent", borderColor: "$accent", justifyContent: "flex-end" },
+      true: { backgroundColor: "$accent", borderColor: "$accent" },
       false: { backgroundColor: "transparent", borderColor: "$muted", justifyContent: "flex-start" },
     },
   } as const,
@@ -40,10 +41,9 @@ const Knob = styled(YStack, {
     on: {
       true: { width: size.icon.md, height: size.icon.md, backgroundColor: "$onAccent" },
       false: {
-        width: size.icon.sm,
-        height: size.icon.sm,
+        width: size.icon.md,
+        height: size.icon.md,
         backgroundColor: "$muted",
-        marginLeft: space.xs / 2,
       },
     },
   } as const,
@@ -72,6 +72,8 @@ function ToggleTrail({
   disabled: boolean;
   loading: boolean;
 }) {
+  const progress = Math.min(1, Math.max(0, useMotionValue(Number(active), disabled || loading)));
+  const fade = useReducedFade(!disabled && !loading ? String(active) : undefined);
   if (loading)
     return (
       <YStack
@@ -84,9 +86,21 @@ function ToggleTrail({
     );
   return (
     <Track on={active} {...(disabled ? { backgroundColor: "$raised", borderColor: "$muted" } : {})}>
-      <Knob on={active} {...(disabled ? { backgroundColor: "$muted" } : {})} />
+      <YStack width={progress * (size.control.md - size.icon.md - 4 * component.base.strongBorder)} />
+      <Knob
+        on={active}
+        {...fade}
+        scale={(size.icon.sm + (size.icon.md - size.icon.sm) * progress) / size.icon.md}
+        {...(disabled ? { backgroundColor: "$muted" } : {})}
+      />
     </Track>
   );
+}
+
+function badgeFill(tone?: TextTone) {
+  if (tone === "good" || tone === "warn" || tone === "bad") return `$${tone}Soft` as const;
+  if (tone === "text" || tone === "muted") return "$raised";
+  return tone === "onAccent" ? "$accent" : "$accentSoft";
 }
 
 function ValueTrail({
@@ -97,6 +111,9 @@ function ValueTrail({
   density,
   inline,
 }: Pick<TrailProps, "kind" | "value" | "tone" | "density" | "inline"> & { loading: boolean }) {
+  const { environment } = useKit();
+  const pulse = useChangeReveal(kind === "badge" && !loading ? `${tone}:${value}` : undefined);
+  const pose = motion.chipDip + (1 - motion.chipDip) * pulse;
   const text = (
     <YStack
       {...(loading
@@ -116,16 +133,13 @@ function ValueTrail({
       </KitText>
     </YStack>
   );
-  const fill =
-    tone === "good" || tone === "warn" || tone === "bad"
-      ? `$${tone}Soft`
-      : tone === "onAccent"
-        ? "$accent"
-        : tone === "text" || tone === "muted"
-          ? "$raised"
-          : "$accentSoft";
   return kind === "badge" ? (
-    <Badge backgroundColor={loading ? "$line" : fill}>{text}</Badge>
+    <Badge
+      backgroundColor={loading ? "$line" : badgeFill(tone)}
+      {...(environment.reduceMotion ? { opacity: pose } : { scale: pose })}
+    >
+      {text}
+    </Badge>
   ) : (
     <YStack position="relative" borderRadius={radius.sm}>
       {text}

@@ -99,8 +99,7 @@ export function KitPhoto(props: PhotoProps) {
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
   const { layer, failed } = usePhotoLayer(loading ? undefined : photo);
   const ks = useKitStyle();
-  const addressed = part !== null;
-  const address = usePart(part ?? undefined, addressed);
+  const address = usePart(part ?? undefined, part !== null);
   const shape =
     aspect !== "auto"
       ? aspect
@@ -115,7 +114,8 @@ export function KitPhoto(props: PhotoProps) {
   if (failed && props.error !== undefined) return props.error;
   const frame = (
     <Frame
-      {...(addressed ? address : {})}
+      {...(part !== null ? address : {})}
+      data-kit-photo={isWeb && layer ? "" : undefined}
       shape={shape}
       {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: corners })}
