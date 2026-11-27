@@ -45,6 +45,10 @@ function checkStep(
     if (step.preview.action) checkSlots(template, step.preview.action, report);
   }
   const layout = step.layout;
+  if (step.preview?.demoInputs && (!("components" in layout) || !layout.components.includes("Field")))
+    report("Demo inputs require a Field in the layout");
+  if (step.preview?.choiceButtons && (!step.next || !step.choices?.length))
+    report("Choice buttons require a primary next step and explicit choices");
   if ("archetype" in layout) {
     if (!lookups.archetype(layout.archetype)) report(`Unknown archetype: ${layout.archetype}`);
   } else {

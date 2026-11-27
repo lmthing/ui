@@ -903,6 +903,8 @@ add steps for the person's job. If nothing fits, it writes the journey without a
   archetype lookups. Same-role `next` and labeled `choices` model branches. Only implicit sequential
   steps may be optional, so omitting one cannot strand a hand-off or choice. `fillFlow` substitutes
   one binding across the journey, checks reachable endings, and keeps screen ids out of model output.
+  An optional step `tier` describes the real work, not the local preview tap. `preview.demoInputs`
+  supplies blank email/password/code Fields separate from editable record bindings.
 - Catalog checks reject duplicate ids, undeclared slots, unknown layout ids, broken hand-offs and
   invalid examples. Each example fills all names and one typed record for the whole journey.
   Positive and near-miss pick probes exercise the closed menu. Fill probes validate model output
@@ -927,6 +929,13 @@ add steps for the person's job. If nothing fits, it writes the journey without a
 | `check_in`        | Check in and confirm attendance                         |
 | `pay_receipt`     | Make a payment and get the receipt                       |
 | `signup_onboard`  | Create an account and complete first-run onboarding      |
+| `login_recovery`  | Log in, verify access, or recover and log in again       |
+
+`login_recovery` is for generated apps with accounts, never lmthing identity or its private keep
+link. The gallery opens on a complete form, cuts between steps on explicit taps, and replaces
+instructions with readable waiting or error feedback in Inspect. Leaving a step unmounts demo
+inputs and their drafts, with no delayed work or decorative exit. Reduced motion uses the same cuts
+and reaches the same member destination.
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 

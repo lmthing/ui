@@ -82,6 +82,11 @@ function FlowInspector({ flow, index, state, openStep, inspect }: InspectorProps
         <Text color="$muted" fontSize="$label">
           {frame.goal}
         </Text>
+        {frame.tier && (
+          <Text color="$muted" fontSize="$label">
+            {flowWords.tiers[frame.tier]}
+          </Text>
+        )}
         {frame.do && (
           <Text color="$text" fontSize="$label">
             {frame.do}

@@ -12,6 +12,12 @@ export const flowWords = {
   done: "Journey complete",
   resume: "Return to playback",
   restart: "Play again",
+  tiers: {
+    phone: "Works on the phone",
+    ok: "Needs your OK",
+    people: "Needs other people",
+    service: "Needs an outside service",
+  },
   figures: {
     slot: "Time",
     new_slot: "New time",

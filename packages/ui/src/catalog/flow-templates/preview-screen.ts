@@ -56,8 +56,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
             : {}),
         },
       ];
-    case "Field":
-      return frame.fields.map((field, i) => ({
+    case "Field": {
+      const bound = frame.fields.map((field, i) => ({
         id: `field_${i + 1}`,
         c,
         label: clip(fieldLabel(field), 24),
@@ -65,6 +65,17 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
+      // The player only carries bound fields forward. Demo inputs always mount blank.
+      return [
+        ...bound,
+        ...(frame.demoInputs ?? []).map(({ kind, label }, i) => ({
+          id: `demo_${i + 1}`,
+          c,
+          kind,
+          label,
+        })),
+      ];
+    }
     case "KeyValue":
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "Waitlist":
@@ -94,6 +105,14 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
     title: clip(label, 24),
     goto: previewTarget(flow, target),
   }));
+  if (frame.choiceButtons)
+    return next.map(({ title: label, goto }, i) => ({
+      id: `action_${i + 1}`,
+      c: "Button",
+      label,
+      goto,
+      ...(i > 0 ? { emphasis: "quiet" } : {}),
+    }));
   if (next.length > 1)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },

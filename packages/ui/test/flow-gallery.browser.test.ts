@@ -75,6 +75,19 @@ const cases = [
     ["Create account", "Continue after verifying", "Save goal", "Make a first list"],
     "member/ready",
   ],
+  ["login_recovery", ["Log in", "Verify and log in"], "member/signed_in"],
+  [
+    "login_recovery",
+    [
+      "Forgot password?",
+      "Request reset code",
+      "Verify reset code",
+      "Reset password",
+      "Log in",
+      "Verify and log in",
+    ],
+    "member/signed_in",
+  ],
   ["class_waitlist", ["Book open spot", "Confirm class"], "member/booked"],
   [
     "class_waitlist",
@@ -120,6 +133,37 @@ test("an expired offer has no booking affordance and can return to the sample", 
   await playback("Return to playback").click();
   await button("Review spot").click();
   await at("member/review");
+});
+
+test("login recovery keeps demo credentials local and shows waiting and expired-code states", async () => {
+  await page.goto(`${base()}?flows=login_recovery`);
+  await phone().getByLabel("Email address", { exact: true }).fill("not-the-sample@example.test");
+  await phone().getByLabel("Password", { exact: true }).fill("made-up-only");
+  await button("Forgot password?").click();
+  await at("member/recover");
+  expect(await phone().getByLabel("Email address", { exact: true }).inputValue()).toBe("");
+  await button("Request reset code").click();
+  await at("member/recovery_verify");
+  await page.getByText("Inspect steps and states", { exact: true }).click();
+  await page.getByText("Needs an outside service", { exact: true }).waitFor();
+  await playback("Waiting").click();
+  await phone().getByText("A real service would send a code if the address matches an account.").waitFor();
+  await playback("Error").click();
+  await phone()
+    .getByText("That code didn’t work or has expired. Request a new code and try again.")
+    .waitFor();
+  expect(await button("Verify reset code").count()).toBe(0);
+  await playback("Return to playback").click();
+  await button("Verify reset code").click();
+  await phone().getByLabel("New password", { exact: true }).fill("another-made-up-value");
+  await button("Reset password").click();
+  await at("member/login_after_reset");
+  expect(await phone().getByLabel("Password", { exact: true }).inputValue()).toBe("");
+  await button("Log in").click();
+  await button("Verify and log in").click();
+  await phone().getByText("Class schedule", { exact: true }).waitFor();
+  await phone().getByText("Tuesday pottery", { exact: true }).waitFor();
+  expect(await phone().getByText("not-the-sample@example.test", { exact: true }).count()).toBe(0);
 });
 
 test("the agenda opens the full session's details without booking or linking the unlinked row", async () => {
