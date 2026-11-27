@@ -883,6 +883,43 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
   `Steps`. Assert the component, requested style, exact goal values, units and caption storage
   even in brief mode. Record one live run of the affected probes for each change.
 
+### 4.15 Flow templates
+
+Flow templates are authoring guidance in the full, data-only `@lmthing/ui/catalog`, not screens or
+rules for the runtime. The Journey Writer can fill name and record slots, omit optional steps and
+add steps for the person's job. If nothing fits, it writes the journey without a template.
+
+- A strict Zod definition has a stable id, prompt (`purpose`, `pick`, `avoid`), declared name slots
+  and a shared record shape. Record fields declare scalar types. Each role slot has a journey id,
+  name, goal and ordered steps. Name and record references in prose use `{name.slot}` and
+  `{record.field}`. Each step has an id, `see`, an archetype or component list, and states to cover
+  (`empty`, `waiting`, `error`, `success`). Steps can be optional. Nonterminal steps describe an
+  action (`do`), a hand-off (`hands_off_to`), or both. A hand-off names a required step in another
+  role's journey; both roles see the same sample record.
+- Each template definition and its examples and probes live in `src/catalog/flow-templates/<id>.ts`,
+  with model guidance in `<id>.prompt.md`. Pack definitions may live next to their pack components.
+  The full catalog exposes an ordered list and lookup by id for the built-in definitions. Hosts
+  can use `flowTemplateRegistryOf` to check scoped definitions with the caller's component and
+  archetype lookups.
+- Catalog checks reject duplicate ids, undeclared slots, unknown layout ids, broken hand-offs and
+  invalid examples. Each example fills all names and one typed record for the whole journey.
+  Positive and near-miss pick probes exercise the closed menu. Fill probes validate model output
+  as journeys and replay actions and hand-offs to completion. The gallery plays the examples with
+  existing kit components. No template supplies a renderer.
+- Study 3–5 shipped apps per template through Mobbin before drafting. Use Material and Apple HIG
+  as guidance. Use our own words and components; do not copy product assets, text or visuals.
+
+| Id                     | Journey                                                        |
+| ---------------------- | -------------------------------------------------------------- |
+| `book_slot`            | Choose a slot, confirm, reschedule or cancel                   |
+| `invite_accept`        | Send an invitation and accept it as the recipient              |
+| `request_approve`      | Submit a request, approve it or reject it with a reason       |
+| `order_track`          | Place an order and follow it through delivery                  |
+| `report_issue`         | Report an issue, track it and resolve it                      |
+| `check_in`             | Check in and confirm attendance                               |
+| `pay_receipt`          | Make a payment and get the receipt                            |
+| `signup_onboard`       | Create an account and complete first-run onboarding           |
+
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
 ### 5.1 Peer dependencies
