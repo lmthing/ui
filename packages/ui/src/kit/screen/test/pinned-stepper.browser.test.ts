@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { launchChrome } from "../../../../scripts";
@@ -13,17 +13,23 @@ beforeAll(async () => {
   server = await createServer({ ...galleryConfig(0), root: new URL(".", import.meta.url).pathname });
   await server.listen();
   browser = await launchChrome();
+}, 60000);
+async function openFixture(query = "") {
+  errors.length = 0;
+  await page.goto(`${server.resolvedUrls!.local[0]}pinned-stepper.html${query}`, { waitUntil: "commit" });
+  await page.waitForFunction(() => Boolean(window.__lmthingUI), undefined, { timeout: 45000 });
+  await part("d1/r1/qty").waitFor();
+  expect(errors).toEqual([]);
+}
+beforeEach(async () => {
   page = await browser.newPage({ viewport: { width: 320, height: 660 } });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript("globalThis.__name = (fn) => fn;");
+  await openFixture();
 }, 60000);
-beforeEach(async () => {
-  errors.length = 0;
-  await page.goto(`${server.resolvedUrls!.local[0]}pinned-stepper.html`, { waitUntil: "networkidle" });
-  expect(errors).toEqual([]);
-  await page.waitForFunction(() => Boolean(window.__lmthingUI));
-  await part("d1/r1/qty").waitFor();
-}, 30000);
+afterEach(async () => {
+  await page?.close();
+});
 afterAll(async () => {
   await browser?.close();
   await server?.close();
@@ -133,6 +139,8 @@ it("unmounts conditional pins and restores their place in the bottom region", as
 });
 
 it("orders pins by the live body and drops controls when their source starts exiting", async () => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await openFixture("?animate-exit");
   const first = part("d1/r1/qty");
   const second = part("d2/r1/qty");
   await setFixture("fixture-order", ["d2", "d1"]);
@@ -141,17 +149,19 @@ it("orders pins by the live body and drops controls when their source starts exi
       document.querySelector('[data-testid$="/qty"]')?.getAttribute("data-testid") === "fixture/d2/r1/qty",
   );
   expect((await second.boundingBox())!.y).toBeLessThan((await first.boundingBox())!.y);
-  const exiting = await page.evaluate(async () => {
-    window.dispatchEvent(new CustomEvent("fixture-order", { detail: ["d2"] }));
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    return {
-      detailExiting: !!document
-        .querySelector('[data-testid="fixture/d1/detail"]')
-        ?.closest('[aria-hidden="true"]'),
-      qtyMounted: !!document.querySelector('[data-testid="fixture/d1/r1/qty"]'),
-    };
-  });
-  expect(exiting).toEqual({ detailExiting: true, qtyMounted: false });
+  const now = Date.now();
+  await page.clock.install({ time: now });
+  await page.clock.pauseAt(now + 1000);
+  try {
+    await setFixture("fixture-order", ["d2"]);
+    await page.clock.runFor(32);
+    const exiting = page.locator('[inert][aria-hidden="true"]').getByText("First detail", { exact: true });
+    await expect.poll(() => exiting.count()).toBe(1);
+    expect(await part("d1/detail").count()).toBe(0);
+    expect(await first.count()).toBe(0);
+  } finally {
+    await page.clock.resume();
+  }
   expect(await second.count()).toBe(1);
   expect(errors).toEqual([]);
 });
