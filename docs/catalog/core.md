@@ -550,6 +550,21 @@ optional undo.
 - Pending: bottom placement and timed expiry. The toast is currently a body-flow card; close and undo
   dismiss it locally. · States: filled.
 
+### `HandoffReceipt` · built · content · people · body · weight 2
+
+One shared record's transfer from a sender to a recipient, with the reported state and an optional link
+to the underlying record. A completed hand-off is not the same as completing the recipient's work.
+
+- Pick: show who sent, received or returned one record. Not a local confirmation (`Success`), a chat
+  (`Bubbles`), the underlying work (`List`), or an audit of many changes (`ActivityLog`).
+- Writes: `subject` text(36), `reference` text(20), `fromRole` text(24), `toRole` text(24),
+  `phase` (`waiting`, `received`, `returned`), optional `at` offset ISO timestamp, optional `summary`
+  text(120), optional `goto`.
+- Styles: `detail`: `full`, `brief` (hides summary). · States: filled.
+- Parts → actions: `root press` when linked; `subject`, `reference`, `sender`, `recipient`, `phase`,
+  `time`, `summary` and `open_label` are read-only. A real host supplies the latest acknowledged phase
+  and enforces access.
+
 ### `Sheet` · built · action · phone · overlay · weight 0
 See section 2.
 

@@ -67,6 +67,41 @@ it("keeps the complete date label inside each timeline row at phone width", asyn
   }
 });
 
+it("keeps fully booked slots disabled and lets a person select another free time", async () => {
+  await open("slots");
+  const available = page.getByTestId("booking/available/root");
+  const full = page.getByTestId("booking/full/root");
+  const next = available.getByRole("button", { name: "10:00, free" });
+  await next.click();
+  expect(await next.getAttribute("aria-pressed")).toBe("true");
+  expect(await available.getByRole("button", { name: "09:00, free" }).getAttribute("aria-pressed")).toBe(
+    "false",
+  );
+  expect(await full.getByText("No free times").isVisible()).toBe(true);
+  for (const slot of await full.getByRole("button").all()) expect(await slot.isDisabled()).toBe(true);
+});
+
+it("ends settled approval rows with status and asks before declining a pending one", async () => {
+  await open("approvals");
+  const approved = page.getByTestId("review/queue/r1/root");
+  const pending = page.getByTestId("review/queue/r3/root");
+  expect(await approved.getByText("Approved").isVisible()).toBe(true);
+  expect(await approved.getByRole("button").count()).toBe(0);
+  await pending.getByRole("button", { name: "Decline" }).click();
+  expect(await page.getByTestId("review/confirm/cancel").isVisible()).toBe(true);
+  await page.getByTestId("review/confirm/cancel").click();
+  expect(await pending.getByRole("button", { name: "Approve" }).isVisible()).toBe(true);
+});
+
+it("opens the linked record from a hand-off receipt without changing its phase", async () => {
+  await open("receipt");
+  const status = page.getByText("Awaiting receipt");
+  expect(await status.isVisible()).toBe(true);
+  await page.getByRole("link", { name: /View record/ }).click();
+  expect(await page.getByTestId("link-target").textContent()).toBe("key_request");
+  expect(await status.isVisible()).toBe(true);
+});
+
 async function intactLabels(track: Locator) {
   return track.locator("[data-report-clipped]").evaluateAll((labels) =>
     labels

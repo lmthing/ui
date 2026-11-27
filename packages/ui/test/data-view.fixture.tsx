@@ -5,6 +5,7 @@ import { archetypes, components, space, themeName, type Issue, type ThemeChoice 
 import { PhoneScreen } from "../src/kit/screen";
 import { Chips } from "../src/components/Chips";
 import { Field } from "../src/components/Field";
+import { HandoffReceipt } from "../src/components/HandoffReceipt";
 import { Header } from "../src/components/Header";
 import { List } from "../src/components/List";
 import { Progress } from "../src/components/Progress";
@@ -13,6 +14,8 @@ import { SectionTitle } from "../src/components/SectionTitle";
 import { Segmented } from "../src/components/Segmented";
 import { Stats } from "../src/components/Stats";
 import { Timeline } from "../src/components/Timeline";
+import { Slots } from "../src/packs/booking/components";
+import { Approval } from "../src/packs/team/components";
 import { config } from "../../../apps/gallery";
 import { choiceFitScreen } from "../../../apps/gallery/app/choice-fit";
 
@@ -40,6 +43,24 @@ const jobTimeline = {
     },
   ],
 };
+const interactionScreens = {
+  receipt: {
+    id: "handoff",
+    components: [{ ...components.HandoffReceipt.examples[0], c: "HandoffReceipt", id: "receipt" }],
+  },
+  slots: {
+    id: "booking",
+    components: [
+      { ...components.Slots.examples[0], c: "Slots", id: "available" },
+      { ...components.Slots.examples[5], c: "Slots", id: "full" },
+    ],
+  },
+  approvals: {
+    id: "review",
+    components: [{ ...components.Approval.examples[3], c: "Approval", id: "queue" }],
+  },
+};
+const interactiveScreen = interactionScreens[example as keyof typeof interactionScreens];
 const screen =
   example === "long_tabs"
     ? choiceFitScreen
@@ -62,14 +83,17 @@ const screen =
 
 function Fixture() {
   const [issues, onReport] = useState<Issue[] | null>(null);
+  const [target, onLink] = useState("");
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <main style={{ paddingInline: example === "choices" ? space.xl : undefined }}>
         <PhoneScreen
           defs={components}
           renderers={{
+            Approval: Approval.Approval,
             Chips,
             Field,
+            HandoffReceipt,
             Header,
             List,
             Progress,
@@ -77,14 +101,19 @@ function Fixture() {
             SectionTitle,
             Segmented,
             Stats,
+            Slots: Slots.Slots,
             Timeline,
           }}
-          screen={screen}
+          screen={interactiveScreen ?? screen}
           theme={theme}
+          onLink={onLink}
           onReport={onReport}
           reduceMotion
         />
       </main>
+      <output hidden data-testid="link-target">
+        {target}
+      </output>
       {issues && (
         <output hidden data-testid="render-report">
           {JSON.stringify(issues)}
