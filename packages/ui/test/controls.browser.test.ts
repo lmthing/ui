@@ -22,7 +22,7 @@ afterAll(async () => {
 const part = (address: string) => page.getByTestId(`controls/${address}`);
 async function open(kind: string) {
   errors.length = 0;
-  await page.goto(`${server.resolvedUrls!.local[0]}?controls=${kind}`, { waitUntil: "networkidle" });
+  await page.goto(`${server.resolvedUrls!.local[0]}?controls=${kind}`, { waitUntil: "domcontentloaded" });
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
 
