@@ -186,5 +186,6 @@ export function replayBook(component: string, model: string, book: Book): ProbeC
 function replayFlag(component: string) {
   if (component === "Archetypes") return "--compose";
   if (component === "CoreMerges") return "--merges";
+  if (component.startsWith("flows/")) return `--flows ${component.slice(6)}`;
   return component.startsWith("pack/") ? `--pack ${component.slice(5)}` : `--component ${component}`;
 }

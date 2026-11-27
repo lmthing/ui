@@ -1,0 +1,155 @@
+{
+  "book_slot%2Ffill_1/8609dcb864c687a0/9ee53460c2813c99": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nReserve an available time and manage the booking without losing its reference.\nShow time zone or local time before confirmation, and keep the booking reference on changes.\nOffer reschedule and cancel as separate paths. Keep the old slot until the new time is confirmed.\nName slots: guest.\nRecord shape: {\"service\":\"string\",\"slot\":\"string\",\"new_slot\":\"string\",\"reference\":\"string\"}.\nOptional step addresses: none.\nRequest: Mina wants a Consultation for Tue at 10:00. Use booking reference BK-204 and Thu at 14:30 as the alternate slot.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "guest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "guest"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "service": {
+                  "type": "string"
+                },
+                "slot": {
+                  "type": "string"
+                },
+                "new_slot": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "service",
+                "slot",
+                "new_slot",
+                "reference"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"guest\": \"Mina\"\n  },\n  \"record\": {\n    \"service\": \"Consultation\",\n    \"slot\": \"Tue at 10:00\",\n    \"new_slot\": \"Thu at 14:30\",\n    \"reference\": \"BK-204\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"guest\": \"Mina\"\n  },\n  \"record\": {\n    \"service\": \"Consultation\",\n    \"slot\": \"Tue at 10:00\",\n    \"new_slot\": \"Thu at 14:30\",\n    \"reference\": \"BK-204\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"guest\": \"Mina\"\n  },\n  \"record\": {\n    \"service\": \"Consultation\",\n    \"slot\": \"Tue at 10:00\",\n    \"new_slot\": \"Thu at 14:30\",\n    \"reference\": \"BK-204\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"guest\": \"Mina\"\n  },\n  \"record\": {\n    \"service\": \"Consultation\",\n    \"slot\": \"Tue at 10:00\",\n    \"new_slot\": \"Thu at 14:30\",\n    \"reference\": \"BK-204\"\n  },\n  \"omit\": []\n}"
+    ]
+  },
+  "book_slot%2Fpick_1/56d037051d3a4998/91f7b9ab777caebe": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nRequest: Let clients choose an open appointment, get a confirmation, move it, or cancel it.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"book_slot\"}",
+    "replies": [
+      "{\"template\": \"book_slot\"}",
+      "{\"template\": \"book_slot\"}",
+      "{\"template\": \"book_slot\"}"
+    ]
+  },
+  "book_slot%2Fpick_2/4310d458f12431bc/750adec4cd529eb6": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nRequest: I already have a reservation. Let the front desk mark me as arrived.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"check_in\"}",
+    "replies": [
+      "{\"template\": \"check_in\"}",
+      "{\"template\":\"check_in\"}",
+      "{\"template\": \"check_in\"}"
+    ]
+  }
+}
