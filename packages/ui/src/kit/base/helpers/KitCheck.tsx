@@ -6,12 +6,13 @@ import { isWeb, YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 
-const Hit = styled(YStack, {
+const BoxSlot = styled(YStack, {
   width: size.control.md,
-  height: size.control.md,
+  minHeight: size.control.md,
   alignItems: "center",
   justifyContent: "center",
 });
+const Hit = styled(BoxSlot, { height: size.control.md });
 
 const Box = styled(YStack, {
   width: size.icon.lg,
@@ -84,9 +85,9 @@ export function KitCheck({
   const progress = signature < 1 ? signature : pulse;
   if (loading)
     return (
-      <Hit aria-hidden>
+      <BoxSlot aria-hidden>
         <Box backgroundColor="$line" borderColor="$line" />
-      </Hit>
+      </BoxSlot>
     );
   return (
     <Hit

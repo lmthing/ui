@@ -160,7 +160,7 @@ export function readHostOperations(
   instance: string,
   policy: HostActionPolicy | undefined,
   peekOpen: boolean,
-): string[] {
+): HostOperation[] {
   if (!policy?.operation || !meta.hostCommands) return [];
   const fields = meta.hostCommands.readFields ?? [];
   const limit =
@@ -183,12 +183,28 @@ export function readHostOperations(
     if (!operation) return [];
     const records = fields.length
       ? operation.records?.map((row) =>
-          Object.fromEntries(fields.filter((k) => Object.hasOwn(row, k)).map((k) => [k, row[k]])),
+          Object.fromEntries(
+            fields.flatMap((key) => {
+              const value = row[key];
+              return value === undefined || !Object.hasOwn(row, key) ? [] : [[key, value] as const];
+            }),
+          ),
         )
       : undefined;
-    const at = subject.row ? `${instance}/${subject.row}` : instance;
     return [
-      `${at} operation ${operation.name} ${operation.status}${records?.length ? ` ${JSON.stringify(records)}` : ""}`,
+      {
+        name: operation.name,
+        status: operation.status,
+        ...(subject.row ? { row: subject.row } : {}),
+        ...(records?.length ? { records } : {}),
+      },
     ];
+  });
+}
+
+export function formatHostOperations(instance: string, operations: readonly HostOperation[]) {
+  return operations.map(({ row, name, status, records }) => {
+    const at = row ? `${instance}/${row}` : instance;
+    return `${at} operation ${name} ${status}${records?.length ? ` ${JSON.stringify(records)}` : ""}`;
   });
 }

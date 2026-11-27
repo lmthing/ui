@@ -110,6 +110,8 @@ export type PhoneScreenProps = {
   onReport?: ((issues: Issue[]) => void) | undefined;
   nativeHost?: NativeHost | undefined;
   reduceMotion?: boolean | undefined;
+  /** Cut between screens while leaving component-local feedback within the chosen motion profile. */
+  navigationMotion?: "cut" | undefined;
   agentMode?: boolean | undefined;
   signature?: string | undefined;
   cue?: number | undefined;
@@ -146,7 +148,7 @@ function usePhoneNavigation(
     screen,
     props.theme.motion ?? "calm",
     environment.reduceMotion,
-    environment.agentMode,
+    environment.agentMode || props.navigationMotion === "cut",
     () =>
       freezeNativeTab(props, controller, bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
   );
@@ -200,7 +202,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
             <Screen
               controller={controller}
               renderers={props.renderers}
-              navigationArrival={navigation.navigationArrival}
+              navigationArrival={navigation.navigationArrival || props.navigationMotion === "cut"}
               onBodyScroll={navigation.onBodyScroll}
               {...(props.onReport ? { onReport: props.onReport } : {})}
             />

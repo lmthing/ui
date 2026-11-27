@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { useLayoutEffect, useRef } from "react";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { approvalAmount, approvalOpen, approvalPortrait, approvalReading } from "../copy";
@@ -72,9 +73,9 @@ export const meta = {
     settle: ["accept.press", "reject.press", "reason.type"],
     readFields: ["reason"],
   },
-  read: (input, state, lang): string[] =>
+  read: (input, state, lang, _data, _currency, _live, operations): string[] =>
     state === "filled"
-      ? readApproval(input as z.output<typeof props>, lang)
+      ? readApproval(input as z.output<typeof props>, lang, operations?.[0])
       : state === "success"
         ? [approvalOutcome((input as z.output<typeof props>).requests, lang)]
         : [],
@@ -148,18 +149,36 @@ function reviewConfirmation({ input }: { input: Readonly<Record<string, unknown>
   return { message: review.confirmDecline(input.reference), label: review.declineRequest };
 }
 
-function readApproval(input: z.output<typeof props>, lang?: string) {
+type Decision = z.output<typeof props>["requests"][number]["status"];
+
+function decisionOf(seeded: Decision, operation: c.HostOperation | undefined): Decision {
+  if (operation?.status !== "accepted") return seeded;
+  return operation.name === "approval.accept" ? "approved" : "declined";
+}
+
+function decisionLine(decision: Decision, phase: c.HostOperation["status"] | undefined, lang?: string) {
+  const { approval } = teamWordsFor(lang);
+  if (decision === "approved" || decision === "declined") return approval.statuses[decision];
+  if (phase === "pending") return approval.review.pending;
+  if (phase === "rejected") return approval.review.failed;
+  return approval.awaitingDecision;
+}
+
+function readApproval(input: z.output<typeof props>, lang?: string, operation?: c.HostOperation) {
   if (!input.review) return approvalReading(input, lang);
   const { review } = input;
-  const { statuses, review: copy, approve, decline, awaitingDecision, kinds } = teamWordsFor(lang).approval;
-  const status = input.requests[0]?.status ?? "pending";
+  const { review: copy, approve, decline, kinds } = teamWordsFor(lang).approval;
+  const decision = decisionOf(input.requests[0]?.status, operation);
+  const phase = operation?.status;
+  const showControls = approvalOpen(decision) && phase !== "pending";
   return [
     review.reference,
     review.evidence,
     kinds[input.requests[0]!.kind],
     ...review.lines.map((line) => `${line.label} · ${approvalAmount(line.amount, lang)}`),
     copy.total(approvalAmount(review.total, lang)!),
-    ...(status === "pending" ? [awaitingDecision, copy.reason, approve, decline] : [statuses[status]]),
+    decisionLine(decision, phase, lang),
+    ...(showControls ? [copy.reason, approve, decline] : []),
     ...(review.reason ? [review.reason] : []),
   ];
 }
@@ -437,18 +456,15 @@ function ReviewOutcome({ requests }: Pick<ApprovalProps, "requests">) {
 }
 
 type DecisionProps = ApprovalProps & { review: z.output<typeof reviewSheet> };
+type FocusHandle = { focus(): void };
+
 function DecisionReview(input: DecisionProps) {
   const { lang, words } = kit.useWords(teamWordsFor);
   const { review, requests } = input;
   const canDecline = kit.useLiveControls(meta, input).hasReason === true;
   const row = requests[0]!;
   const [operation] = kit.useHostOperations();
-  const decision =
-    operation?.status === "accepted"
-      ? operation.name === "approval.accept"
-        ? "approved"
-        : "declined"
-      : row.status;
+  const decision = decisionOf(row.status, operation);
   return (
     <kit.KitCard part="root" style="inset" padded>
       <kit.KitLayoutText line={{ text: review.reference, part: "message", role: "meta", tone: "muted" }} />
@@ -491,28 +507,26 @@ function DecisionStatus({
   decision,
   phase,
 }: {
-  decision: ApprovalProps["requests"][number]["status"];
+  decision: Decision;
   phase: c.HostOperation["status"] | undefined;
 }) {
-  const { approval } = kit.useWords(teamWordsFor).words;
-  const settled = decision === "approved" || decision === "declined";
-  const text = settled
-    ? approval.statuses[decision]
-    : phase === "pending"
-      ? approval.review.pending
-      : phase === "rejected"
-        ? approval.review.failed
-        : approval.awaitingDecision;
+  const { lang } = kit.useWords(teamWordsFor);
+  const focusRef = useRef<FocusHandle>(null);
+  const { environment } = kit.useKit();
+  useLayoutEffect(() => {
+    if (!environment.agentMode && phase === "accepted") focusRef.current?.focus();
+  }, [phase, environment.agentMode]);
   return (
     <kit.KitText
       announce="status"
       part="decision_state"
       role="label"
+      focusRef={focusRef}
       tone={
         decision === "approved" ? "good" : decision === "declined" || phase === "rejected" ? "bad" : "muted"
       }
     >
-      {text}
+      {decisionLine(decision, phase, lang)}
     </kit.KitText>
   );
 }
@@ -564,7 +578,7 @@ function DecisionControls({
   recordedReason,
   canDecline,
 }: {
-  decision: ApprovalProps["requests"][number]["status"];
+  decision: Decision;
   operation: c.HostOperation | undefined;
   recordedReason: string | undefined;
   canDecline: boolean;
@@ -590,24 +604,48 @@ function DecisionControls({
         visibleBoundary
         disabled={phase === "pending"}
       />
-      <kit.KitGrid>
-        <kit.KitAction
-          part="accept"
-          label={copy.approve}
-          contentParts={{}}
-          full
-          disabled={phase === "pending"}
-        />
-        <kit.KitAction
-          part="reject"
-          label={copy.decline}
-          tone="bad"
-          kind="quiet"
-          contentParts={{}}
-          full
-          disabled={!canDecline || phase === "pending"}
-        />
-      </kit.KitGrid>
+      <DecisionButtons {...{ operation, canDecline }} />
     </>
+  );
+}
+
+function DecisionButtons({
+  operation,
+  canDecline,
+}: {
+  operation: c.HostOperation | undefined;
+  canDecline: boolean;
+}) {
+  const { approval: copy } = kit.useWords(teamWordsFor).words;
+  const accept = useRef<FocusHandle>(null);
+  const reject = useRef<FocusHandle>(null);
+  const { environment } = kit.useKit();
+  const phase = operation?.status;
+  const name = operation?.name;
+  useLayoutEffect(() => {
+    if (!environment.agentMode && phase === "rejected")
+      (name === "approval.accept" ? accept : reject).current?.focus();
+  }, [phase, name, environment.agentMode]);
+  return (
+    <kit.KitGrid>
+      <kit.KitAction
+        part="accept"
+        focusRef={accept}
+        label={copy.approve}
+        contentParts={{}}
+        full
+        disabled={phase === "pending"}
+      />
+      <kit.KitAction
+        part="reject"
+        focusRef={reject}
+        label={copy.decline}
+        tone="bad"
+        kind="quiet"
+        contentParts={{}}
+        full
+        disabled={!canDecline || phase === "pending"}
+      />
+    </kit.KitGrid>
   );
 }

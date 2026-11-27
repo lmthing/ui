@@ -214,6 +214,7 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
           requestPhoto={requestPhoto}
           attachments={kind === "attachment" ? attachments : undefined}
           hostCommands={kind === "decision" ? decisionHost : undefined}
+          navigationMotion={manual ? "cut" : undefined}
         />
       </YStack>
     </TamaguiProvider>

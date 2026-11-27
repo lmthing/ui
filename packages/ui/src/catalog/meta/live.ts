@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { AppCurrency, DeviceData, ScreenLike } from "../agent";
+import type { AppCurrency, DeviceData, HostOperation, ScreenLike } from "../agent";
 import type { ActionName, LiveActionInputs, StateName } from "../types";
 
 export type Draw =
@@ -86,6 +86,8 @@ export type ReadSummary = (
   currency?: AppCurrency,
   /** Reads an instance-local control value without adding it to the Writer schema or snapshot. */
   liveValue?: (part: string) => unknown,
+  /** Acknowledgements for this component, restricted to its public read fields. */
+  hostOperations?: readonly HostOperation[],
 ) => string[];
 
 export type RecordContext = {

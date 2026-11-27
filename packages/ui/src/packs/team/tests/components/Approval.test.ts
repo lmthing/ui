@@ -24,10 +24,13 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const view = (input: unknown, state: "filled" | "empty" | "success" = "filled") =>
   addressedElements(renderInstance("Approval", input, state, theme));
 
-it("binds a decline and its reason to one confirmation and withholds a second decision", async () => {
+it("keeps the read current through a declined first attempt and one accepted retry", async () => {
   const input = examples.find((example) => "review" in example && example.style === "review")!;
   const screen = { id: "home", components: [{ id: "a1", c: "Approval", ...input }] };
-  const run = vi.fn().mockResolvedValue({ status: "accepted", records: [{ reason: "Replace the bench." }] });
+  const run = vi
+    .fn()
+    .mockResolvedValueOnce({ status: "rejected", records: [{ internal: "not public" }] })
+    .mockResolvedValueOnce({ status: "accepted", records: [{ reason: "Replace the bench." }] });
   const host = { allows: () => true, run };
   const controller = createScreenController({
     screen,
@@ -46,12 +49,21 @@ it("binds a decline and its reason to one confirmation and withholds a second de
     });
     expect(run).not.toHaveBeenCalled();
     expect(controller.press("confirm/confirm").ok).toBe(true);
+    expect(controller.read()).toContain(words.review.pending);
+    expect(controller.read()).not.toContain(words.awaitingDecision);
+    await vi.waitFor(() => expect(controller.read()).toContain(words.review.failed));
+    expect(controller.read()).not.toContain("not public");
+    expect(controller.press("a1/reject").ok).toBe(true);
+    expect(controller.press("confirm/confirm").ok).toBe(true);
     await vi.waitFor(() => expect(controller.read()).toContain("approval.reject accepted"));
     expect(run).toHaveBeenCalledWith(
       expect.objectContaining({ input: { reference: "GH-142", reason: "Replace the bench." } }),
       expect.anything(),
     );
-    expect(controller.read()).toContain("Replace the bench.");
+    const settled = controller.read();
+    expect(settled).toContain("Replace the bench.");
+    expect(settled).toContain("Declined");
+    expect(settled).not.toMatch(/\b(?:Awaiting a decision|Approve|Decline)\b/);
     for (const name of ["accept", "reject", "reason"]) expect(controller.actionsAt(`a1/${name}`)).toEqual([]);
   } finally {
     controller.dispose();

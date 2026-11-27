@@ -159,7 +159,7 @@ export const roundTwoScreens = Object.fromEntries(
     destination(
       "river_route",
       "River route notes.pdf",
-      "Preview of the two-page briefing for the Riverside route.",
+      "Sample destination for preview navigation. The document isn’t opened here.",
     ),
   ].map((screen) => [screen.id, screen]),
 );

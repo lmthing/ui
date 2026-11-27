@@ -18,7 +18,7 @@ export function useAuthenticatedReveal(part: string) {
   );
 }
 
-/** KitAction press dispatch, including equivalent web keyboard activation for reveal controls. */
+/** KitAction press dispatch with explicit keyboard activation for addressed host controls. */
 export function useActionPress(
   {
     action,
@@ -33,7 +33,7 @@ export function useActionPress(
   },
   address: string,
   inactive: boolean,
-  reveal: boolean,
+  explicitKeyboard: boolean,
 ) {
   const { interactive, controller, onLink } = useKit();
   if (!interactive || inactive) return {};
@@ -45,7 +45,7 @@ export function useActionPress(
     if (result?.ok) onAccepted?.();
     return result;
   };
-  if (!isWeb || (!reveal && !controller.mediaKeyTarget?.(address))) return { onPress };
+  if (!isWeb || (!explicitKeyboard && !controller.mediaKeyTarget?.(address))) return { onPress };
   return {
     onPress,
     tabIndex: 0,
