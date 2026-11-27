@@ -2,6 +2,7 @@ import { dataExports, scanEntries } from "./scan-entries";
 import { generateDoors } from "./generate-doors";
 import { publishEntries } from "./publish-entries";
 import { promptModule } from "./prompt-source";
+import { flowPrompts } from "./flow-prompts";
 import { iconTable } from "../../../src/catalog/icon-vocabulary";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
@@ -35,10 +36,15 @@ function componentEntry(defs: Entries["defs"]) {
   ];
 }
 
-function catalogLines() {
+function catalogLines(hasFlows: boolean) {
   return [
     "import { registryOf, packReady as packReadyOf, buildPackIndex as packIndexOf, " +
       'type RegistryOptions, type PackId } from "../catalog";',
+    ...(hasFlows
+      ? [
+          `import { archetypes, builtInFlowTemplates, flowTemplateRegistryOf, type FlowTemplateRegistry } from "../catalog";`,
+        ]
+      : []),
     `import { components as coreComponents } from "./core";`,
     `import { components as surfaceComponents } from "./surfaces";`,
     "import { components as packComponents, packOf, packs, packArchetypes, packArchetypeOverrides, " +
@@ -49,6 +55,14 @@ function catalogLines() {
     "export const components: typeof coreComponents & typeof packComponents & typeof surfaceComponents = " +
       "{ ...coreComponents, ...packComponents, ...surfaceComponents };",
     "export type ComponentName = keyof typeof components;",
+    ...(hasFlows
+      ? [
+          `export const flowTemplates: FlowTemplateRegistry = flowTemplateRegistryOf(builtInFlowTemplates, {`,
+          `  component: (id) => Object.hasOwn(components, id),`,
+          `  archetype: (id) => Object.hasOwn(archetypes, id),`,
+          `});`,
+        ]
+      : []),
     "export function packReady(id: PackId) {",
     "  return packReadyOf(id, { components, packOf, packs, packExamples });",
     "}",
@@ -196,10 +210,12 @@ function generatePackEntries({ defs, packs }: Entries): Record<string, string[]>
 
 export async function generateEntries(root: string) {
   const entries = await scanEntries(root);
+  const flows = await flowPrompts(root);
   const icons = [...new Set(Object.values(iconTable))].sort().join(", ");
   const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
+    ...flows,
     ...Object.fromEntries(
       entries.defs.flatMap(({ name, prompt }) =>
         prompt
@@ -218,7 +234,7 @@ export async function generateEntries(root: string) {
     "core-renderers.ts": rendererEntry(core),
     "surfaces.ts": componentEntry(surfaces),
     "surface-renderers.ts": rendererEntry(surfaces),
-    "catalog.ts": catalogLines(),
+    "catalog.ts": catalogLines(Object.keys(flows).length > 0),
     "renderers.ts": [
       `import { renderers as coreRenderers } from "./core-renderers";`,
       `import { renderers as packRenderers } from "./views";`,

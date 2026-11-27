@@ -1,6 +1,7 @@
 import { Button, Input, Text, XStack, YStack } from "tamagui";
 import { component, size, space } from "@lmthing/ui/catalog";
 import { componentIds } from "./gallery-data";
+import { GalleryLinks } from "./GalleryLinks";
 
 const buttonProps = {
   minHeight: size.control.md,
@@ -71,12 +72,7 @@ export function GalleryHeader({
         flexWrap="wrap"
       >
         <GalleryBrand />
-        <Text tag="a" href="?nav-shell" color="$accent" fontSize="$label">
-          Navigation shell
-        </Text>
-        <Text tag="a" href="?motion-lab=lively" color="$accent" fontSize="$label">
-          Motion lab
-        </Text>
+        <GalleryLinks />
         <Input
           value={filter}
           onChangeText={onFilter}

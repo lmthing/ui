@@ -80,6 +80,8 @@ export const component = {
     cardWidth: 360,
     minWidth: 320,
     previewHeight: 288,
+    flowWidth: 390,
+    flowHeight: 352,
     maxWidth: 1200,
     overviewMaxWidth: 1160,
     variantWidth: 344,
