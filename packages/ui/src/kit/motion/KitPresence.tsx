@@ -1,7 +1,9 @@
 import {
   Children,
   cloneElement,
+  createContext,
   isValidElement,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -14,6 +16,7 @@ import { useKit } from "../provider";
 
 type Exit = { node: ReactNode; before?: string; expires: number };
 const keyOf = (node: ReactNode) => (isValidElement(node) ? String(node.key) : String(node));
+export const ListProjectionKey = createContext<string | undefined>(undefined);
 
 function exitsOf(old: ReactNode[], keys: Set<string>, keepExit: (node: ReactNode) => boolean) {
   const expires = Date.now() + durations.fast;
@@ -64,13 +67,13 @@ export function usePresence(children: ReactNode, keepExit?: (node: ReactNode) =>
   return result;
 }
 
-export function KitPresence({
-  children,
-  keepExit,
-}: {
-  children: ReactNode;
-  /** A live item moved to another region should not linger in its old one. */
-  keepExit?: (node: ReactNode) => boolean;
-}) {
-  return <>{usePresence(children, keepExit)}</>;
+export function KitPresence({ children }: { children: ReactNode }) {
+  const projection = useContext(ListProjectionKey);
+  const previous = useRef(projection);
+  // A data-view filter hides rows; it does not delete them.
+  const present = usePresence(children, () => projection === previous.current);
+  useLayoutEffect(() => {
+    previous.current = projection;
+  }, [projection]);
+  return <>{present}</>;
 }

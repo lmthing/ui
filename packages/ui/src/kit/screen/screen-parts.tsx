@@ -1,6 +1,6 @@
 import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
 import { ScrollView, YStack } from "tamagui";
-import { KitMotion, usePresence } from "../motion";
+import { KitMotion, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
@@ -29,6 +29,12 @@ type RenderProps = {
   compactTitle?: boolean;
   navigationArrival?: boolean;
 };
+function listProjection(views: RenderProps["views"], id: string) {
+  return JSON.stringify(
+    views?.lists.get(id)?.map(({ filter, active }) => [filter.field, active.map(({ match }) => match)]),
+  );
+}
+
 function ScreenEntry({
   controller,
   renderers,
@@ -66,7 +72,9 @@ function ScreenEntry({
           <KitEmpty part="results" title={empty} prominence="body" announce="status" decorativeIcon />
         </KitCard>
       ) : (
-        <View {...props} />
+        <ListProjectionKey.Provider value={listProjection(views, id)}>
+          <View {...props} />
+        </ListProjectionKey.Provider>
       )}
       {emptyPanel && (
         <KitEmpty part="results" title={emptyPanel} prominence="body" announce="status" decorativeIcon />

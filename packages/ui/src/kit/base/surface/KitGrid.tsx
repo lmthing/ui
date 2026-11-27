@@ -1,7 +1,7 @@
 import { Children, isValidElement, useRef, type ReactNode, type RefObject } from "react";
 import { isWeb, XStack, YStack, type TamaguiElement } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
-import { useKitStyle, useVariantDensity } from "../../provider";
+import { KitVisualOnly, useKitStyle, useVariantDensity } from "../../provider";
 import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
 import { KitMotion, KitPresence } from "../../motion";
@@ -57,6 +57,14 @@ function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | und
   );
 }
 
+const exitProps = {
+  "aria-hidden": true,
+  pointerEvents: "none",
+  ...(isWeb
+    ? { inert: true }
+    : { accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" as const }),
+} as const;
+
 function MotionRow({
   children,
   id,
@@ -94,15 +102,17 @@ function MotionRow({
       data-list-motion={id}
       data-list-exiting={exiting ? "" : undefined}
       accessibilityRole="listitem"
-      {...(exiting ? { "aria-hidden": true, inert: true } : {})}
+      {...(exiting ? exitProps : {})}
     >
-      {isWeb ? (
-        content
-      ) : (
-        <KitMotion appear={appear} exiting={exiting ?? false}>
-          {content}
-        </KitMotion>
-      )}
+      <KitVisualOnly active={exiting ?? false}>
+        {isWeb ? (
+          content
+        ) : (
+          <KitMotion appear={appear} exiting={exiting ?? false}>
+            {content}
+          </KitMotion>
+        )}
+      </KitVisualOnly>
     </YStack>
   );
 }

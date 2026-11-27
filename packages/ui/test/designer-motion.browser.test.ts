@@ -6,6 +6,7 @@ import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
 import { baselineMotionKit, contactSheet, releaseGallery, sampleMotionFrames } from "./motion-evidence";
 
+type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[] };
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
 let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
@@ -102,7 +103,7 @@ changed("connects a matching row to its header, shows a rising dialog, and retur
     .poll(() =>
       close.evaluate((node) => {
         const rect = node.getBoundingClientRect();
-        const lab = window as Window & { motionLabParts?: () => PartEntry[] };
+        const lab = window as MotionLabWindow;
         const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
         return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
       }),
@@ -130,6 +131,7 @@ changed(
     await expect.poll(async () => (await basil.boundingBox())!.y < (await fern.boundingBox())!.y).toBe(true);
     await tap("garden/today/link");
     await expect.poll(() => basil.count()).toBe(0);
+    await expect.poll(() => page.locator("[data-list-exiting]").count()).toBe(0);
     const row = fern.locator("xpath=ancestor::*[@data-list-motion][1]");
     const position = () => row.evaluate((node: HTMLElement) => node.offsetTop);
     const oldTop = await position();
@@ -159,6 +161,47 @@ changed(
     expect(errors).toEqual([]);
   },
 );
+
+changed("keeps only a visual row during removal, without live addresses or hit bounds", async () => {
+  await tap("garden/today/link");
+  const prefix = "garden/plants/r2/";
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (key) =>
+          (window as MotionLabWindow).motionLabParts?.().some(({ address }) => address.startsWith(key)),
+        prefix,
+      ),
+    )
+    .toBe(true);
+  const exit = await part("garden/today/link").evaluate(
+    (update, key) =>
+      new Promise((resolve) => {
+        const observer = new MutationObserver(() => {
+          const ghost = document.querySelector("[data-list-exiting]");
+          if (!ghost) return;
+          observer.disconnect();
+          resolve({
+            title: ghost.textContent?.includes("Basil"),
+            inert: ghost.hasAttribute("inert"),
+            liveIds: document.querySelectorAll(`[data-testid^="${key}"]`).length,
+            liveBounds: (window as MotionLabWindow)
+              .motionLabParts?.()
+              .filter(({ address }) => address.startsWith(key)).length,
+            fading: ghost.getAnimations().some((flight) => flight.playState === "running"),
+          });
+        });
+        observer.observe(document.body, {
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["data-list-exiting"],
+        });
+        (update as HTMLElement).click();
+      }),
+    prefix,
+  );
+  expect(exit).toEqual({ title: true, inert: true, liveIds: 0, liveBounds: 0, fading: true });
+});
 
 changed("keeps input focus when a heading is removed", async () => {
   const input = part("garden/memo/field");
