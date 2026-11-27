@@ -5,7 +5,7 @@ import { prompt } from "../entry/prompt-RollupRows.generated";
 
 export const meta = {
   id: "RollupRows",
-  status: "draft",
+  status: "ready",
   group: "data",
   tier: "phone",
   pick: prompt.pick,
@@ -15,7 +15,7 @@ export const meta = {
   weight: 2,
   realPath: "Show period aggregates from underlying records; a linked row opens those records.",
   variants: { detail: ["full", "brief"] },
-  parts: ["root", "period", "metric", "total", "empty"],
+  parts: ["root", "period", "metric", "total", "total_value", "empty"],
   items: { key: "rows", parts: ["root", "label", "value", "detail"] },
   variantParts: { "detail.brief": { hides: ["detail"] } },
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
@@ -23,7 +23,7 @@ export const meta = {
   readInState: (_input, state) => state === "empty",
   read: (input, state, lang): string[] => {
     const { period, metric, unit, rows, total } = input as z.output<typeof props>;
-    if (state === "empty") return [c.wordsFor(lang).rollupRows.empty];
+    if (state === "empty") return [`${metric} · ${period}`, c.wordsFor(lang).rollupRows.empty];
     return [
       `${metric} · ${period}`,
       ...(total === undefined ? [] : [c.totalLine(total, unit, lang)]),
@@ -104,8 +104,6 @@ export const examples = [
     ],
   },
   { ...garden, detail: "brief" },
-  garden,
-  garden,
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RollupRows");
@@ -132,13 +130,11 @@ export const probes = [
 type RollupProps = c.Props<typeof props, typeof meta>;
 const amount = (value: number, unit: string, lang?: string) => `${c.numberLine(value, lang)} ${unit}`;
 
-function RollupContent({ period, metric, rows, unit, total }: RollupProps) {
-  const { lang } = kit.useWords();
+function RollupContent({ rows, unit, total }: RollupProps) {
+  const { lang, words } = kit.useWords();
   const active = kit.useComponentState() === "filled";
   return (
-    <kit.KitContent rhythm="flush">
-      <kit.KitLayoutText line={{ text: metric, part: "metric", strong: true }} />
-      <kit.KitLayoutText line={{ text: period, part: "period", role: "meta", tone: "muted" }} />
+    <>
       <kit.KitRowGroup>
         {rows.map((row) => (
           <kit.KitRow
@@ -148,9 +144,11 @@ function RollupContent({ period, metric, rows, unit, total }: RollupProps) {
             goto={active ? row.goto : undefined}
             inset="none"
             trailing={
-              <kit.KitText role="label" part="value" tabular align="end">
-                {amount(row.value, unit, lang)}
-              </kit.KitText>
+              <RollupMeasure
+                part="value"
+                text={amount(row.value, unit, lang)}
+                linked={active && Boolean(row.goto)}
+              />
             }
           >
             <kit.KitLayoutText line={{ text: row.label, part: "label", strong: true }} />
@@ -159,20 +157,47 @@ function RollupContent({ period, metric, rows, unit, total }: RollupProps) {
         ))}
       </kit.KitRowGroup>
       {total !== undefined && (
-        <kit.KitText role="label" part="total" tabular>
-          {c.totalLine(total, unit, lang)}
-        </kit.KitText>
+        <kit.KitRow
+          part="total"
+          label={words.rollupRows.total}
+          inset="none"
+          trailing={<RollupMeasure part="total_value" text={amount(total, unit, lang)} linked={false} />}
+        >
+          <kit.KitLayoutText line={{ text: words.rollupRows.total, strong: true }} />
+        </kit.KitRow>
       )}
-    </kit.KitContent>
+    </>
+  );
+}
+
+function RollupMeasure({ part, text, linked }: { part: string; text: string; linked: boolean }) {
+  return (
+    <>
+      <kit.KitLayoutText line={{ text, part, role: "meta", tabular: true, strong: true }} />
+      <kit.KitIcon name="chevron_right" scale="sm" tone="muted" decorative hidden={!linked} />
+    </>
   );
 }
 
 export function RollupRows(input: RollupProps) {
   const { rollupRows } = kit.useWords().words;
   const density = kit.useKit().density;
-  const content = <RollupContent {...input} />;
+  const state = kit.useComponentState();
+  const scope = (
+    <kit.KitContent rhythm="flush">
+      <kit.KitLayoutText line={{ text: input.metric, part: "metric", strong: true }} />
+      <kit.KitLayoutText line={{ text: input.period, part: "period", role: "meta", tone: "muted" }} />
+    </kit.KitContent>
+  );
+  const content = (
+    <>
+      {scope}
+      <RollupContent {...input} />
+    </>
+  );
   return (
     <kit.KitCard part="root" style="inset" padded density={density}>
+      {state === "empty" && scope}
       <kit.KitState part="empty" message={rollupRows.empty} loading={content}>
         {content}
       </kit.KitState>

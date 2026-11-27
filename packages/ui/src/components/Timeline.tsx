@@ -17,6 +17,7 @@ import {
   type Props,
   type ThemeDensity,
   variantProps,
+  wordsFor,
 } from "../catalog";
 import {
   KitCard,
@@ -26,8 +27,10 @@ import {
   KitLayoutText,
   KitSkeleton,
   KitTrail,
+  KitTrack,
   useComponentState,
   useKit,
+  useWords,
 } from "../kit";
 import { TimelineFlow, type TimelineFlowGroup } from "../kit/timeline";
 import { prompt } from "../entry/prompt-Timeline.generated";
@@ -52,13 +55,17 @@ export const meta = {
     variants: { tone: ["neutral", "good", "warn", "bad"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
-  parts: ["root", "record", "reference", "current"],
+  parts: ["root", "record", "reference", "state", "current"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
-  read: (input, state) =>
-    state === "filled" && (input as { style: string }).style === "hours"
-      ? (input as { items: { time: string; end: string }[] }).items.map((item) => `${item.time}–${item.end}`)
-      : [],
+  read: (input, state, lang): string[] => {
+    if (state !== "filled") return [];
+    const { style, items } = input as z.output<typeof props>;
+    if (style === "hours") return items.map(({ time, end }) => `${time}–${end}`);
+    return style === "record"
+      ? items.flatMap(({ meta }) => (meta ? [wordsFor(lang).timeline.internal(meta)] : []))
+      : [];
+  },
 } as const satisfies Meta;
 
 const event = z.strictObject({
@@ -158,9 +165,13 @@ export const examples = [
   { style: "day", items: dayWalks },
   { style: "hours", items: careHours },
   { items: dayWalks },
-  ...(["good", "warn", "bad"] as const).map((tone) => ({
+  ...(["good", "warn", "bad"] as const).map((tone, status) => ({
     style: "hours" as const,
-    items: careHours.map((item, index) => (index === 0 ? { ...item, tone } : item)),
+    items: careHours.map((item, index) =>
+      index === 0
+        ? { ...item, tone, title: ["Fern watered", "Watering delayed", "Watering blocked"][status]! }
+        : item,
+    ),
   })),
   {
     style: "record",
@@ -198,6 +209,9 @@ export const probes = [
     "Show today's walks from 09:00 to 10:00, 12:00 to 13:30 and 17:00 to 18:00, with their lengths and the free gaps between them",
   ),
   choose("Show a whole month of dates, marking the days when plants need water", "Calendar"),
+  choose(
+    "For one shipment, show the current state and a dated history of each status change in order, not a route map.",
+  ),
   write("Today's walks: Morning park walk at 09:00 already done, Lunch walk at 12:30, River walk at 17:00"),
   write(
     "Saturday plant care by the hour: Water the fern 09:00–10:00, Repot basil 11:00–12:30, Check the orchid 14:00–15:00. Show the free gaps and let me open the fern's screen fern.",
@@ -224,6 +238,7 @@ function TimelineEvents({
   density,
   record,
 }: Pick<TimelineProps, "items"> & { density: ThemeDensity; record: boolean }) {
+  const { timeline } = useWords().words;
   const group: TimelineFlowGroup = {
     rows: items.map((item) => ({
       kind: "event",
@@ -234,7 +249,9 @@ function TimelineEvents({
         title: { part: "title", text: item.title },
         time: { part: "time", text: item.time },
         ...(item.summary ? { summary: { part: "summary", text: item.summary } } : {}),
-        ...(item.meta ? { detail: { part: "meta", text: item.meta } } : {}),
+        ...(item.meta
+          ? { detail: { part: "meta", text: record ? timeline.internal(item.meta) : item.meta } }
+          : {}),
         done: item.done,
       },
     })),
@@ -255,10 +272,14 @@ export function Timeline({ style, items, record, reference, current }: TimelineP
       padded={state !== "empty" && (hours || recordHistory)}
     >
       {recordHistory && state !== "empty" && (
-        <KitContent density={density}>
+        <KitContent rhythm="flush" density={density}>
           <KitLayoutText line={{ text: record, part: "record", strong: true }} />
           <KitLayoutText line={{ text: reference, part: "reference", role: "meta", tone: "muted" }} />
-          {current && <KitTrail part="current" kind="badge" value={current} />}
+          {current && (
+            <KitTrack part="state">
+              <KitTrail part="current" kind="badge" value={current} inline />
+            </KitTrack>
+          )}
         </KitContent>
       )}
       {state === "loading" ? (

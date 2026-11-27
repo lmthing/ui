@@ -4,7 +4,7 @@ Know an action worked, with its result and the saved item's details.
 
 ## Pick
 
-A standalone outcome after an action was submitted, confirmed or completed. Not an ongoing status or urgent warning at the top (Banner), a cross-role acknowledgement history (HandoffReceipt), or a screen with no content yet (Empty).
+A one-time outcome immediately after the person's own submission, booking or completed action. Not the appointment record (Appointment), a warning strip (Banner), a shared across-role transfer with sender/recipient acknowledgement (HandoffReceipt), or no content (Empty).
 
 ## Writer
 

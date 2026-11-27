@@ -4,5 +4,6 @@ export const words = {
     period: "Reporting period",
     metric: "Total recorded",
     unit: "items",
+    total: "Total",
   },
 };

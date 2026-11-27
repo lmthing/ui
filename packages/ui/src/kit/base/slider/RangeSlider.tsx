@@ -12,6 +12,8 @@ export type RangeSliderProps = {
   max: number;
   step?: number;
   disabled?: boolean;
+  /** Use the single-thumb track rail when paired with a single slider. */
+  alignTrack?: boolean;
 };
 const percent = (share: number): `${number}%` => `${share * 100}%`;
 const trackHeight = space.xs + space.xs / 2;
@@ -133,7 +135,7 @@ function RangeTrack({
   );
 }
 
-function useRangeEndpoints({ range, min, max, step = 1, disabled = false }: RangeSliderProps) {
+function useRangeEndpoints({ range, min, max, step = 1, disabled = false, alignTrack }: RangeSliderProps) {
   const loading = useComponentState() === "loading";
   const lower = useEndpoint(range[0], loading);
   const upper = useEndpoint(range[1], loading);
@@ -151,6 +153,7 @@ function useRangeEndpoints({ range, min, max, step = 1, disabled = false }: Rang
     max,
     step: tick,
     disabled: disabled || loading,
+    inset: alignTrack ? size.icon.lg / 2 : size.control.md / 2,
     ends: [
       { ...first, address: lower.address.testID, value: lo, disabled: lower.disabled },
       { ...second, address: upper.address.testID, value: hi, disabled: upper.disabled },
@@ -174,7 +177,11 @@ export function RangeSlider(props: RangeSliderProps) {
         width.current = event.nativeEvent.layout.width;
       }}
     >
-      <YStack marginHorizontal={size.control.md / 2} height="100%" pointerEvents="box-none">
+      <YStack
+        marginHorizontal={props.alignTrack ? size.icon.lg / 2 : size.control.md / 2}
+        height="100%"
+        pointerEvents="box-none"
+      >
         <RangeTrack start={share(lo)} end={share(hi)} loading={loading} disabled={disabled} />
         {!loading && (
           <>

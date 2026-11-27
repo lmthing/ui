@@ -135,7 +135,7 @@ describe("Empty metadata and probes", () => {
     expect(meta.pick).toContain("Hero");
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Note");
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Empty" });

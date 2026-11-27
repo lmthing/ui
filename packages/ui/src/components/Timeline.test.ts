@@ -140,7 +140,7 @@ describe("Timeline fallback and metadata", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "record", "reference", "current"],
+      parts: ["root", "record", "reference", "state", "current"],
       items: { key: "items", parts: ["root", "time", "title", "meta", "summary"] },
       states: ["filled", "empty", "loading"],
     });
@@ -170,7 +170,7 @@ describe("Timeline fallback and metadata", () => {
     expect(read.indexOf("Morning walk")).toBeLessThan(read.indexOf("Visit"));
   });
   it("has choose probes for event/range needs and a read probe for linked hours", () => {
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(4);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(5);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "List")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Timeline" });

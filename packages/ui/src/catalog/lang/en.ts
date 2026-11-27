@@ -35,6 +35,7 @@ import { words as ProgressWords } from "./en/Progress";
 import { words as ChecklistWords } from "./en/Checklist";
 import { words as WorkQueueRowWords } from "./en/WorkQueueRow";
 import { words as RollupRowsWords } from "./en/RollupRows";
+import { words as TimelineWords } from "./en/Timeline";
 
 export const en = {
   ...SwipeStackWords,
@@ -74,6 +75,7 @@ export const en = {
   ...ChecklistWords,
   ...WorkQueueRowWords,
   ...RollupRowsWords,
+  ...TimelineWords,
 };
 
 export type Words = typeof en;

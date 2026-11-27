@@ -17,6 +17,7 @@ import { prompt } from "../entry/prompt-Success.generated";
 
 export const meta = {
   id: "Success",
+  status: "ready",
   group: "action",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -96,30 +97,42 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 
 const booked = { title: "Walk booked", sub: "Clover, tomorrow at 09:00" };
 export const examples = [
-  { title: "Fern watered", sub: "Bathroom, just now", icon: "circle_check" },
+  { title: "Fern watered", sub: "Bathroom, just now. No action needed.", icon: "circle_check" },
   booked,
-  { style: "toast", title: "Walk cancelled", icon: "circle_check", undo: true },
-  { ...booked, detail: "brief" },
+  { style: "toast", title: "Walk cancelled", sub: "Clover, tomorrow at 09:00", icon: "calendar", undo: true },
+  { ...booked, title: "Clover’s walk booked · tomorrow at 09:00", detail: "brief" },
   {
     title: "Repotting request received",
     outcome: "pending",
     subject: "Bird's nest fern",
     owner: "Glasshouse team",
-    next: "The team will check bench space and confirm a date.",
+    next: "Wait for the team to confirm a date.",
   },
   {
     title: "Walk confirmed",
     outcome: "confirmed",
     subject: "Clover · 45-minute walk",
     when: "Friday at 09:00",
+    sub: "Meet at the Meadow gate.",
   },
-  { title: "Care notes saved", outcome: "done", subject: "Bird's nest fern", receipt: "Record FN-104" },
+  {
+    title: "Care notes saved",
+    outcome: "done",
+    subject: "Bird's nest fern",
+    receipt: "Record FN-104",
+    sub: "No action needed.",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Success");
 export const probes = [
-  choose("After I book a dog walk, show a dedicated screen saying it worked and when the walk is"),
+  choose(
+    "Right after I book a dog walk, show a one-time confirmation that it worked and when it is, not the appointment record.",
+  ),
   choose("Make an urgent warning stand out at the top because today's dog walk has been cancelled", "Banner"),
+  choose(
+    "After I submit a request on this phone, show a one-time confirmation of my own submission. It is still waiting for a decision; name the next owner and step, without tracking a transfer to another role or their acknowledgement.",
+  ),
   write(
     "I just booked a walk for Clover tomorrow at 09:00. Show that the booking worked, with a check symbol and the dog and time underneath.",
   ),
@@ -143,12 +156,18 @@ type SuccessProps = Props<typeof props, typeof meta>;
 function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
   const { messageLabels } = useWords().words;
   return (
-    <KitCard style="inset" look="tinted" tone="good" part="root" padded>
+    <KitCard
+      style="inset"
+      look={undo ? "surface" : "tinted"}
+      tone={undo ? "neutral" : "good"}
+      part="root"
+      padded
+    >
       <KitRow
         label={title}
         inline
         lineRole="label"
-        leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
+        leading={<KitIcon name={icon} tone={undo ? "muted" : "good"} scale="sm" part="icon" />}
         trailing={[
           undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
           <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
@@ -190,17 +209,17 @@ function OutcomeReceipt({ title, sub, outcome, subject, owner, next, when, recei
         </KitText>
         {subject && <KitText part="subject">{subject}</KitText>}
         {owner && (
-          <KitText part="owner" emphasis="strong">
+          <KitText part="owner" tone="muted">
             {owner}
           </KitText>
         )}
         {when && (
-          <KitText part="when" emphasis="strong">
+          <KitText part="when" tone="muted">
             {when}
           </KitText>
         )}
         {receipt && (
-          <KitText part="receipt" emphasis="strong">
+          <KitText part="receipt" tone="muted">
             {receipt}
           </KitText>
         )}

@@ -5,7 +5,7 @@ import { useKit } from "../../provider";
 
 type End = { address: string; value: number; min: number; max: number; disabled: boolean };
 type Ends = readonly [End, End];
-type Track = { min: number; max: number; step: number; ends: Ends; disabled: boolean };
+type Track = { min: number; max: number; step: number; ends: Ends; disabled: boolean; inset?: number };
 
 function closest([lower, upper]: Ends, position: number) {
   if (lower.disabled) return upper.disabled ? undefined : upper;
@@ -15,16 +15,16 @@ function closest([lower, upper]: Ends, position: number) {
 
 /** Once a thumb is chosen it owns the gesture, even when it reaches its peer. */
 export function rangeGesture(
-  { min, max, step, ends }: Track,
+  { min, max, step, ends, inset = size.control.md / 2 }: Track,
   width: number,
   write: (address: string, value: number) => void,
 ) {
-  const available = width - size.control.md;
+  const available = width - 2 * inset;
   let target: End | undefined;
   let previous: number | undefined;
   return (x: number) => {
     if (available <= 0 || !Number.isFinite(x)) return;
-    const position = min + ((x - size.control.md / 2) / available) * (max - min);
+    const position = min + ((x - inset) / available) * (max - min);
     const coincident = ends[0].value === ends[1].value;
     const onThumb = Math.abs(position - ends[0].value) <= (size.icon.lg / 2 / available) * (max - min);
     if (!target && coincident && onThumb) return;
@@ -71,7 +71,7 @@ export function useRangeGesture(track: Track) {
   const width = useRef(0);
   const stop = useRef<() => void>(undefined);
   const moveNative = useRef<(x: number) => void>(undefined);
-  const { min, max, step, disabled, ends } = track;
+  const { min, max, step, disabled, ends, inset } = track;
   const [lower, upper] = ends;
   useEffect(
     () => () => {
@@ -85,6 +85,7 @@ export function useRangeGesture(track: Track) {
       max,
       step,
       disabled,
+      inset,
       lower.address,
       upper.address,
       lower.disabled,

@@ -213,7 +213,7 @@ describe("Field fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Search");
     expect(meta.pick).toContain("Chips");
-    expect(probes.filter((p) => p.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((p) => p.kind === "choose")).toHaveLength(3);
     expect(probes.find((p) => p.kind === "choose" && p.expect === "Search")).toBeDefined();
     expect(probes.find((p) => p.kind === "write")).toMatchObject({ expect: "Field" });
     expect(probes.find((p) => p.kind === "read")).toMatchObject({

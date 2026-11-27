@@ -18,6 +18,7 @@ import { prompt } from "../entry/prompt-Empty.generated";
 
 export const meta = {
   id: "Empty",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -66,7 +67,11 @@ export const examples = [
   { title: "No plants yet", icon: "leaf", sub: "Added plants will appear here." },
   { title: "No walks today", sub: "Booked walks will appear here." },
   { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
-  { title: "You're offline", kind: "offline" },
+  {
+    title: "Couldn’t load walks offline",
+    sub: "Reconnect, then try loading your walks again.",
+    kind: "offline",
+  },
   { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
   {
     title: "No walks in this filter",
@@ -82,6 +87,9 @@ export const probes = [
   choose(
     "Make 2 the single large main number on my plant screen, with plants need water today underneath",
     "Hero",
+  ),
+  choose(
+    "Nothing matches the active Riverside filter. Replace the absent results with a short message explaining why nothing is showing.",
   ),
   write("My walks could not be loaded. Show a calm message that says what went wrong."),
   write(
@@ -117,16 +125,17 @@ function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
 
 export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
+  const retry = kind === "error" || kind === "offline";
   return (
     <KitCard style="plain" part="root">
       <KitEmpty
         title={title}
         {...(sub ? { sub } : {})}
         {...(shown ? { icon: shown } : {})}
-        fill
+        fill={!retry}
         tone={kind === "complete" ? "good" : "neutral"}
       />
-      {(kind === "error" || kind === "offline") && <RetryAction kind="secondary" part="retry" full />}
+      {retry && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );
 }

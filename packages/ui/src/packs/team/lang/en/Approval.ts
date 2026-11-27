@@ -19,6 +19,8 @@ export const words = {
       reason: "Reason (required to decline)",
       pending: "Recording decision…",
       failed: "Decision not recorded. Try again.",
+      unavailable: "Decision details unavailable",
+      totalLabel: "Total",
       total: (amount: string) => `Total ${amount}`,
     },
   },

@@ -32,7 +32,7 @@ export function NavigationShell({ start }: { start: string }) {
           screen={navigationScreens[current]!}
           theme={theme}
           onLink={onLink}
-          reduceMotion
+          {...(!start.startsWith("round2_") && { reduceMotion: true })}
         />
       </YStack>
     </TamaguiProvider>

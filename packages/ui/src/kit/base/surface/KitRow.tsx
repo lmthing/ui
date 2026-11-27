@@ -32,6 +32,7 @@ type RowProps = {
   children: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
+  trailingAlign?: "line" | "row";
   goto?: string | undefined;
   label: string;
   lineRole?: LineRole;
@@ -135,7 +136,7 @@ export function Row(props: RowProps) {
           {(leading || groupLead) && <RowLeading {...{ leading, leadingAlign, leadingWidth, line }} />}
           <RowGroupLead.Provider value={undefined}>
             <YStack flex={component.base.bodyFlex}>{children}</YStack>
-            {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+            <RowTrailing line={line} align={props.trailingAlign} slot={trailing} />
           </RowGroupLead.Provider>
         </RowLabelContext.Provider>
       </Content>
@@ -167,10 +168,19 @@ function RowLeading({
   );
 }
 
-function RowTrailing({ line, children }: { line: number; children: ReactNode }) {
+function RowTrailing({
+  line,
+  align,
+  slot,
+}: {
+  line: number;
+  align?: RowProps["trailingAlign"];
+  slot?: ReactNode;
+}) {
+  if (!slot) return null;
   return (
-    <Edge height={line}>
-      <XStack alignItems="center">{children}</XStack>
+    <Edge height={line} alignSelf={align === "row" ? "center" : "flex-start"}>
+      <XStack alignItems="center">{slot}</XStack>
     </Edge>
   );
 }

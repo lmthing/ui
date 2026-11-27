@@ -131,7 +131,7 @@ describe("Success metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Empty");
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
     expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);

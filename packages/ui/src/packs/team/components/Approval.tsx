@@ -44,6 +44,7 @@ export const meta = {
   },
   confirmParts: ["decline", "reject"],
   states: ["filled", "empty", "success"],
+  readInState: (_input, state) => state === "success",
   actions: {
     parts: { reason: ["type"], accept: ["press"], reject: ["press"] },
     items: { approve: ["press"], decline: ["press"] },
@@ -72,7 +73,11 @@ export const meta = {
     readFields: ["reason"],
   },
   read: (input, state, lang): string[] =>
-    state === "filled" ? readApproval(input as z.output<typeof props>, lang) : [],
+    state === "filled"
+      ? readApproval(input as z.output<typeof props>, lang)
+      : state === "success"
+        ? [approvalOutcome((input as z.output<typeof props>).requests, lang)]
+        : [],
 } as const satisfies c.Meta;
 
 const reviewSheet = z.strictObject({
@@ -139,16 +144,25 @@ function reviewRequest(name: "approval.accept" | "approval.reject") {
 function readApproval(input: z.output<typeof props>, lang?: string) {
   if (!input.review) return approvalReading(input, lang);
   const { review } = input;
-  const { statuses, review: copy } = teamWordsFor(lang).approval;
+  const { statuses, review: copy, approve, decline, awaitingDecision, kinds } = teamWordsFor(lang).approval;
   const status = input.requests[0]?.status ?? "pending";
   return [
     review.reference,
     review.evidence,
+    kinds[input.requests[0]!.kind],
     ...review.lines.map((line) => `${line.label} · ${approvalAmount(line.amount, lang)}`),
     copy.total(approvalAmount(review.total, lang)!),
-    ...(status === "pending" ? [] : [statuses[status]]),
+    ...(status === "pending" ? [awaitingDecision, copy.reason, approve, decline] : [statuses[status]]),
     ...(review.reason ? [review.reason] : []),
   ];
+}
+
+function approvalOutcome(requests: z.output<typeof props>["requests"], lang?: string) {
+  const { statuses, review } = teamWordsFor(lang).approval;
+  const settled = requests.find(({ status }) => !approvalOpen(status));
+  if (settled && (settled.status === "approved" || settled.status === "declined"))
+    return `${settled.title}: ${statuses[settled.status]}`;
+  return review.unavailable;
 }
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -248,7 +262,7 @@ export const examples = [
       evidence: "Gate closes but the latch slips under light pressure.",
       lines: [{ label: "Fit new latch", amount: 38 }],
       total: 38,
-      reason: "The park team is replacing the gate on Monday.",
+      reason: "Wait for the park team to confirm Monday’s gate replacement.",
     },
   },
 ] satisfies z.input<typeof props>[];
@@ -366,7 +380,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
-  const { words } = kit.useWords(teamWordsFor);
+  const { words, lang } = kit.useWords(teamWordsFor);
   const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const surface = "card";
@@ -383,7 +397,7 @@ export function Approval(input: ApprovalProps) {
         icon={state === "success" ? "check" : "clipboard_list"}
         message={
           state === "success"
-            ? words.approval.success
+            ? approvalOutcome(input.requests, lang)
             : thing
               ? undefined
               : input.style === "my_requests"
@@ -406,6 +420,13 @@ type DecisionProps = ApprovalProps & { review: z.output<typeof reviewSheet> };
 function DecisionReview({ review, requests }: DecisionProps) {
   const { lang, words } = kit.useWords(teamWordsFor);
   const row = requests[0]!;
+  const [operation] = kit.useHostOperations();
+  const decision =
+    operation?.status === "accepted"
+      ? operation.name === "approval.accept"
+        ? "approved"
+        : "declined"
+      : row.status;
   return (
     <kit.KitCard part="root" style="inset" padded>
       <kit.KitLayoutText line={{ text: review.reference, part: "message", role: "meta", tone: "muted" }} />
@@ -431,74 +452,143 @@ function DecisionReview({ review, requests }: DecisionProps) {
           </kit.KitText>
         )}
       </kit.KitRow>
+      <DecisionStatus decision={decision} phase={operation?.status} />
       <kit.KitText part="evidence">{review.evidence}</kit.KitText>
-      <kit.KitCard part="line_items" style="plain">
-        {review.lines.map(({ label, amount }, index) => (
-          <kit.KitRow
-            key={index}
-            part={null}
-            label={label}
-            inset="none"
-            trailing={
-              <kit.KitText part={null} role="label" tabular>
-                {approvalAmount(amount, lang)}
-              </kit.KitText>
-            }
-          >
-            <kit.KitText part={null}>{label}</kit.KitText>
-          </kit.KitRow>
-        ))}
-      </kit.KitCard>
-      <kit.KitText part="total" role="heading" tabular>
-        {words.approval.review.total(approvalAmount(review.total, lang)!)}
-      </kit.KitText>
-      <DecisionControls status={row.status} recordedReason={review.reason} />
+      <ReviewLines review={review} />
+      <ReviewAmount
+        label={words.approval.review.totalLabel}
+        amount={approvalAmount(review.total, lang)!}
+        part="total"
+      />
+      <DecisionControls decision={decision} operation={operation} recordedReason={review.reason} />
     </kit.KitCard>
   );
 }
 
+function DecisionStatus({
+  decision,
+  phase,
+}: {
+  decision: ApprovalProps["requests"][number]["status"];
+  phase: c.HostOperation["status"] | undefined;
+}) {
+  const { approval } = kit.useWords(teamWordsFor).words;
+  const settled = decision === "approved" || decision === "declined";
+  const text = settled
+    ? approval.statuses[decision]
+    : phase === "pending"
+      ? approval.review.pending
+      : phase === "rejected"
+        ? approval.review.failed
+        : approval.awaitingDecision;
+  return (
+    <kit.KitText
+      announce="status"
+      part="decision_state"
+      role="label"
+      tone={
+        decision === "approved" ? "good" : decision === "declined" || phase === "rejected" ? "bad" : "muted"
+      }
+    >
+      {text}
+    </kit.KitText>
+  );
+}
+
+function ReviewLines({ review }: { review: DecisionProps["review"] }) {
+  const { lang } = kit.useWords(teamWordsFor);
+  return (
+    <kit.KitCard part="line_items" style="plain">
+      <kit.KitRowGroup separators={false} density="compact">
+        {review.lines.map(({ label, amount }, index) => (
+          <ReviewAmount label={label} amount={approvalAmount(amount, lang)!} key={index} />
+        ))}
+      </kit.KitRowGroup>
+    </kit.KitCard>
+  );
+}
+
+function ReviewAmount({
+  label,
+  amount,
+  part = null,
+}: {
+  label: string;
+  amount: string;
+  part?: "total" | null;
+}) {
+  const role = part ? "label" : "body";
+  return (
+    <kit.KitRow
+      {...{ part, label }}
+      inline
+      fitContent
+      trailing={
+        <kit.KitText part={null} role={role} tabular>
+          {amount}
+        </kit.KitText>
+      }
+    >
+      <kit.KitText part={null} role={role}>
+        {label}
+      </kit.KitText>
+    </kit.KitRow>
+  );
+}
+
 function DecisionControls({
-  status,
+  decision,
+  operation,
   recordedReason,
 }: {
-  status: ApprovalProps["requests"][number]["status"];
+  decision: ApprovalProps["requests"][number]["status"];
+  operation: c.HostOperation | undefined;
   recordedReason: string | undefined;
 }) {
   const { words } = kit.useWords(teamWordsFor);
-  const [operation] = kit.useHostOperations();
+  const { controller } = kit.useKit();
+  const { screen, component } = kit.usePartContext();
   const copy = words.approval;
   const phase = operation?.status;
-  const decision =
-    phase === "accepted" ? (operation?.name === "approval.accept" ? "approved" : "declined") : status;
   const hostReason = operation?.records?.[0]?.reason;
   const reason = recordedReason ?? (typeof hostReason === "string" ? hostReason : undefined);
   if (decision && decision !== "pending")
-    return (
-      <>
-        <kit.KitTrail
-          part="decision_state"
-          kind="badge"
-          value={copy.statuses[decision]}
-          tone={decision === "approved" ? "good" : "bad"}
-        />
-        {reason && <kit.KitText part="decision_reason">{reason}</kit.KitText>}
-      </>
-    );
-  if (phase === "pending") return <kit.KitText part="decision_state">{copy.review.pending}</kit.KitText>;
+    return reason ? <kit.KitText part="decision_reason">{reason}</kit.KitText> : null;
   return (
     <>
-      {phase === "rejected" && (
-        <kit.KitText part="decision_state" tone="bad">
-          {copy.review.failed}
-        </kit.KitText>
-      )}
       <kit.KitText part="reason_label" role="label">
         {copy.review.reason}
       </kit.KitText>
-      <kit.KitInput part="reason" label={copy.review.reason} hint="" kind="text" max={120} />
+      <kit.KitInput
+        part="reason"
+        label={copy.review.reason}
+        hint=""
+        kind="text"
+        max={120}
+        visibleBoundary
+        disabled={phase === "pending"}
+      />
       <kit.KitGrid>
-        <kit.KitAction part="accept" label={copy.approve} contentParts={{}} full />
-        <kit.KitAction part="reject" label={copy.decline} tone="bad" kind="quiet" contentParts={{}} full />
+        <kit.KitAction
+          part="accept"
+          label={copy.approve}
+          contentParts={{}}
+          full
+          disabled={phase === "pending"}
+        />
+        <kit.KitAction
+          part="reject"
+          label={copy.decline}
+          tone="bad"
+          kind="quiet"
+          contentParts={{}}
+          full
+          disabled={
+            controller
+              ?.actionsAt(`${screen}/${component}/reject`, { ignoreDisabledPart: true })
+              .includes("press") !== true
+          }
+        />
       </kit.KitGrid>
     </>
   );

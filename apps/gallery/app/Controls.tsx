@@ -152,29 +152,25 @@ function useDemoAttachments(): AttachmentHost {
   };
 }
 
-const decisionHost: HostCommandAdapter = {
-  commands: Object.fromEntries(
-    ["approval.accept", "approval.reject"].map((name) => [
-      name,
-      {
-        allows: () => true,
-        async run({ input }, { signal }) {
-          await previewWait();
-          return signal.aborted
-            ? { status: "rejected" }
-            : {
-                status: "accepted",
-                records: typeof input.reason === "string" ? [{ reason: input.reason }] : [],
-              };
-        },
-      },
-    ]),
-  ),
-};
+function useDemoDecision(): HostCommandAdapter {
+  const attempts = useRef(0);
+  const handler: NonNullable<HostCommandAdapter["commands"]>[string] = {
+    allows: () => true,
+    async run({ input }, { signal }) {
+      const attempt = ++attempts.current;
+      await previewWait();
+      return signal.aborted || attempt === 1
+        ? { status: "rejected" }
+        : { status: "accepted", records: typeof input.reason === "string" ? [{ reason: input.reason }] : [] };
+    },
+  };
+  return { commands: { "approval.accept": handler, "approval.reject": handler } };
+}
 
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
   const [activeTab, setActiveTab] = useState(0);
   const attachments = useDemoAttachments();
+  const decisionHost = useDemoDecision();
   const fixture = screens[kind] ?? screens.form!;
   const screen =
     kind === "navigation"

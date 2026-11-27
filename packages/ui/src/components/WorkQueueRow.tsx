@@ -5,7 +5,7 @@ import { prompt } from "../entry/prompt-WorkQueueRow.generated";
 
 export const meta = {
   id: "WorkQueueRow",
-  status: "draft",
+  status: "ready",
   group: "action",
   tier: "phone",
   pick: prompt.pick,
@@ -121,8 +121,6 @@ export const examples = [
     ],
   },
   { ...garden, detail: "brief" },
-  garden,
-  garden,
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("WorkQueueRow");
@@ -168,7 +166,7 @@ function QueueRow({ row }: { row: QueueProps["rows"][number] }) {
   const { workQueue } = kit.useWords().words;
   const filled = kit.useComponentState() === "filled";
   return (
-    <kit.KitRow item={row.id} label={row.title} inset="none" inline>
+    <kit.KitRow item={row.id} label={row.title} inset="none">
       <kit.KitContent rhythm="flush">
         <kit.KitLayoutText line={{ text: row.title, part: "title", strong: true }} />
         <kit.KitLayoutText line={{ text: row.recordRef, part: "record", role: "meta", tone: "muted" }} />
@@ -177,13 +175,11 @@ function QueueRow({ row }: { row: QueueProps["rows"][number] }) {
         <kit.KitTrack part="flags">
           <kit.KitTrail part="status" kind="badge" value={row.status} />
           {row.priority !== "normal" && (
-            <kit.KitLayoutText
-              line={{
-                text: workQueue[row.priority],
-                part: "priority",
-                role: "meta",
-                tone: row.priority === "urgent" ? "bad" : "warn",
-              }}
+            <kit.KitTrail
+              kind="badge"
+              part="priority"
+              value={workQueue[row.priority]}
+              tone={row.priority === "urgent" ? "bad" : "warn"}
             />
           )}
         </kit.KitTrack>
@@ -193,14 +189,13 @@ function QueueRow({ row }: { row: QueueProps["rows"][number] }) {
             <kit.KitAction
               part="action"
               action="press"
-              kind="quiet"
-              align="start"
+              kind="secondary"
               label={row.action}
               goto={row.goto}
               contentParts={{ label: "action_label" }}
             />
           ) : (
-            <kit.KitSkeleton shape="control" kind="quiet" />
+            <kit.KitSkeleton shape="control" kind="secondary" label={row.action} />
           ))}
       </kit.KitContent>
     </kit.KitRow>

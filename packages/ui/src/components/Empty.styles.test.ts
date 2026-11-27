@@ -23,7 +23,7 @@ describe("Empty view", () => {
       title,
       ...(sub ? { sub } : {}),
       ...(shown ? { icon: shown } : {}),
-      fill: true,
+      fill: !["error", "offline"].includes(parsed.kind),
       tone: parsed.kind === "complete" ? "good" : "neutral",
     });
   });

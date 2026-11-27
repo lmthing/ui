@@ -189,15 +189,16 @@ describe("Checklist metadata and probes", () => {
   });
   it.each(["empty", "loading"] as const)("does not offer hidden item actions in %s", (state) => {
     expect(readComponent(components.Checklist, examples[0], "k1", state)).toEqual([
-      `k1 Checklist (${state})`,
+      `k1 Checklist (${state})${state === "empty" ? " No checklist items yet" : ""}`,
     ]);
   });
-  it("builds a data-only registry with case and separator tolerant ids", () => {
-    const registry = createRegistry();
-    expect(registry.ids).toContain("Checklist");
-    expect(registry.schema("Checklist")).toBe(props);
-    expect(registry.resolve("check-list")).toBe("Checklist");
-    expect(registry.resolve("c-h-e-c-k-l-i-s-t")).toBe("Checklist");
-    expect(registry.resolve("unknown")).toBeUndefined();
-  });
+});
+
+it("builds a data-only registry with case and separator tolerant ids", () => {
+  const registry = createRegistry();
+  expect(registry.ids).toContain("Checklist");
+  expect(registry.schema("Checklist")).toBe(props);
+  expect(registry.resolve("check-list")).toBe("Checklist");
+  expect(registry.resolve("c-h-e-c-k-l-i-s-t")).toBe("Checklist");
+  expect(registry.resolve("unknown")).toBeUndefined();
 });

@@ -192,9 +192,10 @@ describe("Approval states and dispatch", () => {
     const parts = view(full, state);
     expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
     expect(parts.get("home/c1/message")?.text).toEqual([
-      state === "success" ? words.success : words.queueEmpty,
+      state === "success" ? words.review.unavailable : words.queueEmpty,
     ]);
-    expect(readComponent(def, full, "a1", state)).toEqual([`a1 Approval (${state})`]);
+    const copy = state === "success" ? ` ${words.review.unavailable}` : "";
+    expect(readComponent(def, full, "a1", state)).toEqual([`a1 Approval (${state})${copy}`]);
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(full)), "a1", {}, state)).toEqual([]);
     const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval", state }] };
     const onAction = vi.fn();

@@ -54,6 +54,7 @@ it("declares choose, near miss, write and read probes", () => {
     "read",
     "write",
     "write",
+    "choose",
   ]);
   expect(probes[1]).toMatchObject({ expect: "Slots" });
   expect(probes[2]).toMatchObject({ expect: "List" });

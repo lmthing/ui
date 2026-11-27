@@ -20,10 +20,10 @@ import {
   KitCard,
   KitCheck,
   KitRow,
-  KitSkeleton,
+  KitLayoutText,
+  KitState,
   KitText,
   useComponentState,
-  KitEmpty,
   useKit,
   useWords,
   useLiveControls,
@@ -33,6 +33,7 @@ import { prompt } from "../entry/prompt-Checklist.generated";
 
 export const meta = {
   id: "Checklist",
+  status: "ready",
   signature: "check_burst",
   group: "input",
   purpose: prompt.purpose,
@@ -53,8 +54,13 @@ export const meta = {
   states: ["filled", "empty", "loading"],
   actions: { items: { check: ["check"] } },
   live: { checks: { check: "done" } },
+  readInState: (_input, state) => state === "empty",
   read: (input, state, lang): string[] =>
-    state === "filled" ? [completionLine((input as z.output<typeof props>).items, lang)] : [],
+    state === "filled"
+      ? [completionLine((input as z.output<typeof props>).items, lang)]
+      : state === "empty"
+        ? [wordsFor(lang).checklist.empty]
+        : [],
 } as const satisfies Meta;
 
 export const props = z
@@ -106,7 +112,7 @@ export const examples = [
       { text: "Bring spare waste bags", done: false },
     ],
   },
-  { items: plantJobs },
+  { items: plantJobs.map((item) => ({ ...item, done: true })) },
   { detail: "brief", items: plantJobs },
   { items: [{ ...plantJobs[0]!, mark: "highlight" }, ...plantJobs.slice(1)] },
 ] satisfies z.input<typeof props>[];
@@ -135,7 +141,7 @@ function completionLine(items: readonly { done: boolean }[], lang?: string) {
 type ChecklistProps = Props<typeof props, typeof meta>;
 const subscribeNone = () => () => {};
 export function Checklist(input: ChecklistProps) {
-  const { lang } = useWords();
+  const { lang, words } = useWords();
   const { controller, density } = useKit();
   const { component } = usePartContext();
   const state = useComponentState();
@@ -145,56 +151,56 @@ export function Checklist(input: ChecklistProps) {
   };
   const count = useSyncExternalStore(controller?.store.subscribe ?? subscribeNone, snapshot, snapshot);
   const { items } = useLiveControls(meta, input) as ChecklistProps;
-  if (state === "loading") {
-    return (
-      <KitCard style="inset" part="root" density={density}>
-        <KitSkeleton
-          rows={items.length}
-          lead="box"
-          density={density}
-          items={items.map(({ text, meta }) => ({ title: text, meta }))}
-        />
-      </KitCard>
-    );
-  }
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" part="root" density={density}>
-        <KitEmpty part="text" />
-      </KitCard>
-    );
-  }
-  return (
-    <KitCard style="inset" part="root" density={density} padded>
-      <KitText role="label" part="count" density={density}>
-        {count}
-      </KitText>
+  const content = (
+    <>
+      {state === "loading" ? (
+        <KitLayoutText line={{ text: count, strong: true }} density={density} />
+      ) : (
+        <KitText role="body" part="count" announce="status" emphasis="strong" density={density}>
+          {count}
+        </KitText>
+      )}
       {items.map((it) => (
         <ChecklistRow key={it.id} item={it} />
       ))}
+    </>
+  );
+  return (
+    <KitCard style="inset" part="root" density={density} padded={state !== "empty"}>
+      <KitState
+        part="text"
+        icon="clipboard_list"
+        message={words.checklist.empty}
+        loading={content}
+        density={density}
+      >
+        {content}
+      </KitState>
     </KitCard>
   );
 }
 
 function ChecklistRow({ item }: { item: ChecklistProps["items"][number] }) {
   const { density } = useKit();
+  const loading = useComponentState() === "loading";
   return (
     <KitRow
       item={item.id}
+      part={loading ? null : "root"}
       label={item.text}
       mark={item.mark}
       inset="none"
       density={density}
       leading={<KitCheck done={item.done} part="check" label={item.text} />}
     >
-      <KitText role="body" tone={item.done ? "muted" : "text"} part="text" density={density}>
-        {item.text}
-      </KitText>
-      {item.meta && (
-        <KitText role="caption" tone="muted" part="meta" density={density}>
-          {item.meta}
-        </KitText>
-      )}
+      <KitLayoutText
+        line={{ text: item.text, part: "text", tone: item.done ? "muted" : "text" }}
+        density={density}
+      />
+      <KitLayoutText
+        line={{ text: item.meta, part: "meta", role: "meta", tone: "muted" }}
+        density={density}
+      />
     </KitRow>
   );
 }

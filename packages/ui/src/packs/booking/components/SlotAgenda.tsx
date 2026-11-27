@@ -61,7 +61,7 @@ export const meta = {
       appointmentDate(date, lang),
       ...sessions.map(
         (row, index) =>
-          `r${index + 1} ${[timeLine(row), slotAgenda[row.status], capacityLine(row, lang)].filter(Boolean).join(" · ")}`,
+          `r${index + 1} ${[timeLine(row), slotAgenda[row.status], row.assignee && slotAgenda.assignedTo(row.assignee), capacityLine(row, lang)].filter(Boolean).join(" · ")}`,
       ),
     ];
   },
@@ -205,6 +205,9 @@ export const probes = [
     ),
     fields: { "sessions.0.assignee": "Nia", "sessions.0.capacity": 6, "sessions.0.filled": 4 },
   },
+  choose(
+    "Show one day of named sessions so I can see the start times, who is staffed on each session, and the number of places filled.",
+  ),
 ] satisfies Probe[];
 
 type AgendaProps = Props<typeof props, typeof meta>;
@@ -233,6 +236,7 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
           inset="none"
           label={row.title}
           goto={active ? row.goto : undefined}
+          trailingAlign="row"
           trailing={
             row.goto &&
             (active ? (
@@ -245,9 +249,6 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
           <KitContent rhythm="flush" density={density}>
             <KitLayoutText line={{ text: timeLine(row), part: "time", role: "meta", tabular: true }} />
             <KitLayoutText line={{ text: row.title, part: "title", strong: true }} />
-            <KitLayoutText line={{ text: row.location, part: "location", role: "meta", tone: "muted" }} />
-            <KitLayoutText line={{ text: row.assignee, part: "assignee", role: "meta", tone: "muted" }} />
-            <KitLayoutText line={{ text: capacityLine(row, lang), part: "capacity", role: "meta" }} />
             <KitLayoutText
               line={{
                 text: words.slotAgenda[row.status],
@@ -256,6 +257,18 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
                 tone: statusTone[row.status],
               }}
             />
+            <KitLayoutText line={{ text: row.location, part: "location", role: "meta", tone: "muted" }} />
+            {row.assignee && (
+              <KitLayoutText
+                line={{
+                  text: words.slotAgenda.assignedTo(row.assignee),
+                  part: "assignee",
+                  role: "meta",
+                  tone: "muted",
+                }}
+              />
+            )}
+            <KitLayoutText line={{ text: capacityLine(row, lang), part: "capacity", role: "meta" }} />
           </KitContent>
         </KitRow>
       ))}

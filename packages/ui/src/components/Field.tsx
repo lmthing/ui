@@ -104,7 +104,10 @@ export const meta = {
     if (kind === "file") {
       const { fieldAttachment } = wordsFor(lang);
       const status = get?.(attachmentKey("attach")) as AttachmentStatus | undefined;
-      return status ? [fieldAttachment[status.phase]] : [];
+      const pick = status?.present ? fieldAttachment.replace : fieldAttachment.pick;
+      return status
+        ? [fieldAttachment[status.phase], pick, ...(status.present ? [fieldAttachment.remove] : [])]
+        : [pick];
     }
     if (kind === "voice") return get?.("$runtime") ? [composer.voice] : [composer.voice, mediaUnavailable];
     if (kind === "range") return [fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))];
@@ -226,6 +229,9 @@ const { choose, write, read } = probesFor("Field");
 export const probes = [
   choose("Let me enter the name of a new plant on its form"),
   choose("Find a plant in my collection by typing part of its name", "Search"),
+  choose(
+    "On my form, give me one labelled control to pick a PDF from my device instead of typing a filename. I don't need a list of existing attachments.",
+  ),
   write("A form input labelled Plant name, with Fern already entered"),
   write("A form input labelled Water it, set to repeat every week"),
   {
@@ -281,6 +287,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
       <KitSlider
         min={min!}
         max={max!}
+        alignTrack
         range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },
@@ -303,7 +310,12 @@ function AttachmentField() {
   return (
     <>
       {state && (
-        <KitText part="attachment_status" role="caption" tone={state.phase === "error" ? "bad" : "text"}>
+        <KitText
+          part="attachment_status"
+          announce="status"
+          role="caption"
+          tone={state.phase === "error" ? "bad" : "text"}
+        >
           {state.phase === "error" && state.present ? `${copy.error} ${copy.ready}` : copy[state.phase]}
         </KitText>
       )}

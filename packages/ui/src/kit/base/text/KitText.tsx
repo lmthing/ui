@@ -63,6 +63,8 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
+  /** A stable addressed text region for live status updates. */
+  announce?: "status" | "alert";
   /** Fallback report address for a label without its own part. */
   reportClipping?: string | undefined;
   goto?: string | undefined;
@@ -232,6 +234,10 @@ function TextRun(props: TextProps & { figureProgress?: number }) {
   const text = (
     <Frame
       {...(!webLink ? target : {})}
+      {...(props.announce && {
+        "aria-live": props.announce === "alert" ? ("assertive" as const) : ("polite" as const),
+        accessibilityRole: props.announce,
+      })}
       {...(figure < 1 ? { y: motion.figureRoll * (1 - figure) } : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}

@@ -4,7 +4,7 @@ import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { isWeb, YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
-import { usePart } from "../../part";
+import { useComponentState, usePart } from "../../part";
 
 const Hit = styled(YStack, {
   width: size.control.md,
@@ -36,7 +36,12 @@ function checkHandlers(press: () => void) {
     },
     ...(isWeb && {
       tabIndex: 0,
-      onKeyDown: (event: Pick<KeyboardEvent, "key" | "repeat" | "preventDefault" | "stopPropagation">) => {
+      onKeyDown: (event: {
+        key?: string;
+        repeat?: boolean;
+        preventDefault(): void;
+        stopPropagation(): void;
+      }) => {
         if (event.key !== " " && event.key !== "Enter") return;
         event.preventDefault();
         event.stopPropagation();
@@ -64,10 +69,17 @@ export function KitCheck({
   readonly?: boolean;
 }) {
   const kit = useKit();
-  const address = usePart(part);
+  const loading = useComponentState() === "loading";
+  const address = usePart(part, !loading);
   const progress = useSignatureProgress("check_burst");
   const value = useControlValue(address.testID, done);
   const checked = readonly ? done : value;
+  if (loading)
+    return (
+      <Hit aria-hidden>
+        <Box backgroundColor="$line" borderColor="$line" />
+      </Hit>
+    );
   return (
     <Hit
       {...address}

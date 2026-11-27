@@ -683,7 +683,7 @@ Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, off
 
 ## Round 2 operational components
 
-### `WorkQueueRow` · planned · action · phone · body · weight 2
+### `WorkQueueRow` · built · action · phone · body · weight 2
 
 - Purpose: Find work awaiting a decision and open the exact record that needs attention.
 - Pick: Work waiting for a decision, with separate record reference, status, owner, due time, priority and action for each task. Not general browsing (`List`) or a request inbox with SLA and completed views (`RequestQueue`).
@@ -693,7 +693,7 @@ Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, off
 - States: filled, empty (no work waiting), loading.
 - Real path: opens a stable work record for review; the queue does not complete or decide the record.
 
-### `RollupRows` · planned · data · phone · body · weight 2
+### `RollupRows` · built · data · phone · body · weight 2
 
 - Purpose: Compare the same measured total and supporting figures across several entities without a wide table.
 - Pick: Compare one like-for-like number per entity, with its unit and period and optional breakdown or linked detail. Not independent headline measurements (`Stats`) or the attributes of one record (`KeyValue`).
