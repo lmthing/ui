@@ -8,7 +8,7 @@ import {
   type Ref,
   type RefObject,
 } from "react";
-import { YStack } from "tamagui";
+import { isWeb, YStack } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
   emptyDeviceData,
@@ -158,7 +158,13 @@ function usePhoneNavigation(
 ) {
   const { screen } = props;
   const bodyScroll = useRef({ id: screen.id, top: 0 });
-  const scrollTop = () => (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0);
+  const scrollTop = (): number => {
+    const node = isWeb ? (navigation.ref.current as HTMLElement | null) : null;
+    return (
+      node?.querySelector("[data-kit-body-scroll]")?.scrollTop ??
+      (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0)
+    );
+  };
   const navigation = useNavigationMotion(screen, {
     mode: props.theme.motion ?? "calm",
     reduced: environment.reduceMotion,
@@ -238,7 +244,7 @@ function PhoneScreenFrame({
 }) {
   const register = useReturnFocus(
     navigation.ref,
-    navigation.restoreFocus ? navigation.returnTo?.address : undefined,
+    navigation.restoreFocus ? navigation.returnTo : undefined,
     props.nativeHost,
   );
   return (

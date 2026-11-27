@@ -1,10 +1,11 @@
 import { useCallback, useLayoutEffect, useRef, type RefObject } from "react";
 import { isWeb, type TamaguiElement } from "tamagui";
 import type { NativeHost } from "../provider";
+import type { ScreenReturnPoint } from "./screen-navigation";
 
 export function useReturnFocus(
   root: RefObject<TamaguiElement | null>,
-  address: string | undefined,
+  restoration: ScreenReturnPoint | undefined,
   host: NativeHost | undefined,
 ) {
   const refs = useRef(new Map<string, RefObject<TamaguiElement | null>>());
@@ -15,6 +16,7 @@ export function useReturnFocus(
     };
   }, []);
   useLayoutEffect(() => {
+    const address = restoration?.address;
     if (!address) return;
     const frame = requestAnimationFrame(() => {
       if (isWeb) focusReturnedPart(root.current as HTMLElement | null, address);
@@ -24,7 +26,7 @@ export function useReturnFocus(
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [root, address, host]);
+  }, [root, restoration, host]);
   return register;
 }
 

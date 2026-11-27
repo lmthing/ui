@@ -21,10 +21,10 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeC
 export function MotionPreview({ name }: { name: string }) {
   if (name === "record_arrive") return <RecordArrivalPreview />;
   if (name === "insertions") return <InsertionPreview />;
-  if (name === "navigation")
+  if (name === "navigation" || name === "navigation_mounted" || name === "navigation_agent")
     return (
       <StrictMode>
-        <CrossTreePreview />
+        <CrossTreePreview mounted={name === "navigation_mounted"} agentBack={name === "navigation_agent"} />
       </StrictMode>
     );
   return <CuePreview name={Object.hasOwn(signatures, name) ? (name as SignatureName) : "ring_fill"} />;
@@ -172,15 +172,19 @@ const pickup: ScreenLike = {
   ],
 };
 
-function CrossTreePreview() {
-  const source = useRef<ScreenNavigation>(null);
+const dispatch = handoffScreen("received");
+
+function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack: boolean }) {
+  const inbox = useRef<ScreenNavigation>(null);
+  const detail = useRef<ScreenNavigation>(null);
   const origin = useRef<ScreenReturnPoint | undefined>(undefined);
   const [play, setPlay] = useState<{ screen: ScreenLike; transition?: ScreenTransition | undefined }>({
-    screen: handoffScreen("received"),
+    screen: dispatch,
   });
   const onLink = (goto: string, address: string) => {
     const back = goto === "back";
-    const screen = back ? handoffScreen("received") : walkNotes;
+    const source = play.screen === dispatch ? inbox : detail;
+    const screen = back ? dispatch : walkNotes;
     if (!back) origin.current = source.current?.getReturnPoint(address);
     const transition = source.current?.prepare({
       to: screen.id,
@@ -193,14 +197,22 @@ function CrossTreePreview() {
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
-        <PhoneScreen
-          key={play.screen.id}
-          screen={play.screen}
-          theme={theme}
-          navigationRef={source}
-          navigationTransition={play.transition}
-          onLink={onLink}
-        />
+        {[dispatch, walkNotes].map((screen) => {
+          const active = play.screen === screen;
+          if (!mounted && !active) return null;
+          return (
+            <YStack key={screen.id} display={active ? "flex" : "none"} flex={1} minHeight={0}>
+              <PhoneScreen
+                screen={screen}
+                theme={theme}
+                agentMode={agentBack && screen === walkNotes}
+                navigationRef={screen === dispatch ? inbox : detail}
+                navigationTransition={active ? play.transition : undefined}
+                onLink={onLink}
+              />
+            </YStack>
+          );
+        })}
       </YStack>
     </TamaguiProvider>
   );

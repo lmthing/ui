@@ -83,7 +83,7 @@ export function useNavigationMotion(
   useLayoutEffect(() => {
     if (scripted) {
       intent.current = undefined;
-      history.commit(undefined, scripted.restore);
+      history.commit(undefined, scripted.restore, agent || scripted.agent);
       return startScripted();
     }
     if (!history.changed()) return;
@@ -104,13 +104,13 @@ export function useNavigationMotion(
     prepare: ({ to, kind, address = "", restore }: ScreenTransitionRequest) =>
       captureTransition({
         ...makeIntent(to, address, false, kind),
-        ...(kind === "back" && restore ? { restore } : {}),
+        ...(kind === "back" && restore ? { restore: { ...restore } } : {}),
       }),
     pose: agent ? undefined : native?.pose,
     nativeGhost: agent ? undefined : native?.ghost,
     agentArrival: history.agentArrival,
     returnTo,
-    restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.agentArrival)),
+    restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.skipFocus)),
   };
 }
 
@@ -119,15 +119,18 @@ function useNavigationHistory(id: string, pending: Intent | undefined) {
   const arrivedByAgent = useRef<string | undefined>(undefined);
   const origins = useRef(new Map<string, Return>());
   const returned = useRef<ScreenReturnPoint | undefined>(undefined);
+  const skipFocus = useRef(false);
   const navigating = matches(pending, id);
   const back = navigating && pending.kind === "back" ? origins.current.get(pending.from) : undefined;
   const returnTo = back?.from === id ? back : previous.current === id ? returned.current : undefined;
   return {
     changed: () => previous.current !== id,
     agentArrival: (navigating && pending.agent) || arrivedByAgent.current === id,
+    skipFocus: navigating ? pending.agent : skipFocus.current,
     returnTo,
-    commit(move: Intent | undefined, restore?: ScreenReturnPoint) {
+    commit(move: Intent | undefined, restore?: ScreenReturnPoint, scriptedAgent = false) {
       previous.current = id;
+      skipFocus.current = move?.agent ?? scriptedAgent;
       if (!matches(move, id)) {
         arrivedByAgent.current = undefined;
         returned.current = restore;
@@ -243,9 +246,7 @@ function playNavigation(
   }
   if (!node?.animate) return;
   if (move.ghost && !reduced) return fadeTab(node, move.ghost, options);
-  const header = screen.components.find(({ c }) => c === "Header");
-  const shared =
-    !fade && move.shared ? flyShared(node, screen.id, header?.id, move.shared, shift, options) : [];
+  const shared = fade ? [] : matchingFlight(node, screen, move, shift, options);
   const flight = node.animate(
     [
       { opacity: motion.reducedFadeStart, transform: fade ? "none" : `translateX(${shift}px)` },
@@ -262,4 +263,16 @@ function playNavigation(
     flight.cancel();
     shared.forEach((animation) => animation.cancel());
   };
+}
+
+function matchingFlight(
+  node: HTMLElement,
+  screen: ScreenLike,
+  move: Intent,
+  shift: number,
+  options: KeyframeAnimationOptions,
+) {
+  if (!move.shared) return [];
+  const header = screen.components.find(({ c }) => c === "Header");
+  return flyShared(node, screen.id, header?.id, move.shared, shift, options);
 }

@@ -169,6 +169,7 @@ function ScreenBodyScroll({
       {...props}
       ref={ref as never}
       scrollEventThrottle={motion.scrollSampleMs}
+      {...(isWeb ? { dataSet: { kitBodyScroll: "" } } : {})}
       {...(!isWeb && initial.current ? { contentOffset: { x: 0, y: initial.current } } : {})}
     />
   );

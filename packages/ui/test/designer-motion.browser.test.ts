@@ -13,7 +13,8 @@ let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, pag
 const errors: string[] = [];
 beforeAll(async () => {
   const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
-  if (process.env.UI_MOTION_PERF) server = await releaseGallery(config, baseline);
+  if (process.env.UI_MOTION_PERF || process.env.UI_MOTION_RELEASE)
+    server = await releaseGallery(config, baseline);
   else {
     const dev = await createServer(config);
     await dev.listen();
@@ -23,7 +24,7 @@ beforeAll(async () => {
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.setDefaultTimeout(5000);
   page.on("pageerror", (error) => errors.push(error.message));
-}, 60000);
+}, 150000);
 afterAll(async () => {
   await browser?.close();
   await server?.close();
@@ -31,7 +32,7 @@ afterAll(async () => {
 beforeEach(async () => {
   errors.length = 0;
   await openLab();
-}, 30000);
+}, 45000);
 
 async function openLab(
   motion: "no-preference" | "reduce" = "no-preference",
@@ -117,11 +118,12 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
   const forward = preference === "reduce" ? "none" : "translateX(20px)";
   const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
   const reference = "dispatch/receipt/reference";
-  expect(await scrollTopOf(reference, 36)).toBe(36);
-  await page.evaluate(
-    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-  );
-  await tap("dispatch/next/root");
+  await part("dispatch/next/root").evaluate((button) => {
+    const viewport = document.querySelector<HTMLElement>("[data-kit-body-scroll]")!;
+    viewport.scrollTop = 36;
+    if (viewport.scrollTop !== 36) throw new Error("The test did not scroll the source viewport");
+    (button as HTMLElement).click();
+  });
   await expect.poll(moves).toBe(`|${forward}`);
   const x = Number(await page.locator("body").getAttribute("data-first-scripted-x"));
   if (preference === "reduce") expect(x).toBe(0);
@@ -137,6 +139,31 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
     .toBe(true);
   expect(errors).toEqual([]);
 }
+
+changed("restores the same control on two scripted returns to an already mounted phone", async () => {
+  await openMotion("no-preference", "navigation_mounted");
+  const next = part("dispatch/next/root");
+  const node = await next.elementHandle();
+  for (let index = 0; index < 2; index++) {
+    await next.focus();
+    await page.keyboard.press("Enter");
+    await part("walk_notes/header/back").focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => node!.evaluate((button) => button === document.activeElement)).toBe(true);
+  }
+});
+
+changed("does not restore scripted agent focus on a later render", async () => {
+  await openMotion("no-preference", "navigation_agent");
+  await tap("dispatch/next/root");
+  await tap("walk_notes/header/back");
+  await part("dispatch/receipt/reference").waitFor();
+  await page.evaluate(async () => {
+    window.dispatchEvent(new Event("resize"));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
+});
 
 changed("accents only an acknowledged handoff, without delaying the receipt or nav", async () => {
   await openRecord("no-preference");
@@ -217,7 +244,7 @@ changed.each(["calm", "lively"] as const)("paints the first working frame in %s"
 changed("does not replay or arm insertion when a mounted group crosses the stagger cutoff", async () => {
   await page.goto(`${server.resolvedUrls!.local[0]}?motion=insertions`, { timeout: 20000 });
   const control = part("route_notes/advance/root");
-  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+  await page.waitForFunction(() => Boolean(window.__lmthingUI), { timeout: 20000 });
   const firstFrame = () =>
     control.evaluate(async (button) => {
       (button as HTMLElement).click();
