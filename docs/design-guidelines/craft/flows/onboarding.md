@@ -1,0 +1,11 @@
+# Onboarding: prove value before asking for commitment
+
+- **First use:** Put an interactive first task or a real sample first. Use a brief title, one reason to act, one action and “Skip” if the prerequisite is optional. A count or `Steps` only helps when there are known steps; prefer one or two prerequisites before showing value. Don't show a splash sequence on every launch.
+- **Setup → first useful result:** Keep required inputs labeled and editable. Ask for a permission just as it becomes useful, say why, and show the available fallback after denial. Distinguish declined, unavailable, revocable, and pending in the background. If verification or linking is genuinely required, respect cancellation and resume with the non-sensitive fields and current stage intact.
+- **Skip, fail, resume, finish:** Preserve progress after Back or relaunch, show retry for service failures, and let people re-open help without relaunching onboarding. A “Ready” cue can mark the first useful result, but controls work the instant the result is present. Don't force a branded carousel between the person and the task.
+
+Apple recommends interactive, context-specific teaching and optional tutorials where possible. Android expects a permission request in the context of the task and graceful degradation on denial. On web use browser permission flows only on eligible user activation where required, keep focus and drafts through redirects, and don't style instructions as a system prompt.
+
+**For lmthing:** `signup_onboard` models a general signup, verification, optional preferences and first task. For the lmthing launch shell the private keep-link/no-account spec wins: use an `onboarding` recipe, `Note`, `Field` only for meaningful setup, `Button` and optionally `Steps`; don't insert `SignInOptions` unless the app being mocked actually needs accounts. Feature permissions and persistence belong to the host, not Writer assurances. Gap: add a skip → first result fixture and a denial/recovery path without a sign-in wall.
+
+Sources: [Apple HIG Onboarding](https://developer.apple.com/design/human-interface-guidelines/onboarding) · [Apple HIG Privacy](https://developer.apple.com/design/human-interface-guidelines/privacy) · [Android runtime permissions](https://developer.android.com/training/permissions/requesting)

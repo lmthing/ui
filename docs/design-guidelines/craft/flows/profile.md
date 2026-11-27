@@ -1,0 +1,11 @@
+# Profile: separate visible identity from private account data
+
+- **View:** Show visible name/avatar, role or relationship if useful, and one clear next action. Show an intentional avatar fallback. At 390, start with a 44–64-unit avatar; top-align when names wrap or an action takes a separate line. Keep verify/block/membership semantics clear through labels. Avoid embedding account controls or private contact data in a public hero card.
+- **Edit → review:** Keep labels and optionality clear. Mark what is visible to others versus private or scoped to a team, and preview public visibility where it can differ. Keep edits during validation and recoverable upload errors. Support remove/replace avatar with an equivalent non-gesture action and a crop preview only if needed. Allow cancel or intentional discard for unsaved changes.
+- **Pending → saved:** Handle missing profile, private/inaccessible, uploading, validation failed, changed elsewhere and saved. Do not show an uploaded placeholder as the final asset. Settings and private credential changes belong in their own flow, with host authentication and confirmation when necessary. Use an inline status, avoid a separate celebratory screen for a bio edit.
+
+GitHub's primary profile documentation is an example of documenting public, owner-only and private views. Don't copy a service's exact privacy model. On native use photo picker/auth system UI at the point of need; on web preserve keyboard access to input, Save and error summary, and maintain valid input during selection, upload and reload as permitted.
+
+**For lmthing:** `Profile` is presentation (`detail`/`media` options), while `Field`, `Button`, `KeyValue` and `Sheet` can support editing as declared. Use `People`, team `TeamDirectory` or customers `ClientCard` when it is a directory or relationship, not the user's own settings. Gap: pair public and private fixtures with the correct reader surface; a hidden style is not access control, and authored data should never contain secrets just because a view hides them.
+
+Sources: [Apple HIG Privacy](https://developer.apple.com/design/human-interface-guidelines/privacy) · [Apple HIG Data entry](https://developer.apple.com/design/human-interface-guidelines/entering-data) · [GitHub profile visibility](https://docs.github.com/en/account-and-profile/concepts/personal-profile)

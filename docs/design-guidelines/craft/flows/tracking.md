@@ -1,0 +1,11 @@
+# Tracking: distinguish observation from prediction
+
+- **Identification:** Show what is being tracked and its current phase at the top. Keep the service label, ID and last update stable, with a direct next action. A delayed shipment, gate change or pickup exception should be visible before the map.
+- **Active:** Put the ETA/window in prominent text with uncertainty if it matters; list completed, current and upcoming milestones in `Timeline` order. Keep an optional map secondary to the status, text directions and necessary identifying details. Update visible values at useful precision. Animate actual position or a selected route once if helpful; don't continuously pan the camera, pulse a stale marker or announce every tick.
+- **Degraded and complete:** Handle not found, no update yet, offline/stale, delayed, moved/rerouted, delivered/completed and failed/returned. Keep a timestamp or age, the last verified position where appropriate, and a next action. For completion, retain the final proof or reference and any dispute/report path; stop live polling or effects when the session ends.
+
+Uber's Live Activity case prioritizes pickup/destination time, then vehicle/license as pickup approaches. Flighty builds on signage conventions and simplifies display when connectivity is expected to drop. Native system activities, where supported and authorized, are secondary, privacy-conscious summaries that link to details; on web keep a useful list and timestamp without map or push capability. Ordinary progress (4 of 6 stops) is fine when the count is meaningful; an unobservable network waypoint is not a percentage.
+
+**For lmthing:** `order_track` already gives preparing → in transit → delivered; combine `commerce`'s `OrderStatus`, `Timeline`, `Route`/`MapPins`, `dispatch`'s `DriverStatus`/`StopHandoff`, or `trips`' `FlightStatus`/`BagTracker` as applicable. `route_draw` is a presentation cue, not a feed. Gap: standardize freshness and ETA uncertainty in read/preview examples; keep lock-screen/widgets host-owned and don't imply every host supports them.
+
+Sources: [Apple HIG Live Activities](https://developer.apple.com/design/human-interface-guidelines/live-activities) · [Uber pickup Live Activity](https://www.uber.com/us/en/blog/live-activity-on-ios/) · [Flighty](https://developer.apple.com/news/?id=970ncww4)
