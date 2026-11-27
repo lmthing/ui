@@ -133,12 +133,19 @@ function reviewRequest(name: "approval.accept" | "approval.reject") {
   return {
     kind: "command",
     name,
+    ...(name === "approval.reject" && { confirmation: reviewConfirmation }),
     input: ({ props }: { props: Readonly<Record<string, unknown>> }) => {
       const review = props.review as z.output<typeof reviewSheet>;
       const reason = typeof props.draftReason === "string" ? props.draftReason.trim() : "";
       return { reference: review.reference, ...(reason && { reason }) };
     },
   } as const;
+}
+
+function reviewConfirmation({ input }: { input: Readonly<Record<string, unknown>> }, lang?: string) {
+  if (typeof input.reference !== "string") return;
+  const { review } = teamWordsFor(lang).approval;
+  return { message: review.confirmDecline(input.reference), label: review.declineRequest };
 }
 
 function readApproval(input: z.output<typeof props>, lang?: string) {
@@ -380,11 +387,12 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
-  const { words, lang } = kit.useWords(teamWordsFor);
+  const { words } = kit.useWords(teamWordsFor);
   const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const surface = "card";
   if (input.review && state === "filled") return <DecisionReview {...input} review={input.review} />;
+  if (state === "success") return <ReviewOutcome requests={input.requests} />;
   return (
     <kit.KitCard
       part="root"
@@ -394,15 +402,9 @@ export function Approval(input: ApprovalProps) {
     >
       <kit.KitState
         part="message"
-        icon={state === "success" ? "check" : "clipboard_list"}
+        icon="clipboard_list"
         message={
-          state === "success"
-            ? approvalOutcome(input.requests, lang)
-            : thing
-              ? undefined
-              : input.style === "my_requests"
-                ? words.approval.empty
-                : words.approval.queueEmpty
+          thing ? undefined : input.style === "my_requests" ? words.approval.empty : words.approval.queueEmpty
         }
         density={density}
       >
@@ -416,9 +418,29 @@ export function Approval(input: ApprovalProps) {
   );
 }
 
+function ReviewOutcome({ requests }: Pick<ApprovalProps, "requests">) {
+  const { lang } = kit.useWords(teamWordsFor);
+  const settled = requests.find(({ status }) => !approvalOpen(status))?.status;
+  return (
+    <kit.KitCard style="inset" part="root" surface="card">
+      <kit.KitEmpty
+        part="message"
+        title={approvalOutcome(requests, lang)}
+        icon={settled === "approved" ? "check" : settled === "declined" ? "close" : "info"}
+        tone={settled === "approved" ? "good" : "neutral"}
+        announce="status"
+        prominence="body"
+        decorativeIcon
+      />
+    </kit.KitCard>
+  );
+}
+
 type DecisionProps = ApprovalProps & { review: z.output<typeof reviewSheet> };
-function DecisionReview({ review, requests }: DecisionProps) {
+function DecisionReview(input: DecisionProps) {
   const { lang, words } = kit.useWords(teamWordsFor);
+  const { review, requests } = input;
+  const canDecline = kit.useLiveControls(meta, input).hasReason === true;
   const row = requests[0]!;
   const [operation] = kit.useHostOperations();
   const decision =
@@ -460,7 +482,7 @@ function DecisionReview({ review, requests }: DecisionProps) {
         amount={approvalAmount(review.total, lang)!}
         part="total"
       />
-      <DecisionControls decision={decision} operation={operation} recordedReason={review.reason} />
+      <DecisionControls {...{ decision, operation, canDecline }} recordedReason={review.reason} />
     </kit.KitCard>
   );
 }
@@ -540,14 +562,14 @@ function DecisionControls({
   decision,
   operation,
   recordedReason,
+  canDecline,
 }: {
   decision: ApprovalProps["requests"][number]["status"];
   operation: c.HostOperation | undefined;
   recordedReason: string | undefined;
+  canDecline: boolean;
 }) {
   const { words } = kit.useWords(teamWordsFor);
-  const { controller } = kit.useKit();
-  const { screen, component } = kit.usePartContext();
   const copy = words.approval;
   const phase = operation?.status;
   const hostReason = operation?.records?.[0]?.reason;
@@ -583,11 +605,7 @@ function DecisionControls({
           kind="quiet"
           contentParts={{}}
           full
-          disabled={
-            controller
-              ?.actionsAt(`${screen}/${component}/reject`, { ignoreDisabledPart: true })
-              .includes("press") !== true
-          }
+          disabled={!canDecline || phase === "pending"}
         />
       </kit.KitGrid>
     </>

@@ -7,10 +7,12 @@ import {
   KitAction,
   KitCard,
   KitFieldControl,
+  KitGrid,
   KitMicCapture,
   KitSlider,
   KitText,
 } from "../kit";
+import { useRef } from "react";
 import {
   wordsFor,
   attachmentKey,
@@ -301,6 +303,7 @@ function AttachmentField() {
   const { screen, component } = usePartContext();
   const { controller, interactive } = useKit();
   const { fieldAttachment: copy } = useWords().words;
+  const picker = useRef<{ focus(): void }>(null);
   const state = useControlValue<AttachmentStatus | undefined>(
     `${screen}/${component}/${attachmentKey("attach")}`,
     undefined,
@@ -309,35 +312,36 @@ function AttachmentField() {
     !interactive || controller?.actionsAt(`${screen}/${component}/attach`).includes("press") === true;
   return (
     <>
-      {state && (
-        <KitText
-          part="attachment_status"
-          announce="status"
-          role="caption"
-          tone={state.phase === "error" ? "bad" : "text"}
-        >
-          {state.phase === "error" && state.present ? `${copy.error} ${copy.ready}` : copy[state.phase]}
-        </KitText>
-      )}
-      <KitAction
-        part="attach"
-        action="press"
-        kind="secondary"
-        align="start"
-        label={state?.present ? copy.replace : copy.pick}
-        disabled={!available}
-        contentParts={{ label: "attach_label" }}
-      />
-      {state?.present && (
+      <KitGrid fitLast>
         <KitAction
-          part="remove_attachment"
+          part="attach"
           action="press"
-          kind="quiet"
+          kind="secondary"
           align="start"
-          label={copy.remove}
-          contentParts={{ label: "remove_attachment_label" }}
+          label={state?.present ? copy.replace : copy.pick}
+          disabled={!available}
+          focusRef={picker}
+          contentParts={{ label: "attach_label" }}
         />
-      )}
+        {state?.present && (
+          <KitAction
+            part="remove_attachment"
+            action="press"
+            kind="quiet"
+            label={copy.remove}
+            onAccepted={() => picker.current?.focus()}
+            contentParts={{ label: "remove_attachment_label" }}
+          />
+        )}
+      </KitGrid>
+      <KitText
+        part={state ? "attachment_status" : null}
+        announce="status"
+        role="caption"
+        tone={state?.phase === "error" ? "bad" : "text"}
+      >
+        {state ? copy[state.phase] : "\u00a0"}
+      </KitText>
     </>
   );
 }

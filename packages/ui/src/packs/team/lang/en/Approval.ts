@@ -16,6 +16,8 @@ export const words = {
     success: "Decision recorded",
     detailSeparator: " · ",
     review: {
+      confirmDecline: (reference: string) => `Decline request ${reference}?`,
+      declineRequest: "Decline request",
       reason: "Reason (required to decline)",
       pending: "Recording decision…",
       failed: "Decision not recorded. Try again.",

@@ -25,7 +25,15 @@ export type HostOperation = Readonly<{
 }>;
 type Input = { props: Readonly<Values>; row: Readonly<Values> | undefined };
 type Binding =
-  | { kind: "command"; name: string; input?: (input: Input) => HostFields | undefined }
+  | {
+      kind: "command";
+      name: string;
+      input?: (input: Input) => HostFields | undefined;
+      confirmation?: (
+        request: CommandRequest,
+        lang?: string,
+      ) => { message: string; label: string } | undefined;
+    }
   | { kind: "external"; uri: (input: Input) => string | undefined }
   | { kind: "cancel" };
 type Bindings = Readonly<Partial<Record<`${string}.${ActionName}`, Binding>>>;

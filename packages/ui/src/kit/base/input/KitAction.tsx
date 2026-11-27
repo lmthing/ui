@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useState } from "react";
+import { useId, useImperativeHandle, useLayoutEffect, useState, type Ref } from "react";
 import { XStack, YStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
   accentGlow,
@@ -88,6 +88,10 @@ type ActionProps = {
   hostCopy?: boolean;
   /** Tap still activates this part; a continuous press temporarily pauses the addressed sequence. */
   holdToPause?: HoldToPause;
+  /** Return focus to this action when a sibling disappears. */
+  focusRef?: Ref<{ focus(): void }>;
+  /** View feedback after the local controller accepts this press. */
+  onAccepted?: () => void;
 };
 
 function useActionAvailability(
@@ -118,7 +122,12 @@ function useActionAvailability(
 }
 
 function useActionPress(
-  props: { action: ActionProps["action"]; value: ActionProps["value"]; goto: ActionProps["goto"] },
+  props: {
+    action: ActionProps["action"];
+    value: ActionProps["value"];
+    goto: ActionProps["goto"];
+    onAccepted?: () => void;
+  },
   address: string,
   inactive: boolean,
   reveal: boolean,
@@ -152,8 +161,22 @@ function useActionBehavior({
   disabled = false,
   hostCopy = false,
   holdToPause,
+  onAccepted,
+  focusRef,
 }: ActionProps) {
+  const { nativeHost } = useKit();
   const address = usePart(part ?? undefined, part !== null);
+  useImperativeHandle(
+    focusRef,
+    () => ({
+      focus() {
+        const element = address.ref.current;
+        if (isWeb) (element as { focus?(): void } | null)?.focus?.();
+        else if (element) nativeHost?.focusAccessibility?.(element);
+      },
+    }),
+    [address.ref, nativeHost],
+  );
   const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
   const copy = action === "copy";
   const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
@@ -164,7 +187,12 @@ function useActionBehavior({
     loading || disabled,
   );
   const inactive = part === null || unavailable || feedback.missing;
-  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
+  const handlers = useActionPress(
+    { action, value, goto, ...(onAccepted ? { onAccepted } : {}) },
+    address.testID,
+    inactive,
+    reveal,
+  );
   const blocked = usePartDisabled(holdToPause ? address.testID : undefined);
   const hold = useSequenceHold(
     holdToPause,

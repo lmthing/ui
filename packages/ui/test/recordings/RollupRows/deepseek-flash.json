@@ -436,7 +436,7 @@
     "reply": "{\"c\":\"RollupRows\",\"detail\":\"brief\",\"period\":\"November 2026\",\"metric\":\"Water used\",\"unit\":\"L\",\"total\":58,\"rows\":[{\"label\":\"Glasshouse\",\"value\":36,\"breakdown\":\"24 L benches · 12 L hanging pots\",\"goto\":null},{\"label\":\"Propagation room\",\"value\":22,\"breakdown\":null,\"goto\":null}]}",
     "replies": [
       "{\"c\":\"RollupRows\",\"detail\":\"brief\",\"period\":\"November 2026\",\"metric\":\"Water used\",\"unit\":\"L\",\"total\":58,\"rows\":[{\"label\":\"Glasshouse\",\"value\":36,\"breakdown\":\"24 L benches · 12 L hanging pots\",\"goto\":null},{\"label\":\"Propagation room\",\"value\":22,\"breakdown\":null,\"goto\":null}]}",
-      "{\"c\":\"RollupRows\",\"detail\":\"brief\",\"period\":\"November 2026\",\"metric\":\"Water used\",\"unit\":\"L\",\"total\":null,\"rows\":[{\"label\":\"Glasshouse\",\"value\":36,\"breakdown\":\"24 L benches · 12 L hanging pots\",\"goto\":null},{\"label\":\"Propagation room\",\"value\":22,\"breakdown\":null,\"goto\":null}]}",
+      "{\"c\":\"RollupRows\",\"detail\":\"brief\",\"period\":\"November 2026\",\"metric\":\"Water used\",\"unit\":\"L\",\"total\":58,\"rows\":[{\"label\":\"Glasshouse\",\"value\":36,\"breakdown\":\"24 L benches · 12 L hanging pots\",\"goto\":null},{\"label\":\"Propagation room\",\"value\":22,\"breakdown\":null,\"goto\":null}]}",
       "{\"c\":\"RollupRows\",\"detail\":\"brief\",\"period\":\"November 2026\",\"metric\":\"Water used\",\"unit\":\"L\",\"total\":58,\"rows\":[{\"label\":\"Glasshouse\",\"value\":36,\"breakdown\":\"24 L benches · 12 L hanging pots\",\"goto\":null},{\"label\":\"Propagation room\",\"value\":22,\"breakdown\":null,\"goto\":null}]}"
     ]
   },

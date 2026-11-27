@@ -67,7 +67,12 @@ export function Screen({
           <KitOverlay label={confirmation.message} onDismiss={dismiss}>
             <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
               <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
-                <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
+                <KitAction
+                  label={confirmation.label ?? confirmLabel}
+                  kind={confirmation.kind}
+                  part="confirm"
+                  full
+                />
                 <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
               </KitSheet>
             </PartScope>

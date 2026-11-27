@@ -1549,7 +1549,7 @@
     "replies": [
       "{\"c\":\"Checklist\",\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
       "{\"c\":\"Checklist\",\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}",
-      "{\"c\":\"Checklist\",\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}"
+      "{\"c\":\"Checklist\",\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}"
     ]
   },
   "Checklist%2Fwrite%2FGive%20me%20checkboxes%20for%20Water%20the%20fern%20and%20Mist%20the%20monstera.%20Show%20the%20task%20names%20only%2C%20without%20their%20room%20notes%20Bathroom%20and%20Living%20room./9c6b146d1b2fbe6e/87e792a2e2267fd0": {
@@ -2214,8 +2214,8 @@
     "reply": "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
     "replies": [
       "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
-      "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Already done\"},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
-      "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}"
+      "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
+      "{\"c\":\"Checklist\",\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}"
     ]
   },
   "Checklist%2Fwrite%2FThree%20plant%20jobs%20for%20today%3A%20water%20the%20fern%2C%20mist%20the%20monstera%20(already%20done)%2C%20turn%20the%20basil/b9f38d0d690f0234/1b559b3d27a4e9a3": {

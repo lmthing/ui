@@ -131,7 +131,7 @@ export const probes = [
   ),
   choose("Make an urgent warning stand out at the top because today's dog walk has been cancelled", "Banner"),
   choose(
-    "After I submit a request on this phone, show a one-time confirmation of my own submission. It is still waiting for a decision; name the next owner and step, without tracking a transfer to another role or their acknowledgement.",
+    "As soon as I tap Submit, replace the form with the standalone outcome ‘Request received, awaiting a decision.’ Name Review desk as the next owner and show that I should wait for a date. This is the result of my own local form submission.",
   ),
   write(
     "I just booked a walk for Clover tomorrow at 09:00. Show that the booking worked, with a check symbol and the dog and time underneath.",

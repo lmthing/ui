@@ -158,8 +158,11 @@ export const probes = [
     variant: { axis: "arrange", value: "grid" },
   },
   {
-    ...write("Hide the dog walk's entry code until revealed. Use the fake code DEMO-042."),
+    ...write(
+      "Show one row labelled Walk entry code, with the synthetic example value DEMO-042. Start with that value masked until I tap to reveal it.",
+    ),
     expectProps: { masked: true },
+    fields: { "pairs.0.label": "Walk entry code", "pairs.0.value": "DEMO-042" },
   },
   {
     ...write("Show Order status: Ready for pickup as the primary status, then Order number: LC-104."),

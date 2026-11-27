@@ -138,7 +138,10 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Review the spider mite inspection", { address: "w1/r1/action", action: "press" }),
+  read("Press the Review inspection button for the spider mite inspection", {
+    address: "w1/r1/action",
+    action: "press",
+  }),
 ] satisfies c.Probe[];
 
 type QueueProps = c.Props<typeof props, typeof meta>;

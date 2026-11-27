@@ -136,29 +136,41 @@ const onSend = (text: string, address: string) => event("gallery-send", { text, 
 const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
-const previewWait = () => new Promise<void>((resolve) => setTimeout(resolve, 1600));
+function previewWait(signal: AbortSignal, manual: boolean) {
+  if (!manual) return new Promise<void>((resolve) => setTimeout(resolve, 1600));
+  return new Promise<void>((resolve) => {
+    const finish = () => {
+      signal.removeEventListener("abort", finish);
+      globalThis.removeEventListener("gallery-settle-demo", finish);
+      resolve();
+    };
+    if (signal.aborted) return finish();
+    signal.addEventListener("abort", finish, { once: true });
+    globalThis.addEventListener("gallery-settle-demo", finish, { once: true });
+  });
+}
 
-function useDemoAttachments(): AttachmentHost {
+function useDemoAttachments(manual: boolean): AttachmentHost {
   const attempts = useRef(0);
   return {
     canRun: () => true,
     async run({ signal }) {
-      attempts.current++;
-      await previewWait();
-      return signal.aborted || attempts.current === 1
+      const attempt = ++attempts.current;
+      await previewWait(signal, manual);
+      return signal.aborted || attempt === 1
         ? { status: "rejected" }
         : { status: "accepted", reference: "demo_walk_notes" };
     },
   };
 }
 
-function useDemoDecision(): HostCommandAdapter {
+function useDemoDecision(manual: boolean): HostCommandAdapter {
   const attempts = useRef(0);
   const handler: NonNullable<HostCommandAdapter["commands"]>[string] = {
     allows: () => true,
     async run({ input }, { signal }) {
       const attempt = ++attempts.current;
-      await previewWait();
+      await previewWait(signal, manual);
       return signal.aborted || attempt === 1
         ? { status: "rejected" }
         : { status: "accepted", records: typeof input.reason === "string" ? [{ reason: input.reason }] : [] };
@@ -169,8 +181,9 @@ function useDemoDecision(): HostCommandAdapter {
 
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
   const [activeTab, setActiveTab] = useState(0);
-  const attachments = useDemoAttachments();
-  const decisionHost = useDemoDecision();
+  const manual = query.has("manual-settle");
+  const attachments = useDemoAttachments(manual);
+  const decisionHost = useDemoDecision(manual);
   const fixture = screens[kind] ?? screens.form!;
   const screen =
     kind === "navigation"

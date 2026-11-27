@@ -85,7 +85,7 @@ const { choose, write, read } = probesFor("Empty");
 export const probes = [
   choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
   choose(
-    "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+    "Make ‘2 plants need water today’ the single big headline of my plant dashboard, with 2 in large type. This is a count of plants, not money, several statistics or a no-results message.",
     "Hero",
   ),
   choose(

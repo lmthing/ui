@@ -191,7 +191,7 @@ function ChecklistRow({ item }: { item: ChecklistProps["items"][number] }) {
       mark={item.mark}
       inset="none"
       density={density}
-      leading={<KitCheck done={item.done} part="check" label={item.text} />}
+      leading={<KitCheck done={item.done} part="check" label={item.text} instantMark />}
     >
       <KitLayoutText
         line={{ text: item.text, part: "text", tone: item.done ? "muted" : "text" }}

@@ -1,4 +1,4 @@
-import { DrawnCheck, useSignatureProgress } from "../../motion";
+import { DrawnCheck, useChangeReveal, useSignatureProgress } from "../../motion";
 import { variants } from "../../../catalog";
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
@@ -61,19 +61,27 @@ export function KitCheck({
   label,
   disabled = false,
   readonly = false,
+  instantMark = false,
 }: {
   done: boolean;
   part?: string;
   label?: string;
   disabled?: boolean;
   readonly?: boolean;
+  /** Show the mark in the same frame as the checked state; only pulse its surround. */
+  instantMark?: boolean;
 }) {
   const kit = useKit();
   const loading = useComponentState() === "loading";
   const address = usePart(part, !loading);
-  const progress = useSignatureProgress("check_burst");
+  const signature = useSignatureProgress("check_burst");
   const value = useControlValue(address.testID, done);
   const checked = readonly ? done : value;
+  const pulse = useChangeReveal(
+    instantMark && checked && !readonly && !loading ? "checked" : undefined,
+    false,
+  );
+  const progress = signature < 1 ? signature : pulse;
   if (loading)
     return (
       <Hit aria-hidden>
@@ -99,7 +107,7 @@ export function KitCheck({
           checked && !readonly ? 1 + variants.motion[kit.motion].pulseScale * Math.sin(progress * Math.PI) : 1
         }
       >
-        <DrawnCheck size={size.icon.sm} tone="onAccent" active={checked} />
+        <DrawnCheck size={size.icon.sm} tone="onAccent" active={checked} immediate={instantMark} />
       </Box>
     </Hit>
   );

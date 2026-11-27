@@ -40,6 +40,10 @@ it("binds a decline and its reason to one confirmation and withholds a second de
       true,
     );
     expect(controller.press("a1/reject").ok).toBe(true);
+    expect(controller.confirmation).toMatchObject({
+      message: "Decline request GH-142?",
+      label: "Decline request",
+    });
     expect(run).not.toHaveBeenCalled();
     expect(controller.press("confirm/confirm").ok).toBe(true);
     await vi.waitFor(() => expect(controller.read()).toContain("approval.reject accepted"));

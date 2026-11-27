@@ -20,7 +20,17 @@ export function useAuthenticatedReveal(part: string) {
 
 /** KitAction press dispatch, including equivalent web keyboard activation for reveal controls. */
 export function useActionPress(
-  { action, value, goto }: { action?: string | undefined; value?: unknown; goto?: string | undefined },
+  {
+    action,
+    value,
+    goto,
+    onAccepted,
+  }: {
+    action?: string | undefined;
+    value?: unknown;
+    goto?: string | undefined;
+    onAccepted?: (() => void) | undefined;
+  },
   address: string,
   inactive: boolean,
   reveal: boolean,
@@ -28,10 +38,13 @@ export function useActionPress(
   const { interactive, controller, onLink } = useKit();
   if (!interactive || inactive) return {};
   if (!controller) return goto && action !== "copy" ? { onPress: () => onLink?.(goto, address) } : {};
-  const onPress = () =>
-    action
+  const onPress = () => {
+    const result = action
       ? controller.act({ address, action, ...(value === undefined || action === "copy" ? {} : { value }) })
       : controller.press(address);
+    if (result?.ok) onAccepted?.();
+    return result;
+  };
   if (!isWeb || (!reveal && !controller.mediaKeyTarget?.(address))) return { onPress };
   return {
     onPress,
