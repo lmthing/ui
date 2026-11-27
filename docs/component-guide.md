@@ -4,6 +4,10 @@ How to build one component of `@lmthing/ui`. `src/components/List.tsx` and `List
 reference: copy their shape exactly. The plan (`implementation-plan.md` 4.2, 4.4, 4.13, 5.4 to 5.6)
 says what each component is; this guide says how its file is written.
 
+The [design guidelines](design-guidelines/README.md) define design behavior for components and
+compositions. On design questions they take precedence. Use the family guidance before building
+and the [design review rubric](design-guidelines/rubric.md) for stills and motion.
+
 ## What one component is
 
 A definition, a prompt, a test, and English words if the component owns any:
@@ -187,9 +191,9 @@ Choose only axes and values that visibly change this component. These are candid
 4. Add one variant-specific write probe for the most distinctive non-finish axis. Ask for the visible
    result in the person's words and assert the requested axis value. Retain existing behavior probes.
    Use realistic examples with content that makes every declared value observable.
-5. Run `pnpm look --component <Id>` and review `variants.png` alongside the normal screens. Check
-   addresses with render conformance and judge every alternative against the
-   [visual rubric](visual-rubric.md#variants-sheet).
+5. Run `pnpm look --component <Id> --widths 390 --preset calm --mode light --all` for
+   `variants.png` alongside the normal screens. Check addresses with render conformance and judge
+   each alternative against the [design review rubric](design-guidelines/rubric.md#static).
 
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
@@ -270,16 +274,10 @@ figures map to that scale; use a kit role rather than sizing text in a view. Use
 empty, loading, error and success. It takes the same layout in both filled and loading states:
 describe the slots once, then let the recipe draw text or inert placeholders. Use an inline status
 for operations that leave useful content on screen. Keep existing parts, reading and actions.
-Only override a state treatment when the catalog doc calls for it, and do not invent a retry
-action. Test the kit geometry separately from host fixture data such as photos.
-
-For pack acceptance, count action labels in each item's three text sizes. Keep the gap inside a
-label/value pair smaller than the gap to the next group, align comparable figures at the end of
-their column, and keep a heading close to the first item it introduces. Give negative actions a
-neutral or danger finish instead of the positive accent. Keep `KitState`'s empty layout and supply
-specific empty copy only when the brief calls for it. Fix shared slot geometry in its owning base
-rather than adding per-component offsets. Inline links keep their reading order and reserve a touch
-slot that does not cover neighboring text or targets.
+Use a scoped message when the user needs to distinguish empty, filtered, restricted or stale.
+Keep the shared layout; do not invent a retry action. Test kit geometry separately from host
+fixture data such as photos. Fix shared slot geometry in its owning base, not per-component offsets.
+Inline links keep their reading order and reserve a touch slot that does not cover neighboring targets.
 
 | Recipe | Slots |
 | --- | --- |
@@ -562,22 +560,20 @@ All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pn
 the text a model reads matches the screen and that every offered action exists with the right role;
 a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`); `$first: true` matches only the first item. A component that draws only its first item (a card stack) sets `items.visible: "first"`: the reader reads it and adds "+N more", and conformance expects only `r1` on screen.
 
-Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
-`ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
-repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
-screenshots once, approves and merges.
+Then the look must pass the [visual rubric](visual-rubric.md). Inspect the 390-wide calm light
+PNGs, then get the `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review them with
+fresh eyes. Fix and repeat until it answers `APPROVED` (at most 3 rounds).
 
-For pack acceptance, start with `pnpm look --component <Id> --widths 390 --preset calm --mode light`.
-Use the part names in `issues.json` to find the source. Use tight spacing inside a label/value
-pair and more space before the next group; put the first row close to its heading. Use at most
-three text sizes per item, and use end alignment for numeric columns even with tabular digits.
-Use a danger or neutral treatment for negative actions rather than the primary accent. Check
-that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
-region is not clipped text. When the component brief requires a specific empty message, pass it
-from the language copy to `KitEmpty` instead of letting it show the shared neutral line.
+Every component documents [enter, change, feedback, exit and reduced motion](design-guidelines/motion.md#signatures-and-contract),
+including a deliberate cut or no motion where appropriate. Use kit tokens, not Writer props or
+per-view timing. Give the `design-expert` the baseline stills and actual motion contact sheets to
+review against the [design rubric](design-guidelines/rubric.md). A still PNG or agent-mode frame
+does not establish timing or reduced-motion behavior. The orchestrating agent reviews the final evidence
+before approving and merging.
 
-Document this requirement on the component's `States:` line as `empty (reason)` in its catalog
-brief. The acceptance reviews also call for specific copy in these existing cases:
+When the component brief calls for a specific empty message, pass it from the language copy to
+`KitEmpty`. Record the requirement on the `States:` line as `empty (reason)` in the catalog brief.
+Existing cases:
 
 - `Approval`: empty (no requests waiting for a decision).
 - `TravelDocs`: empty (no travel documents).

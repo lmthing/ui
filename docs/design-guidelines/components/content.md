@@ -1,0 +1,7 @@
+# Content and collections
+
+- **Anatomy:** Give `List`, `FileList`, `Card`, `Profile`, `People`, `Review` and `HandoffReceipt` a recognizable object first, then state, secondary facts and optional action. `KeyValue` keeps labels with values; `Hero`, `Article`, `Photo`, `Gallery` and `Player` earn their space through content. `Bubbles` names speaker/order; `Banner`, `Note` and `Empty` explain what matters now.
+- **States:** Show filled with realistic long names, loading with the same rails, scoped empty and actual error or unavailable media where relevant. Unread, selected and read-only rows remain distinguishable without accent. Preserve one-line status only when it fits; wrap supporting facts.
+- **Variants:** Use `arrange`, `group`, `overflow`, `lead`, `trail`, `aspect`, `media` and `detail` only where declared. A scanning queue uses rows and status; a theater may use a tall shelf plus poster captions. Compare equal content and verify hidden parts are no longer offered. Keep identity and material facts in brief views.
+- **Motion:** Lead with readable content. Reveal only the changed row/detail or relevant media cue; keep the list header and scroll anchored. Removal is visual-only after logical removal; reduced motion cuts. Playback is user-controlled content, not chrome decoration.
+- **Do / don't:** Pair a thumbnail with a title fallback. Show a chevron only on a row that opens a destination. Never tile every fact in a separate card or put generic imagery ahead of a work queue.
