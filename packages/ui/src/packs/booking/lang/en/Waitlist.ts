@@ -5,6 +5,7 @@ export const words = {
     `${count} ${form === "one" ? "person" : "people"} ahead`,
   queueCompact: (count: string) => `${count} ahead`,
   queuePosition: (label: string, position: string) => `${label}: ${position}`,
+  queueRespondBy: (deadline: string) => `Respond by ${deadline}`,
   quadrillion: (count: string) => `${count}Q`,
   queueLabels: {
     waiting: "Waitlist",
@@ -12,5 +13,7 @@ export const words = {
     position: "Your place in line",
     join: "Join waitlist",
     leave: "Leave waitlist",
+    available: "A spot is available",
+    review: "Review spot",
   },
 };

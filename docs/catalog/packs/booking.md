@@ -91,8 +91,10 @@ cancellation policy.
 ### `Waitlist` · planned · action · people
 A full session's join-the-waitlist panel: the place in line, how many are ahead, and join or leave.
 - Pick: a session is full and the person can wait for a place. Not how full it is (`Progress`).
-- Writes: `position` number optional, `ahead` number, `joined` boolean.
-- Parts → actions: `join press`, `leave press` (in `confirmParts`). · States: filled, success.
+- Writes: `position` number optional, `ahead` number, `joined` boolean. For an offered spot, `joined`
+  must be true and `respondBy` text(36) and `goto` are both required; otherwise omit both. An offer is not a reservation.
+- Parts → actions: `join press`, `leave press` (in `confirmParts`), or `review press` (phone-tier link
+  to the booking review, replacing the queue actions while an offer is shown). · States: filled, success (read-only).
 - Real path: a queue in a shared app; the next person is told when a place opens (notifications, `ok`).
 
 ### `ClassRoster` · planned · action · people
