@@ -49,6 +49,8 @@ describe("Stats schema", () => {
     { tiles: [{ ...tile, pixels: 4 }, tile] },
     { tiles: [{ ...tile, id: "r1" }, tile] },
     { tiles: [{ ...tile, goto: "details" }, tile] },
+    { tiles, period: " " },
+    { tiles, period: "a".repeat(37) },
     { style: "grid", tiles },
     { color: "red", tiles },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
@@ -137,7 +139,7 @@ it("drops unavailable tiles in R2 without substituting a metric, even with usabl
     const { id: _id, c: _c, ...input } = repaired.component!;
     const html = renderInstance("Stats", input, "filled", theme);
     expect(html).not.toMatch(/Item two|Pending|Late|Total|123456789/);
-    expect(html).toContain(kept.length ? ">0</span>" : "Nothing here yet");
+    expect(html).toContain(kept.length ? ">0</span>" : "No measurements available");
   }
 });
 
@@ -160,6 +162,43 @@ it("keeps formatted measurements and their saved host or positional addresses", 
   }
 });
 
+it.each(["grid", "rows"] as const)("keeps the shared period and exact measurements in %s", (arrange) => {
+  const input = {
+    arrange,
+    period: "April 2026",
+    tiles: [
+      { label: "Cash flow", value: "−125,400", unit: "EUR", trend: "down" },
+      { label: "Overdue returns", value: "0", trend: "flat" },
+    ],
+  };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderInstance("Stats", input, "filled", theme);
+  const read = readComponent(components.Stats, input, "s1");
+  expect(html).toContain('data-testid="home/c1/period"');
+  expect(html.indexOf("April 2026")).toBeLessThan(html.indexOf("−125,400"));
+  expect(html).toMatch(/>−125,400(?:<\/span>| <span)/);
+  for (const fact of ["EUR", "falling", "steady"]) expect(html.includes(`>${fact}</span>`)).toBe(true);
+  expect(read[0]).toContain('"April 2026"');
+  expect(read[0]).toContain("r1 falling");
+  expect(read[0]).toContain("r2 steady");
+  expect(read.slice(1).map((line) => line.trimStart())).toEqual([
+    'r1 "Cash flow" · "−125,400" · "EUR"',
+    'r2 "Overdue returns" · "0"',
+  ]);
+  for (const state of ["empty", "loading"] as const) {
+    const pending = renderInstance("Stats", input, state, theme);
+    expect(pending.includes('data-testid="home/c1/r1/value"')).toBe(false);
+    expect(pending.includes(">April 2026</span>")).toBe(true);
+    const pendingRead = readComponent(components.Stats, input, "s1", state).join("\n");
+    expect(pendingRead).not.toContain("−125,400");
+    if (state === "empty") {
+      expect(pending).toContain("No measurements available");
+      expect(pendingRead).toContain("No measurements available");
+      expect(pendingRead).toContain("April 2026");
+    }
+  }
+});
+
 describe("Stats fallback and metadata", () => {
   it("declares only drawn parts and no actions", () => {
     expect(meta).toMatchObject({
@@ -169,7 +208,7 @@ describe("Stats fallback and metadata", () => {
       weight: 2,
       tier: "phone",
       items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
-      parts: ["root"],
+      parts: ["root", "period", "label"],
       states: ["filled", "empty", "loading"],
     });
     for (const example of examples)
@@ -218,7 +257,7 @@ describe.each(["grid", "rows"] as const)("Stats rendering in %s", (arrange) => {
       expect(html).not.toMatch(/role="(?:link|button)"/);
       if (state === "loading")
         expect(html.match(/aria-busy="true"/g)).toHaveLength(arrange === "grid" ? count : 1);
-      if (state === "empty") expect(html).toContain("Nothing here yet");
+      if (state === "empty") expect(html).toContain("No measurements available");
       if (state !== "filled") continue;
       for (let index = 1; index <= count; index++) {
         for (const part of ["root", "label", "value"])
