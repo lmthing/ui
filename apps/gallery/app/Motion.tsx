@@ -196,7 +196,9 @@ type JourneyFrame = {
 const notesWithSheet: ScreenLike = {
   ...walkNotes,
   components: [
-    ...walkNotes.components,
+    ...walkNotes.components.map((entry) =>
+      entry.c === "Header" ? { ...entry, style: undefined, emphasis: "quiet" } : entry,
+    ),
     {
       id: "route_details",
       c: "Sheet",

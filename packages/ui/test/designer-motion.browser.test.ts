@@ -80,6 +80,7 @@ changed.each(["no-preference", "reduce"] as const)(
     await watchJourney();
     await step("Open walk notes");
     await part("walk_notes/header/sub").waitFor();
+    expect(await part("walk_notes/header/back").count()).toBe(0);
     await page.getByRole("button", { name: "Show route sheet", exact: true }).focus();
     await page.keyboard.press("Enter");
     await expect.poll(() => page.getByRole("dialog", { name: "Canal route details" }).count()).toBe(1);
