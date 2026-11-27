@@ -1,0 +1,25 @@
+# Uniqueness without free-form design
+
+The Director chooses a coherent set of closed options per app; the Writer emits content and valid component variants, not presentation values. Use [theme choices](../../packages/ui/src/catalog/themes/index.ts), [variant axes](../../packages/ui/src/catalog/props/variants/variant-axes.ts), [archetype recipes](../catalog/core.md#5-archetypes), [packs](../catalog/packs/README.md) and [eligible signatures](motion.md#signatures-and-contract).
+
+1. Write the recurring job, focal object and business-specific fact. “Help dispatch spot a late truck” implies ETA, loading dock and exception; “Help a theater patron choose a show” implies poster, curtain time and availability. Don't start with a palette.
+2. Pick the navigation and archetype composition that fit the loop. Keep a primary layout dominant. Use up to three relevant domain packs, only for capabilities the core doesn't express; do not swap packs for decoration.
+3. Select preset, accent and density to reinforce the job. The current sets are 12 presets and 12 accents, `light`/`dark`, `comfortable`/`compact`, `calm`/`lively`. Respect host preferences; theme motion does not override reduced motion. Repeat one visual motif (aligned receipts, framed posters, field tags) through existing content/roles. Keep semantic colors independent of accent.
+4. Pick shared axes each component supports: finish (`emphasis`, `aspect`), content (`detail`, `media`, `figures`, `labels`), collection (`arrange`, `group`, `overflow`, `lead`, `trail`) or item (`tone`, `mark`). An axis must make a meaningful difference in a matched example. Finish doesn't change part addresses; content/collection changes use `variantParts`. Never bury the required fact/action in a brief or media-heavy option.
+5. Choose an existing signature or none; trigger one earned moment in the ordinary loop. Keep action, transaction state and reduced fallback unchanged. Changing the palette without changing hierarchy or motion is not distinctness.
+
+| Example choice      | Theater discovery                                                                                                                                                                      | Bike repair dispatch                                                                                                                                           |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Working first view  | `browse` with a tall List shelf: title, curtain time and remaining seats. Ticketing archetype isn't required; the `events` pack can supply `Ticket`.                                   | `dashboard` / `list` with a compact exception queue and one overdue count; `requests` supplies `WorkOrder`, `places` supplies delivery context when relevant.  |
+| Theme and structure | `editorial` + `indigo`, comfortable; strong type and one tall image rhythm.                                                                                                            | `minimal` + `teal`, compact; clear dividers and right-aligned estimates, no art in the queue.                                                                  |
+| Motion and result   | Eligible `ring_fill` if a real progress component shows a goal; otherwise use no signature for booking and let review → receipt preserve the show. Lively may suit the browse preview. | `calm`; optional `route_draw` only if a real Route tracks a completed collection leg. An acknowledged repair assignment is a quiet receipt, not a celebration. |
+
+Review two 390-wide light screens with the same density/content load. Hide logos and desaturate; the focal object and layout should still identify each app. Recheck an equivalent success and failure in each. Verify the two moments are tied to different jobs, or deliberately no signature. Confirm normal navigation, destructive actions and status semantics remain familiar.
+
+## Spec-first proposals (not implemented)
+
+- `signature: record_arrive`: one accepted handoff shifts emphasis from source to receiving record. No spatial movement in reduced motion. Prove it with the same stable record in both roles and no cue on pending.
+- Collection `trail: status_value`: two ranked trailing lines for named status plus a distinct aligned value, with read/part rules. Compare against existing `badge` and `value` before adding; long labels must reflow.
+- `emphasis: editorial` only if comparative fixtures show `quiet`/`normal`/`hero` plus `aspect` and current presets cannot express an editorial hierarchy. Keep part addresses unchanged and reject if it's only a font tweak.
+
+Do not add wire choices in an expert lane before the app spec approves them. Start with paired fixtures that differ in at least layout and focal object, not with more enums.
