@@ -41,7 +41,7 @@ describe("Approval schema and boundaries", () => {
     };
     const parsed = props.parse({ requests: Array.from({ length: 5 }, () => request) });
     expect(parsed).toMatchObject({ lead: "avatar" });
-    expect(parsed.requests).toEqual(Array.from({ length: 5 }, () => ({ ...request, from })));
+    expect(parsed.requests).toEqual(Array.from({ length: 5 }, () => ({ ...request, from, open: true })));
     expect(stampItemIds(meta, parsed).requests).toMatchObject(
       ["r1", "r2", "r3", "r4", "r5"].map((id) => ({ id })),
     );
@@ -212,5 +212,42 @@ it("labels shift claims and leaves requester decisions read-only at their origin
   });
   expect(runtime.press("a1/r1/approve").ok).toBe(false);
   expect(runtime.press("a1/r1/decline").ok).toBe(false);
+  runtime.dispose();
+});
+
+it("shows settled requests without offering a second decision in a mixed manager queue", () => {
+  const input = {
+    requests: [
+      { ...row, kind: "expense", title: "Train fare", status: "approved" },
+      { ...row, kind: "expense", title: "Courier fee", status: "declined" },
+      { ...row, kind: "expense", title: "Spare keys", status: "pending" },
+      { ...row, kind: "expense", title: "Parking" },
+    ],
+  };
+  const parts = view(input);
+  const reading = readComponent(def, input, "a1").join("\n");
+  const screen = { id: "home", components: [{ ...input, id: "a1", c: "Approval" }] };
+  const onAction = vi.fn();
+  const runtime = createScreenController({ screen, defs: components, onAction });
+  for (const [id, status] of [
+    ["r1", words.statuses.approved],
+    ["r2", words.statuses.declined],
+  ]) {
+    expect(parts.get(`home/c1/${id}/status`)?.text).toEqual([status]);
+    expect(reading).toContain(`${id} Expense · ${status}`);
+    for (const action of ["approve", "decline"]) {
+      expect(parts.has(`home/c1/${id}/${action}`)).toBe(false);
+      expect(reading).not.toContain(`[a1/${id}/${action} press`);
+      expect(runtime.press(`a1/${id}/${action}`).ok).toBe(false);
+    }
+  }
+  expect(runtime.confirmation).toBeUndefined();
+  expect(onAction).not.toHaveBeenCalled();
+  for (const id of ["r3", "r4"]) {
+    expect(parts.has(`home/c1/${id}/approve`)).toBe(true);
+    expect(reading).toContain(`[a1/${id}/decline press`);
+  }
+  expect(runtime.press("a1/r4/approve").ok).toBe(true);
+  expect(onAction).toHaveBeenCalledOnce();
   runtime.dispose();
 });

@@ -15,6 +15,10 @@ export function approvalAmount(amount: number | undefined, lang?: string) {
   return amount === undefined ? undefined : compactMoneyLine(amount, undefined, lang);
 }
 
+export function approvalOpen(status: Request["status"]) {
+  return status === undefined || status === "pending";
+}
+
 export function approvalReading(
   { requests, style }: { requests: readonly Request[]; style?: string },
   lang?: string,
@@ -24,9 +28,9 @@ export function approvalReading(
   const rows = requests.map(({ kind, amount, status }, index) => {
     const heading = `r${numberLine(index + 1, lang)} ${kinds[kind]}`;
     const value = approvalAmount(amount, lang);
-    return [heading, value, own ? statuses[status ?? "pending"] : undefined]
+    return [heading, value, own || !approvalOpen(status) ? statuses[status ?? "pending"] : undefined]
       .filter((line) => line !== undefined)
       .join(detailSeparator);
   });
-  return own ? rows : [...rows, approve, decline];
+  return own || !requests.some(({ status }) => approvalOpen(status)) ? rows : [...rows, approve, decline];
 }

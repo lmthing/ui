@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { approvalAmount, approvalPortrait, approvalReading } from "../copy";
+import { approvalAmount, approvalOpen, approvalPortrait, approvalReading } from "../copy";
 import { teamWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Approval.generated";
 
@@ -34,7 +34,7 @@ export const meta = {
   states: ["filled", "empty", "success"],
   actions: {
     items: { approve: ["press"], decline: ["press"] },
-    when: { approve: { style: "queue" }, decline: { style: "queue" } },
+    when: { approve: { style: "queue", open: true }, decline: { style: "queue", open: true } },
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? approvalReading(input as z.output<typeof props>, lang) : [],
@@ -45,16 +45,18 @@ export const props = z.strictObject({
   style: z.enum(["queue", "my_requests"]).default("queue"),
   requests: z
     .array(
-      z.strictObject({
-        from: c.text(20),
-        photo: c.photo,
-        kind: z.enum(["time_off", "swap", "expense", "other", "shift_claim"]),
-        title: c.text(32),
-        dates: c.text(24).optional(),
-        amount: z.number().min(0).optional(),
-        note: c.text(100).optional(),
-        status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
-      }),
+      z
+        .strictObject({
+          from: c.text(20),
+          photo: c.photo,
+          kind: z.enum(["time_off", "swap", "expense", "other", "shift_claim"]),
+          title: c.text(32),
+          dates: c.text(24).optional(),
+          amount: z.number().min(0).optional(),
+          note: c.text(100).optional(),
+          status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
+        })
+        .transform((request) => ({ ...request, open: approvalOpen(request.status) })),
     )
     .min(1)
     .max(5),
@@ -123,6 +125,14 @@ export const examples = [
         status: "pending",
       },
       { from: "Anna", photo: "lib:people", kind: "time_off", title: "Monday off", status: "approved" },
+    ],
+  },
+  {
+    lead: "none",
+    requests: [
+      { from: "Rae", photo: "lib:people", kind: "expense", title: "Seed trays", status: "approved" },
+      { from: "Anna", photo: "lib:people", kind: "other", title: "New watering can", status: "declined" },
+      { from: "Lee", photo: "lib:people", kind: "expense", title: "Potting soil", status: "pending" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -205,7 +215,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           ]}
           density={density}
         />
-        {style === "my_requests" ? (
+        {style === "my_requests" || !row.open ? (
           <kit.KitLayoutText
             line={{
               part: "status",
