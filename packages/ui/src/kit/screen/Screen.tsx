@@ -8,16 +8,27 @@ import { DeviceDataContext, type ScreenController } from "../interact";
 import { RenderReportContext, useReport } from "../report";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
 import { filterVisibleContent } from "./visible-content";
+import type { ScreenReturnPoint } from "./screen-navigation";
 
 export type RendererMap = Record<string, (props: never) => React.ReactNode>;
 type ScreenProps = {
   controller: ScreenController;
   renderers: RendererMap;
+  /** @deprecated Initial content now paints without an entrance on every screen. */
+  navigationArrival?: boolean;
   initialBodyScroll?: number;
+  restoration?: ScreenReturnPoint | undefined;
   onBodyScroll?: (top: number) => void;
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
-export function Screen({ controller, renderers, onReport, initialBodyScroll, onBodyScroll }: ScreenProps) {
+export function Screen({
+  controller,
+  renderers,
+  onReport,
+  initialBodyScroll,
+  restoration,
+  onBodyScroll,
+}: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
@@ -42,6 +53,7 @@ export function Screen({ controller, renderers, onReport, initialBodyScroll, onB
         <ScreenContent
           key={visible.id}
           {...(initialBodyScroll !== undefined ? { initialBodyScroll } : {})}
+          restoration={restoration}
           {...(onBodyScroll ? { onBodyScroll } : {})}
           controller={controller}
           renderers={renderers}

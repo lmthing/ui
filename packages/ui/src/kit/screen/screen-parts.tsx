@@ -20,6 +20,7 @@ import {
   type ScreenLike,
 } from "../../catalog";
 import type { RendererMap } from "./Screen";
+import type { ScreenReturnPoint } from "./screen-navigation";
 import { ScreenBottomOutlet, ScreenBottomSlots, ScreenBottomSource } from "./pinned-bottom";
 
 type RenderProps = {
@@ -92,11 +93,13 @@ function ScreenRegion({
   name,
   scroll,
   initialScroll,
+  restoration,
   ...props
 }: RenderProps & {
   name: string;
   scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
   initialScroll?: number | undefined;
+  restoration?: ScreenReturnPoint | undefined;
 }) {
   const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
@@ -137,7 +140,7 @@ function ScreenRegion({
   );
   return (
     <ScreenBottomSource>
-      <ScreenBodyScroll {...scroll} stickyHeaderIndices={sticky} initialScroll={initialScroll}>
+      <ScreenBodyScroll {...scroll} stickyHeaderIndices={sticky} {...{ initialScroll, restoration }}>
         {present}
       </ScreenBodyScroll>
     </ScreenBottomSource>
@@ -146,14 +149,21 @@ function ScreenRegion({
 
 function ScreenBodyScroll({
   initialScroll,
+  restoration,
   ...props
-}: ComponentProps<typeof ScrollView> & { initialScroll?: number | undefined }) {
+}: ComponentProps<typeof ScrollView> & {
+  initialScroll?: number | undefined;
+  restoration?: ScreenReturnPoint | undefined;
+}) {
   const ref = useRef<{ scrollTo(options: { x: number; y: number; animated: boolean }): void }>(null);
   const initial = useRef(initialScroll);
   useLayoutEffect(() => {
     // React Native Web does not consume contentOffset.
     if (isWeb && initial.current) ref.current?.scrollTo({ x: 0, y: initial.current, animated: false });
   }, []);
+  useLayoutEffect(() => {
+    if (restoration) ref.current?.scrollTo({ x: 0, y: restoration.scrollTop, animated: false });
+  }, [restoration]);
   return (
     <ScrollView
       {...props}
@@ -192,6 +202,7 @@ const coveredProps = {
 export function ScreenContent({
   covered,
   initialBodyScroll,
+  restoration,
   onBodyScroll,
   ...props
 }: RenderProps & BodyOptions) {
@@ -207,7 +218,7 @@ export function ScreenContent({
     .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
   const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
-  const [compactTitle, setCompactTitle] = useState((initialBodyScroll ?? 0) >= motion.collapseTitleAt);
+  const { compactTitle, onScroll } = useCompactTitle(initialBodyScroll, restoration, onBodyScroll);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? coveredProps : {})}>
@@ -218,17 +229,13 @@ export function ScreenContent({
           {...props}
           name="body"
           initialScroll={initialBodyScroll}
+          restoration={restoration}
           scroll={{
             flex: 1,
             minHeight: 0,
             keyboardShouldPersistTaps: "handled",
             keyboardDismissMode: "on-drag",
-            onScroll: ({ nativeEvent }) => {
-              const y = nativeEvent.contentOffset.y;
-              onBodyScroll?.(y);
-              if (y >= motion.collapseTitleAt) setCompactTitle(true);
-              else if (y <= motion.expandTitleAt) setCompactTitle(false);
-            },
+            onScroll,
             contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
           }}
         />
@@ -246,9 +253,30 @@ export function ScreenContent({
     </ScreenBottomSlots>
   );
 }
+function useCompactTitle(
+  initial: number | undefined,
+  restoration: ScreenReturnPoint | undefined,
+  onBodyScroll: BodyOptions["onBodyScroll"],
+) {
+  const [compactTitle, setCompactTitle] = useState(
+    (restoration?.scrollTop ?? initial ?? 0) >= motion.collapseTitleAt,
+  );
+  useLayoutEffect(() => {
+    if (restoration) setCompactTitle(restoration.scrollTop >= motion.collapseTitleAt);
+  }, [restoration]);
+  const onScroll: NonNullable<ComponentProps<typeof ScrollView>["onScroll"]> = ({ nativeEvent }) => {
+    const top = nativeEvent.contentOffset.y;
+    onBodyScroll?.(top);
+    if (top >= motion.collapseTitleAt) setCompactTitle(true);
+    else if (top <= motion.expandTitleAt) setCompactTitle(false);
+  };
+  return { compactTitle, onScroll };
+}
+
 type BodyOptions = {
   covered: boolean;
   initialBodyScroll?: number;
+  restoration?: ScreenReturnPoint | undefined;
   onBodyScroll?: (top: number) => void;
 };
 export function ScreenSheet({ controller, renderers, screen }: RenderProps) {

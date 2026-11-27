@@ -15,15 +15,23 @@ import { animateNumber } from "../motion";
 import { announceMotionSettled } from "../part";
 import {
   captureTransition,
-  hasTransition,
+  readTransition,
   takeTransition,
   type NavigationIntent as Intent,
+  type ScreenReturnPoint,
   type ScreenTransition,
   type ScreenTransitionRequest,
 } from "./screen-navigation";
 type Pose = { x: number; opacity: number };
 type NativeFlight = { pose: Pose; ghost?: NativeTabShot };
-type Return = { from: string; address: string; scrollTop: number };
+type Return = ScreenReturnPoint & { from: string };
+type CaptureOptions = {
+  reduced: boolean;
+  agent: boolean;
+  scrollTop(): number;
+  captureNative(): NativeTabShot;
+};
+type NavigationOptions = CaptureOptions & { mode: ThemeMotion; transition: ScreenTransition | undefined };
 
 function matches(move: Intent | undefined, screen: string): move is Intent {
   return Boolean(
@@ -61,97 +69,85 @@ function captureIntent(
 /** The link tells us why the host changed screens; stage jumps and unrelated updates don't fly. */
 export function useNavigationMotion(
   screen: ScreenLike,
-  {
-    mode,
-    reduced,
-    agent,
-    scrollTop,
-    captureNative,
-    transition,
-  }: {
-    mode: ThemeMotion;
-    reduced: boolean;
-    agent: boolean;
-    scrollTop(): number;
-    captureNative(): NativeTabShot;
-    transition: ScreenTransition | undefined;
-  },
+  { mode, reduced, agent, scrollTop, captureNative, transition }: NavigationOptions,
 ) {
   const ref = useRef<TamaguiElement>(null);
-  const previous = useRef(screen.id);
   const intent = useRef<Intent | undefined>(undefined);
-  const arrivedByAgent = useRef<string | undefined>(undefined);
-  const origins = useRef(new Map<string, Return>());
-  const returned = useRef<Return | undefined>(undefined);
   const [native, setNative] = useState<NativeFlight | undefined>(undefined);
   const makeIntent = useCaptureIntent(screen, ref, { reduced, agent, scrollTop, captureNative });
-  const pending = intent.current;
-  const navigating = matches(pending, screen.id);
-  const cut = navigating && pending.agent;
-  const back = navigating && pending.kind === "back" ? origins.current.get(pending.from) : undefined;
-  const returnTo =
-    back?.from === screen.id ? back : previous.current === screen.id ? returned.current : undefined;
+  const play = (move: Intent) => playNavigation(ref.current, screen, move, mode, reduced, setNative);
+  const scripted = readTransition(transition, screen.id);
+  const startScripted = useScriptedFlight(transition, screen.id, `${mode}:${reduced}:${agent}`, agent, play);
+  const history = useNavigationHistory(screen.id, intent.current);
+  const returnTo = scripted ? scripted.restore : history.returnTo;
   useLayoutEffect(() => {
-    if (transition && hasTransition(transition, screen.id)) {
-      previous.current = screen.id;
+    if (scripted) {
       intent.current = undefined;
-      arrivedByAgent.current = undefined;
-      returned.current = undefined;
-      origins.current.clear();
-      return nextPaint(() => {
-        const scripted = takeTransition(transition, screen.id);
-        if (scripted && !agent && !scripted.agent)
-          return playNavigation(ref.current, screen, scripted, mode, reduced, setNative);
-      });
+      history.commit(undefined, scripted.restore);
+      return startScripted();
     }
-    if (previous.current === screen.id) return;
-    previous.current = screen.id;
+    if (!history.changed()) return;
     const move = intent.current;
     intent.current = undefined;
-    arrivedByAgent.current = cut ? screen.id : undefined;
-    returned.current = returnTo;
-    if (matches(move, screen.id)) {
-      if (move.kind === "push") {
-        const { from, address, scrollTop } = move;
-        origins.current.set(screen.id, { from, address, scrollTop });
-      }
-      if (move.kind === "back") origins.current.delete(move.from);
-    } else origins.current.clear();
+    history.commit(move);
     if (agent || !matches(move, screen.id) || move.agent) {
       if (!isWeb) setNative(undefined);
       return;
     }
-    return playNavigation(ref.current, screen, move, mode, reduced, setNative);
+    return play(move);
   }, [screen.id, mode, reduced, agent, transition]);
   return {
     ref,
     capture: (goto: string, address: string, byAgent: boolean) => {
       intent.current = makeIntent(goto, address, byAgent);
     },
-    prepare: ({ to, kind, address = "" }: ScreenTransitionRequest) =>
-      captureTransition(makeIntent(to, address, false, kind)),
+    prepare: ({ to, kind, address = "", restore }: ScreenTransitionRequest) =>
+      captureTransition({
+        ...makeIntent(to, address, false, kind),
+        ...(kind === "back" && restore ? { restore } : {}),
+      }),
     pose: agent ? undefined : native?.pose,
     nativeGhost: agent ? undefined : native?.ghost,
-    agentArrival: cut || arrivedByAgent.current === screen.id,
+    agentArrival: history.agentArrival,
     returnTo,
-    restoreFocus: Boolean(returnTo && !agent && !cut && !arrivedByAgent.current),
+    restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.agentArrival)),
+  };
+}
+
+function useNavigationHistory(id: string, pending: Intent | undefined) {
+  const previous = useRef(id);
+  const arrivedByAgent = useRef<string | undefined>(undefined);
+  const origins = useRef(new Map<string, Return>());
+  const returned = useRef<ScreenReturnPoint | undefined>(undefined);
+  const navigating = matches(pending, id);
+  const back = navigating && pending.kind === "back" ? origins.current.get(pending.from) : undefined;
+  const returnTo = back?.from === id ? back : previous.current === id ? returned.current : undefined;
+  return {
+    changed: () => previous.current !== id,
+    agentArrival: (navigating && pending.agent) || arrivedByAgent.current === id,
+    returnTo,
+    commit(move: Intent | undefined, restore?: ScreenReturnPoint) {
+      previous.current = id;
+      if (!matches(move, id)) {
+        arrivedByAgent.current = undefined;
+        returned.current = restore;
+        origins.current.clear();
+        return;
+      }
+      arrivedByAgent.current = move.agent ? id : undefined;
+      returned.current = returnTo;
+      if (move.kind === "push") {
+        const { from, address, scrollTop } = move;
+        origins.current.set(id, { from, address, scrollTop });
+      } else if (move.kind === "back") origins.current.delete(move.from);
+    },
   };
 }
 
 function useCaptureIntent(
   screen: ScreenLike,
   ref: { current: TamaguiElement | null },
-  {
-    reduced,
-    agent,
-    scrollTop,
-    captureNative,
-  }: {
-    reduced: boolean;
-    agent: boolean;
-    scrollTop(): number;
-    captureNative(): NativeTabShot;
-  },
+  { reduced, agent, scrollTop, captureNative }: CaptureOptions,
 ) {
   return useCallback(
     (goto: string, address: string, byAgent: boolean, kind?: Intent["kind"]) => {
@@ -169,15 +165,40 @@ function useCaptureIntent(
   );
 }
 
-function nextPaint(play: () => (() => void) | undefined) {
-  // The trial mount in Strict Mode never spends the transition.
-  let stop: (() => void) | undefined;
-  const frame = requestAnimationFrame(() => {
-    stop = play();
-  });
+type Flight = { token: ScreenTransition; key: string; kept: boolean; stop: (() => void) | undefined };
+
+function useScriptedFlight(
+  token: ScreenTransition | undefined,
+  screen: string,
+  preferences: string,
+  agent: boolean,
+  play: (move: Intent) => (() => void) | undefined,
+) {
+  const active = useRef<Flight | undefined>(undefined);
+  const key = `${screen}:${preferences}`;
   return () => {
-    cancelAnimationFrame(frame);
-    stop?.();
+    if (!token) return;
+    let flight = active.current;
+    if (!flight || flight.token !== token || flight.key !== key) {
+      active.current = undefined;
+      flight?.stop?.();
+      const move = takeTransition(token, screen);
+      if (!move) return;
+      flight = { token, key, kept: true, stop: !agent && !move.agent ? play(move) : undefined };
+      active.current = flight;
+    }
+    const retained = flight;
+    retained.kept = true;
+    return () => {
+      retained.kept = false;
+      // Adopt the existing flight during Strict Mode's synchronous effect replay.
+      queueMicrotask(() => {
+        if (active.current === retained && !retained.kept) {
+          retained.stop?.();
+          active.current = undefined;
+        }
+      });
+    };
   };
 }
 
@@ -195,7 +216,11 @@ function playNavigation(
   const node = ref as HTMLElement | null;
   const sign = isWeb && node && getComputedStyle(node).direction === "rtl" ? -1 : 1;
   const shift = fade ? 0 : sign * profile.push * (move.kind === "back" ? -1 : 1);
-  const options = { duration: reduced ? durations.fast : profile.navigation, easing: motionEase };
+  const options = {
+    duration: reduced ? durations.fast : profile.navigation,
+    easing: motionEase,
+    fill: "backwards" as const,
+  };
   if (!isWeb) {
     const { reducedFadeStart } = motion;
     const stop = animateNumber(

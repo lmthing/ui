@@ -24,12 +24,13 @@ export function KitMotion({
   const still = environment.reduceMotion || environment.agentMode;
   const profile = motionProfiles[mode];
   const measured = useRef<number | undefined>(undefined);
-  const [canArrive, setCanArrive] = useState(appear && cue === "filled" && !still);
+  const [delay] = useState(() => (index < motion.staggerLimit ? index * motion.stagger : undefined));
+  const [canArrive, setCanArrive] = useState(appear && cue === "filled" && !still && delay !== undefined);
   // A cue update, exit/re-entry or a preference change cannot re-arm this insertion.
   if (canArrive && (!appear || cue !== "filled" || exiting || still)) setCanArrive(false);
-  const arrival = useReveal("insert", canArrive && !exiting && !still && index < motion.staggerLimit, {
+  const arrival = useReveal("insert", canArrive && !exiting && !still, {
     spring: profile.arrival,
-    delay: index * motion.stagger,
+    ...(delay === undefined ? {} : { delay }),
   });
   const change = useChangeReveal(exiting ? undefined : cue);
   const exit = useMotionValue(exiting ? 0 : 1, still, "timed");

@@ -167,7 +167,14 @@ function usePhoneNavigation(
     captureNative: () => freezeNativeTab(props, controller, scrollTop()),
     transition: props.navigationTransition,
   });
-  useImperativeHandle(props.navigationRef, () => ({ prepare: navigation.prepare }), [navigation.prepare]);
+  useImperativeHandle(
+    props.navigationRef,
+    () => ({
+      prepare: navigation.prepare,
+      getReturnPoint: (address) => ({ scrollTop: scrollTop(), ...(address ? { address } : {}) }),
+    }),
+    [navigation.prepare],
+  );
   useLayoutEffect(() => {
     observe.current = navigation.capture;
   }, [observe, navigation.capture]);
@@ -195,11 +202,6 @@ export function PhoneScreen(props: PhoneScreenProps) {
     cue,
   });
   const navigation = usePhoneNavigation(props, controller, environment, observe);
-  const register = useReturnFocus(
-    navigation.ref,
-    navigation.restoreFocus ? navigation.returnTo?.address : undefined,
-    nativeHost,
-  );
   const agent = useMemo(
     () => createAgentAccess({ defs, store: controller.store, current: () => screen, runtime: controller }),
     [controller, screen, defs],
@@ -220,22 +222,41 @@ export function PhoneScreen(props: PhoneScreenProps) {
       }
       {...(nativeHost ? { nativeHost } : {})}
     >
-      <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
-        <YStack flex={1} minHeight={0} position="relative">
-          {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
-          <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
-            <PartRefScope.Provider value={register}>
-              <Screen
-                controller={controller}
-                renderers={props.renderers}
-                onBodyScroll={navigation.onBodyScroll}
-                {...(navigation.returnTo ? { initialBodyScroll: navigation.returnTo.scrollTop } : {})}
-                {...(props.onReport ? { onReport: props.onReport } : {})}
-              />
-            </PartRefScope.Provider>
-          </YStack>
-        </YStack>
-      </DeviceDataContext.Provider>
+      <PhoneScreenFrame {...{ props, navigation, controller }} />
     </KitProvider>
+  );
+}
+
+function PhoneScreenFrame({
+  props,
+  navigation,
+  controller,
+}: {
+  props: PhoneScreenProps;
+  navigation: ReturnType<typeof usePhoneNavigation>;
+  controller: ScreenController;
+}) {
+  const register = useReturnFocus(
+    navigation.ref,
+    navigation.restoreFocus ? navigation.returnTo?.address : undefined,
+    props.nativeHost,
+  );
+  return (
+    <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
+      <YStack flex={1} minHeight={0} position="relative">
+        {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
+        <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
+          <PartRefScope.Provider value={register}>
+            <Screen
+              controller={controller}
+              renderers={props.renderers}
+              onBodyScroll={navigation.onBodyScroll}
+              {...(navigation.returnTo ? { restoration: navigation.returnTo } : {})}
+              {...(props.onReport ? { onReport: props.onReport } : {})}
+            />
+          </PartRefScope.Provider>
+        </YStack>
+      </YStack>
+    </DeviceDataContext.Provider>
   );
 }

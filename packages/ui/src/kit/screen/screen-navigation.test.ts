@@ -1,5 +1,10 @@
 import { expect, it } from "vitest";
-import { captureTransition, hasTransition, takeTransition, type NavigationIntent } from "./screen-navigation";
+import {
+  captureTransition,
+  readTransition,
+  takeTransition,
+  type NavigationIntent,
+} from "./screen-navigation";
 
 function intent(expires: number): NavigationIntent {
   return {
@@ -20,14 +25,14 @@ it("spends the capture once, only at the intended destination", () => {
   const prepared = intent(Infinity);
   const capture = captureTransition(prepared);
   expect(takeTransition(capture, "other")).toBeUndefined();
-  expect(hasTransition(capture, "record")).toBe(true);
+  expect(readTransition(capture, "record")).toBe(prepared);
   expect(takeTransition(capture, "record")).toBe(prepared);
-  expect(hasTransition(capture, "record")).toBe(false);
+  expect(readTransition(capture, "record")).toBeUndefined();
   expect(takeTransition(capture, "record")).toBeUndefined();
 });
 
 it("does not replay an expired capture", () => {
   const capture = captureTransition(intent(0));
-  expect(hasTransition(capture, "record")).toBe(false);
+  expect(readTransition(capture, "record")).toBeUndefined();
   expect(takeTransition(capture, "record")).toBeUndefined();
 });

@@ -55,6 +55,15 @@ const part = (address: string) => page.getByTestId(address);
 const tap = (address: string) => part(address).click({ force: true });
 const styleOf = (address: string, property: "transform" | "opacity") =>
   part(address).evaluate((node, name) => getComputedStyle(node)[name], property);
+const scrollTopOf = (address: string, next?: number) =>
+  part(address).evaluate((node, value) => {
+    for (let frame = node.parentElement; frame; frame = frame.parentElement) {
+      if (["auto", "scroll"].includes(getComputedStyle(frame).overflowY)) {
+        if (value !== undefined) frame.scrollTop = value;
+        return frame.scrollTop;
+      }
+    }
+  }, next);
 
 async function openRecord(preference: "no-preference" | "reduce") {
   await openMotion(preference, "record_arrive");
@@ -74,26 +83,60 @@ changed.each(["no-preference", "reduce"] as const)(
   "plays an explicit transition across remounted trees in %s",
   async (preference) => {
     await openMotion(preference, "navigation");
-    await page.evaluate(() => {
-      const original = Element.prototype.animate;
-      Element.prototype.animate = function (frames, options) {
-        if (Array.isArray(frames) && frames[0] && "transform" in frames[0])
-          document.body.dataset.transitions = `${document.body.dataset.transitions ?? ""}|${frames[0].transform}`;
-        return original.call(this, frames, options);
-      };
-    });
-    const moves = () => page.locator("body").getAttribute("data-transitions");
-    const forward = preference === "reduce" ? "none" : "translateX(20px)";
-    const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
-    await tap("dispatch/next/root");
-    await expect.poll(moves).toBe(`|${forward}`);
-    expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
-    await tap("walk_notes/header/back");
-    await expect.poll(moves).toBe(`|${forward}|${reverse}`);
-    expect(await part("dispatch/receipt/reference").textContent()).toBe("TROT-92");
-    expect(errors).toEqual([]);
+    await page.setViewportSize({ width: 390, height: 385 });
+    try {
+      await checkCrossTree(preference);
+    } finally {
+      await page.setViewportSize({ width: 390, height: 844 });
+    }
   },
 );
+
+async function checkCrossTree(preference: "no-preference" | "reduce") {
+  await page.evaluate(() => {
+    const original = Element.prototype.animate;
+    Element.prototype.animate = function (frames, options) {
+      if (Array.isArray(frames) && frames[0] && "transform" in frames[0])
+        document.body.dataset.transitions = `${document.body.dataset.transitions ?? ""}|${frames[0].transform}`;
+      return original.call(this, frames, options);
+    };
+    const observer = new MutationObserver(() => {
+      const title = document.querySelector('[data-testid="walk_notes/header/title"]');
+      if (!title) return;
+      observer.disconnect();
+      let x = 0;
+      for (let node: Element | null = title; node; node = node.parentElement) {
+        const t = getComputedStyle(node).transform;
+        if (t !== "none") x += new DOMMatrixReadOnly(t).m41;
+      }
+      document.body.dataset.firstScriptedX = String(x);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+  const moves = () => page.locator("body").getAttribute("data-transitions");
+  const forward = preference === "reduce" ? "none" : "translateX(20px)";
+  const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
+  const reference = "dispatch/receipt/reference";
+  expect(await scrollTopOf(reference, 36)).toBe(36);
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
+  await tap("dispatch/next/root");
+  await expect.poll(moves).toBe(`|${forward}`);
+  const x = Number(await page.locator("body").getAttribute("data-first-scripted-x"));
+  if (preference === "reduce") expect(x).toBe(0);
+  else expect(x).toBeGreaterThan(0);
+  expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
+  await part("walk_notes/header/back").focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(moves).toBe(`|${forward}|${reverse}`);
+  expect(await part(reference).textContent()).toBe("TROT-92");
+  expect(await scrollTopOf(reference)).toBe(36);
+  await expect
+    .poll(() => part("dispatch/next/root").evaluate((node) => node === document.activeElement))
+    .toBe(true);
+  expect(errors).toEqual([]);
+}
 
 changed("accents only an acknowledged handoff, without delaying the receipt or nav", async () => {
   await openRecord("no-preference");
@@ -104,12 +147,25 @@ changed("accents only an acknowledged handoff, without delaying the receipt or n
   expect(await phase.textContent()).toBe("Awaiting receipt");
   expect(await mark.count()).toBe(0);
   const origin = await ref.boundingBox();
+  await page.evaluate(() => {
+    const observer = new MutationObserver((changes) => {
+      const added = changes.some((change) =>
+        Array.from(change.addedNodes).some(
+          (node) => node instanceof Element && node.matches("[data-record-arrival]"),
+        ),
+      );
+      if (!added) return;
+      document.body.dataset.recordArrived = "true";
+      observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
   await next.focus();
   await page.keyboard.press("Enter");
   expect(await phase.textContent()).toBe("Received");
   expect(await ref.textContent()).toBe("TROT-92");
   expect(await ref.boundingBox()).toEqual(origin);
-  expect(await mark.count()).toBe(1);
+  expect(await page.locator("body").getAttribute("data-record-arrived")).toBe("true");
   expect(await next.evaluate((node) => document.activeElement === node)).toBe(true);
   await page.keyboard.press("Enter");
   await part("walk_notes/header/sub").waitFor();
@@ -126,6 +182,12 @@ changed("cuts the arrival in reduced motion and leaves a returned record quiet",
   await openRecord("no-preference");
   await tap("dispatch/return/root");
   expect(await part("dispatch/receipt/phase").textContent()).toBe("Returned");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await tap("dispatch/next/root");
+  expect(await part("pickup_time/header/sub").textContent()).toContain("TROT-92");
+  await tap("pickup_time/add/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Awaiting receipt");
+  expect(await part("dispatch/receipt/summary").textContent()).toContain("13:43 UTC");
   expect(await page.locator("[data-record-arrival]").count()).toBe(0);
 });
 
@@ -152,17 +214,36 @@ changed.each(["calm", "lively"] as const)("paints the first working frame in %s"
   }
 });
 
+changed("does not replay or arm insertion when a mounted group crosses the stagger cutoff", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion=insertions`, { timeout: 20000 });
+  const control = part("route_notes/advance/root");
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+  const firstFrame = () =>
+    control.evaluate(async (button) => {
+      (button as HTMLElement).click();
+      await new Promise(requestAnimationFrame);
+      const offset = (id: string) => {
+        let y = 0;
+        const text = document.querySelector(`[data-testid="route_notes/${id}/text"]`);
+        for (let node = text; node; node = node.parentElement) {
+          const transform = getComputedStyle(node).transform;
+          if (transform !== "none") y += new DOMMatrixReadOnly(transform).m42;
+        }
+        return y;
+      };
+      return [offset("early"), offset("late")];
+    });
+  const [early, late] = await firstFrame();
+  expect(early).toBeGreaterThan(0);
+  expect(late).toBe(0);
+  await page.waitForTimeout(750);
+  expect(await firstFrame()).toEqual([0, 0]);
+  expect(await firstFrame()).toEqual([0, 0]);
+});
+
 changed("restores keyboard focus on Back even while the push is still running", async () => {
   const origin = part("garden/plants/r1/root");
-  const top = (next?: number) =>
-    origin.evaluate((node, value) => {
-      for (let frame = node.parentElement; frame; frame = frame.parentElement) {
-        if (["auto", "scroll"].includes(getComputedStyle(frame).overflowY)) {
-          if (value !== undefined) frame.scrollTop = value;
-          return frame.scrollTop;
-        }
-      }
-    }, next);
+  const top = (next?: number) => scrollTopOf("garden/plants/r1/root", next);
   await origin.focus();
   expect(await top(36)).toBe(36);
   await page.waitForTimeout(60); // Deliver the native scroll event, then interrupt Back rather than the scroll.
@@ -489,6 +570,10 @@ it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
       await openRecord(preference);
       await contactSheet(browser, page, `${prefix}-handoff-${mode}-return`, () =>
         tap("dispatch/return/root"),
+      );
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-pickup`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-resubmit`, () =>
+        tap("pickup_time/add/root"),
       );
       await openMotion(preference, "navigation");
       await contactSheet(browser, page, `${prefix}-cross-tree-${mode}-push`, () => tap("dispatch/next/root"));
