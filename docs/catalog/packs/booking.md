@@ -53,6 +53,20 @@ taken ones dimmed and disabled. Picking one highlights it.
 - Real path: free times computed on the device from working hours minus bookings.
 - Kit: `KitSlotGrid`.
 
+### `SlotAgenda` · ready · data · phone
+
+A day of named sessions with a consistent time rail, optional locations, and explicit available,
+full, or booked states. A row opens an existing screen, it does not select or reserve a slot.
+
+- Pick: compare different sessions with their own times and availability. Not start times for one
+  service (`Slots`) or a conference agenda filtered by track (`Sessions`).
+- Writes: `date` YYYY-MM-DD, `sessions` of `time` HH:MM, `title` text(32), `location` text(24) optional,
+  `status` (`available`, `full`, `booked`), `goto` optional, 1–12.
+- Styles: detail: `full` (default), `brief`.
+- Parts → actions: items `root press`. · States: filled, empty (no sessions), loading.
+- Only items with a destination are actionable.
+- Real path: read schedule and member reservations from the shared booking service; open the linked record without mutating it.
+
 ### `Availability` · planned · input · phone
 The provider's working week: each weekday as a row with a switch and its hours (09:00–17:00), with an
 optional break.
@@ -91,8 +105,10 @@ cancellation policy.
 ### `Waitlist` · planned · action · people
 A full session's join-the-waitlist panel: the place in line, how many are ahead, and join or leave.
 - Pick: a session is full and the person can wait for a place. Not how full it is (`Progress`).
-- Writes: `position` number optional, `ahead` number, `joined` boolean.
-- Parts → actions: `join press`, `leave press` (in `confirmParts`). · States: filled, success.
+- Writes: `position` number optional, `ahead` number, `joined` boolean. For an offered spot, `joined`
+  must be true and `respondBy` text(36) and `goto` are both required; otherwise omit both. An offer is not a reservation.
+- Parts → actions: `join press`, `leave press` (in `confirmParts`), or `review press` (phone-tier link
+  to the booking review, replacing the queue actions while an offer is shown). · States: filled, success (read-only).
 - Real path: a queue in a shared app; the next person is told when a place opens (notifications, `ok`).
 
 ### `ClassRoster` · planned · action · people

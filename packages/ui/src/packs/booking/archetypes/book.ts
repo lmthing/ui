@@ -18,6 +18,9 @@ export const book = {
       ],
     },
     time: {
+      writeHints: [
+        'Use Calendar style "week" to choose one date. Omit range, checkIn, checkOut and minNights; this is not a date range. Put the available start times in Slots.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["StaffPicker"], required: true },

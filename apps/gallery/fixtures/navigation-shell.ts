@@ -1,4 +1,5 @@
 import type { ScreenLike } from "@lmthing/ui/catalog";
+import { bookingAgendaScreens } from "./booking-agenda";
 
 const tabs = [
   { icon: "sun", label: "Today", goto: "today" },
@@ -18,6 +19,7 @@ const fernFacts = [
 ];
 
 export const navigationScreens: Record<string, ScreenLike> = {
+  ...bookingAgendaScreens,
   today: {
     id: "today",
     components: [
@@ -105,6 +107,7 @@ export const navigationScreens: Record<string, ScreenLike> = {
 
 export const navigationRoots = tabs.map(({ goto }) => goto);
 export function navigationStart(id: string): string[] {
+  if (id === "booking_agenda" || id === "booking_agenda_before") return [id];
   if (navigationRoots.includes(id)) return [id];
   if (id === "fern") return ["plants", id];
   if (id === "history") return ["plants", "fern", id];
