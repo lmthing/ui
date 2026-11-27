@@ -27,6 +27,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<LabPhase>("ready");
   const [loading, setLoading] = useState(false);
+  const [shiftBadge, setShiftBadge] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const parts = useMotionParts();
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -45,6 +46,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
   const onAction = ({ address }: ActStep) => {
     const [, id] = address.split("/");
     if (id === "today" || id === "advance") setStep((current) => current + 1);
+    if (id === "heading" && route === "garden") setShiftBadge((current) => !current);
     if (id === "week") {
       clearTimeout(timer.current);
       setLoading(true);
@@ -64,7 +66,7 @@ export function MotionLab({ lively }: { lively: boolean }) {
       <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
         <PhoneScreen
           {...{ theme, onLink, onAction, parts }}
-          screen={motionLabScreen(route, step, phase, loading)}
+          screen={motionLabScreen(route, step, phase, loading, shiftBadge)}
           resolvePhoto={(ref) => resolvePhoto(ref, theme)}
         />
       </YStack>

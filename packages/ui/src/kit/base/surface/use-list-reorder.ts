@@ -32,6 +32,7 @@ export function useListReorder(order: string) {
             save(measure());
           });
     observer?.observe(root);
+    if (observer) select().forEach((row) => observer.observe(row));
     if (animations.length && !reduceMotion)
       void Promise.allSettled(animations.map((flight) => flight.finished)).then(() =>
         announceMotionSettled(root),

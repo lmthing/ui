@@ -183,6 +183,35 @@ changed("does not replay an agent reorder on the next human input", async () => 
   ).toBe(0);
 });
 
+changed("refreshes reorder origins after height-neutral row edits", async () => {
+  const row = part("garden/plants/r2/root").locator("xpath=ancestor::*[@data-list-motion][1]");
+  const layout = () =>
+    row.evaluate((node: HTMLElement) => ({
+      top: node.offsetTop,
+      height: node.parentElement!.offsetHeight,
+    }));
+  const old = await layout();
+  await tap("garden/heading/action");
+  await part("garden/plants/r3/badge").waitFor();
+  const resized = await layout();
+  expect(resized.height).toBe(old.height);
+  expect(resized.top).toBeLessThan(old.top);
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
+  await tap("garden/today/link");
+  const delta = resized.top - (await layout()).top;
+  expect(
+    await row.evaluate((node) =>
+      node
+        .getAnimations()
+        .flatMap((animation) =>
+          (animation.effect as KeyframeEffect).getKeyframes().map((frame) => frame.transform),
+        ),
+    ),
+  ).toContain(`translateY(${delta}px)`);
+});
+
 changed("replaces tabs with an inert outgoing picture during the cross-fade", async () => {
   await tap("garden/nav/r2/root");
   const outgoing = page.locator("[data-kit-outgoing-tab]");

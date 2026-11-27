@@ -15,7 +15,7 @@ const plants = [
     tone: "warn",
   },
   { id: "r2", title: "Basil", meta: "Kitchen · morning light", icon: "leaf", trail: "toggle" },
-  { id: "r3", title: "Aloe", meta: "Office · indirect light", icon: "sun", trail: "none" },
+  { id: "r3", title: "Aloe", meta: "Office · indirect light", photo: "lib:aloe", trail: "none" },
   { id: "r4", title: "Jade", meta: "Kitchen · low water", icon: "drop", trail: "none" },
 ];
 const recent = [
@@ -29,16 +29,25 @@ const recent = [
 
 export type LabPhase = "ready" | "working" | "saved" | "error";
 
-function garden(step: number): ScreenLike["components"] {
-  const fern = { ...plants[0], ...(step % 2 ? { badge: "Watered", tone: "good" } : {}) };
+function garden(step: number, shiftBadge: boolean): ScreenLike["components"] {
+  const badge = step % 2 ? { badge: "Watered", tone: "good" } : { badge: "Soon", tone: "warn" };
+  const { badge: _badge, tone: _tone, ...baseFern } = plants[0]!;
+  const fern = { ...baseFern, ...(!shiftBadge && badge) };
+  const aloe = { ...plants[2], ...(shiftBadge && badge) };
   const rows = [
-    [fern, plants[1], plants[2]],
-    [plants[1], fern, plants[2], plants[3]],
-    [fern, plants[2], plants[3]],
-    [plants[3], plants[2], fern],
+    [fern, plants[1], aloe],
+    [plants[1], fern, aloe, plants[3]],
+    [fern, aloe, plants[3]],
+    [plants[3], aloe, fern],
   ][step % 4];
   return [
-    { id: "heading", c: "Header", title: "My garden", sub: "Your notes and watering schedule" },
+    {
+      id: "heading",
+      c: "Header",
+      title: "My garden",
+      sub: "Your notes and watering schedule",
+      action: { icon: "more", label: "Move status" },
+    },
     { id: "today", c: "SectionTitle", text: "Today’s plants", link: { label: "Update list" } },
     { id: "plants", c: "List", lead: "thumb", rows },
     ...(step % 2 ? [] : [{ id: "care", c: "SectionTitle", text: "Care checklist" }]),
@@ -126,10 +135,20 @@ function fern(phase: LabPhase): ScreenLike["components"] {
   ];
 }
 
-export function motionLabScreen(route: string, step: number, phase: LabPhase, loading: boolean): ScreenLike {
+export function motionLabScreen(
+  route: string,
+  step: number,
+  phase: LabPhase,
+  loading: boolean,
+  shiftBadge: boolean,
+): ScreenLike {
   return {
     id: route,
     components:
-      route === "activity" ? activity(step, loading) : route === "fern" ? fern(phase) : garden(step),
+      route === "activity"
+        ? activity(step, loading)
+        : route === "fern"
+          ? fern(phase)
+          : garden(step, shiftBadge),
   };
 }

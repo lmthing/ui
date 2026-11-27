@@ -32,27 +32,29 @@ export function usePresence(children: ReactNode, keepExit?: (node: ReactNode) =>
   const { environment } = useKit();
   const current = Children.toArray(children);
   const previous = useRef<ReactNode[]>(current);
-  const [removed, setRemoved] = useState<Exit[]>([]);
+  const removed = useRef<Exit[]>([]);
+  const [, refresh] = useState(0);
   const keys = new Set(current.map(keyOf));
   const missing = environment.agentMode ? [] : exitsOf(previous.current, keys, keepExit ?? (() => true));
+  const now = Date.now();
   const retained = environment.agentMode
     ? []
-    : removed.filter((item) => !keys.has(keyOf(item.node)) && (keepExit?.(item.node) ?? true));
+    : removed.current.filter(
+        (item) => item.expires > now && !keys.has(keyOf(item.node)) && (keepExit?.(item.node) ?? true),
+      );
+  const exits = [...retained, ...missing];
+  const first = Math.min(...exits.map(({ expires }) => expires));
   useLayoutEffect(() => {
     previous.current = current;
-    if (missing.length || retained.length !== removed.length) setRemoved([...retained, ...missing]);
+    removed.current = exits;
   });
   useEffect(() => {
-    if (!removed.length) return;
-    const first = Math.min(...removed.map(({ expires }) => expires));
-    const timer = setTimeout(
-      () => setRemoved((items) => items.filter(({ expires }) => expires > Date.now())),
-      Math.max(1, first - Date.now()),
-    );
+    if (!Number.isFinite(first)) return;
+    const timer = setTimeout(() => refresh((tick) => tick + 1), Math.max(1, first - Date.now()));
     return () => clearTimeout(timer);
-  }, [removed]);
+  }, [first]);
   const result: ReactNode[] = [...current];
-  for (const item of [...retained, ...missing].reverse()) {
+  for (const item of [...exits].reverse()) {
     const index = item.before ? result.findIndex((node) => keyOf(node) === item.before) + 1 : 0;
     const node = isValidElement(item.node)
       ? cloneElement(item.node as ReactElement<{ exiting?: boolean }>, { exiting: true })
