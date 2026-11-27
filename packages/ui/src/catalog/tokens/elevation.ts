@@ -7,4 +7,4 @@ export const elevation = {
 export const accentGlow = { shadowRadius: 14, shadowOpacity: 0.42, elevationAndroid: 6 } as const;
 
 /** Stacking within one phone screen, not the host stage. */
-export const zIndex = { base: 0, overlay: 1, sheet: 2 } as const;
+export const zIndex = { base: 0, sticky: 1, overlay: 2, sheet: 3 } as const;

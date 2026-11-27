@@ -16,6 +16,7 @@ export function useReveal(
       setValue(1);
       return;
     }
+    setValue(0);
     return animateNumber(0, 1, setValue, config.current);
   }, [key, enabled, options.duration]);
   return Math.min(1, Math.max(0, value));

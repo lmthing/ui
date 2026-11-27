@@ -1,6 +1,8 @@
 import { XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { KitText } from "../text";
+import { useKit } from "../../provider";
+import { useMotionValue } from "../../motion";
 
 /**
  * One labelled bar toward a target: the label and the amount on a line, a track under them and a fill to
@@ -26,7 +28,9 @@ export function KitMeter({
   /** Anchor a comparison fill to the logical end (right in LTR, left in RTL). */
   fillFrom?: "start" | "end";
 }) {
-  const fill = Math.min(1, Math.max(0, ratio));
+  const { lang } = useKit();
+  const fill = Math.min(1, Math.max(0, useMotionValue(ratio)));
+  const end = (fillFrom === "end") !== /^(ar|fa|he|ur)(-|$)/.test(lang);
   return (
     <YStack gap={space.xs} width="100%">
       <XStack justifyContent="space-between" alignItems="baseline" gap={space.sm}>
@@ -45,9 +49,10 @@ export function KitMeter({
         aria-hidden
       >
         <YStack
-          {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
-          width={`${fill * 100}%`}
+          width="100%"
           height="100%"
+          scaleX={fill}
+          transformOrigin={end ? "right center" : "left center"}
           backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}
         />
       </YStack>

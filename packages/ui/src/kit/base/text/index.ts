@@ -1,3 +1,4 @@
+export { DrawnCheck } from "./DrawnCheck";
 export { KitContent } from "./KitContent";
 export { KitText, TableFigures, type TextTone } from "./KitText";
 export { useTextStep, type TextFinish, type TextRole } from "./text-step";

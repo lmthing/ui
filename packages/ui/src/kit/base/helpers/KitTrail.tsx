@@ -4,9 +4,10 @@ import { RowLabelContext } from "../../a11y";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
-import { component, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
+import { component, motion, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
+import { useChangeReveal, useMotionValue } from "../../motion";
 
 const Frame = styled(YStack, {
   minWidth: size.control.md,
@@ -29,7 +30,7 @@ const Track = styled(XStack, {
   alignItems: "center",
   variants: {
     on: {
-      true: { backgroundColor: "$accent", borderColor: "$accent", justifyContent: "flex-end" },
+      true: { backgroundColor: "$accent", borderColor: "$accent" },
       false: { backgroundColor: "transparent", borderColor: "$muted", justifyContent: "flex-start" },
     },
   } as const,
@@ -40,10 +41,9 @@ const Knob = styled(YStack, {
     on: {
       true: { width: size.icon.md, height: size.icon.md, backgroundColor: "$onAccent" },
       false: {
-        width: size.icon.sm,
-        height: size.icon.sm,
+        width: size.icon.md,
+        height: size.icon.md,
         backgroundColor: "$muted",
-        marginLeft: space.xs / 2,
       },
     },
   } as const,
@@ -72,6 +72,7 @@ function ToggleTrail({
   disabled: boolean;
   loading: boolean;
 }) {
+  const progress = Math.min(1, Math.max(0, useMotionValue(Number(active), disabled || loading)));
   if (loading)
     return (
       <YStack
@@ -84,7 +85,12 @@ function ToggleTrail({
     );
   return (
     <Track on={active} {...(disabled ? { backgroundColor: "$raised", borderColor: "$muted" } : {})}>
-      <Knob on={active} {...(disabled ? { backgroundColor: "$muted" } : {})} />
+      <Knob
+        on={active}
+        x={progress * (size.control.md - size.icon.md - 4 * component.base.strongBorder)}
+        scale={(size.icon.sm + (size.icon.md - size.icon.sm) * progress) / size.icon.md}
+        {...(disabled ? { backgroundColor: "$muted" } : {})}
+      />
     </Track>
   );
 }
@@ -97,6 +103,9 @@ function ValueTrail({
   density,
   inline,
 }: Pick<TrailProps, "kind" | "value" | "tone" | "density" | "inline"> & { loading: boolean }) {
+  const { environment } = useKit();
+  const pulse = useChangeReveal(kind === "badge" && !loading ? `${tone}:${value}` : undefined);
+  const pose = motion.chipDip + (1 - motion.chipDip) * pulse;
   const text = (
     <YStack
       {...(loading
@@ -125,7 +134,12 @@ function ValueTrail({
           ? "$raised"
           : "$accentSoft";
   return kind === "badge" ? (
-    <Badge backgroundColor={loading ? "$line" : fill}>{text}</Badge>
+    <Badge
+      backgroundColor={loading ? "$line" : fill}
+      {...(environment.reduceMotion ? { opacity: pose } : { scale: pose })}
+    >
+      {text}
+    </Badge>
   ) : (
     <YStack position="relative" borderRadius={radius.sm}>
       {text}

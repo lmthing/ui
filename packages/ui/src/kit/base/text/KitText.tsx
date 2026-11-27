@@ -1,7 +1,7 @@
 import { Text, isWeb, styled, useTheme } from "tamagui";
 import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
 import { fontFamilies, motion, size, space, type as typography, variants } from "../../../catalog";
-import { useSignatureProgress, countText } from "../../motion";
+import { useChangeReveal, useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useReportedText } from "../../report";
@@ -190,6 +190,20 @@ function wrapProse({ role = "body", lines, children, breakLongWords }: TextProps
   };
 }
 
+function useFigurePose({ role, part, children, goto }: TextProps, loading: boolean, signature: number) {
+  const value =
+    !loading &&
+    !goto &&
+    role === "number" &&
+    part !== "time" &&
+    typeof children === "string" &&
+    /\p{Nd}/u.test(children)
+      ? children
+      : undefined;
+  const progress = useChangeReveal(value, false);
+  return signature === 1 && progress < 1 ? { y: motion.figureRoll * (1 - progress), opacity: progress } : {};
+}
+
 function TextRun(props: TextProps) {
   const { children, role = "body", tone = "text", part = "root", lines } = props;
   const { numberScale = "display", strike = false, emphasis, goto } = props;
@@ -209,9 +223,11 @@ function TextRun(props: TextProps) {
   const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   const webLink = linkSlot && isWeb;
+  const figurePose = useFigurePose(props, loading || state === "loading", count);
   const text = (
     <Frame
       {...(!webLink ? target : {})}
+      {...figurePose}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       color={

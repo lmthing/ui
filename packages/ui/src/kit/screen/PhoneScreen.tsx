@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { YStack } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
   emptyDeviceData,
@@ -30,6 +31,7 @@ import {
 import type { PartRegistry } from "../registry";
 import type { MicCaptureAdapter } from "../interact/runtime";
 import { Screen, type RendererMap } from "./Screen";
+import { useNavigationMotion } from "./use-navigation-motion";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
 declare global {
@@ -113,17 +115,27 @@ export type PhoneScreenProps = {
 };
 export function PhoneScreen(props: PhoneScreenProps) {
   const { defs, screen, nativeHost, reduceMotion, agentMode, signature, cue, onReady } = props;
-  const controller = usePhoneController(props);
-  const agent = useMemo(
-    () => createAgentAccess({ defs, store: controller.store, current: () => screen, runtime: controller }),
-    [controller, screen, defs],
-  );
+  const observe = useRef<PhoneScreenProps["onLink"]>(undefined);
+  const controller = usePhoneController(props, (goto, address) => observe.current?.(goto, address));
   const environment = useEnvironment(nativeHost, {
     reduceMotion,
     agentMode: agentMode ?? Boolean(controller.store.get(`${screen.id}/$agentMode`)),
     signature,
     cue,
   });
+  const navigation = useNavigationMotion(
+    screen,
+    props.theme.motion ?? "calm",
+    environment.reduceMotion,
+    environment.agentMode,
+  );
+  useLayoutEffect(() => {
+    observe.current = navigation.capture;
+  }, [navigation.capture]);
+  const agent = useMemo(
+    () => createAgentAccess({ defs, store: controller.store, current: () => screen, runtime: controller }),
+    [controller, screen, defs],
+  );
   usePhoneLifecycle(controller, agent, onReady);
   return (
     <KitProvider
@@ -137,11 +149,13 @@ export function PhoneScreen(props: PhoneScreenProps) {
       {...(nativeHost ? { nativeHost } : {})}
     >
       <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
-        <Screen
-          controller={controller}
-          renderers={props.renderers}
-          {...(props.onReport ? { onReport: props.onReport } : {})}
-        />
+        <YStack ref={navigation.ref} flex={1} minHeight={0} {...navigation.pose}>
+          <Screen
+            controller={controller}
+            renderers={props.renderers}
+            {...(props.onReport ? { onReport: props.onReport } : {})}
+          />
+        </YStack>
       </DeviceDataContext.Provider>
     </KitProvider>
   );

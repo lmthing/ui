@@ -38,6 +38,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
     <RenderReportContext.Provider value={publish}>
       <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
         <ScreenContent
+          key={visible.id}
           controller={controller}
           renderers={renderers}
           screen={visible}

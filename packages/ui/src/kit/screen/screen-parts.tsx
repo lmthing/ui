@@ -1,5 +1,5 @@
-import { isValidElement, useContext } from "react";
-import { ScrollView, YStack } from "tamagui";
+import { isValidElement, useContext, useState } from "react";
+import { isWeb, ScrollView, YStack } from "tamagui";
 import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
@@ -7,6 +7,8 @@ import { DeviceDataContext, type ScreenController } from "../interact";
 import { KitCard, KitEmpty } from "../base";
 import {
   space,
+  motion,
+  zIndex,
   parseItemProps,
   regionOf,
   sortByRegion,
@@ -25,6 +27,7 @@ type RenderProps = {
   renderers: RendererMap;
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
+  compactTitle?: boolean;
 };
 function ScreenEntry({
   controller,
@@ -72,7 +75,7 @@ function ScreenEntry({
   );
 }
 function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
-  const { controller, screen, views } = props;
+  const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
   const elsewhere = new Set(
     screen.components.filter((entry) => regionOf(entry, components) !== name).map(({ id }) => id),
@@ -92,7 +95,12 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
         <RegionEntry
           key={entry.id}
           {...props}
-          entry={entry}
+          entry={
+            compactTitle && name === "top" && entry.c === "Header" && entry.style !== "back"
+              ? { ...entry, emphasis: "quiet", sub: undefined }
+              : entry
+          }
+          sticky={name === "body" && entry.c === "SectionTitle"}
           index={index}
           marginTop={
             name === "body" && components[entry.c]
@@ -110,14 +118,22 @@ type RegionEntryProps = RenderProps & {
   index: number;
   marginTop: number;
   exiting?: boolean;
+  sticky?: boolean;
 };
-function RegionEntry({ index, marginTop, exiting, ...props }: RegionEntryProps) {
-  return (
+function RegionEntry({ index, marginTop, exiting, sticky, ...props }: RegionEntryProps) {
+  const content = (
     <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false}>
       <YStack marginTop={marginTop}>
         <ScreenEntry {...props} />
       </YStack>
     </KitMotion>
+  );
+  return sticky && isWeb && !exiting ? (
+    <YStack style={{ position: "sticky" } as never} top={0} zIndex={zIndex.sticky} backgroundColor="$bg">
+      {content}
+    </YStack>
+  ) : (
+    content
   );
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
@@ -133,17 +149,23 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
     .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
   const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
+  const [compactTitle, setCompactTitle] = useState(false);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
         <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
-          <ScreenRegion {...props} name="top" />
+          <ScreenRegion {...props} name="top" compactTitle={compactTitle} />
         </YStack>
         <ScrollView
           flex={1}
           minHeight={0}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
+          onScroll={({ nativeEvent }) => {
+            const y = nativeEvent.contentOffset.y;
+            if (y >= motion.collapseTitleAt) setCompactTitle(true);
+            else if (y <= motion.expandTitleAt) setCompactTitle(false);
+          }}
           contentContainerStyle={{ paddingVertical: space.gutter, ...horizontal }}
         >
           <ScreenBottomSource>

@@ -1,9 +1,11 @@
-import { Children, type ReactNode } from "react";
+import { Children, isValidElement, useRef, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useKitStyle, useVariantDensity } from "../../provider";
 import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
+import { KitMotion, KitPresence } from "../../motion";
+import { useListReorder } from "./use-list-reorder";
 
 type GridProps = {
   columns?: 2 | 3;
@@ -26,22 +28,61 @@ type GridProps = {
   | { arrange: "strip"; overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined }
 );
 
+const rowKey = (cell: ReactNode, index: number) =>
+  isValidElement(cell) && cell.key !== null ? String(cell.key) : String(index);
+
 function ListRows({ cells, gap, ruled }: { cells: ReactNode[]; gap: number | undefined; ruled: boolean }) {
+  const keys = cells.map(rowKey);
+  const initial = useRef(new Set(keys));
+  const ref = useListReorder(JSON.stringify(keys));
   return (
-    <YStack accessibilityRole="list" gap={gap}>
-      {cells.map((cell, index) => (
-        <YStack key={index} accessibilityRole="listitem">
-          {cell}
-          {ruled && index < cells.length - 1 && (
-            <YStack
-              height={component.base.borderWidth}
-              backgroundColor="$line"
-              marginHorizontal={space.md}
-              aria-hidden
-            />
-          )}
-        </YStack>
-      ))}
+    <YStack ref={ref} position="relative" accessibilityRole="list" gap={gap}>
+      <KitPresence>
+        {cells.map((cell, index) => (
+          <MotionRow
+            key={keys[index]}
+            id={keys[index]!}
+            appear={!initial.current.has(keys[index]!)}
+            rule={ruled && index < cells.length - 1}
+          >
+            {cell}
+          </MotionRow>
+        ))}
+      </KitPresence>
+    </YStack>
+  );
+}
+
+function MotionRow({
+  children,
+  id,
+  appear,
+  rule,
+  exiting,
+}: {
+  children: ReactNode;
+  id: string;
+  appear: boolean;
+  rule: boolean;
+  exiting?: boolean;
+}) {
+  return (
+    <YStack
+      data-list-motion={id}
+      accessibilityRole="listitem"
+      {...(exiting ? { "aria-hidden": true, inert: true } : {})}
+    >
+      <KitMotion appear={appear} exiting={exiting ?? false}>
+        {children}
+        {rule && (
+          <YStack
+            height={component.base.borderWidth}
+            backgroundColor="$line"
+            marginHorizontal={space.md}
+            aria-hidden
+          />
+        )}
+      </KitMotion>
     </YStack>
   );
 }

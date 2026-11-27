@@ -2,10 +2,10 @@ import { useSignatureProgress } from "../../motion";
 import { variants } from "../../../catalog";
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
-import { Check } from "@tamagui/lucide-icons";
 import { YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { usePart } from "../../part";
+import { DrawnCheck } from "../text";
 
 const Hit = styled(YStack, {
   width: size.control.md,
@@ -75,7 +75,7 @@ export function KitCheck({
           checked && !readonly ? 1 + variants.motion[kit.motion].pulseScale * Math.sin(progress * Math.PI) : 1
         }
       >
-        {checked && <Check size={size.icon.sm} color="$onAccent" aria-hidden />}
+        <DrawnCheck size={size.icon.sm} tone="onAccent" active={checked} />
       </Box>
     </Hit>
   );
