@@ -76,11 +76,11 @@ export const examples = [
     sub: "Meet at the park gate at 9:00",
     photo: "lib:dogs",
   },
-  { title: "Clover and Pip are ready", sub: "Meet at the park gate at 9:00" },
+  { title: "Pip’s lead is at reception", sub: "Pick it up before the river walk" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
   { title: "Fern watered", tone: "good", sub: "Check its soil again Friday" },
   { title: "Pip’s river walk is cancelled", tone: "bad", sub: "Choose a new walk time in Schedule." },
-  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", emphasis: "quiet" },
+  { title: "The balcony trays can wait", sub: "Rain is due before the next soil check", emphasis: "quiet" },
   { title: "Fern care is up to date", sub: "Last watered Monday", detail: "brief" },
   {
     title: "The midnight meteor watch",

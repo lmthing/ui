@@ -134,13 +134,13 @@ describe("Card view and actions", () => {
       );
     }
     expect(html).toContain(example.title);
-    if (example.media === "cover") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    if (example.media === "cover") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*3/);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {
     const resolvePhoto = vi.fn(() => source);
     const html = renderInstance("Card", examples[0], "filled", theme, { resolvePhoto });
     expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
-    if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*3/);
     expect(resolvePhoto).toHaveBeenCalledWith("lib:plants");
   });
 });
@@ -171,8 +171,8 @@ describe("Card actions and loading", () => {
         node.children.forEach((child) => checkHidden(child, concealed));
       };
       checkHidden(elementAt(html, "home/c1/root"));
-      const firstPlaceholder = elementAt(html, "home/c1/root").children[0]!.children[0]!;
-      expect(styleAt(html, firstPlaceholder).includes("aspect-ratio")).toBe(
+      const first = elementAt(html, "home/c1/root").children[0]!;
+      expect(/aspect-ratio:\s*3(?:;|$)/.test(styleAt(html, first))).toBe(
         props.parse(input).media === "cover" && Boolean(source),
       );
     }
@@ -198,5 +198,6 @@ it("orders a long linked record title before its badge and supporting facts", ()
   );
   expect(parts.every((index) => index >= 0)).toBe(true);
   expect(parts).toEqual([...parts].sort((a, b) => a - b));
+  expect(html.indexOf("Part expected Friday")).toBeLessThan(html.indexOf("LC-104 · Bike in bay 7"));
   expect(elementAt(html, "home/c1/root").attributes).toContain('role="link"');
 });

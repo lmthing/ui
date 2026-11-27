@@ -102,8 +102,9 @@ export const examples = [
   {
     title: "Rear derailleur replacement",
     badge: "Waiting",
-    body: "Job LC-104 · Bike in bay 7",
-    meta: "Part expected Friday",
+    tone: "warn",
+    body: "Part expected Friday",
+    meta: "LC-104 · Bike in bay 7",
     icon: "bike",
     goto: "repair",
   },
@@ -218,7 +219,13 @@ export function Card(input: CardProps) {
   const cover = media === "cover";
   const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
   const finish = { density, emphasis };
-  const frame = { tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
+  const frame = {
+    tone,
+    density,
+    clip: cover,
+    padded: !loading || !!coverPhoto,
+    goto: loading ? undefined : goto,
+  };
   const thumbnail = !cover && photo;
   const lead = icon ? (
     <kit.KitIcon name={icon} part="icon" scale="md" />
@@ -227,13 +234,18 @@ export function Card(input: CardProps) {
   );
   return (
     <kit.KitCard {...frame} part="root" label={title}>
+      {coverPhoto &&
+        (loading ? (
+          <kit.KitPhoto shape="panorama" part={null} loading />
+        ) : (
+          <kit.KitPhoto photo={coverPhoto} shape="panorama" part="photo" label={title} />
+        ))}
       {loading ? (
         <kit.KitSkeleton
-          shape={coverPhoto ? "media" : "figure"}
+          shape="figure"
           lead={icon ? "dot" : thumbnail ? "box" : "none"}
           {...finish}
-          inset="card"
-          aspect="wide"
+          inset={coverPhoto ? "none" : "card"}
           content={[
             [cover ? "title" : "heading", title],
             ["label", badge],
@@ -242,12 +254,9 @@ export function Card(input: CardProps) {
           ]}
         />
       ) : (
-        <>
-          {coverPhoto && <kit.KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
-          <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
-            <CardText {...input} />
-          </kit.KitContent>
-        </>
+        <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
+          <CardText {...input} />
+        </kit.KitContent>
       )}
     </kit.KitCard>
   );

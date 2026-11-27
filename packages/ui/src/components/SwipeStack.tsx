@@ -114,7 +114,10 @@ export const examples = [
 const { choose, write, read } = probesFor("SwipeStack");
 export const probes = [
   choose("Help me pick plants to adopt, showing one at a time so I can swipe to keep or skip"),
-  choose("Show four plant pictures together with their names underneath so I can browse them", "Gallery"),
+  choose(
+    "I want a grid of four plant photos, with a name below each image. The pictures are the main thing, not a list of plant records.",
+    "Gallery",
+  ),
   write(
     "Pick dogs for a group walk, one at a time: Clover with a dog photo and Ready for a group walk, Pip with Gentle park companion, and Milo",
   ),

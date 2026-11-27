@@ -25,6 +25,7 @@ export function resolveMediaFixture(ref: string, theme: ThemeChoice) {
 }
 
 export function lookPhoto(ref: string, theme: ThemeChoice, id: ComponentName) {
+  if (id === "Card" && ref === "lib:plants") return resolvePhoto(ref, theme, id, true);
   return mediaExamples.has(id) ? resolveMediaFixture(ref, theme) : resolvePhoto(ref, theme, id);
 }
 

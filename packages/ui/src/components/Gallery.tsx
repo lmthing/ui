@@ -115,6 +115,14 @@ export const examples = [
   { aspect: "wide", photos: plantPhotos },
   { aspect: "tall", photos: plantPhotos },
   { detail: "brief", photos: plantPhotos },
+  {
+    aspect: "tall",
+    photos: [
+      { photo: "lib:fern_shelf", caption: "Fern field guide", goto: "fern" },
+      { photo: "lib:window_pots", caption: "Window garden workbook" },
+      { photo: "lib:slow_walk", caption: "Slow walks field notes", goto: "field_notes" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Gallery");
@@ -152,7 +160,7 @@ function GalleryItem({
   const { lang, words } = useWords();
   const cue = entry.goto && entry.caption && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && (
-    <KitText role="caption" tone="muted" part="caption">
+    <KitText role="caption" tone="muted" part="caption" breakLongWords>
       {entry.caption}
     </KitText>
   );
@@ -230,6 +238,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
       <GalleryItem key={entry.id} entry={entry} index={index} shape={shape} />
     ),
   );
+  const columns = shape !== "tall" && (cells.length === 3 || cells.length === 6) ? 3 : 2;
   return (
     <KitCard style="plain" part="root" padded inset="none">
       {cells.length === 1 ? (
@@ -239,7 +248,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
           {cells}
         </KitStrip>
       ) : (
-        <KitGrid arrange={arrange} columns={cells.length === 3 || cells.length === 6 ? 3 : 2}>
+        <KitGrid arrange={arrange} columns={columns}>
           {cells}
         </KitGrid>
       )}

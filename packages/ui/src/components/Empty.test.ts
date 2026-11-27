@@ -160,7 +160,7 @@ describe("Empty metadata and probes", () => {
     const nearMiss = probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero");
     expect(nearMiss).toMatchObject({
       kind: "choose",
-      need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+      need: "At the top of my plant screen, show 2 as the main headline count with plants need water today underneath. It counts plants, not money.",
       expect: "Hero",
     });
     if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");
