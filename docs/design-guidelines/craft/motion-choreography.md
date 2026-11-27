@@ -4,13 +4,13 @@
 
 Use motion to answer one question: Where did I go? What changed? What can I move? A selected item may expand into its detail view; two unrelated tabs should not look like the same object transforming. Prefer the platform's forward/back navigation for routine hierarchy. Reserve custom motion for relationships that a stock push doesn't convey.
 
-| Relationship | Pattern and example | Avoid |
-| --- | --- | --- |
-| Same object, more detail | Container transform: a selected card's outline and thumbnail connect to the detail. New text fades in separately at its final size. | Stretching or raster-scaling text; morphing every row in a list. |
-| Same image, different layout | One shared element: carry the image's position, crop and clip bounds into the detail. Keep its identity even if other content loads late. | Matching by array position or animating two independently visible copies. |
-| Unrelated peers | Sequential fade-through or immediate swap; keep persistent navigation fixed. | A lateral slide that implies the tabs are adjacent steps. |
-| Ordered steps or adjacent pages | Follow the logical progression; use a single primary axis and mirror directional cues in right-to-left layouts where appropriate. | Using the same horizontal sweep for an error or an unrelated destination. |
-| Overlay or sheet | Show the originating action and retain enough background for context. Use a scrim for modality, not as decoration on every overlay. | Blocking unrelated content behind a nonmodal surface. |
+| Relationship                    | Pattern and example                                                                                                                       | Avoid                                                                     |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Same object, more detail        | Container transform: a selected card's outline and thumbnail connect to the detail. New text fades in separately at its final size.       | Stretching or raster-scaling text; morphing every row in a list.          |
+| Same image, different layout    | One shared element: carry the image's position, crop and clip bounds into the detail. Keep its identity even if other content loads late. | Matching by array position or animating two independently visible copies. |
+| Unrelated peers                 | Sequential fade-through or immediate swap; keep persistent navigation fixed.                                                              | A lateral slide that implies the tabs are adjacent steps.                 |
+| Ordered steps or adjacent pages | Follow the logical progression; use a single primary axis and mirror directional cues in right-to-left layouts where appropriate.         | Using the same horizontal sweep for an error or an unrelated destination. |
+| Overlay or sheet                | Show the originating action and retain enough background for context. Use a scrim for modality, not as decoration on every overlay.       | Blocking unrelated content behind a nonmodal surface.                     |
 
 On a 390-wide phone, anchor one focal element. Start the container first, bring in its new content as it settles, then reveal only the secondary group that needs sequencing. If the new layout would collide with outgoing elements, fade those first. A useful starting range is 24–40 ms between a few visible groups, with a total delay budget around 120–160 ms for ordinary work. Reveal above-the-fold content first and leave scrolling rows alone; don't animate a stagger at every list mount. Attach controls and focus to the committed layout, not to a decorative timeline.
 
@@ -18,15 +18,15 @@ On a 390-wide phone, anchor one focal element. Start the container first, bring 
 
 ## Choose movement and timing separately
 
-Apple's spring talk distinguishes perceived duration from the tail of a spring that finishes settling. Design for when the destination *feels* ready; do not hold input or a write acknowledgment for the tail. Higher stiffness accelerates the response; higher damping suppresses overshoot. Preserve position **and** velocity when redirecting physical motion. For a mass-normalized kit spring, the damping ratio is damping divided by twice the square root of stiffness; it isn't the same number as the damping coefficient.
+Apple's spring talk distinguishes perceived duration from the tail of a spring that finishes settling. Design for when the destination _feels_ ready; do not hold input or a write acknowledgment for the tail. SwiftUI exposes presets such as `smooth`, `snappy` and `bouncy`, or a perceptual duration and bounce: Apple's 0.5 s demonstrations compare bounce 0.15 and 0.3 at a fixed duration. Higher stiffness accelerates the response; higher damping suppresses overshoot. Preserve position **and** velocity when redirecting physical motion. For a mass-normalized kit spring, the damping ratio is damping divided by twice the square root of stiffness; it isn't the same number as the damping coefficient or SwiftUI's bounce parameter.
 
 Material 3 Expressive (2025) separates spatial springs (position, size, shape and rotation) from effects springs (opacity and color, no overshoot). These are AndroidX source values for reference, not proposed lmthing tokens; each pair is stiffness / damping ratio.
 
-| Speed | Standard spatial | Expressive spatial | Effects, both schemes |
-| --- | --- | --- | --- |
-| Fast, controls | 1400 / 0.9 | 800 / 0.6 | 3800 / 1.0 |
-| Default, partial surfaces such as sheets | 700 / 0.9 | 380 / 0.8 | 1600 / 1.0 |
-| Slow, large spatial changes | 300 / 0.9 | 200 / 0.8 | 800 / 1.0 |
+| Speed                                    | Standard spatial | Expressive spatial | Effects, both schemes |
+| ---------------------------------------- | ---------------- | ------------------ | --------------------- |
+| Fast, controls                           | 1400 / 0.9       | 800 / 0.6          | 3800 / 1.0            |
+| Default, partial surfaces such as sheets | 700 / 0.9        | 380 / 0.8          | 1600 / 1.0            |
+| Slow, large spatial changes              | 300 / 0.9        | 200 / 0.8          | 800 / 1.0             |
 
 Material's earlier duration guidance still applies to its documented transitions: standard enter/exit 250/200 ms, emphasized enter/exit 400/200 ms, on-screen repositioning 300 ms standard or 500 ms emphasized. For a time-based fallback, useful verified Material curves are standard `cubic-bezier(0.2, 0, 0, 1)`, emphasized enter `cubic-bezier(0.05, 0.7, 0.1, 1)` and exit `cubic-bezier(0.3, 0, 0.8, 0.15)`. These aren't springs. Uber Base uses a 100 ms crossfade for larger transitions in reduced motion and avoids crowded midpoints by fading out static elements that would intersect the moving part. At 390 wide, 100–120 ms works as a starting point for a small effect, 200–250 ms for an ordinary local change, and roughly 400 ms for a deliberate one-off reveal. Prototype rather than applying one timing to every distance.
 
