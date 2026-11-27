@@ -317,14 +317,9 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
         {!grid && !lead && row.photo && (
           <kit.KitPhoto photo={row.photo} aspect={aspect} part="icon" label={row.title} />
         )}
-        {!grid && trail ? (
-          <kit.KitGrid fitLast density={density}>
-            {title}
-            {trail}
-          </kit.KitGrid>
-        ) : (
-          title
-        )}
+        <kit.KitContent lead={grid ? undefined : trail} lineRole="body" density={density}>
+          {title}
+        </kit.KitContent>
         {(["meta", "fact"] as const).map((part) => (
           <kit.KitLayoutText
             key={part}
