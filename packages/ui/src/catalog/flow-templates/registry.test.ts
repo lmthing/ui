@@ -6,69 +6,67 @@ const lookups = {
   archetype: (id: string) => id === "form",
 };
 
-function fixture(): FlowTemplate {
-  return {
-    id: "send_item",
-    purpose: "Pass an item to someone.",
-    pick: "Someone needs to send an item to a recipient.",
-    avoid: "Someone is updating an item for themselves.",
-    nameSlots: ["recipient"],
-    recordShape: { title: "string", count: "number", received: "boolean" },
-    journeys: [
-      {
-        role: "sender",
-        id: "send",
-        name: "Send to {name.recipient}",
-        goal: "Send {record.title}",
-        steps: [
-          {
-            id: "draft",
-            see: "An empty item form",
-            do: "Type {record.title} in the title field",
-            layout: { archetype: "form" },
-            states: ["empty", "error"],
-            optional: true,
-          },
-          {
-            id: "share",
-            see: "{record.title}, ready to send",
-            do: "Tap Send",
-            hands_off_to: { role: "recipient", step: "inbox" },
-            layout: { archetype: "form" },
-            states: ["waiting", "error"],
-          },
-        ],
-      },
-      {
-        role: "recipient",
-        id: "receive",
-        name: "Receive an item",
-        goal: "See the new item",
-        steps: [
-          {
-            id: "inbox",
-            see: "{record.title} at the top of the inbox",
-            layout: { components: ["List"] },
-            states: ["success"],
-          },
-        ],
-      },
-    ],
-    examples: [
-      { id: "notes", names: { recipient: "Alex" }, record: { title: "Notes", count: 1, received: true } },
-      { id: "files", names: { recipient: "Sam" }, record: { title: "Files", count: 2, received: false } },
-    ],
-    probes: {
-      pick: [
-        { request: "Let me pass a draft to a colleague.", expect: "send_item" },
-        { request: "Let me rename my own draft.", expect: null },
+const fixture = (): FlowTemplate => ({
+  id: "send_item",
+  purpose: "Pass an item to someone.",
+  pick: "Someone needs to send an item to a recipient.",
+  avoid: "Someone is updating an item for themselves.",
+  nameSlots: ["recipient"],
+  recordShape: { title: "string", count: "number", received: "boolean" },
+  journeys: [
+    {
+      role: "sender",
+      id: "send",
+      name: "Send to {name.recipient}",
+      goal: "Send {record.title}",
+      steps: [
+        {
+          id: "draft",
+          see: "An empty item form",
+          do: "Type {record.title} in the title field",
+          layout: { archetype: "form" },
+          states: ["empty", "error"],
+          optional: true,
+        },
+        {
+          id: "share",
+          see: "{record.title}, ready to send",
+          do: "Tap Send",
+          hands_off_to: { role: "recipient", step: "inbox" },
+          layout: { archetype: "form" },
+          states: ["waiting", "error"],
+        },
       ],
-      fill: [{ request: "Let me send an item to Sam." }],
     },
-  };
-}
+    {
+      role: "recipient",
+      id: "receive",
+      name: "Receive an item",
+      goal: "See the new item",
+      steps: [
+        {
+          id: "inbox",
+          see: "{record.title} at the top of the inbox",
+          layout: { components: ["List"] },
+          states: ["success"],
+        },
+      ],
+    },
+  ],
+  examples: [
+    { id: "notes", names: { recipient: "Alex" }, record: { title: "Notes", count: 1, received: true } },
+    { id: "files", names: { recipient: "Sam" }, record: { title: "Files", count: 2, received: false } },
+  ],
+  probes: {
+    pick: [
+      { request: "Let me pass a draft to a colleague.", expect: "send_item" },
+      { request: "Let me rename my own draft.", expect: null },
+    ],
+    fill: [{ request: "Let me send an item to Sam." }],
+  },
+});
 
-describe("flow template catalog contract", () => {
+describe("flow template lookup", () => {
   test("looks up scoped journeys in definition order, preserving a shared typed record", () => {
     const template = fixture();
     const other = fixture();
@@ -99,7 +97,9 @@ describe("flow template catalog contract", () => {
     expect(entry.examples[0]!.record.title).toBe("Notes");
     expect(registry.get("renamed")).toBeUndefined();
   });
+});
 
+describe("flow template schema and journeys", () => {
   test("rejects malformed wire shapes, ambiguous layouts and out-of-contract states", () => {
     const template = fixture();
     expect(flowTemplateSchema.safeParse({ ...template, purpose: "" }).success).toBe(false);
@@ -141,7 +141,9 @@ describe("flow template catalog contract", () => {
       "Invalid hand-off: sender/share -> recipient/inbox",
     );
   });
+});
 
+describe("flow template examples and probe metadata", () => {
   test("checks sample field names, types and completeness", () => {
     const template = fixture();
     template.examples[0]!.record = { title: true, count: 1, extra: "Unexpected" };
