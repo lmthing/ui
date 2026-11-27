@@ -140,7 +140,7 @@ describe("Header fallback and metadata", () => {
   });
 });
 
-describe("Header view", () => {
+describe("Header duplicate navigation", () => {
   it("keeps one announced title and one Back when the input repeats both", () => {
     const input = {
       title: "Vaccination records",
@@ -153,6 +153,9 @@ describe("Header view", () => {
     expect(html).not.toMatch(/data-testid="home\/c1\/(sub|action)"/);
     expect(affordancesOf(meta, props.parse(input), "c1").map(({ part }) => part)).toEqual(["back"]);
   });
+});
+
+describe("Header view", () => {
   it.each([{}, { emphasis: "quiet" }, { style: "back" }] as const)(
     "offers only rendered buttons for %j with and without optional props",
     (variant) => {

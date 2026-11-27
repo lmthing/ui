@@ -112,6 +112,9 @@ describe("SwipeStack fallback", () => {
     expect(html).toContain("No cards left to review");
     expect(html).not.toContain('role="button"');
   });
+});
+
+describe("SwipeStack affordances", () => {
   it.each([2, 3, 6])("offers swipe only on the first of %i cards", (count) => {
     const cards = Array.from({ length: count }, (_, index) => ({ title: `Choice ${index}` }));
     const value = stampItemIds(meta, props.parse({ cards }));

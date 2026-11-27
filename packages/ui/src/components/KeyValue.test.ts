@@ -169,7 +169,7 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
   return renderInstance("KeyValue", { arrange, pairs, ...(hideIcons ? { lead: "none" } : {}) },
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
-describe("KeyValue rendering", () => {
+describe("KeyValue receipt", () => {
   it("keeps record identity and full repair task on separate paired addresses", () => {
     const input = examples.at(-1)!;
     const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -184,6 +184,9 @@ describe("KeyValue rendering", () => {
     expect(read).toContain('"Task" · "Swap out the derailleur cage"');
     expect(read.indexOf("Last updated")).toBeLessThan(read.indexOf("Reference"));
   });
+});
+
+describe("KeyValue rendering", () => {
   it.each(["rows", "grid"] as const)(
     "emphasises only the status value in %s without changing addresses",
     (arrange) => {
