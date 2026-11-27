@@ -39,6 +39,10 @@ export const appointments = {
       ],
     },
     packs: {
+      writeHints: [
+        "Write exactly Header, Segmented, SessionPack, List in that order. Always include the SessionPack, even with an empty cast; use the default when the brief does not name a bundle.",
+        'Write exactly one List for both Upcoming and Past. Give its rows category "upcoming" or "past" and point both segments to that same List with a category filter. Do not create a second List or separate panels.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },

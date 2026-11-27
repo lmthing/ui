@@ -1,0 +1,161 @@
+{
+  "class_waitlist%2Ffill_1/4a53b54327a9a6f6/52fc165d388c278a": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nReserve a group class directly or join a full class's waitlist and claim an offered spot.\nKeep the class name and local start time through availability, queue, offer, and booking. Use SlotAgenda for named classes, Slots for interchangeable start times, and Waitlist for queue membership or a real spot offer.\nA waitlist position or offer never means booked. Review the spot before confirming, and preserve the expired or unavailable result without implying a reservation.\nName slots: member.\nRecord shape: {\"session\":\"string\",\"starts\":\"string\",\"respond_by\":\"string\",\"reference\":\"string\"}.\nOptional step addresses: none.\nRequest: Nia wants Repotting workshop, Fri at 10:30 AM. The offer is good until Thu at 5:00 PM. Booking reference is CL-207.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "session": {
+                  "type": "string"
+                },
+                "starts": {
+                  "type": "string"
+                },
+                "respond_by": {
+                  "type": "string"
+                },
+                "reference": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "session",
+                "starts",
+                "respond_by",
+                "reference"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Nia\"\n  },\n  \"record\": {\n    \"session\": \"Repotting workshop\",\n    \"starts\": \"Fri at 10:30 AM\",\n    \"respond_by\": \"Thu at 5:00 PM\",\n    \"reference\": \"CL-207\"\n  },\n  \"omit\": []\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Nia\"\n  },\n  \"record\": {\n    \"session\": \"Repotting workshop\",\n    \"starts\": \"Fri at 10:30 AM\",\n    \"respond_by\": \"Thu at 5:00 PM\",\n    \"reference\": \"CL-207\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"member\": \"Nia\"\n  },\n  \"record\": {\n    \"session\": \"Repotting workshop\",\n    \"starts\": \"Fri at 10:30 AM\",\n    \"respond_by\": \"Thu at 5:00 PM\",\n    \"reference\": \"CL-207\"\n  },\n  \"omit\": []\n}",
+      "{\"names\": {\"member\": \"Nia\"}, \"record\": {\"session\": \"Repotting workshop\", \"starts\": \"Fri at 10:30 AM\", \"respond_by\": \"Thu at 5:00 PM\", \"reference\": \"CL-207\"}, \"omit\": []}"
+    ]
+  },
+  "class_waitlist%2Fpick_1/88b94d68bce1cb6c/6661428564de41a5": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\nRequest: Let my members reserve a group class or join its waiting list and claim a spot if offered.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\":\"class_waitlist\"}",
+    "replies": [
+      "{\"template\":\"class_waitlist\"}",
+      "{\"template\":\"class_waitlist\"}",
+      "{\"template\": \"class_waitlist\"}"
+    ]
+  },
+  "class_waitlist%2Fpick_2/41e68b6869ed5b84/853973b22e264b5b": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\nRequest: Book an available one-on-one consultation and let the same guest move or cancel the time.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"book_slot\"}",
+    "replies": [
+      "{\"template\": \"book_slot\"}",
+      "{\"template\": \"book_slot\"}",
+      "{\"template\": \"book_slot\"}"
+    ]
+  }
+}

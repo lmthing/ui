@@ -50,6 +50,7 @@ const domainEmpty: Readonly<Record<string, string>> = {
   LeaveBalance: "No leave balances assigned",
   PassReveal: "Add at least three players to start",
   PayStub: "No pay statements issued yet",
+  SlotAgenda: "No sessions on this date",
   TeamDirectory: "No teammates in the directory yet",
   Transcript: "No transcript available",
   TravelDocs: "No travel documents yet",
