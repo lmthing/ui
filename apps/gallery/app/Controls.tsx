@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { accents, presets, themeName, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
 import { config } from "../index";
 import { resolvePhoto } from "./photos";
 const header = { id: "h1", c: "Header", title: "Try the controls" };
@@ -127,6 +127,7 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
       <YStack width="100%" maxWidth={430} height="100vh" alignSelf="center">
         <PhoneScreen
           screen={screen}
+          onReady={publishBrowserAgent}
           theme={theme}
           resolvePhoto={(ref) => resolvePhoto(ref, theme)}
           onLink={onLink}

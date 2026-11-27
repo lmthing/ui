@@ -13,9 +13,11 @@ import {
   KitText,
   KitTrail,
   PhoneScreen,
+  publishBrowserAgent,
   kitFonts,
   kitThemes,
   kitTokens,
+  type PhoneAgent,
 } from "../../index";
 import type { NativeHost } from "../../provider";
 
@@ -146,6 +148,14 @@ const nativeHost: NativeHost = {
   subscribe: () => () => {},
 };
 
+function onReady(agent: PhoneAgent) {
+  if (!document.documentElement.dataset.pinnedReady) {
+    const result = agent.act({ address: "d1/r1/qty", action: "increment" }, { dryRun: true });
+    document.documentElement.dataset.pinnedReady = result.ok ? "ready" : result.code;
+  }
+  return publishBrowserAgent(agent);
+}
+
 function App() {
   const [pinned, setPinned] = useState(true);
   const [order, setOrder] = useState(["d1", "d2"]);
@@ -191,11 +201,7 @@ function App() {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <PhoneScreen
         {...{ defs, renderers, screen, theme, nativeHost }}
-        onReady={(agent) => {
-          if (document.documentElement.dataset.pinnedReady) return;
-          const result = agent.act({ address: "d1/r1/qty", action: "increment" }, { dryRun: true });
-          document.documentElement.dataset.pinnedReady = result.ok ? "ready" : result.code;
-        }}
+        onReady={onReady}
         onAction={({ address }) => {
           if (address === "fixture/d1/hide") setPinned(false);
         }}

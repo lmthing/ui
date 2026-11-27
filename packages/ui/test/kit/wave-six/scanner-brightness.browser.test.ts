@@ -30,7 +30,6 @@ it("zooms the real PassCard by keyboard and pointer and restores it when the hos
       const page = await browser.newPage({ viewport: { width: 390, height: 700 } });
       await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
       await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
-      await page.waitForFunction(() => !!window.__lmthingUI);
       const code = page.getByRole("img", { name: "Pass barcode" }).locator("svg");
       const scanner = page.getByRole("button", { name: "Scanner view" });
       expect(await scanner.getAttribute("aria-pressed")).toBe("false");

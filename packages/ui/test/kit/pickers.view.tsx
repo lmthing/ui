@@ -21,7 +21,7 @@ import {
   usePart,
 } from "@lmthing/ui/kit";
 import { config } from "../render";
-import { PhoneScreen } from "../../src/kit/screen";
+import { PhoneScreen, publishBrowserAgent } from "../../src/kit/screen";
 import { defs, meta, part, screen, type PickerFixtureProps } from "./pickers.fixture";
 
 function Sort({ order }: { order: PickerFixtureProps["order"] }) {
@@ -103,6 +103,7 @@ function Frame({ preset, open }: { preset: ThemeChoice["preset"]; open: boolean 
         dataSet={{ lookFrame: `${preset}-${open ? "open" : "closed"}` }}
       >
         <PhoneScreen
+          onReady={publishBrowserAgent}
           defs={fixtureDefs}
           renderers={renderers}
           screen={screen}

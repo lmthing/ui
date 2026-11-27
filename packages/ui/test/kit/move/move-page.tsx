@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { TamaguiProvider, XStack, YStack } from "tamagui";
 import { space, themeName, type ThemeChoice } from "@lmthing/ui/catalog";
 import { config } from "../../../../../apps/gallery/tamagui.config";
-import { PhoneScreen } from "../../../src/kit/screen";
+import { PhoneScreen, publishBrowserAgent } from "../../../src/kit/screen";
 import { moveScreen, moveDef, moveDefs, MoveFixture } from "./move.fixture";
 
 const params = new URLSearchParams(location.search);
@@ -37,6 +37,7 @@ function Frame({ preset, style }: { preset: ThemeChoice["preset"]; style: "colum
   return (
     <YStack width={width} height={style === "columns" ? 230 : 510} data-look-frame={`${preset} ${style}`}>
       <PhoneScreen
+        onReady={look ? undefined : publishBrowserAgent}
         {...{ defs, renderers, screen, theme }}
         reduceMotion
         onLink={(goto) => {

@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { config } from "../../../../../apps/gallery/tamagui.config";
-import { PhoneScreen } from "../../../src/kit/screen";
+import { PhoneScreen, publishBrowserAgent } from "../../../src/kit/screen";
 import { seatMoveDefs, seatMoveScreen, SeatMoveFixture } from "./seat-move.fixture";
 
 const fullRoundTable = new URLSearchParams(window.location.search).has("full-round-table");
@@ -27,6 +27,7 @@ const screen = fullRoundTable
 createRoot(document.getElementById("root")!).render(
   <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
     <PhoneScreen
+      onReady={publishBrowserAgent}
       defs={seatMoveDefs}
       renderers={{ SeatMoveFixture }}
       screen={screen}

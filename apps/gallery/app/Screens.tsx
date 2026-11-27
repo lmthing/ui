@@ -15,6 +15,7 @@ import {
   KitProvider,
   PartScope,
   PhoneScreen,
+  publishBrowserAgent,
   renderers,
   useKitStyle,
 } from "@lmthing/ui/kit";
@@ -114,12 +115,15 @@ function FixtureScreen({
   screen,
   theme,
   width,
+  selected,
 }: {
   id: ComponentName;
   screen: ScreenLike;
   theme: ThemeChoice;
   width: number;
+  selected: boolean;
 }) {
+  const interactive = screen.id === "garden_gallery" || screen.id === choiceFitScreen.id;
   return (
     <YStack gap={space.xs}>
       <Text fontSize={12} data-look-label>{`${theme.preset} · ${screen.id.replaceAll("_", " ")}`}</Text>
@@ -131,7 +135,8 @@ function FixtureScreen({
         <PhoneScreen
           {...{ screen, theme }}
           resolvePhoto={(ref) => resolveMediaFixture(ref, theme)}
-          interactive={screen.id === "garden_gallery" || screen.id === choiceFitScreen.id}
+          interactive={interactive}
+          onReady={selected && interactive ? publishBrowserAgent : undefined}
           reduceMotion
           agentMode
         />
@@ -163,7 +168,7 @@ export function Screens({
         backgroundColor="$bg"
         minHeight="100vh"
       >
-        {screenPresets(presetIds).map((preset) => (
+        {screenPresets(presetIds).map((preset, presetIndex) => (
           <YStack key={preset.id} gap={space.lg}>
             {cells.map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
@@ -174,6 +179,7 @@ export function Screens({
                 id={id}
                 screen={omitHidden ? withoutHiddenFixtureSlots(screen) : screen}
                 width={width}
+                selected={presetIndex === 0}
                 theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
               />
             ))}
@@ -182,6 +188,7 @@ export function Screens({
                 id={id}
                 screen={choiceFitScreen}
                 width={width}
+                selected={presetIndex === 0}
                 theme={{ preset: preset.id, mode, accent: accents[0]!.id }}
               />
             )}

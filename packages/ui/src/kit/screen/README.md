@@ -5,7 +5,11 @@ The generated entry supplies catalog definitions and renderers; component import
 Top and bottom regions are pinned; the body scrolls. Sheets and confirmations contain focus,
 dismiss with Escape, back or backdrop, and restore focus to the opener.
 
-`onReady` receives the agent API, also exposed as `window.__lmthingUI` on web.
+Only the selected host passes `onReady`. `onReady={publishBrowserAgent}` opts into `window.__lmthingUI`;
+custom callbacks can return a cleanup to retract access on screen change or unmount.
+A later publication supersedes an earlier one without restoring it on cleanup.
+`agentReadOnly` allows reads but rejects acts and ignores resets without changing human input.
+An inert phone does not call `onReady` unless the host explicitly opts into `agentReadOnly`.
 Taps and agent actions share a controller; covered controls cannot act.
 Confirmation defers the original action until `confirm/confirm press`; cancel dismisses it.
 `interaction` accepts a host store; otherwise one store is retained per screen id.
