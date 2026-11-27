@@ -33,10 +33,14 @@ type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange"> & {
   flow: FilledFlow;
   index: number;
   state?: FlowState | undefined;
+  incompleteCode?: boolean;
 };
 
-export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhoneProps) {
-  const screen = flowPreviewScreen(flow, index, state);
+export function FlowPhone({ flow, index, state, incompleteCode, onLink, onChange }: FlowPhoneProps) {
+  const screen = flowPreviewScreen(flow, index, state, {
+    ...(incompleteCode ? { message: flowWords.codeLength } : {}),
+    ...(!state ? { codeHint: flowWords.codeLength } : {}),
+  });
   const number = primaryNumber(flow, index, state);
   return (
     <YStack>
@@ -61,7 +65,7 @@ export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhonePro
           </XStack>
         </KitProvider>
       )}
-      <YStack height={flowHeight(screen)}>
+      <YStack height={flowHeight(screen, flow.frames[index]!)}>
         <PhoneScreen
           key={`${screen.id}/${state ?? "play"}`}
           screen={screen}
