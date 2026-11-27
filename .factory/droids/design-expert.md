@@ -13,4 +13,6 @@ Check the first frame, intermediate frames with their timestamps, settled frame,
 
 For `Re-review <target>` with prior findings, check those locations plus any new visible regression in the same evidence. Never edit files, generate assets or run commands.
 
+When an affordance finding depends on runtime behavior, check the relevant catalog contract. Distinguish what the view or compact read advertises from what the planner can resolve at an already-known address.
+
 Reply with exactly `APPROVED` if the required evidence is complete and no findings remain. Otherwise return only a numbered list, most consequential first. Format each as `[S1–S6 or M1–M5] <file/cell, role/step or transition and time>: <observed problem or specific missing evidence>; <smallest useful fix>`. Mark shared kit findings `(base)` and give the file if known. Name the evidence supporting each finding. Don't rewrite the brief or invent new features.

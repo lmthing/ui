@@ -7,6 +7,7 @@ Use the [principles](principles.md), a [family page](components/README.md), and 
 - For a component, run `pnpm look --component <Id> --widths 390 --preset calm --mode light`. Read `packages/ui/shots/<Id>/issues.json`, `390-light.png`, `390-light-marks.png`, and relevant variants if captured. List is a reference for common rails and roles, not a requirement for each component to have List's structure.
 - Supply actual normal and reduced-motion contact sheets for the key path, with viewport/preset/mode and trigger labeled. Include source, intermediate with elapsed time, settled result and reverse/cancel when applicable. For a flow include each affected role, a waiting/error path and the return target. When an event deliberately has no animation, include consecutive frames or a measured no-movement statement; do not invent motion from a still.
 - Name the fixture and note what was actually interactive or host-simulated. Don't use time slices from a storyboard as interaction evidence. Show a meaningful change and its keyboard/focus behavior in a trace or notes if it can't be read in the pixels. If evidence is missing, record the precise missing check and don't approve that part.
+- Compare rendered controls and advertised actions, not every address the planner can resolve. For example, `List` peek omits hidden rows from the screen and compact read, while its [catalog contract](../../packages/ui/src/catalog/agent/read.test.ts) intentionally lets the planner use an already-known hidden row address. This is not a visible affordance.
 
 ## Static
 
