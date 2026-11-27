@@ -4,7 +4,7 @@ A screen's main task action or a quiet secondary action.
 
 ## Pick
 
-One explicit action to take now. Not two to four shortcuts (Actions), a tappable summary (Card), or a passive state or record name (KeyValue).
+One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.
 
 ## Writer
 
