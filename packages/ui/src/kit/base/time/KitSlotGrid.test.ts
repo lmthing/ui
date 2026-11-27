@@ -89,6 +89,14 @@ describe("KitSlotGrid states", () => {
     expect(render({ times: [], style })).toContain("No records yet");
     expect(elementAt(render({ times: [], style, loading: true }), "home/c1/root").children).toHaveLength(3);
   });
+  it("can draw the slot outline and surface for a loading screen without adding targets", () => {
+    const html = render({ times, loading: true, loadingOutline: true });
+    const [row] = elementAt(html, "home/c1/root").children;
+    expect(row?.attributes).toContain('aria-hidden="true"');
+    expect(styleAt(html, row!)).toContain("var(--line)");
+    expect(styleAt(html, row!)).toContain("background-color:var(--surface)");
+    expect(html).not.toContain('role="button"');
+  });
   it("uses a custom drawing part without changing slot root addresses", () => {
     const html = render({ times, part: "times" });
     expect(elementAt(html, "home/c1/times").children).toHaveLength(3);

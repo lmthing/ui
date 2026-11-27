@@ -5,6 +5,7 @@ import { archetypes, components, space, themeName, type Issue, type ThemeChoice 
 import { PhoneScreen } from "../src/kit/screen";
 import { Chips } from "../src/components/Chips";
 import { Field } from "../src/components/Field";
+import { HandoffReceipt } from "../src/components/HandoffReceipt";
 import { Header } from "../src/components/Header";
 import { List } from "../src/components/List";
 import { Progress } from "../src/components/Progress";
@@ -12,6 +13,9 @@ import { Search } from "../src/components/Search";
 import { SectionTitle } from "../src/components/SectionTitle";
 import { Segmented } from "../src/components/Segmented";
 import { Stats } from "../src/components/Stats";
+import { Timeline } from "../src/components/Timeline";
+import { Slots } from "../src/packs/booking/components";
+import { Approval } from "../src/packs/team/components";
 import { config } from "../../../apps/gallery";
 import { choiceFitScreen } from "../../../apps/gallery/app/choice-fit";
 
@@ -24,6 +28,39 @@ const choices = {
     input.kind === "choice" ? [{ ...input, c: "Field", id: `field_${index}` }] : [],
   ),
 };
+const jobTimeline = {
+  id: "job_timeline",
+  components: [
+    {
+      c: "Timeline",
+      id: "history",
+      style: "history",
+      items: [
+        { time: "Wednesday AM", title: "Assigned", done: true },
+        { time: "11:30", title: "En route", done: true },
+        { time: "Thursday PM", title: "In progress", meta: "Waiting for the replacement part" },
+      ],
+    },
+  ],
+};
+const interactionScreens = {
+  receipt: {
+    id: "handoff",
+    components: [{ ...components.HandoffReceipt.examples[0], c: "HandoffReceipt", id: "receipt" }],
+  },
+  slots: {
+    id: "booking",
+    components: [
+      { ...components.Slots.examples[0], c: "Slots", id: "available" },
+      { ...components.Slots.examples[5], c: "Slots", id: "full" },
+    ],
+  },
+  approvals: {
+    id: "review",
+    components: [{ ...components.Approval.examples[3], c: "Approval", id: "queue" }],
+  },
+};
+const interactiveScreen = interactionScreens[example as keyof typeof interactionScreens];
 const screen =
   example === "long_tabs"
     ? choiceFitScreen
@@ -33,29 +70,50 @@ const screen =
         ? archetypes.browse.dataViewExample
         : example === "list"
           ? list
-          : example === "empty"
-            ? {
-                ...list,
-                components: list.components.map((entry) =>
-                  entry.c === "List" ? { ...entry, state: "empty" as const } : entry,
-                ),
-              }
-            : archetypes.dashboard.dataViewExample;
+          : example === "timeline"
+            ? jobTimeline
+            : example === "empty"
+              ? {
+                  ...list,
+                  components: list.components.map((entry) =>
+                    entry.c === "List" ? { ...entry, state: "empty" as const } : entry,
+                  ),
+                }
+              : archetypes.dashboard.dataViewExample;
 
 function Fixture() {
   const [issues, onReport] = useState<Issue[] | null>(null);
+  const [target, onLink] = useState("");
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <main style={{ paddingInline: example === "choices" ? space.xl : undefined }}>
         <PhoneScreen
           defs={components}
-          renderers={{ Chips, Field, Header, List, Progress, Search, SectionTitle, Segmented, Stats }}
-          screen={screen}
+          renderers={{
+            Approval: Approval.Approval,
+            Chips,
+            Field,
+            HandoffReceipt,
+            Header,
+            List,
+            Progress,
+            Search,
+            SectionTitle,
+            Segmented,
+            Stats,
+            Slots: Slots.Slots,
+            Timeline,
+          }}
+          screen={interactiveScreen ?? screen}
           theme={theme}
+          onLink={onLink}
           onReport={onReport}
           reduceMotion
         />
       </main>
+      <output hidden data-testid="link-target">
+        {target}
+      </output>
       {issues && (
         <output hidden data-testid="render-report">
           {JSON.stringify(issues)}

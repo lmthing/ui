@@ -86,7 +86,8 @@ function rowEdges(row: Row) {
       ),
     };
   return {
-    leading: <KitTime value={time.text} part={time.part} />,
+    leading: <KitTime value={time.text} part={time.part} wrap />,
+    leadingAlign: "start" as const,
     trailing: row.slots.done ? <KitIcon name="check" decorative /> : undefined,
   };
 }

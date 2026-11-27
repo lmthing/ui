@@ -172,7 +172,12 @@ describe("Slots selectable item parts", () => {
   it("keeps all-taken times readable but offers no selection", () => {
     const input = { ...seed, times: [{ ...free, taken: true }] };
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "s1")).toEqual([]);
-    expect(readComponent(components.Slots, input, "s1").join("\n")).toContain("09:00 (taken)");
+    const reading = readComponent(components.Slots, input, "s1").join("\n");
+    const html = renderInstance("Slots", input, "filled", theme);
+    expect(addressedElements(html).get("home/c1/availability")?.text).toEqual([slotLabels.empty]);
+    expect(elementAt(html, "home/c1/r1/root").attributes).toContain('aria-disabled="true"');
+    expect(reading).toContain("09:00 (taken)");
+    expect(reading).toContain(slotLabels.empty);
   });
   it.each(["empty", "loading"] as const)("draws %s without item actions or text addresses", (state) => {
     const html = renderInstance("Slots", examples[0], state, theme, "appointment");
@@ -200,6 +205,15 @@ describe("Slots selectable item parts", () => {
 });
 
 describe("Slots time and status hierarchy", () => {
+  it("sets the time zone and duration before the choices, without a no-times message", () => {
+    const html = renderInstance("Slots", examples[4], "filled", theme);
+    const addresses = [...addressedElements(html).keys()];
+    for (const part of ["timezone", "minutes"]) {
+      expect(addresses.indexOf(`home/c1/${part}`)).toBeGreaterThan(0);
+      expect(addresses.indexOf(`home/c1/${part}`)).toBeLessThan(addresses.indexOf("home/c1/times"));
+    }
+    expect(addresses).not.toContain("home/c1/availability");
+  });
   it("keeps the end time inside the figure and the taken status in its own slot", () => {
     const html = renderInstance("Slots", examples[3], "filled", theme);
     const parts = addressedElements(html);

@@ -1,14 +1,10 @@
 import {
   KitCard,
   KitContent,
-  KitGrid,
   KitLayoutText,
   KitMetaLine,
-  KitRow,
-  KitRowGroup,
   KitSlotGrid,
   KitState,
-  KitTrail,
   useWords,
   useComponentState,
   useEmptyThing,
@@ -52,7 +48,7 @@ export const meta = {
   realPath: "Free times computed on the device from working hours minus bookings.",
   variants: { arrange: ["grid", "rows"] },
   items: { key: "times", parts: ["root", "time"] },
-  parts: ["root", "times", "minutes", "sub", "timezone"],
+  parts: ["root", "times", "minutes", "sub", "timezone", "availability"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
   select: { prop: "at", value: { field: "time" } },
@@ -64,6 +60,7 @@ export const meta = {
     return [
       durationLine(minutes, lang),
       ...(timezone ? [timezone] : []),
+      ...(times.every(({ taken }) => taken) ? [slotLabels.empty] : []),
       ...times.flatMap(({ time, taken }) => [
         slotLabelLine(time, minutes, style ?? arrange, lang),
         taken ? slotLabels.taken : slotLabels.free,
@@ -151,6 +148,11 @@ export const examples = [
     minutes: 45,
     timezone: "New York time",
   },
+  {
+    ...plantCareStarts,
+    at: undefined,
+    times: plantCareStarts.times.map((slot) => ({ ...slot, taken: true })),
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Slots");
 export const probes = [
@@ -179,28 +181,25 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-function SlotPlaceholders({
-  slots,
-  list,
-  label,
+function SlotContext({
+  duration,
+  timezone,
+  unavailable,
 }: {
-  slots: readonly { id: string; label: string; sub: string }[];
-  list: boolean;
-  label: string;
+  duration: string;
+  timezone: string | undefined;
+  unavailable: string | undefined;
 }) {
-  const cells = slots.map((slot) => (
-    <KitRow key={slot.id} inset="none" label={slot.label}>
-      <KitMetaLine
-        align={list ? "start" : "center"}
-        title={{ text: slot.label, role: "figure", compact: true, tabular: true }}
-        meta={{ text: slot.sub }}
-      />
-    </KitRow>
-  ));
   return (
-    <KitRow part="times" inline label={label}>
-      {list ? <KitRowGroup separators={false}>{cells}</KitRowGroup> : <KitGrid columns={3}>{cells}</KitGrid>}
-    </KitRow>
+    <KitContent>
+      <KitMetaLine
+        title={{ text: duration, part: "minutes", role: "caption", tone: "muted", tabular: true }}
+        meta={{ text: timezone, part: "timezone" }}
+      />
+      {unavailable && (
+        <KitLayoutText line={{ text: unavailable, part: "availability", role: "body", strong: true }} />
+      )}
+    </KitContent>
   );
 }
 
@@ -223,29 +222,18 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const selected = times.find(({ time }) => time === at);
   const body = (
     <>
-      {timezone && (
-        <KitContent
-          leadingAlign="row"
-          lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}
-        >
-          {null}
-        </KitContent>
-      )}
-      {state === "loading" ? (
-        <SlotPlaceholders slots={slots} list={list} label={duration} />
-      ) : (
-        <KitSlotGrid
-          times={slots}
-          {...(selected ? { at: selected.id } : {})}
-          style={list ? "list" : "grid"}
-          part="times"
-        />
-      )}
-      <KitContent group="response">
-        <KitLayoutText
-          line={{ text: duration, role: "caption", tone: "muted", tabular: true, part: "minutes" }}
-        />
-      </KitContent>
+      <SlotContext
+        {...{ duration, timezone }}
+        unavailable={state === "filled" && times.every(({ taken }) => taken) ? slotLabels.empty : undefined}
+      />
+      <KitSlotGrid
+        times={slots}
+        {...(selected ? { at: selected.id } : {})}
+        style={list ? "list" : "grid"}
+        part="times"
+        loading={state === "loading"}
+        loadingOutline
+      />
     </>
   );
   return (

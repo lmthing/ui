@@ -11,6 +11,7 @@ type Slot = { id: string; label: string; sub?: string; taken: boolean };
 type SlotGridProps = {
   part?: string;
   loading?: boolean;
+  loadingOutline?: boolean;
   times: readonly Slot[];
   at?: string;
   style?: "grid" | "list";
@@ -88,16 +89,21 @@ function SlotItem({
   selected,
   list,
   loading,
+  loadingOutline,
   width,
 }: {
   slot: Slot;
   selected: boolean;
   list: boolean;
   loading: boolean;
+  loadingOutline: boolean;
   width: number;
 }) {
   const ks = useKitStyle();
   const target = useSlotTarget(slot, selected, loading);
+  const showSurface = !loading || loadingOutline;
+  const active = !loading && selected;
+  const fill = active ? "$accentSoft" : !loading && slot.taken ? "$raised" : "$surface";
   return (
     <XStack
       {...(target as object)}
@@ -111,10 +117,8 @@ function SlotItem({
       justifyContent={list ? "space-between" : "center"}
       borderRadius={list ? shifted("md", ks.radiusShift) : radius.pill}
       borderWidth={component.base.strongBorder}
-      borderColor={loading ? "transparent" : selected ? "$accent" : "$line"}
-      backgroundColor={
-        loading ? "transparent" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"
-      }
+      borderColor={!showSurface ? "transparent" : active ? "$accent" : "$line"}
+      backgroundColor={showSurface ? fill : "transparent"}
       width={list ? "100%" : width ? (width - space.sm * 2) / 3 : "30%"}
     >
       <SlotLine loading={loading} value>
@@ -140,7 +144,14 @@ function SlotItem({
 }
 
 /** Wrapping slots or end-time rows. Taken slots stay readable; loading retains geometry without targets. */
-export function KitSlotGrid({ part = "root", loading = false, times, at, style = "grid" }: SlotGridProps) {
+export function KitSlotGrid({
+  part = "root",
+  loading = false,
+  loadingOutline = false,
+  times,
+  at,
+  style = "grid",
+}: SlotGridProps) {
   const { lang } = useWords();
 
   const context = usePartContext();
@@ -171,7 +182,14 @@ export function KitSlotGrid({ part = "root", loading = false, times, at, style =
       {slots.length ? (
         slots.map((slot) => (
           <PartContext.Provider key={slot.id} value={{ ...context, item: slot.id }}>
-            <SlotItem slot={slot} selected={at === slot.id} list={list} loading={loading} width={width} />
+            <SlotItem
+              slot={slot}
+              selected={at === slot.id}
+              list={list}
+              loading={loading}
+              loadingOutline={loadingOutline}
+              width={width}
+            />
           </PartContext.Provider>
         ))
       ) : (
