@@ -907,25 +907,27 @@ add steps for the person's job. If nothing fits, it writes the journey without a
   invalid examples. Each example fills all names and one typed record for the whole journey.
   Positive and near-miss pick probes exercise the closed menu. Fill probes validate model output
   as journeys and replay actions and hand-offs to completion. Run `pnpm llm:check --flows`
-  (or `--flows <id>` for one template) and record replies under `test/recordings/flows/<id>/`.
-  The Node suite replays those replies through the same pick and fill checks without model access.
+  (or `--flows <id> --flow-probe <pick_1|pick_2|fill_1>` for one changed probe) and record
+  replies under `test/recordings/flows/<id>/`. Add `--replay` to use those replies offline.
+  The Node suite runs the same replay checks without model access.
 - The gallery's Flow templates link opens `?flows`. Use `?flows=<id>` to open a template directly.
   Play an example or inspect a step/state, including the next role at a hand-off, using existing kit
-  components. No template supplies a renderer.
+  components. No template supplies a renderer. `pnpm look --component FlowTemplates --widths 390`
+  captures a calm-light reference step from each flow, including empty, waiting, error and success.
 - Study 3–5 shipped apps per template before drafting. Use Material and Apple HIG as guidance.
   Use Mobbin when signed in; otherwise use shipped-app references and record “Mobbin pass pending”
   for each template. Use our own words and components; do not copy product assets, text or visuals.
 
-| Id                     | Journey                                                        |
-| ---------------------- | -------------------------------------------------------------- |
-| `book_slot`            | Choose a slot, confirm, reschedule or cancel                   |
-| `invite_accept`        | Send an invitation and accept it as the recipient              |
-| `request_approve`      | Submit a request, approve it or reject it with a reason       |
-| `order_track`          | Place an order and follow it through delivery                  |
-| `report_issue`         | Report an issue, track it and resolve it                      |
-| `check_in`             | Check in and confirm attendance                               |
-| `pay_receipt`          | Make a payment and get the receipt                            |
-| `signup_onboard`       | Create an account and complete first-run onboarding           |
+| Id                | Journey                                                 |
+| ----------------- | ------------------------------------------------------- |
+| `book_slot`       | Choose a slot, confirm, reschedule or cancel            |
+| `invite_accept`   | Send an invitation and accept it as the recipient       |
+| `request_approve` | Submit a request, approve it or reject it with a reason |
+| `order_track`     | Place an order and follow it through delivery            |
+| `report_issue`    | Report an issue, track it and resolve it                |
+| `check_in`        | Check in and confirm attendance                         |
+| `pay_receipt`     | Make a payment and get the receipt                       |
+| `signup_onboard`  | Create an account and complete first-run onboarding      |
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 

@@ -1,9 +1,9 @@
 import { z } from "zod";
 import type { JsonSchema, WriterFormat } from "../format";
 import type { ProbeCall } from "../probes";
-import { checkScreen, type RegistryLike } from "../rules";
+import type { RegistryLike } from "../rules";
 import { fillFlow, optionalFlowSteps } from "./fill-flow";
-import { flowPreviewScreen } from "./preview-screen";
+import { checkFlowPreview, flowPreviewScreen } from "./preview-screen";
 import type { FlowTemplateSource } from "./registry";
 
 type Probe = {
@@ -72,7 +72,7 @@ function fillProbes(template: FlowTemplateSource, defs: RegistryLike): Probe[] {
         for (const [key, value] of Object.entries(expect?.[group] ?? {}))
           if (input[group][key] !== value) throw new Error(`Did not preserve the requested ${group}.${key}`);
       for (const [index, frame] of flow.frames.entries()) {
-        const issues = checkScreen(flowPreviewScreen(flow, index), defs);
+        const issues = checkFlowPreview(flowPreviewScreen(flow, index), defs);
         if (issues.length)
           throw new Error(`${frame.key}: ${issues.map(({ message }) => message).join("; ")}`);
       }

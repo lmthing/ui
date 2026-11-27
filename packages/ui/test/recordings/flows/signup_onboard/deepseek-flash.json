@@ -1,4 +1,134 @@
 {
+  "signup_onboard%2Ffill_1/327254c2e58264a2/19a3b16c826ab47a": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nCreate an account, complete essential setup, and reach a first useful task.\nShow the reason for each requested input. Do not request secrets or real contact details in examples.\nKeep verification distinct from first run. Optional preferences should never block the first useful task.\nName slots: member.\nRecord shape: {\"goal\":\"string\",\"task\":\"string\",\"account\":\"string\"}.\nOptional step addresses: member/preferences.\nRequest: My name is Tess and my sign-up email is tess@example.test. My goal is 'Organize notes', and my first task is 'Make a first list'.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "goal": {
+                  "type": "string"
+                },
+                "task": {
+                  "type": "string"
+                },
+                "account": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "goal",
+                "task",
+                "account"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\n  \"names\": {\n    \"member\": \"tess@example.test\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": []\n}",
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}"
+    ]
+  },
+  "signup_onboard%2Ffill_1/327254c2e58264a2/3d184fd291ef6a91": {
+    "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nCreate an account, complete essential setup, and reach a first useful task.\nShow the reason for each requested input. Do not request secrets or real contact details in examples.\nFill the member name slot with the person's display name. Put their sign-up email only in the account field.\nKeep verification distinct from first run. Optional preferences should never block the first useful task.\nName slots: member.\nRecord shape: {\"goal\":\"string\",\"task\":\"string\",\"account\":\"string\"}.\nOptional step addresses: member/preferences.\nRequest: My name is Tess and my sign-up email is tess@example.test. My goal is 'Organize notes', and my first task is 'Make a first list'.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_fill",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "type": "object",
+              "properties": {
+                "member": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "member"
+              ],
+              "additionalProperties": false
+            },
+            "record": {
+              "type": "object",
+              "properties": {
+                "goal": {
+                  "type": "string"
+                },
+                "task": {
+                  "type": "string"
+                },
+                "account": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "goal",
+                "task",
+                "account"
+              ],
+              "additionalProperties": false
+            },
+            "omit": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "names",
+            "record",
+            "omit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+    "replies": [
+      "{\n  \"names\": {\n    \"member\": \"Tess\"\n  },\n  \"record\": {\n    \"goal\": \"Organize notes\",\n    \"task\": \"Make a first list\",\n    \"account\": \"tess@example.test\"\n  },\n  \"omit\": [\"member/preferences\"]\n}",
+      "{\"names\":{\"member\":\"Tess\"},\"record\":{\"goal\":\"Organize notes\",\"task\":\"Make a first list\",\"account\":\"tess@example.test\"},\"omit\":[\"member/preferences\"]}",
+      "{\"names\":{\"member\":\"Tess\"},\"record\":{\"goal\":\"Organize notes\",\"task\":\"Make a first list\",\"account\":\"tess@example.test\"},\"omit\":[\"member/preferences\"]}"
+    ]
+  },
   "signup_onboard%2Ffill_1/982ec6491cf8601d/19a3b16c826ab47a": {
     "prompt": "Fill the template's name slots and its single shared record. Copy supplied values verbatim.\nList only optional step addresses to omit, or use an empty array if none need omitting.\nReturn only JSON with names, record and omit. Do not write screens.\nCreate an account, complete essential setup, and reach a first useful task.\nShow the reason for each requested input. Do not request secrets or real contact details in examples.\nKeep verification distinct from first run. Optional preferences should never block the first useful task.\nName slots: member.\nRecord shape: {\"goal\":\"string\",\"task\":\"string\",\"account\":\"string\"}.\nOptional step addresses: member/preferences.\nRequest: My name is Tess and my sign-up email is tess@example.test. My goal is 'Organize notes', and my first task is 'Make a first list'.",
     "format": {

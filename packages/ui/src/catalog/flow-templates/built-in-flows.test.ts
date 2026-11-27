@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { checkScreen, components, fillFlow, flowPreviewScreen, flowTemplates } from "@lmthing/ui/catalog";
+import {
+  checkFlowPreview,
+  components,
+  fillFlow,
+  flowPreviewScreen,
+  flowTemplates,
+} from "@lmthing/ui/catalog";
 
 const outcomes = {
   book_slot: ["guest/rescheduled", "guest/cancelled"],
@@ -28,7 +34,7 @@ test.each(flowTemplates.list)(
         expect(frame.see).not.toMatch(/\{(?:record|name)\./);
         for (const state of [undefined, ...frame.states]) {
           const screen = flowPreviewScreen(flow, index, state);
-          expect(checkScreen(screen, components), `${frame.key} ${state ?? "play"}`).toEqual([]);
+          expect(checkFlowPreview(screen, components), `${frame.key} ${state ?? "play"}`).toEqual([]);
         }
       }
     }

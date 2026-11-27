@@ -3,5 +3,5 @@ export { flowTemplateRegistryOf, type FlowTemplateSource, type FlowTemplateRegis
 export type { FlowTemplateLookups } from "./check-template";
 export { fillFlow, replayFlow, type FilledFlow, type FlowFrame } from "./fill-flow";
 export { builtInFlowTemplates } from "./templates";
-export { flowPreviewScreen, flowScreenId } from "./preview-screen";
+export { checkFlowPreview, flowPreviewScreen, flowScreenId } from "./preview-screen";
 export { runFlowProbes } from "./flow-probes";

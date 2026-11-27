@@ -40,7 +40,10 @@ function checkStep(
     if (!step.states.includes(state as Step["states"][number])) report(`Undeclared state: ${state}`);
     checkSlots(template, message, report);
   }
-  if (step.preview) checkSlots(template, step.preview.title, report);
+  if (step.preview) {
+    checkSlots(template, step.preview.title, report);
+    if (step.preview.action) checkSlots(template, step.preview.action, report);
+  }
   const layout = step.layout;
   if ("archetype" in layout) {
     if (!lookups.archetype(layout.archetype)) report(`Unknown archetype: ${layout.archetype}`);

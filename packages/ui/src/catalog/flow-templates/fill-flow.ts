@@ -57,7 +57,7 @@ function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill)
   const next = step.next === undefined ? fallback?.id : step.next;
   if (handoff || next) {
     forward.unshift({
-      label: step.preview?.action ?? (step.do ? fill(step.do) : "Continue"),
+      label: fill(step.preview?.action ?? step.do ?? "Continue"),
       target: handoff ? keyOf(handoff.role, handoff.step) : keyOf(role.role, next!),
     });
   }

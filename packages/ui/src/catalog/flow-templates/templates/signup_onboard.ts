@@ -69,14 +69,14 @@ export const signupOnboard: FlowTemplate = {
         {
           id: "first_task",
           see: "You’re ready to start. Try this first: {record.task}.",
-          do: "Tap Try first task",
+          do: "Tap {record.task}",
           layout: {
             components: ["Note"],
           },
           states: ["waiting"],
           preview: {
             title: "Try a first task",
-            action: "Try first task",
+            action: "{record.task}",
           },
         },
         {

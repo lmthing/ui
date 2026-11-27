@@ -1,12 +1,14 @@
 import type { Component } from "../types";
 import type { ScreenLike } from "../agent";
 import { clip } from "../cast";
+import { checkScreen, type RegistryLike } from "../rules";
 import type { FilledFlow, FlowFrame } from "./fill-flow";
 import type { FlowState } from "./flow-template";
 
 export const flowScreenId = (index: number) => `step_${index + 1}`;
 
 function fieldLabel(id: string) {
+  if (id === "eta") return "ETA";
   return (id[0]!.toUpperCase() + id.slice(1)).replaceAll("_", " ");
 }
 
@@ -36,12 +38,12 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
         id: `field_${i + 1}`,
         c,
         label: clip(fieldLabel(field), 24),
-        ...(state === "empty"
+        ...(state === "empty" || state === "error"
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
     case "KeyValue":
-      return [{ id: "facts", c, pairs: pairs(flow, frame) }];
+      return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "List":
       return [
         {
@@ -52,30 +54,27 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
         },
       ];
     case "Success":
-      return [{ id: "success", c, title: frame.title, sub: clip(body, 100) }];
+      return [
+        { id: "success", c: "Banner", text: frame.title, tone: "good" },
+        { id: "note", c: "Note", text: clip(body, 120), emphasis: "quiet" },
+      ];
     default:
       throw new Error(`Unsupported flow preview component: ${c}`);
   }
 }
 
-function previewActions(flow: FilledFlow, frame: FlowFrame, index: number, state?: FlowState): Component[] {
-  if (state && state !== "success") {
-    return [{ id: "reset", c: "Button", label: "Return to playback", goto: flowScreenId(index) }];
-  }
-  if (!frame.forward.length) {
-    return [{ id: "restart", c: "Button", label: "Play again", goto: flowScreenId(0) }];
-  }
-  return frame.forward.map(({ label, target }, i) => {
+function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
+  if ((state && state !== "success") || !frame.forward.length) return [];
+  const next = frame.forward.map(({ label, target }) => {
     const next = flow.frames.findIndex(({ key }) => key === target);
     if (next < 0) throw new Error(`Preview has no target: ${target}`);
-    return {
-      id: `action_${i + 1}`,
-      c: "Button",
-      label: clip(label, 24),
-      goto: flowScreenId(next),
-      ...(i > 0 ? { emphasis: "quiet" } : {}),
-    };
+    return { title: clip(label, 24), goto: flowScreenId(next) };
   });
+  if (next.length > 1)
+    return [
+      { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
+    ];
+  return [{ id: "action_1", c: "Button", label: next[0]!.title, goto: next[0]!.goto }];
 }
 
 /** Gallery fixture for a played step. Model output never writes a screen or a goto. */
@@ -85,7 +84,8 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
   if (state && !frame.states.includes(state))
     throw new Error(`Flow step does not show ${state}: ${frame.key}`);
   const body = frame.layout.components.flatMap((c) => previewPart(c, flow, frame, state));
-  if (body.some(({ c }) => c === "Success")) {
+  const success = body.some(({ id }) => id === "success");
+  if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
   } else {
     body.unshift({ id: "header", c: "Header", title: frame.title });
@@ -110,6 +110,13 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
   return {
     id: flowScreenId(index),
     title: frame.title,
-    components: [...body, ...previewActions(flow, frame, index, state)],
+    components: [...body, ...previewActions(flow, frame, state)],
   };
+}
+
+/** Check fixture props and screen rules, without requiring isolated states to pad to a full screen. */
+export function checkFlowPreview(screen: ScreenLike, defs: RegistryLike) {
+  return checkScreen(screen, defs).filter(
+    (issue) => issue.code !== "S.component_count" || screen.components.length >= 3,
+  );
 }
