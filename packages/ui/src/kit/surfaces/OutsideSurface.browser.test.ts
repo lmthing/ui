@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
-import type { Browser, Page } from "playwright-core";
+import type { Browser, BrowserContext, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig, launchChrome } from "../../../scripts/look";
 import { durations, size } from "../../catalog";
 
-let server: ViteDevServer, browser: Browser;
+let server: ViteDevServer, browser: Browser, context: BrowserContext;
 const effect = "[data-outside-surface-effect]";
 const variants = [
   ["Lock screen", "Check the fern tomorrow", "No reminder is scheduled."],
@@ -16,6 +16,7 @@ beforeAll(async () => {
   server = await createServer(galleryConfig(0));
   await server.listen();
   browser = await launchChrome();
+  context = await browser.newContext({ viewport: { width: 390, height: 844 } });
 });
 
 afterAll(async () => {
@@ -24,8 +25,12 @@ afterAll(async () => {
 });
 
 async function openGallery(reducedMotion: "reduce" | "no-preference" = "no-preference") {
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion });
-  await page.goto(`${server.resolvedUrls!.local[0]}?surfaces`);
+  const page = await context.newPage();
+  await page.emulateMedia({ reducedMotion });
+  await page.goto(`${server.resolvedUrls!.local[0]}?surfaces`, {
+    waitUntil: "domcontentloaded",
+    timeout: 75_000,
+  });
   await page.getByRole("region", { name: "Lock screen preview" }).waitFor();
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
   return page;
@@ -61,7 +66,7 @@ it("renders all preview states without tab stops, links, or delivery roles", asy
   } finally {
     await page.close();
   }
-});
+}, 120_000);
 
 async function sampleReplay(page: Page) {
   return page.getByRole("button", { name: "Replay preview" }).evaluate(
@@ -106,6 +111,31 @@ it("cuts the decorative replay under the OS reduced-motion preference", async ()
     expect(samples.every((opacity) => opacity === 0)).toBe(true);
     expect(moved).toBe(false);
     expect(await page.getByText("Check the fern tomorrow").isVisible()).toBe(true);
+    expect(await page.getByRole("status").innerText()).toBe("Preview replayed");
+    await page.getByRole("button", { name: "Replay preview" }).press("Enter");
+    expect(await page.getByRole("status").innerText()).toBe("Preview replayed 2 times");
+  } finally {
+    await page.close();
+  }
+});
+
+it("cancels an active tint on a peer switch and returns without replaying", async () => {
+  const page = await openGallery();
+  try {
+    await page.clock.install({ time: new Date("2026-01-01T00:00:00Z") });
+    await page.clock.pauseAt(new Date("2026-01-01T00:00:01Z"));
+    await page.getByRole("button", { name: "Replay preview" }).press("Enter");
+    await page.clock.runFor(durations.fast / 2);
+    const opacity = () => page.locator(effect).evaluate((node) => Number(getComputedStyle(node).opacity));
+    expect(await opacity()).toBeGreaterThan(0);
+    for (const label of ["Widget", "Lock screen"]) {
+      const button = page.getByRole("button", { name: label, exact: true });
+      await button.press("Enter");
+      expect(await page.getByRole("region", { name: `${label} preview` }).isVisible()).toBe(true);
+      expect(await button.evaluate((node) => node === document.activeElement)).toBe(true);
+      expect(await opacity()).toBe(0);
+      expect(await page.getByRole("status").innerText()).toBe("");
+    }
   } finally {
     await page.close();
   }

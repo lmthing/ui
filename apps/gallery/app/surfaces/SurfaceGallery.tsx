@@ -30,7 +30,7 @@ function SurfaceChooser({
           aria-pressed={kind === value}
           color="$text"
           backgroundColor={kind === value ? "$accentSoft" : "$surface"}
-          borderColor={kind === value ? "$accent" : "$line"}
+          borderColor={kind === value ? "$accent" : "$muted"}
           onPress={() => choose(value)}
         >
           <Text
@@ -47,10 +47,28 @@ function SurfaceChooser({
   );
 }
 
+function ReplayControl({ cue, replay }: { cue: number; replay: () => void }) {
+  return (
+    <XStack alignItems="center" gap={space.md} flexWrap="wrap">
+      <Button {...control} backgroundColor="$surface" borderColor="$muted" color="$text" onPress={replay}>
+        Replay preview
+      </Button>
+      <Text role="status" color="$muted" fontFamily={control.fontFamily} fontSize={control.fontSize}>
+        {cue === 0 ? "" : cue === 1 ? "Preview replayed" : `Preview replayed ${cue} times`}
+      </Text>
+    </XStack>
+  );
+}
+
 export function SurfaceGallery({ reduced }: { reduced: boolean }) {
   const [kind, setKind] = useState<OutsideSurfaceKind>("LockScreen");
   const [cue, setCue] = useState(0);
   const environment = useEnvironment(undefined, { reduceMotion: reduced ? true : undefined });
+  const choose = (next: OutsideSurfaceKind) => {
+    if (kind === next) return;
+    setKind(next);
+    setCue(0);
+  };
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <YStack
@@ -65,17 +83,8 @@ export function SurfaceGallery({ reduced }: { reduced: boolean }) {
           <Text tag="h1" margin={0} fontFamily="$humanist" fontSize="$title" fontWeight="bold" color="$text">
             Outside surfaces
           </Text>
-          <SurfaceChooser kind={kind} choose={setKind} />
-          <Button
-            {...control}
-            alignSelf="flex-start"
-            backgroundColor="$surface"
-            borderColor="$line"
-            color="$text"
-            onPress={() => setCue((current) => current + 1)}
-          >
-            Replay preview
-          </Button>
+          <SurfaceChooser kind={kind} choose={choose} />
+          <ReplayControl cue={cue} replay={() => setCue((current) => current + 1)} />
         </YStack>
         <OutsideSurface kind={kind} content={examples[kind]} {...{ app, cue, environment, theme }} />
       </YStack>
