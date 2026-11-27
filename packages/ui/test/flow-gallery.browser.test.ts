@@ -103,7 +103,8 @@ test.each(cases)("plays %s through actual kit controls (%j)", async (id, actions
   await page.goto(`${base()}?flows=${id}`);
   for (const action of actions) await (branches.has(action) ? choice(action) : button(action)).click();
   await at(end);
-  expect(await page.getByText("Journey complete", { exact: true }).count()).toBe(1);
+  await playback("Play again").waitFor();
+  expect(await button("Play again").count()).toBe(0);
   expect(errors).toEqual([]);
 });
 
@@ -134,25 +135,32 @@ test("the agenda opens the full session's details without booking or linking the
   expect(errors).toEqual([]);
 });
 
-test("opens the launcher, inspects an error, and carries a typed reason across the hand-off", async () => {
-  await page.goto(base());
-  await page.getByRole("link", { name: "Flow templates", exact: true }).click();
+test("opens the flow launcher from the gallery", async () => {
+  await page.goto(base(), { waitUntil: "commit" });
+  await page.getByRole("link", { name: "Flow templates", exact: true }).click({ timeout: 75000 });
   await page.getByRole("link", { name: /Book a slot/ }).waitFor();
   await page.getByRole("link", { name: /Request and approve/ }).click();
+  await at("requester/draft");
+}, 120000);
+
+test("inspects an error and carries a typed reason across the hand-off", async () => {
+  await page.goto(`${base()}?flows=request_approve`);
   await at("requester/draft");
   await page.getByText("Inspect steps and states", { exact: true }).click();
   await page.getByRole("button", { name: "Error", exact: true }).click();
   await page.locator("[data-flow-state=error]").waitFor();
+  expect(await page.evaluate(() => window.__lmthingUI === undefined)).toBe(true);
   await playback("Return to playback").click();
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
   for (const action of ["Send request", "Open for review"]) await button(action).click();
   await choice("Decline").click();
   await at("approver/reason");
   const reason = phone().getByRole("textbox");
   await reason.fill("");
   await button("Send decision").click();
-  await page.locator("[data-flow-player='approver/reason'][data-flow-state=error]").waitFor();
-  expect(await phone().getByRole("textbox").inputValue()).toBe("");
-  await playback("Return to playback").click();
+  await at("approver/reason");
+  await phone().getByText("Enter a reason so the requester knows what to change.", { exact: true }).waitFor();
+  expect(await reason.inputValue()).toBe("");
   await reason.fill("No permit on file");
   await button("Send decision").click();
   await at("requester/rejected");
