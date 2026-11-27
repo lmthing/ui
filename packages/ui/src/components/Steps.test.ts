@@ -131,6 +131,13 @@ describe("Steps metadata and probes", () => {
 });
 
 describe("Steps view and reading", () => {
+  it("keeps a final step readable as a position and a named task, not an action", () => {
+    const input = examples.at(-1)!;
+    const html = renderInstance("Steps", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(html.indexOf("Step 4 of 4")).toBeLessThan(html.indexOf("Review the pickup instructions"));
+    expect(html).not.toContain('role="button"');
+    expect(affordancesOf(meta, props.parse(input), "c1")).toEqual([]);
+  });
   it("keeps the position and its address while hiding only the task name", () => {
     const input = { count: 3, at: 2, label: "Add your first plant", detail: "brief" };
     const html = renderInstance("Steps", input, "filled", { preset: "calm", mode: "light", accent: "moss" });

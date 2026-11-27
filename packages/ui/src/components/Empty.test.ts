@@ -118,6 +118,14 @@ describe("Empty fallback", () => {
   });
 });
 
+it.each(examples.slice(-3))("announces $title without offering retry", (input) => {
+  const html = renderInstance("Empty", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('role="status"');
+  expect(html).not.toContain('data-testid="home/c1/retry"');
+  expect(affordancesOf(meta, props.parse(input), "c1")).toEqual([]);
+  expect(readComponent(components.Empty, input, "c1").join(" ")).toContain(input.title);
+});
+
 describe("Empty metadata and probes", () => {
   it("has the required metadata and well-formed choose and write probes", () => {
     expect(meta).toMatchObject({
@@ -152,7 +160,7 @@ describe("Empty metadata and probes", () => {
     const nearMiss = probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero");
     expect(nearMiss).toMatchObject({
       kind: "choose",
-      need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+      need: "At the top of my plant screen, show 2 as the main headline count with plants need water today underneath. It counts plants, not money.",
       expect: "Hero",
     });
     if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");

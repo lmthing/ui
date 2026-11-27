@@ -120,9 +120,24 @@ export const examples = [
   { pairs: [...facts] },
   { pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
-  { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
-  { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
-  { pairs: [{ label: "Drainage", value: "Blocked", icon: "filter", tone: "bad" }, ...facts.slice(1)] },
+  {
+    pairs: [
+      { label: "Plant health", value: "Healthy", icon: "heart", tone: "good", status: true },
+      ...facts.slice(1),
+    ],
+  },
+  {
+    pairs: [
+      { label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn", status: true },
+      ...facts.slice(1),
+    ],
+  },
+  {
+    pairs: [
+      { label: "Drainage", value: "Blocked", icon: "filter", tone: "bad", status: true },
+      ...facts.slice(1),
+    ],
+  },
   { pairs: [facts[0], facts[1], { ...facts[2], mark: "highlight" }, facts[3]] },
   { pairs: [facts[0], facts[1], facts[2], { ...facts[3], mark: "muted" }] },
   { masked: true, pairs: [{ label: "Walk entry code", value: "DEMO-042" }] },
@@ -131,6 +146,15 @@ export const examples = [
       { label: "Order status", value: "Ready for pickup", tone: "good", status: true },
       { label: "Order no.", value: "LC-104" },
       { label: "Pickup", value: "Friday, 3–5 pm" },
+    ],
+  },
+  {
+    pairs: [
+      { label: "Last updated", value: "Friday at 2:40 pm", icon: "clock" },
+      { label: "Reference", value: "LC-104" },
+      { label: "Task", value: "Swap out the derailleur cage" },
+      { label: "Free bays", value: "7" },
+      { label: "Total bays", value: "12" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -225,6 +249,7 @@ function PairRow({
         ? { surface: "tinted", tone: pair.tone }
         : !loading && { tone: pair.tone, mark: pair.mark })}
       inline={!horizontal}
+      fitContent
       density={density}
       leading={lead}
     >
@@ -237,14 +262,14 @@ function PairRow({
             content={[["caption", pair.label]]}
           />
         ) : (
-          <kit.KitText role="caption" tone="muted" part="label" density={density}>
+          <kit.KitText role="caption" tone="muted" part="label" density={density} breakLongWords>
             {pair.label}
           </kit.KitText>
         )}
         {masked ? (
           <MaskedValue pair={pair} loading={loading} density={density} />
         ) : (
-          <PairValue {...{ pair, role, loading }} />
+          <PairValue {...{ pair, role, loading, horizontal }} />
         )}
       </kit.KitGrid>
     </kit.KitRow>
@@ -255,17 +280,31 @@ function PairValue({
   pair,
   role,
   loading,
+  horizontal,
 }: {
   pair: Pair;
   role: ReturnType<typeof valueRole>;
   loading: boolean;
+  horizontal: boolean;
 }) {
   if (loading)
     return (
-      <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        density="comfortable"
+        content={[[role, pair.value, role === "number" && horizontal ? "end" : "start"]]}
+      />
     );
   return (
-    <kit.KitText role={role} part="value" density="comfortable" {...(pair.status && { emphasis: "strong" })}>
+    <kit.KitText
+      role={role}
+      part="value"
+      density="comfortable"
+      {...(role === "number" && horizontal && { align: "end", tabular: true })}
+      {...(pair.status && { emphasis: "strong" })}
+      breakLongWords
+    >
       {pair.value}
     </kit.KitText>
   );
@@ -277,22 +316,28 @@ export function KeyValue({ arrange, pairs, masked = false }: Props<typeof props,
   const density = kit.useKit().density;
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
+  const mixedIcons = pairs.some((pair) => pair.icon) && pairs.some((pair) => !pair.icon);
+  const rows = pairs.map((pair) => (
+    <PairRow
+      key={pair.id}
+      pair={pair}
+      horizontal={!grid}
+      density={spacing}
+      loading={state === "loading"}
+      masked={masked}
+    />
+  ));
   return (
     <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"}>
       {state === "empty" ? (
         <kit.KitEmpty part="label" />
+      ) : mixedIcons && !grid ? (
+        <kit.KitRowGroup separators={false} leadingWidth="avatar" density={spacing}>
+          {rows}
+        </kit.KitRowGroup>
       ) : (
         <kit.KitGrid arrange={arrange} density={spacing}>
-          {pairs.map((pair) => (
-            <PairRow
-              key={pair.id}
-              pair={pair}
-              horizontal={!grid}
-              density={spacing}
-              loading={state === "loading"}
-              masked={masked}
-            />
-          ))}
+          {rows}
         </kit.KitGrid>
       )}
     </kit.KitCard>

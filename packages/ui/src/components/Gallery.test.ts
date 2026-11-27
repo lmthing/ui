@@ -208,6 +208,28 @@ it("collapses an unresolved carousel and does not re-address surviving photos", 
   expect(error).not.toContain('role="img"');
 });
 
+it("keeps portrait jackets in a two-column grid through loading and retains real links", () => {
+  const example = examples.at(-1)!;
+  for (const state of ["filled", "loading"] as const) {
+    const html = renderInstance("Gallery", example, state, theme, { resolvePhoto });
+    const grid = elementAt(html, "home/c1/root").children[0]!;
+    expect(grid.children.map((row) => row.children.length)).toEqual([2, 2]);
+    expect((html.match(/role="link"/g) ?? []).length).toBe(state === "filled" ? 2 : 0);
+    if (state === "filled") expect(elementAt(html, "home/c1/r3/root").attributes).toContain('role="link"');
+  }
+});
+
+it("keeps a decorative navigation cue only on linked images when captions are hidden", () => {
+  const html = renderInstance("Gallery", { ...examples[0], detail: "brief" }, "filled", theme, {
+    resolvePhoto,
+  });
+  const hasGlyph = (node: ReturnType<typeof elementAt>): boolean =>
+    node.tag === "svg" || node.children.some(hasGlyph);
+  expect(hasGlyph(elementAt(html, "home/c1/r1/root"))).toBe(true);
+  expect(hasGlyph(elementAt(html, "home/c1/r3/root"))).toBe(false);
+  expect(html).not.toMatch(/data-testid="[^"]+\/caption"/);
+});
+
 // prettier-ignore
 it.each(["strip", "grid"] as const)("migrates the legacy %s layout and keeps link addresses", (style) => {
   const legacy = { c: "Gallery", id: "g1", style, photos: [{ ...pair[0], caption: "First", goto: "first" }, pair[1]] };

@@ -169,6 +169,23 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
   return renderInstance("KeyValue", { arrange, pairs, ...(hideIcons ? { lead: "none" } : {}) },
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
+describe("KeyValue receipt", () => {
+  it("keeps record identity and full repair task on separate paired addresses", () => {
+    const input = examples.at(-1)!;
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const html = renderInstance("KeyValue", input, "filled", theme);
+    expect(html).toContain("Swap out the derailleur cage");
+    expect(html).toContain("LC-104");
+    expect(html).toContain('data-testid="home/c1/r1/icon"');
+    expect(html).not.toContain('data-testid="home/c1/r2/icon"');
+    expect(styleAt(html, "home/c1/r4/value")).toBe(styleAt(html, "home/c1/r5/value"));
+    const read = readComponent(components.KeyValue, input, "c1").join();
+    expect(read).toContain('"Reference" · "LC-104"');
+    expect(read).toContain('"Task" · "Swap out the derailleur cage"');
+    expect(read.indexOf("Last updated")).toBeLessThan(read.indexOf("Reference"));
+  });
+});
+
 describe("KeyValue rendering", () => {
   it.each(["rows", "grid"] as const)(
     "emphasises only the status value in %s without changing addresses",

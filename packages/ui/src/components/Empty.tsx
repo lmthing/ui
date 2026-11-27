@@ -1,4 +1,4 @@
-import { useWords, KitAction, KitCard, KitEmpty } from "../kit";
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitIcon, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -18,6 +18,7 @@ import { prompt } from "../entry/prompt-Empty.generated";
 
 export const meta = {
   id: "Empty",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -66,15 +67,18 @@ export const examples = [
   { title: "No plants yet", icon: "leaf", sub: "Added plants will appear here." },
   { title: "No walks today", sub: "Booked walks will appear here." },
   { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
-  { title: "You're offline", kind: "offline" },
+  { title: "You're offline", sub: "Reconnect, then try again.", kind: "offline" },
   { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
+  { title: "All walk reports filed", sub: "Nothing left to send for today’s walks.", icon: "circle_check" },
+  { title: "No walks match these filters", sub: "Try a different walker or date range.", icon: "search" },
+  { title: "Walk reports are private", sub: "Only the assigned walker can see these reports.", icon: "lock" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Empty");
 export const probes = [
   choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
   choose(
-    "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+    "At the top of my plant screen, show 2 as the main headline count with plants need water today underneath. It counts plants, not money.",
     "Hero",
   ),
   write("My walks could not be loaded. Show a calm message that says what went wrong."),
@@ -98,10 +102,31 @@ function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
 
 export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
+  if (kind !== "none" && shown)
+    return (
+      <KitCard style="plain" part="root" padded>
+        <KitContent lead={<KitIcon name={shown} tone="muted" part="icon" />} lineRole="heading">
+          <KitText role="heading" part="title" breakLongWords>
+            {title}
+          </KitText>
+          {sub && (
+            <KitText role="body" tone="muted" part="sub" breakLongWords>
+              {sub}
+            </KitText>
+          )}
+          <RetryAction kind="secondary" part="retry" full />
+        </KitContent>
+      </KitCard>
+    );
   return (
     <KitCard style="plain" part="root">
-      <KitEmpty title={title} {...(sub ? { sub } : {})} {...(shown ? { icon: shown } : {})} fill />
-      {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
+      <KitEmpty
+        title={title}
+        {...(sub ? { sub } : {})}
+        {...(shown ? { icon: shown } : {})}
+        announce="status"
+        fill
+      />
     </KitCard>
   );
 }

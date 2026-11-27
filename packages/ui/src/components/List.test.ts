@@ -105,6 +105,22 @@ it.each(["rows", "grid"] as const)("keeps record identity, facts and route separ
   }
 });
 
+it("keeps posters and actions distinct when only one shelf entry has a status", () => {
+  const input = examples.at(-1)!;
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderInstance("List", input, "filled", theme);
+  const elements = addressedElements(html);
+  for (const part of ["r1/icon", "r2/icon", "r1/meta", "r2/badge", "r1/trail"])
+    expect(elements.has(`home/c1/${part}`)).toBe(true);
+  expect(elements.has("home/c1/r2/trail")).toBe(false);
+  expect(html.indexOf("home/c1/r1/trail")).toBeLessThan(html.indexOf("home/c1/r1/meta"));
+  const read = readComponent(components.List, input, "c1").join("\n");
+  expect(read).toContain("Houseplants · 28 plates");
+  expect(read).toContain("On loan");
+  expect(read).toContain("[c1/r1 press");
+  expect(read).not.toContain("[c1/r2 press");
+});
+
 it("allows both shelf progress endpoints, and preserves grid link addresses", () => {
   const rows = [
     { title: "Fern", photo: "lib:fern", progress: 0 },
