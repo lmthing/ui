@@ -34,6 +34,9 @@ describe("motion and gesture contracts", () => {
     expect(signatures.day_unfold).toMatchObject({ component: "Timeline", style: "hours" });
     expect(signatures.record_arrive.component).toBe("HandoffReceipt");
   });
+});
+
+describe("animation driver", () => {
   it("carries velocity into a reversed spring and cancels the obsolete completion", () => {
     let frame: FrameRequestCallback;
     vi.stubGlobal("requestAnimationFrame", (run: FrameRequestCallback) => ((frame = run), 1));

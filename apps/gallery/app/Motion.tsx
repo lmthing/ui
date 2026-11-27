@@ -1,4 +1,4 @@
-import { StrictMode, useCallback, useMemo, useRef, useState } from "react";
+import { StrictMode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import {
   components,
@@ -96,11 +96,7 @@ const dispatchSummary: Record<ArrivalPhase, string> = {
   received: "Dispatch has acknowledged the notes and can review the walk.",
   returned: "Dispatch returned the notes so the walker can add the pickup time.",
 };
-const dispatchTime = {
-  waiting: receipt.at,
-  received: "2026-11-27T14:19:00Z",
-  returned: "2026-11-27T14:19:00Z",
-};
+const dispatchMinute = { waiting: 15, received: 19, returned: 19 };
 
 const pickupTime = "13:43 UTC";
 const nextAction = {
@@ -109,23 +105,28 @@ const nextAction = {
   returned: { label: "Add pickup time", goto: "pickup_time" },
 } as const;
 
-function handoffScreen(phase: ArrivalPhase, pickupAdded = false): ScreenLike {
+function handoffScreen(phase: ArrivalPhase, revision = 0): ScreenLike {
   return {
     id: "dispatch",
     components: [
-      { id: "header", c: "Header", title: "Dispatch handoff" },
-      { id: "outbox", c: "SectionTitle", text: "Walker’s outbox" },
-      { id: "sent", c: "Note", text: "TROT-92 · Walk notes sent at 14:15 UTC" },
-      { id: "inbox", c: "SectionTitle", text: "Dispatch inbox" },
+      { id: "header", c: "Header", title: "Dispatch handoff demo" },
+      {
+        id: "sent",
+        c: "Note",
+        text: "Walker’s outbox · TROT-92 sent at 14:15 UTC",
+        emphasis: "quiet",
+      },
       {
         id: "receipt",
         c: "HandoffReceipt",
         ...receipt,
         phase,
-        at: dispatchTime[phase],
+        at: new Date(Date.UTC(2026, 10, 27, 14, dispatchMinute[phase] + 6 * revision)).toISOString(),
         summary:
-          pickupAdded && phase === "waiting"
-            ? `The walker added the ${pickupTime} pickup. Dispatch has not acknowledged it.`
+          revision && phase !== "returned"
+            ? `Pickup corrected to ${pickupTime}. ${
+                phase === "waiting" ? "Awaiting dispatch acknowledgment." : "Dispatch acknowledged the notes."
+              }`
             : dispatchSummary[phase],
       },
       {
@@ -140,21 +141,24 @@ function handoffScreen(phase: ArrivalPhase, pickupAdded = false): ScreenLike {
   };
 }
 
-const walkNotes: ScreenLike = {
-  id: "walk_notes",
-  components: [
-    { id: "header", c: "Header", style: "back", title: "Clover’s walk notes", sub: "TROT-92" },
-    {
-      id: "walk",
-      c: "KeyValue",
-      pairs: [
-        { label: "Leash time", value: "32 min" },
-        { label: "Route", value: "Canal towpath" },
-        { label: "Drop-off", value: "Water bowl refilled" },
-      ],
-    },
-  ],
-};
+function walkNotesScreen(revision = 0): ScreenLike {
+  return {
+    id: "walk_notes",
+    components: [
+      { id: "header", c: "Header", style: "back", title: "Clover’s walk notes", sub: "TROT-92" },
+      {
+        id: "walk",
+        c: "KeyValue",
+        pairs: [
+          { label: "Leash time", value: "32 min" },
+          ...(revision ? [{ label: "Pickup", value: pickupTime }] : []),
+          { label: "Route", value: "Canal towpath" },
+          { label: "Drop-off", value: "Water bowl refilled" },
+        ],
+      },
+    ],
+  };
+}
 
 const pickup: ScreenLike = {
   id: "pickup_time",
@@ -168,11 +172,21 @@ const pickup: ScreenLike = {
         { label: "Recorded start", value: pickupTime },
       ],
     },
-    { id: "add", c: "Button", label: `Use ${pickupTime}` },
+    { id: "add", c: "Button", label: `Send ${pickupTime} pickup` },
   ],
 };
 
 const dispatch = handoffScreen("received");
+const walkNotes = walkNotesScreen();
+
+function useWalkNotesFocus(screen: string) {
+  useLayoutEffect(() => {
+    if (screen === "walk_notes" && typeof document !== "undefined")
+      document.querySelector<HTMLElement>('[data-testid="walk_notes/header/back"]')?.focus({
+        preventScroll: true,
+      });
+  }, [screen]);
+}
 
 function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack: boolean }) {
   const inbox = useRef<ScreenNavigation>(null);
@@ -181,6 +195,7 @@ function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack:
   const [play, setPlay] = useState<{ screen: ScreenLike; transition?: ScreenTransition | undefined }>({
     screen: dispatch,
   });
+  useWalkNotesFocus(play.screen.id);
   const onLink = (goto: string, address: string) => {
     const back = goto === "back";
     const source = play.screen === dispatch ? inbox : detail;
@@ -221,20 +236,21 @@ function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack:
 function RecordArrivalPreview() {
   const [phase, setPhase] = useState<ArrivalPhase>("waiting");
   const [route, setRoute] = useState("dispatch");
-  const [pickupAdded, setPickupAdded] = useState(false);
+  const [revision, setRevision] = useState(0);
+  useWalkNotesFocus(route);
   const screen = useMemo(
     () =>
       route === "walk_notes"
-        ? walkNotes
+        ? walkNotesScreen(revision)
         : route === "pickup_time"
           ? pickup
-          : handoffScreen(phase, pickupAdded),
-    [route, phase, pickupAdded],
+          : handoffScreen(phase, revision),
+    [route, phase, revision],
   );
   const onAction = ({ address }: { address: string }) => {
     const [role, part] = address.split("/");
     if (role === "pickup_time" && part === "add") {
-      setPickupAdded(true);
+      setRevision((current) => current + 1);
       setPhase("waiting");
       setRoute("dispatch");
     }

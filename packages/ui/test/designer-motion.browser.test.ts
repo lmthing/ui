@@ -84,7 +84,7 @@ changed.each(["no-preference", "reduce"] as const)(
   "plays an explicit transition across remounted trees in %s",
   async (preference) => {
     await openMotion(preference, "navigation");
-    await page.setViewportSize({ width: 390, height: 385 });
+    await page.setViewportSize({ width: 390, height: 340 });
     try {
       await checkCrossTree(preference);
     } finally {
@@ -133,7 +133,7 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
   if (preference === "reduce") expect(x).toBe(0);
   else expect(x).toBeGreaterThan(0);
   expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
-  await part("walk_notes/header/back").focus();
+  expect(await part("walk_notes/header/back").evaluate((node) => node === document.activeElement)).toBe(true);
   await page.keyboard.press("Enter");
   await expect.poll(moves).toBe(`|${forward}|${reverse}`);
   expect(await part(reference).textContent()).toBe("TROT-92");
@@ -151,7 +151,9 @@ changed("restores the same control on two scripted returns to an already mounted
   for (let index = 0; index < 2; index++) {
     await next.focus();
     await page.keyboard.press("Enter");
-    await part("walk_notes/header/back").focus();
+    expect(await part("walk_notes/header/back").evaluate((back) => back === document.activeElement)).toBe(
+      true,
+    );
     await page.keyboard.press("Enter");
     await expect.poll(() => node!.evaluate((button) => button === document.activeElement)).toBe(true);
   }
@@ -216,10 +218,19 @@ changed("cuts the arrival in reduced motion and leaves a returned record quiet",
   expect(await page.locator("[data-record-arrival]").count()).toBe(0);
   await tap("dispatch/next/root");
   expect(await part("pickup_time/header/sub").textContent()).toContain("TROT-92");
+  expect(await part("pickup_time/add/root").textContent()).toBe("Send 13:43 UTC pickup");
   await tap("pickup_time/add/root");
   expect(await part("dispatch/receipt/phase").textContent()).toBe("Awaiting receipt");
   expect(await part("dispatch/receipt/summary").textContent()).toContain("13:43 UTC");
+  expect(await part("dispatch/receipt/time").textContent()).toContain("2:21 PM UTC");
   expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await tap("dispatch/next/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Received");
+  expect(await part("dispatch/receipt/summary").textContent()).toContain("13:43 UTC");
+  expect(await part("dispatch/receipt/time").textContent()).toContain("2:25 PM UTC");
+  await tap("dispatch/next/root");
+  expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
+  expect(await page.getByText("13:43 UTC", { exact: true }).textContent()).toBe("13:43 UTC");
 });
 
 changed.each(["calm", "lively"] as const)("paints the first working frame in %s", async (profile) => {
