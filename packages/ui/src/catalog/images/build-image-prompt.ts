@@ -30,7 +30,9 @@ export function buildImagePrompt(slot: ImageSlot, theme: ThemeChoice): string {
     accent,
     modeDirection[theme.mode],
     densityDirection[theme.density ?? "comfortable"],
-    framingDirection[imageFraming[kind]],
+    kind === "pattern"
+      ? "Square tile, not a framed image. Motifs may cross the edges; match opposite edges exactly."
+      : framingDirection[imageFraming[kind]],
   ].join("\n");
 }
 

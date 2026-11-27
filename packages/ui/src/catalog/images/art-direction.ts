@@ -4,19 +4,19 @@ export const styles = {
   natural_photo:
     "Observational photography: real materials, indirect daylight and believable environmental shadows. No studio sweep or illustration.",
   studio_photo:
-    "Studio product photography: controlled softbox highlights, a seamless matte sweep and crisp material detail. No busy environmental background.",
+    "Studio product photography: precise side softbox highlights, a seamless matte sweep and crisp material detail. If the subject names a setting, stage only its signature prop on the sweep; no real windows, scenery or background architecture.",
   soft_3d:
-    "Soft 3D: softly rounded solid models with visible volume, matte clay surfaces and gentle occlusion. No photographic texture or flat vector outlines.",
+    "Soft 3D: a hand-built miniature toy with visibly thick, rounded solids, matte molded clay and gentle contact shadows. Simplify details into bold, softly inflated forms. No photographic texture, thin real surfaces or flat vector outlines.",
   flat_illustration:
     "Flat editorial illustration: clean, opaque color shapes, hard edges and no modeling, grain or cast shadows.",
   line_art:
-    "Pen line art: legible contour strokes and selective hatching on an open ground. No blocks of color, tonal washes or modeling.",
+    "Pen line art: confident dark contour strokes on an open ground. Keep outer edges heavier than interior hatching so the silhouette holds at icon size. No blocks of color, tonal washes or modeling.",
   risograph:
-    "Two-ink risograph: coarse printed halftones, economical spot-color shapes and restrained misregistration. No washes, smooth gradients or physical cut edges.",
+    "Two-ink risograph: charcoal plus the named accent are the only two inks on paper. Translate local object colors into ink density, not more inks. Use clearly printed halftones and restrained misregistration. No washes, smooth gradients or cut edges.",
   watercolor:
     "Watercolor on cold-pressed paper: transparent washes, pigment blooms and uneven wet edges with deliberate white reserves. No hard vector edges or halftones.",
   paper_cut:
-    "Layered cut paper: crisp scissor edges, overlapping flat sheets with visible paper fibers, and thin directional relief shadows. No clay volume or painted gradients.",
+    "Layered cut paper: show bold die-cut outlines and the thickness of overlapping flat cardstock pieces with crisp relief shadows and paper fibers. Use clean edges instead of soft shading. No clay volume, realistic texture or painted gradients.",
 } satisfies Record<ArtStyle, string>;
 
 export const illustratedPortrait = {

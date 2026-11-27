@@ -76505,5 +76505,1137 @@
       "{\"c\":\"Turns\",\"lead\":\"none\",\"emphasis\":null,\"job\":\"Mist the plants\",\"people\":[{\"name\":\"Sam\",\"photo\":null},{\"name\":\"Alex\",\"photo\":null},{\"name\":\"Mia\",\"photo\":null}],\"at\":0}",
       "{\"c\":\"Turns\",\"lead\":null,\"emphasis\":null,\"job\":\"Mist the plants\",\"people\":[{\"name\":\"Sam\",\"photo\":null},{\"name\":\"Alex\",\"photo\":null},{\"name\":\"Mia\",\"photo\":null}],\"at\":0}"
     ]
+  },
+  "compose%2Fcare%2Fsubject%2FOne%20plant's%20identity%2C%20facts%2C%20recurring%20care%20and%20care%20history/eb33c11fe86f2af2/7eedb3dbd114ab54": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: care/subject. Job: Looking after a thing.\n\nBrief: One plant's identity, facts, recurring care and care history\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1,\"variant\":\"back\"},{\"id\":\"slot_1\",\"allow\":[\"Profile\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"KeyValue\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"CareSchedule\"],\"min\":1,\"max\":1},{\"id\":\"slot_4\",\"allow\":[\"Timeline\"],\"min\":1,\"max\":1,\"variant\":\"history\"}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Timeline uses style:\"history\". Its 1–6 rows have time and title; never write end, tone or goto, which belong only to hours.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nProfile: Identify the person, pet or plant whose screen this is.\nprops: { detail?: full|brief=\"full\", media?: thumb|none=\"thumb\", name: text≤32, meta?: text≤48, photo?: photo lib:<tag>|local:<n> or { kind: avatar|pet|plant, subject: text≤80 } }\nRule: Put the portrait reference in `photo`. In the usual layout use `\"media\": null`, even with a supplied portrait or a profile at the top of the page. The default already shows the portrait.\nRule: Use `\"media\": \"thumb\"` only for an explicitly requested thumbnail or photo-led treatment. Use `\"media\": \"none\"` only if asked to hide the portrait. Never use `none` when the request says to show a picture.\nRule: Put supplied supporting text in `meta`. To show it, use `\"detail\": null`, including in a photo-led profile. Use `\"detail\": \"brief\"` only on an explicit request to hide the supporting line, and keep that text in `meta`. Hiding the supporting line alone leaves `media` null.\nRule: Use an `avatar` image slot only for a fictional illustrated person; use `pet` or `plant` for those profiles. Preserve supplied photo references for real records. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Profile\",\"name\":\"Monstera\",\"meta\":\"Living room\",\"photo\":\"lib:plants\"}\nweight: 2\n\nKeyValue: Label and value details of one single thing, like its room or schedule.\nprops: { arrange?: rows|grid=\"rows\", lead?: icon|none=\"icon\", masked?: boolean, pairs: [1..6 { label: text≤20, value: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, status?: boolean, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted=\"none\" }] }\nRule: A request for a two-column grid sets arrange to \"grid\" only. Otherwise leave arrange null for rows. Leave lead null unless explicitly requested.\nRule: For ordinary facts, set both tone and mark to null on every pair, never \"neutral\" or \"none\". Use those axes only if a specific fact needs visual status or highlighting by request. Set lead to \"none\" only when specifically asked to hide icons.\nRule: If one fact is the record's primary state, put that pair first and set its status to true (for example, label \"Order status\" and value \"Ready for pickup\"). Leave status null on ordinary details and on masked pairs.\nRule: When writing a hidden entry code, set \"masked\":true at the component and \"status\":null on every pair. A code, password or token is never a status. Use only synthetic example values for private facts; never copy real credentials.\nexample: {\"c\":\"KeyValue\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}\nweight: 2\n\nCareSchedule: Keep recurring care for pets, plants, cars or a house and log each completion.\nprops: { arrange?: grid|rows=\"grid\", tasks: [1..12 { title: text≤24, for?: text≤16, category?: pet|plant|car|house, icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, repeat: never|daily|weekdays|weekly|monthly|yearly, every: int 1..12, last: date YYYY-MM-DD, goto: id snake_case }] }\nRule: Write last, repeat and every. Next due, overdue and due-today are computed; never write them. Repeat uses the same enum as Field.\nRule: Set category on each task explicitly described as pet, plant, car or house care; otherwise leave category null.\nRule: Use arrange \"rows\" only when asked for one task per line. Keep the repeat, last completion, next due and Done control in either layout.\nexample: {\"c\":\"CareSchedule\",\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-11\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-04\",\"goto\":\"monstera\"}]}\nweight: 3\n\nTimeline: Events in time order, or activities sized by duration on an hour rail.\nprops: { detail?: full|brief=\"full\", style?: day|history|hours=\"day\", items: [1..8 { tone?: neutral|good|warn|bad=\"neutral\", time: text≤12, title: text≤32, meta?: text≤32, done?: boolean=false, end?: time HH:MM, goto?: id snake_case }] }\nRule: Use day for a schedule of events with only single times, even if some are already done. Use history for an explicitly past-only log. Either takes up to six items. To show time and title only, set detail brief and keep supplied notes in meta.\nRule: Use hours for duration blocks on an hour rail: up to eight items, time as the start in HH:MM and a later end in HH:MM. Only hours uses end and goto; omit meta and done in hours.\nRule: Set detail and each event tone to null unless explicitly requested. Times, notes, completion and scheduling are data, not requests for a variant.\nexample: {\"c\":\"Timeline\",\"style\":\"history\",\"items\":[{\"time\":\"Mon\",\"title\":\"Watered fern\",\"meta\":\"Bathroom · Ledge\",\"done\":true},{\"time\":\"Wed\",\"title\":\"Repotted basil\",\"meta\":\"Kitchen\",\"done\":true}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"care_subject\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\",\"style\":\"back\"},{\"id\":\"p1\",\"c\":\"Profile\",\"name\":\"Item one\",\"meta\":\"Details\"},{\"id\":\"k1\",\"c\":\"KeyValue\",\"pairs\":[{\"label\":\"Item one\",\"value\":\"0\"},{\"label\":\"Item two\",\"value\":\"0\"}]},{\"id\":\"c1\",\"c\":\"CareSchedule\",\"tasks\":[{\"title\":\"Item one\",\"icon\":\"check\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"1970-01-01\",\"goto\":\"detail\"}]},{\"id\":\"t1\",\"c\":\"Timeline\",\"style\":\"history\",\"items\":[{\"time\":\"—\",\"title\":\"Item one\"},{\"time\":\"—\",\"title\":\"Item two\"},{\"time\":\"—\",\"title\":\"Item three\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Profile",
+                        "enum": [
+                          "Profile"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "thumb",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "meta": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 48
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "photo": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "avatar",
+                                      "pet",
+                                      "plant"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 80
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "subject"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "media",
+                      "name",
+                      "meta",
+                      "photo"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "KeyValue",
+                        "enum": [
+                          "KeyValue"
+                        ]
+                      },
+                      "arrange": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "rows",
+                              "grid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "masked": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "pairs": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "status": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight",
+                                    "muted"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "value",
+                            "icon",
+                            "status",
+                            "tone",
+                            "mark"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "arrange",
+                      "lead",
+                      "masked",
+                      "pairs"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "CareSchedule",
+                        "enum": [
+                          "CareSchedule"
+                        ]
+                      },
+                      "arrange": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "grid",
+                              "rows"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "tasks": {
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "for": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 16
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "category": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "pet",
+                                    "plant",
+                                    "car",
+                                    "house"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "type": "string",
+                              "enum": [
+                                "dot",
+                                "leaf",
+                                "drop",
+                                "dog",
+                                "cat",
+                                "calendar",
+                                "calendar_days",
+                                "clock",
+                                "check",
+                                "chevron_right",
+                                "plus",
+                                "minus",
+                                "close",
+                                "search",
+                                "settings",
+                                "bell",
+                                "bell_off",
+                                "heart",
+                                "star",
+                                "bookmark",
+                                "share",
+                                "send",
+                                "message",
+                                "mail",
+                                "phone",
+                                "camera",
+                                "image",
+                                "video",
+                                "mic",
+                                "music",
+                                "play",
+                                "pause",
+                                "square",
+                                "undo",
+                                "timer",
+                                "alarm_clock",
+                                "sun",
+                                "moon",
+                                "cloud",
+                                "cloud_rain",
+                                "thermometer",
+                                "wind",
+                                "flame",
+                                "zap",
+                                "battery",
+                                "wifi",
+                                "pin",
+                                "map",
+                                "navigation",
+                                "compass",
+                                "home",
+                                "building",
+                                "store",
+                                "shopping_cart",
+                                "shopping_bag",
+                                "tag",
+                                "gift",
+                                "credit_card",
+                                "wallet",
+                                "banknote",
+                                "piggy_bank",
+                                "receipt",
+                                "trending_up",
+                                "trending_down",
+                                "bar_chart",
+                                "pie_chart",
+                                "activity",
+                                "target",
+                                "trophy",
+                                "medal",
+                                "award",
+                                "flag",
+                                "user",
+                                "users",
+                                "user_plus",
+                                "baby",
+                                "smile",
+                                "dumbbell",
+                                "bike",
+                                "footprints",
+                                "heart_pulse",
+                                "pill",
+                                "stethoscope",
+                                "apple",
+                                "coffee",
+                                "utensils",
+                                "wine",
+                                "pizza",
+                                "carrot",
+                                "sprout",
+                                "flower",
+                                "tree",
+                                "mountain",
+                                "waves",
+                                "car",
+                                "bus",
+                                "plane",
+                                "train",
+                                "briefcase",
+                                "graduation_cap",
+                                "book_open",
+                                "book",
+                                "pencil",
+                                "file_text",
+                                "clipboard",
+                                "clipboard_list",
+                                "checklist",
+                                "lock",
+                                "unlock",
+                                "key",
+                                "shield",
+                                "eye",
+                                "link",
+                                "paperclip",
+                                "download",
+                                "upload",
+                                "trash",
+                                "edit",
+                                "filter",
+                                "sliders",
+                                "info",
+                                "alert",
+                                "help",
+                                "sparkles",
+                                "lightbulb",
+                                "palette",
+                                "scissors",
+                                "wrench",
+                                "hammer",
+                                "package",
+                                "truck",
+                                "recycle",
+                                "globe",
+                                "languages",
+                                "gamepad",
+                                "ticket",
+                                "paw",
+                                "shirt",
+                                "bed",
+                                "bath",
+                                "sofa",
+                                "lamp",
+                                "chevron_left",
+                                "arrow_left",
+                                "more",
+                                "external_link",
+                                "quote",
+                                "circle_check"
+                              ]
+                            },
+                            "repeat": {
+                              "type": "string",
+                              "enum": [
+                                "never",
+                                "daily",
+                                "weekdays",
+                                "weekly",
+                                "monthly",
+                                "yearly"
+                              ]
+                            },
+                            "every": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 12
+                            },
+                            "last": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "goto": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "for",
+                            "category",
+                            "icon",
+                            "repeat",
+                            "every",
+                            "last",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "arrange",
+                      "tasks"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Timeline",
+                        "enum": [
+                          "Timeline"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "day",
+                              "history",
+                              "hours"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 12
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 32
+                            },
+                            "meta": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 32
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "done": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "end": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "tone",
+                            "time",
+                            "title",
+                            "meta",
+                            "done",
+                            "end",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "style",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"care_subject\",\n  \"title\": \"Plant\",\n  \"components\": [\n    {\n      \"id\": \"header_plant\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Plant\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"profile_plant\",\n      \"c\": \"Profile\",\n      \"detail\": null,\n      \"media\": null,\n      \"name\": \"Monstera\",\n      \"meta\": \"Living room\",\n      \"photo\": \"lib:plant\"\n    },\n    {\n      \"id\": \"keyvalue_plant\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Room\",\n          \"value\": \"Living room\",\n          \"icon\": \"home\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Light\",\n          \"value\": \"Indirect\",\n          \"icon\": \"sun\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Water\",\n          \"value\": \"Weekly\",\n          \"icon\": \"drop\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"careschedule_plant\",\n      \"c\": \"CareSchedule\",\n      \"arrange\": null,\n      \"tasks\": [\n        {\n          \"title\": \"Water\",\n          \"for\": \"Monstera\",\n          \"category\": \"plant\",\n          \"icon\": \"drop\",\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": \"2026-11-11\",\n          \"goto\": \"log_water\"\n        }\n      ]\n    },\n    {\n      \"id\": \"timeline_history\",\n      \"c\": \"Timeline\",\n      \"detail\": null,\n      \"style\": \"history\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"Mon\",\n          \"title\": \"Watered\",\n          \"meta\": \"Living room\",\n          \"done\": true\n        ,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"Wed\",\n          \"title\": \"Repotted\",\n          \"meta\": \"Kitchen\",\n          \"done\": true,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"care_subject\",\n  \"title\": \"Plant\",\n  \"components\": [\n    {\n      \"id\": \"header_plant\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Plant\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"profile_plant\",\n      \"c\": \"Profile\",\n      \"detail\": null,\n      \"media\": null,\n      \"name\": \"Monstera\",\n      \"meta\": \"Living room\",\n      \"photo\": \"lib:plant\"\n    },\n    {\n      \"id\": \"keyvalue_plant\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Room\",\n          \"value\": \"Living room\",\n          \"icon\": \"home\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Light\",\n          \"value\": \"Indirect\",\n          \"icon\": \"sun\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Water\",\n          \"value\": \"Weekly\",\n          \"icon\": \"drop\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"careschedule_plant\",\n      \"c\": \"CareSchedule\",\n      \"arrange\": null,\n      \"tasks\": [\n        {\n          \"title\": \"Water\",\n          \"for\": \"Monstera\",\n          \"category\": \"plant\",\n          \"icon\": \"drop\",\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": \"2026-11-11\",\n          \"goto\": \"log_water\"\n        }\n      ]\n    },\n    {\n      \"id\": \"timeline_history\",\n      \"c\": \"Timeline\",\n      \"detail\": null,\n      \"style\": \"history\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"Mon\",\n          \"title\": \"Watered\",\n          \"meta\": \"Living room\",\n          \"done\": true\n        ,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"Wed\",\n          \"title\": \"Repotted\",\n          \"meta\": \"Kitchen\",\n          \"done\": true,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"care_subject\",\n  \"title\": \"Plant Care\",\n  \"components\": [\n    {\n      \"id\": \"header_plant\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Monstera\",\n      \"sub\": null,\n      \"action\": {\n        \"icon\": \"camera\",\n        \"label\": \"Photo\",\n        \"goto\": \"plant_photo\"\n      }\n    },\n    {\n      \"id\": \"profile_plant\",\n      \"c\": \"Profile\",\n      \"detail\": null,\n      \"media\": null,\n      \"name\": \"Monstera\",\n      \"meta\": \"Living room\",\n      \"photo\": {\n        \"kind\": \"plant\",\n        \"subject\": \"Monstera in living room\"\n      }\n    },\n    {\n      \"id\": \"key_facts\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Room\",\n          \"value\": \"Living room\",\n          \"icon\": \"home\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Light\",\n          \"value\": \"Indirect\",\n          \"icon\": \"sun\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Water (days)\",\n          \"value\": \"7\",\n          \"icon\": \"drop\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Last watered\",\n          \"value\": \"2026-11-20\",\n          \"icon\": \"calendar\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"care_schedule_plant\",\n      \"c\": \"CareSchedule\",\n      \"arrange\": null,\n      \"tasks\": [\n        {\n          \"title\": \"Water\",\n          \"for\": \"Monstera\",\n          \"category\": \"plant\",\n          \"icon\": \"drop\",\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": \"2026-11-20\",\n          \"goto\": \"watering\"\n        },\n        {\n          \"title\": \"Mist\",\n          \"for\": \"Monstera\",\n          \"category\": \"plant\",\n          \"icon\": \"leaf\",\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": \"2026-11-21\",\n          \"goto\": \"misting\"\n        },\n        {\n          \"title\": \"Fertilize\",\n          \"for\": \"Monstera\",\n          \"category\": \"plant\",\n          \"icon\": \"sparkles\",\n          \"repeat\": \"monthly\",\n          \"every\": 1,\n          \"last\": \"2026-11-01\",\n          \"goto\": \"fertilizing\"\n        }\n      ]\n    },\n    {\n      \"id\": \"timeline_history\",\n      \"c\": \"Timeline\",\n      \"detail\": null,\n      \"style\": \"history\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"Nov 20\",\n          \"title\": \"Watered Monstera\",\n          \"meta\": \"Living room\",\n          \"done\": true\n        , \"end\": null, \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"Nov 15\",\n          \"title\": \"Misted Monstera\",\n          \"meta\": \"Living room\",\n          \"done\": true\n        , \"end\": null, \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"Oct 30\",\n          \"title\": \"Fertilized Monstera\",\n          \"meta\": \"Living room\",\n          \"done\": true\n        , \"end\": null, \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"care_subject\",\n  \"title\": \"Plant care\",\n  \"components\": [\n    {\n      \"id\": \"header_plant\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Plant\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"profile_plant\",\n      \"c\": \"Profile\",\n      \"detail\": null,\n      \"media\": null,\n      \"name\": \"Fern\",\n      \"meta\": \"Living room\",\n      \"photo\": \"lib:plant\"\n    },\n    {\n      \"id\": \"facts_plant\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Light\",\n          \"value\": \"Indirect\",\n          \"icon\": \"sun\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Water\",\n          \"value\": \"Weekly\",\n          \"icon\": \"drop\",\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"care_schedule_plant\",\n      \"c\": \"CareSchedule\",\n      \"arrange\": null,\n      \"tasks\": [\n        {\n          \"title\": \"Water\",\n          \"for\": \"Fern\",\n          \"category\": \"plant\",\n          \"icon\": \"drop\",\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": \"2026-11-11\",\n          \"goto\": \"log_water\"\n        },\n        {\n          \"title\": \"Feed\",\n          \"for\": \"Fern\",\n          \"category\": \"plant\",\n          \"icon\": \"leaf\",\n          \"repeat\": \"monthly\",\n          \"every\": 1,\n          \"last\": \"2026-10-28\",\n          \"goto\": \"log_feed\"\n        }\n      ]\n    },\n    {\n      \"id\": \"history_plant\",\n      \"c\": \"Timeline\",\n      \"detail\": null,\n      \"style\": \"history\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"Nov 11\",\n          \"title\": \"Watered\",\n          \"meta\": null,\n          \"done\": true,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"Oct 28\",\n          \"title\": \"Fertilized\",\n          \"meta\": null,\n          \"done\": true,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
+    ]
   }
 }

@@ -21,7 +21,12 @@ export function parseImageTemplate(file: string, markdown: string) {
 export async function imageTemplateEntry(root: string) {
   const folder = join(root, "src/catalog/images/templates");
   const expected = imageKinds.map((kind) => `${kind}.md`);
-  const actual = (await readdir(folder)).filter((file) => file.endsWith(".md") && file !== "README.md");
+  const files = await readdir(folder).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return undefined;
+    throw error;
+  });
+  if (!files) return [];
+  const actual = files.filter((file) => file.endsWith(".md") && file !== "README.md");
   if (
     actual.length !== expected.length ||
     actual.some((file) => !expected.includes(file as (typeof expected)[number]))

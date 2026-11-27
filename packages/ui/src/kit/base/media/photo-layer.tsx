@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image } from "tamagui";
+import { Image, YStack } from "tamagui";
 import { component, formatAddress, type PhotoInput } from "../../../catalog";
 import { useChangeReveal } from "../../motion";
 import { usePartContext } from "../../part";
@@ -64,7 +64,7 @@ export function PhotoLayer({
   stretch?: boolean;
   opacity?: number;
 }) {
-  return (
+  const image = (
     <Image
       source={{ uri: source }}
       onLoad={onLoad}
@@ -77,10 +77,16 @@ export function PhotoLayer({
       objectFit={stretch ? "fill" : "cover"}
       resizeMode={stretch ? "stretch" : "cover"}
       pointerEvents="none"
-      {...(opacity === undefined ? {} : { opacity })}
       aria-hidden
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     />
+  );
+  return opacity === undefined ? (
+    image
+  ) : (
+    <YStack fullscreen opacity={opacity} pointerEvents="none" data-kit-photo-layer="">
+      {image}
+    </YStack>
   );
 }

@@ -50,6 +50,12 @@ describe("image prompts", () => {
     expect(themeName(theme)).toBe(themeName({ ...theme, artStyle: "watercolor" }));
   });
 
+  it("does not frame a repeat as a centered subject", () => {
+    const prompt = buildImagePrompt({ kind: "pattern", subject: "stacked weight plates" }, theme);
+    expect(prompt).toContain("match opposite edges exactly");
+    expect(prompt).not.toContain("away from the outside edges");
+  });
+
   it("rejects an invalid slot even if untyped callers pass one", () => {
     expect(() => buildImagePrompt({ kind: "table" as ImageKind, subject: "ferns" }, theme)).toThrow();
   });

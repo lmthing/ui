@@ -212,12 +212,13 @@ function generatePackEntries({ defs, packs }: Entries): Record<string, string[]>
 export async function generateEntries(root: string) {
   const entries = await scanEntries(root);
   const flows = await flowPrompts(root);
+  const images = await imageTemplateEntry(root);
   const icons = [...new Set(Object.values(iconTable))].sort().join(", ");
   const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
     ...flows,
-    "image-templates.generated.ts": await imageTemplateEntry(root),
+    ...(images.length ? { "image-templates.generated.ts": images } : {}),
     ...Object.fromEntries(
       entries.defs.flatMap(({ name, prompt }) =>
         prompt

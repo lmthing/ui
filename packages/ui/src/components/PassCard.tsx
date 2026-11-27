@@ -328,6 +328,7 @@ function PassSkeleton(input: PassProps, layout: Layout, scannable: boolean, word
     <kit.KitCard padded part="root" density={density}>
       <kit.KitSkeleton
         shape="figure"
+        {...(input.photo ? { lead: "box" } : {})}
         content={[
           ["label", input.issuer],
           ["heading", input.title],
