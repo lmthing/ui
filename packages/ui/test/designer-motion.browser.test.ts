@@ -70,6 +70,106 @@ async function openRecord(preference: "no-preference" | "reduce") {
   await openMotion(preference, "record_arrive");
 }
 
+changed.each(["no-preference", "reduce"] as const)(
+  "plays every scripted kind inside one phone in %s",
+  async (preference) => {
+    await openMotion(preference, "journey");
+    const phone = page.locator("[data-journey-phone]");
+    const keys = await phone.evaluateHandle((node) => node.firstElementChild);
+    const step = (name: string) => page.getByRole("button", { name, exact: true }).click({ force: true });
+    await watchJourney();
+    await step("Open walk notes");
+    await part("walk_notes/header/sub").waitFor();
+    await page.getByRole("button", { name: "Show route sheet", exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => page.getByRole("dialog", { name: "Canal route details" }).count()).toBe(1);
+    expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Close route sheet");
+    await step("Close route sheet");
+    expect(await page.getByRole("dialog").count()).toBe(0);
+    await step("Back to outbox");
+    await part("dispatch/receipt/reference").waitFor();
+    await step("Switch to inbox");
+    await part("inbox/receipt/reference").waitFor();
+    await step("Show review dialog");
+    await expect.poll(() => page.getByRole("dialog", { name: "Review TROT-92 handoff" }).count()).toBe(1);
+    await step("Dismiss review dialog");
+    expect(await page.getByRole("dialog").count()).toBe(0);
+    await step("Receive TROT-92");
+    expect(await part("receiving/receipt/reference").textContent()).toBe("TROT-92");
+    expect(await part("receiving/receipt/phase").textContent()).toBe("Received");
+    expect(await phone.evaluate((node, first) => node.firstElementChild === first, keys)).toBe(true);
+    const marks = await page.locator("body").getAttribute("data-journey-marks");
+    const animated = [
+      "data-screen-overlay-exiting:sheet",
+      "data-screen-overlay-exiting:modal",
+      "data-kit-outgoing-tab:",
+      "data-record-arrival:",
+    ];
+    for (const mark of animated)
+      if (preference === "reduce") expect(marks).not.toContain(mark);
+      else expect(marks).toContain(mark);
+    expect(await page.locator("body").getAttribute("data-active-ghost")).toBeNull();
+    expect(errors).toEqual([]);
+  },
+);
+
+function watchJourney() {
+  return page.evaluate(() => {
+    const seen = new Set<string>();
+    const tags = [
+      "data-screen-overlay",
+      "data-screen-overlay-exiting",
+      "data-kit-outgoing-tab",
+      "data-record-arrival",
+    ];
+    new MutationObserver((changes) => {
+      for (const change of changes) {
+        for (const node of change.type === "attributes" ? [change.target] : Array.from(change.addedNodes)) {
+          if (!(node instanceof Element)) continue;
+          for (const tag of tags) {
+            const marked = node.hasAttribute(tag) ? node : node.querySelector(`[${tag}]`);
+            if (marked) seen.add(`${tag}:${marked.getAttribute(tag)}`);
+            if (
+              marked &&
+              tag === "data-screen-overlay-exiting" &&
+              (!marked.hasAttribute("inert") || marked.querySelector("[data-testid]:not([data-testid=''])"))
+            )
+              document.body.dataset.activeGhost = "true";
+          }
+        }
+      }
+      document.body.dataset.journeyMarks = [...seen].join(";");
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: tags });
+  });
+}
+
+changed("reverses a half-open scripted sheet from its current pose", async () => {
+  await openMotion("no-preference", "journey");
+  const click = (name: string) =>
+    page.getByRole("button", { name, exact: true }).evaluate((button) => (button as HTMLElement).click());
+  await click("Open walk notes");
+  await part("walk_notes/header/sub").waitFor();
+  await page.clock.install({ time: 10000 });
+  await page.clock.pauseAt(11000);
+  try {
+    await click("Show route sheet");
+    await page.clock.runFor(48);
+    const before = Number(await page.getByRole("dialog").evaluate((node) => getComputedStyle(node).opacity));
+    expect(before).toBeGreaterThan(0);
+    expect(before).toBeLessThan(1);
+    await click("Close route sheet");
+    const visual = page.locator("[data-screen-overlay-exiting=sheet] > :last-child");
+    const pose = async () => Number(await visual.evaluate((node) => getComputedStyle(node).opacity));
+    expect(await pose()).toBeCloseTo(before, 3);
+    await page.clock.runFor(48);
+    expect(await pose()).toBeLessThan(before);
+    await page.clock.runFor(150);
+    expect(await visual.count()).toBe(0);
+  } finally {
+    await page.clock.resume();
+  }
+});
+
 async function openMotion(preference: "no-preference" | "reduce", fixture: string) {
   await page.emulateMedia({ reducedMotion: preference });
   await page.goto(`${server.resolvedUrls!.local[0]}?motion=${fixture}`, {

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { isRecordArrival, receiptPose } from "./record-arrival";
+import { expireRecordArrival, isRecordArrival, matchesReceived, receiptPose } from "./record-arrival";
 
 it("only recognizes actual acknowledgement of the same record in both roles", () => {
   const identity = { reference: "TROT-92", fromRole: "Walker", toRole: "Dispatch" };
@@ -19,4 +19,20 @@ it("only recognizes actual acknowledgement of the same record in both roles", ()
     false,
   );
   expect(receiptPose({ reference: "TROT-92", phase: "received" })).toBeUndefined();
+});
+
+it("matches a scripted receipt only after acceptance and across the same parties and reference", () => {
+  const cue = { component: "receipt", reference: "TROT-92", fromRole: "Walker", toRole: "Dispatch" };
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "received" }))).toBe(true);
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "waiting" }))).toBe(false);
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "returned" }))).toBe(false);
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "received", reference: "TROT-93" }))).toBe(false);
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "received", toRole: "Walker" }))).toBe(false);
+});
+
+it("cannot deliver a cue on a later accepted step once the destination commit spent it", () => {
+  const cue = { component: "receipt", reference: "TROT-92", fromRole: "Walker", toRole: "Dispatch" };
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "waiting" }))).toBe(false);
+  expireRecordArrival(cue);
+  expect(matchesReceived(cue, receiptPose({ ...cue, phase: "received" }))).toBe(false);
 });

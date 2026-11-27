@@ -1,5 +1,5 @@
 import { StrictMode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { TamaguiProvider, YStack } from "tamagui";
+import { Button as GalleryButton, TamaguiProvider, YStack } from "tamagui";
 import {
   components,
   signatures,
@@ -10,8 +10,10 @@ import {
 import {
   PhoneScreen,
   type ScreenNavigation,
+  type ScreenOverlay,
   type ScreenReturnPoint,
   type ScreenTransition,
+  type ScreenTransitionRequest,
 } from "@lmthing/ui/kit";
 import { config } from "../index";
 
@@ -20,6 +22,7 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeC
 
 export function MotionPreview({ name }: { name: string }) {
   if (name === "record_arrive") return <RecordArrivalPreview />;
+  if (name === "journey") return <OnePhoneJourney />;
   if (name === "insertions") return <InsertionPreview />;
   if (name === "navigation" || name === "navigation_mounted" || name === "navigation_agent")
     return (
@@ -178,6 +181,102 @@ const pickup: ScreenLike = {
 
 const dispatch = handoffScreen("received");
 const walkNotes = walkNotesScreen();
+
+type JourneyFrame = {
+  label: string;
+  screen: ScreenLike;
+  move?: ScreenTransitionRequest;
+  overlay?: ScreenOverlay;
+};
+
+const notesWithSheet: ScreenLike = {
+  ...walkNotes,
+  components: [
+    ...walkNotes.components,
+    {
+      id: "route_details",
+      c: "Sheet",
+      title: "Canal route details",
+      items: [{ label: "Leash time", value: "32 min" }],
+    },
+  ],
+};
+const waiting = handoffScreen("waiting");
+const inboxWithModal: ScreenLike = {
+  ...waiting,
+  id: "inbox",
+  components: [
+    ...waiting.components
+      .filter(({ id }) => id !== "next" && id !== "return")
+      .map((entry) => (entry.id === "header" ? { ...entry, title: "Dispatch inbox demo" } : entry)),
+    {
+      id: "check_receipt",
+      c: "Sheet",
+      title: "Review TROT-92 handoff",
+      items: [{ label: "Recipient", value: "Dispatch" }],
+    },
+  ],
+};
+const receiving: ScreenLike = {
+  ...dispatch,
+  id: "receiving",
+  components: dispatch.components.map((entry) =>
+    entry.id === "header" ? { ...entry, title: "Record received demo" } : entry,
+  ),
+};
+const receivingRecord = {
+  component: "receipt",
+  reference: receipt.reference,
+  fromRole: receipt.fromRole,
+  toRole: receipt.toRole,
+};
+const journeyFrames: readonly JourneyFrame[] = [
+  { label: "Replay journey", screen: waiting },
+  { label: "Open walk notes", screen: notesWithSheet, move: { to: notesWithSheet.id, kind: "push" } },
+  { label: "Show route sheet", screen: notesWithSheet, overlay: { kind: "sheet", id: "route_details" } },
+  { label: "Close route sheet", screen: notesWithSheet },
+  { label: "Back to outbox", screen: waiting, move: { to: waiting.id, kind: "pop" } },
+  { label: "Switch to inbox", screen: inboxWithModal, move: { to: inboxWithModal.id, kind: "tab" } },
+  { label: "Show review dialog", screen: inboxWithModal, overlay: { kind: "modal", id: "check_receipt" } },
+  { label: "Dismiss review dialog", screen: inboxWithModal },
+  {
+    label: "Receive TROT-92",
+    screen: receiving,
+    move: { to: receiving.id, kind: "record", record: receivingRecord },
+  },
+];
+
+function OnePhoneJourney() {
+  const navigationRef = useRef<ScreenNavigation>(null);
+  const [step, setStep] = useState(0);
+  const [transition, setTransition] = useState<ScreenTransition>();
+  const frame = journeyFrames[step]!;
+  const nextStep = (step + 1) % journeyFrames.length;
+  const next = journeyFrames[nextStep]!;
+  const advance = () => {
+    setTransition(next.move && navigationRef.current?.prepare(next.move));
+    setStep(nextStep);
+  };
+  return (
+    <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
+      <YStack width="100%" maxWidth={390} height="100vh" alignSelf="center">
+        <GalleryButton onPress={advance} accessibilityRole="button">
+          {next.label}
+        </GalleryButton>
+        <YStack flex={1} minHeight={0} data-journey-phone="">
+          <PhoneScreen
+            screen={frame.screen}
+            theme={theme}
+            interactive={false}
+            navigationRef={navigationRef}
+            navigationTransition={transition}
+            navigationOverlay={frame.overlay ?? null}
+          />
+        </YStack>
+      </YStack>
+    </TamaguiProvider>
+  );
+}
 
 function useWalkNotesFocus(screen: string, enabled = true) {
   useLayoutEffect(() => {

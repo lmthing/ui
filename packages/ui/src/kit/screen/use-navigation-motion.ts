@@ -11,13 +11,14 @@ import {
 import { captureShared, flyShared } from "./shared-elements";
 import { captureTab, fadeTab } from "./tab-ghost";
 import type { NativeTabShot } from "./NativeTabGhost";
-import { animateNumber } from "../motion";
+import { animateNumber, expireRecordArrival } from "../motion";
 import { announceMotionSettled } from "../part";
 import {
   captureTransition,
   readTransition,
   takeTransition,
   type NavigationIntent as Intent,
+  type ReceivingRecord,
   type ScreenReturnPoint,
   type ScreenTransition,
   type ScreenTransitionRequest,
@@ -78,12 +79,15 @@ export function useNavigationMotion(
   const play = (move: Intent) => playNavigation(ref.current, screen, move, mode, reduced, setNative);
   const scripted = readTransition(transition, screen.id);
   const startScripted = useScriptedFlight(transition, screen.id, `${mode}:${reduced}:${agent}`, agent, play);
-  const history = useNavigationHistory(screen.id, intent.current);
-  const returnTo = scripted ? scripted.restore : history.returnTo;
+  const history = useNavigationHistory(screen.id, scripted ?? intent.current);
+  const returnTo = scripted?.restore ?? history.returnTo;
   useLayoutEffect(() => {
     if (scripted) {
       intent.current = undefined;
-      history.commit(undefined, scripted.restore, agent || scripted.agent);
+      history.commit(scripted, agent || scripted.agent);
+      const cue = scripted.record;
+      // Exactly one commit can use this cue, even if no matching receipt was mounted.
+      if (cue) queueMicrotask(() => expireRecordArrival(cue));
       return startScripted();
     }
     if (!history.changed()) return;
@@ -101,16 +105,23 @@ export function useNavigationMotion(
     capture: (goto: string, address: string, byAgent: boolean) => {
       intent.current = makeIntent(goto, address, byAgent);
     },
-    prepare: ({ to, kind, address = "", restore }: ScreenTransitionRequest) =>
-      captureTransition({
-        ...makeIntent(to, address, false, kind),
-        ...(kind === "back" && restore ? { restore: { ...restore } } : {}),
-      }),
+    prepare: (request: ScreenTransitionRequest) => captureTransition(moveFor(request, makeIntent)),
+    record: scripted ? (scripted.agent ? undefined : scripted.record) : history.record,
     pose: agent ? undefined : native?.pose,
     nativeGhost: agent ? undefined : native?.ghost,
     agentArrival: history.agentArrival,
     returnTo,
     restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.skipFocus)),
+  };
+}
+
+function moveFor(request: ScreenTransitionRequest, make: ReturnType<typeof useCaptureIntent>): Intent {
+  const { to, kind, address = "", restore } = request;
+  const motion = kind === "pop" ? "back" : kind;
+  return {
+    ...make(to, address, false, motion),
+    ...(motion === "back" && restore ? { restore: { ...restore } } : {}),
+    ...(kind === "record" ? { record: { ...request.record } } : {}),
   };
 }
 
@@ -120,6 +131,7 @@ function useNavigationHistory(id: string, pending: Intent | undefined) {
   const origins = useRef(new Map<string, Return>());
   const returned = useRef<ScreenReturnPoint | undefined>(undefined);
   const skipFocus = useRef(false);
+  const record = useRef<ReceivingRecord | undefined>(undefined);
   const navigating = matches(pending, id);
   const back = navigating && pending.kind === "back" ? origins.current.get(pending.from) : undefined;
   const returnTo = back?.from === id ? back : previous.current === id ? returned.current : undefined;
@@ -128,21 +140,25 @@ function useNavigationHistory(id: string, pending: Intent | undefined) {
     agentArrival: (navigating && pending.agent) || arrivedByAgent.current === id,
     skipFocus: navigating ? pending.agent : skipFocus.current,
     returnTo,
-    commit(move: Intent | undefined, restore?: ScreenReturnPoint, scriptedAgent = false) {
+    record: previous.current === id ? record.current : undefined,
+    commit(move: Intent | undefined, skip = move?.agent ?? false) {
+      const requestedRestore = move?.restore;
       previous.current = id;
-      skipFocus.current = move?.agent ?? scriptedAgent;
+      skipFocus.current = skip;
+      record.current = skip ? undefined : move?.record;
       if (!matches(move, id)) {
         arrivedByAgent.current = undefined;
-        returned.current = restore;
+        returned.current = requestedRestore;
         origins.current.clear();
         return;
       }
       arrivedByAgent.current = move.agent ? id : undefined;
-      returned.current = returnTo;
+      returned.current = requestedRestore ?? returnTo;
       if (move.kind === "push") {
         const { from, address, scrollTop } = move;
         origins.current.set(id, { from, address, scrollTop });
       } else if (move.kind === "back") origins.current.delete(move.from);
+      else origins.current.clear();
     },
   };
 }
@@ -213,6 +229,7 @@ function playNavigation(
   reduced: boolean,
   setNative: (flight: NativeFlight | undefined) => void,
 ) {
+  if (move.kind === "record") return;
   reduced ||= move.reduced;
   const profile = motionProfiles[mode];
   const fade = reduced || move.kind === "tab";

@@ -1,9 +1,10 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { YStack } from "tamagui";
 import { component, durations, motion, radius, signatures, space } from "../../catalog";
 import { useKit } from "../provider";
+import { usePartContext } from "../part";
 import { animateNumber, easeOut } from "./animate";
-import { isRecordArrival, receiptPose } from "./record-arrival";
+import { isRecordArrival, matchesReceived, receiptPose, RecordArrivalContext } from "./record-arrival";
 
 /** Accent only the receiving record; its layout, text and live controls do not move. */
 export function KitRecordArrival({
@@ -14,12 +15,15 @@ export function KitRecordArrival({
   children: ReactNode;
 }) {
   const kit = useKit();
+  const { component: id } = usePartContext();
+  const cue = useContext(RecordArrivalContext);
+  const scripted = cue?.component === id ? cue : undefined;
   const pose = receiptPose(receipt);
   const previous = useRef(pose);
   const [progress, setProgress] = useState(1);
   const { record, phase } = pose ?? {};
   const enabled =
-    kit.environment.signature === "record_arrive" &&
+    (scripted !== undefined || kit.environment.signature === "record_arrive") &&
     !kit.environment.reduceMotion &&
     !kit.environment.agentMode &&
     !kit.visualOnly;
@@ -28,10 +32,10 @@ export function KitRecordArrival({
     const from = previous.current;
     const to = record === undefined ? undefined : { record, phase };
     previous.current = to;
-    if (enabled && isRecordArrival(from, to))
-      return animateNumber(0, 1, setProgress, { duration, easing: easeOut });
+    const accept = cue ? scripted && matchesReceived(scripted, to) : isRecordArrival(from, to);
+    if (enabled && accept) return animateNumber(0, 1, setProgress, { duration, easing: easeOut });
     setProgress(1);
-  }, [record, phase, enabled, duration]);
+  }, [record, phase, enabled, duration, cue, scripted]);
   return (
     <YStack position="relative">
       {children}

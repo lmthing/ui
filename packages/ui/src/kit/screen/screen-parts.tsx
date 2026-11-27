@@ -305,8 +305,8 @@ type BodyOptions = {
   scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
   onBodyScroll?: (top: number) => void;
 };
-export function ScreenSheet({ controller, renderers, screen }: RenderProps) {
-  const entry = screen.components.find((item) => item.id === controller.openSheet);
+export function ScreenSheet({ controller, renderers, screen, id }: RenderProps & { id: string }) {
+  const entry = screen.components.find((item) => item.id === id);
   return entry ? (
     <ScreenEntry controller={controller} renderers={renderers} screen={screen} entry={entry} />
   ) : null;
