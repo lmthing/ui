@@ -144,6 +144,9 @@ describe("skeleton loading through the real entry", () => {
     expect(textNodes).toHaveLength(4);
     for (const node of textNodes) expect(styleAt(html, node)).toContain("text-align:center");
   });
+});
+
+describe("Card resolved cover loading", () => {
   it("keeps resolved media at the filled card inset", () => {
     const source = { resolvePhoto: () => "photo-uri" };
     const loading = renderInstance("Card", components.Card.examples[0], "loading", theme, source);
