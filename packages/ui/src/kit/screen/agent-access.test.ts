@@ -10,8 +10,15 @@ it("forwards access only while active and blocks every mutation in read-only mod
     reset: vi.fn(),
   } satisfies PhoneAgent;
   let active = true;
-  const writable = scopeAgentAccess(agent, () => active);
-  const reader = scopeAgentAccess(agent, () => active, true);
+  const writable = scopeAgentAccess(
+    () => agent,
+    () => active,
+  );
+  const reader = scopeAgentAccess(
+    () => agent,
+    () => active,
+    true,
+  );
   const step = { address: "button", action: "press" };
 
   expect(writable.act(step)).toBe(reply);

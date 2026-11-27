@@ -78,7 +78,22 @@ it("lets the host explicitly expose an inert preview for reading", async () => {
     code: "not_interactive",
     at: 0,
   });
-  expect(await page.getByRole("button", { name: "Open preview", exact: true }).isDisabled()).toBe(true);
+  await click("Open preview");
+  expect(await page.locator("output").textContent()).toBe("");
+});
+
+it("refreshes a selected phone in place without republishing or reclaiming focus after supersession", async () => {
+  const main = await publish("main");
+  await click("Update main");
+  await page.getByRole("button", { name: "Open main updated", exact: true }).waitFor();
+  expect(await main.evaluate((agent) => agent === window.__lmthingUI)).toBe(true);
+  expect(await main.evaluate((agent) => agent.read())).toContain("Open main updated");
+  const second = await publish("second");
+  await click("Update main");
+  await page.getByRole("button", { name: "Open main updated updated", exact: true }).waitFor();
+  expect(await second.evaluate((agent) => agent === window.__lmthingUI)).toBe(true);
+  await expectRevoked(main);
+  await second.dispose();
 });
 
 it("hands off between mounted phones and does not let either inert mounts or old cleanup win", async () => {

@@ -80,7 +80,7 @@ export type PhoneScreenProps = {
   micCapture?: MicCaptureAdapter | undefined;
   resolvePlayback?: PlaybackResolver | undefined;
   attachments?: AttachmentHost | undefined;
-  /** Opt in to agent access; return a cleanup to retract any host publication. */
+  /** Opt in with a stable callback; return a cleanup to retract any host publication. */
   onReady?: ((agent: PhoneAgent) => (() => void) | void) | undefined;
   /** Allow reads but not acts or resets, even when human interaction is enabled. */
   agentReadOnly?: boolean | undefined;

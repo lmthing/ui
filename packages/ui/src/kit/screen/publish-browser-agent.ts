@@ -11,7 +11,10 @@ export function publishBrowserAgent(agent: PhoneAgent): () => void {
   if (typeof window === "undefined") return () => {};
   const browser = window;
   let active = true;
-  const exposed = scopeAgentAccess(agent, () => active && browser.__lmthingUI === exposed);
+  const exposed = scopeAgentAccess(
+    () => agent,
+    () => active && browser.__lmthingUI === exposed,
+  );
   browser.__lmthingUI = exposed;
   return () => {
     active = false;

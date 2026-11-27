@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { scopeAgentAccess, type PhoneAgent } from "./agent-access";
 
 type OnReady = (agent: PhoneAgent) => (() => void) | void;
@@ -9,11 +9,20 @@ export function usePhoneAgent(
   interactive: boolean,
   readOnly: boolean,
 ) {
+  const current = useRef(agent);
+  // A screen update changes the controller, not which host asked to publish.
+  useLayoutEffect(() => {
+    current.current = agent;
+  }, [agent]);
   useLayoutEffect(() => {
     if (!onReady || (!interactive && !readOnly)) return;
     let active = true;
     let cleanup: ReturnType<OnReady>;
-    const access = scopeAgentAccess(agent, () => active, readOnly);
+    const access = scopeAgentAccess(
+      () => current.current,
+      () => active,
+      readOnly,
+    );
     // Pinned descendants can register their controls in a second layout commit.
     queueMicrotask(() => {
       if (!active) return;
@@ -25,5 +34,5 @@ export function usePhoneAgent(
       active = false;
       cleanup?.();
     };
-  }, [agent, onReady, interactive, readOnly]);
+  }, [onReady, interactive, readOnly]);
 }

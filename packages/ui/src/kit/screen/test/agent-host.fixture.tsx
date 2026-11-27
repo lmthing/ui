@@ -1,4 +1,4 @@
-import { StrictMode, useState } from "react";
+import { StrictMode, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
@@ -6,14 +6,13 @@ import type { ScreenLike, ThemeChoice } from "@lmthing/ui/catalog";
 import { config } from "../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
-const screen = (id: string): ScreenLike => ({
+const screen = (id: string, title = id): ScreenLike => ({
   id,
   components: [
     { id: "note", c: "Field", label: `Note ${id}` },
-    { id: "open", c: "Button", label: `Open ${id}`, goto: "next" },
+    { id: "open", c: "Button", label: `Open ${title}`, goto: "next" },
   ],
 });
-const main = screen("main");
 const second = screen("second");
 const preview = screen("preview");
 const frame = { height: 225, display: "flex", flexDirection: "column" } as const;
@@ -26,13 +25,16 @@ function Fixture() {
   const [publishSecond, setPublishSecond] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
   const [readPreview, setReadPreview] = useState(false);
+  const [mainTitle, setMainTitle] = useState("main");
   const [links, setLinks] = useState<string[]>([]);
+  const main = useMemo(() => screen("main", mainTitle), [mainTitle]);
   const onLink = (_goto: string, address: string) => setLinks((current) => [...current, address]);
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button onClick={() => setInert(true)}>Mount preview</button>
       <button onClick={() => setPublishMain(true)}>Publish main</button>
       <button onClick={() => setPublishSecond(true)}>Publish second</button>
+      <button onClick={() => setMainTitle((title) => `${title} updated`)}>Update main</button>
       <button onClick={() => setReadOnly((current) => !current)}>Toggle read only</button>
       <button onClick={() => setReadPreview(true)}>Read preview</button>
       <button onClick={() => setShowMain(false)}>Dispose main</button>
