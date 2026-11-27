@@ -32,7 +32,9 @@ export function useReturnFocus(
 
 function focusReturnedPart(root: HTMLElement | null, address: string) {
   // Do not take focus from a new user action, even during an interrupted flight.
-  if (!root || document.activeElement !== document.body) return;
+  const active = document.activeElement;
+  if (!root || (active !== document.body && active?.getClientRects().length && !active.closest("[inert]")))
+    return;
   for (const key of [address, `${address}/root`]) {
     const target = root.querySelector<HTMLElement>(`[data-testid="${CSS.escape(key)}"]`);
     if (!target || target.closest('[inert], [aria-disabled="true"]')) continue;

@@ -1,4 +1,12 @@
-import { isValidElement, useContext, useLayoutEffect, useRef, useState, type ComponentProps } from "react";
+import {
+  isValidElement,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type RefObject,
+} from "react";
 import { isWeb, ScrollView, YStack } from "tamagui";
 import { KitMotion, KitRecordArrival, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
@@ -94,12 +102,14 @@ function ScreenRegion({
   scroll,
   initialScroll,
   restoration,
+  scrollRef,
   ...props
 }: RenderProps & {
   name: string;
   scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
   initialScroll?: number | undefined;
   restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
 }) {
   const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
@@ -135,27 +145,42 @@ function ScreenRegion({
     !views?.hidden.has(node.props.entry.id);
   const present = usePresence(rows, keepExit);
   if (!scroll) return <>{present}</>;
-  const sticky = present.flatMap((node, index) =>
-    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
-  );
   return (
     <ScreenBottomSource>
-      <ScreenBodyScroll {...scroll} stickyHeaderIndices={sticky} {...{ initialScroll, restoration }}>
+      <ScreenBodyScroll
+        {...scroll}
+        stickyHeaderIndices={visibleStickyIndices(present)}
+        {...{ initialScroll, restoration, scrollRef }}
+      >
         {present}
       </ScreenBodyScroll>
     </ScreenBottomSource>
   );
 }
 
+function visibleStickyIndices(present: React.ReactNode[]) {
+  return present.flatMap((node, index) =>
+    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
+  );
+}
+
+export type BodyScrollHandle = {
+  scrollTo(options: { x: number; y: number; animated: boolean }): void;
+  getScrollableNode?(): HTMLElement;
+};
+
 function ScreenBodyScroll({
   initialScroll,
   restoration,
+  scrollRef,
   ...props
 }: ComponentProps<typeof ScrollView> & {
   initialScroll?: number | undefined;
   restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
 }) {
-  const ref = useRef<{ scrollTo(options: { x: number; y: number; animated: boolean }): void }>(null);
+  const local = useRef<BodyScrollHandle>(null);
+  const ref = scrollRef ?? local;
   const initial = useRef(initialScroll);
   useLayoutEffect(() => {
     // React Native Web does not consume contentOffset.
@@ -169,7 +194,6 @@ function ScreenBodyScroll({
       {...props}
       ref={ref as never}
       scrollEventThrottle={motion.scrollSampleMs}
-      {...(isWeb ? { dataSet: { kitBodyScroll: "" } } : {})}
       {...(!isWeb && initial.current ? { contentOffset: { x: 0, y: initial.current } } : {})}
     />
   );
@@ -204,6 +228,7 @@ export function ScreenContent({
   covered,
   initialBodyScroll,
   restoration,
+  scrollRef,
   onBodyScroll,
   ...props
 }: RenderProps & BodyOptions) {
@@ -229,8 +254,7 @@ export function ScreenContent({
         <ScreenRegion
           {...props}
           name="body"
-          initialScroll={initialBodyScroll}
-          restoration={restoration}
+          {...{ initialScroll: initialBodyScroll, restoration, scrollRef }}
           scroll={{
             flex: 1,
             minHeight: 0,
@@ -278,6 +302,7 @@ type BodyOptions = {
   covered: boolean;
   initialBodyScroll?: number;
   restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
   onBodyScroll?: (top: number) => void;
 };
 export function ScreenSheet({ controller, renderers, screen }: RenderProps) {

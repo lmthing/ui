@@ -1,12 +1,12 @@
 import { useWords, useKit } from "../provider";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, type RefObject } from "react";
 import { YStack } from "tamagui";
 import { filterDeviceDataScreen, resolveDataViews, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import { RenderReportContext, useReport } from "../report";
-import { ScreenContent, ScreenSheet } from "./screen-parts";
+import { ScreenContent, ScreenSheet, type BodyScrollHandle } from "./screen-parts";
 import { filterVisibleContent } from "./visible-content";
 import type { ScreenReturnPoint } from "./screen-navigation";
 
@@ -18,6 +18,7 @@ type ScreenProps = {
   navigationArrival?: boolean;
   initialBodyScroll?: number;
   restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
   onBodyScroll?: (top: number) => void;
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
@@ -27,6 +28,7 @@ export function Screen({
   onReport,
   initialBodyScroll,
   restoration,
+  scrollRef,
   onBodyScroll,
 }: ScreenProps) {
   const { cancelLabel, confirmLabel } = useWords().words;
@@ -39,13 +41,7 @@ export function Screen({
   const permitted = filterDeviceDataScreen(screen, components, data);
   const visible = filterVisibleContent(permitted, components, resolvePhoto);
   const sheet = visible.components.find((entry) => entry.id === controller.openSheet);
-  const dismiss = useCallback(() => {
-    controller.act(
-      controller.confirmation
-        ? { address: "confirm/cancel", action: "dismiss" }
-        : { address: `${controller.openSheet}/close`, action: "dismiss" },
-    );
-  }, [controller]);
+  const dismiss = useDismiss(controller);
   if (!controller.admitted) return null;
   return (
     <RenderReportContext.Provider value={publish}>
@@ -54,6 +50,7 @@ export function Screen({
           key={visible.id}
           {...(initialBodyScroll !== undefined ? { initialBodyScroll } : {})}
           restoration={restoration}
+          scrollRef={scrollRef}
           {...(onBodyScroll ? { onBodyScroll } : {})}
           controller={controller}
           renderers={renderers}
@@ -79,4 +76,14 @@ export function Screen({
       </YStack>
     </RenderReportContext.Provider>
   );
+}
+
+function useDismiss(controller: ScreenController) {
+  return useCallback(() => {
+    controller.act(
+      controller.confirmation
+        ? { address: "confirm/cancel", action: "dismiss" }
+        : { address: `${controller.openSheet}/close`, action: "dismiss" },
+    );
+  }, [controller]);
 }

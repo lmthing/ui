@@ -45,6 +45,7 @@ import { NativeTabGhost, type NativeTabShot } from "./NativeTabGhost";
 import { useReturnFocus } from "./use-return-focus";
 import { PartRefScope } from "../part";
 import type { ScreenNavigation, ScreenTransition } from "./screen-navigation";
+import type { BodyScrollHandle } from "./screen-parts";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
 declare global {
@@ -158,12 +159,10 @@ function usePhoneNavigation(
 ) {
   const { screen } = props;
   const bodyScroll = useRef({ id: screen.id, top: 0 });
+  const scrollRef = useRef<BodyScrollHandle>(null);
   const scrollTop = (): number => {
-    const node = isWeb ? (navigation.ref.current as HTMLElement | null) : null;
-    return (
-      node?.querySelector("[data-kit-body-scroll]")?.scrollTop ??
-      (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0)
-    );
+    const node = isWeb ? scrollRef.current?.getScrollableNode?.() : undefined;
+    return node?.scrollTop ?? (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0);
   };
   const navigation = useNavigationMotion(screen, {
     mode: props.theme.motion ?? "calm",
@@ -190,6 +189,7 @@ function usePhoneNavigation(
   }, [screen.id, navigation.returnTo]);
   return {
     ...navigation,
+    scrollRef,
     onBodyScroll: (top: number) => {
       bodyScroll.current = { id: screen.id, top };
     },
@@ -256,6 +256,7 @@ function PhoneScreenFrame({
             <Screen
               controller={controller}
               renderers={props.renderers}
+              scrollRef={navigation.scrollRef}
               onBodyScroll={navigation.onBodyScroll}
               {...(navigation.returnTo ? { restoration: navigation.returnTo } : {})}
               {...(props.onReport ? { onReport: props.onReport } : {})}

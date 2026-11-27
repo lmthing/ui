@@ -119,7 +119,11 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
   const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
   const reference = "dispatch/receipt/reference";
   await part("dispatch/next/root").evaluate((button) => {
-    const viewport = document.querySelector<HTMLElement>("[data-kit-body-scroll]")!;
+    const receipt = document.querySelector('[data-testid="dispatch/receipt/reference"]');
+    let viewport = receipt?.parentElement;
+    while (viewport && !["auto", "scroll"].includes(getComputedStyle(viewport).overflowY))
+      viewport = viewport.parentElement;
+    if (!viewport) throw new Error("No source viewport");
     viewport.scrollTop = 36;
     if (viewport.scrollTop !== 36) throw new Error("The test did not scroll the source viewport");
     (button as HTMLElement).click();
@@ -479,17 +483,16 @@ changed("refreshes reorder origins after height-neutral row edits", async () => 
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
   );
-  await tap("garden/today/link");
+  await row.evaluate((node) => {
+    const original = node.animate;
+    node.animate = function (frames, options) {
+      this.setAttribute("data-test-flight", JSON.stringify(frames));
+      return original.call(this, frames, options);
+    };
+    document.querySelector<HTMLElement>('[data-testid="garden/today/link"]')!.click();
+  });
   const delta = resized.top - (await layout()).top;
-  expect(
-    await row.evaluate((node) =>
-      node
-        .getAnimations()
-        .flatMap((animation) =>
-          (animation.effect as KeyframeEffect).getKeyframes().map((frame) => frame.transform),
-        ),
-    ),
-  ).toContain(`translateY(${delta}px)`);
+  expect(await row.getAttribute("data-test-flight")).toContain(`translateY(${delta}px)`);
 });
 
 changed("replaces tabs with an inert outgoing picture during the cross-fade", async () => {
