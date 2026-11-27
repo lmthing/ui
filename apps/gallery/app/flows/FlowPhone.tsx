@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { XStack, YStack } from "tamagui";
 import { KitProvider, KitText, PartScope, PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import {
@@ -29,14 +30,26 @@ function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   return { label, value: raw.match(figure)![0] };
 }
 
-type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange"> & {
+type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange" | "interaction"> & {
   flow: FilledFlow;
   index: number;
   state?: FlowState | undefined;
+  validationError?: boolean;
 };
 
-export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhoneProps) {
-  const screen = flowPreviewScreen(flow, index, state);
+export function FlowPhone({
+  flow,
+  index,
+  state,
+  onLink,
+  onChange,
+  interaction,
+  validationError = false,
+}: FlowPhoneProps) {
+  const screen = useMemo(
+    () => flowPreviewScreen(flow, index, state, { validationError }),
+    [flow, index, state, validationError],
+  );
   const number = primaryNumber(flow, index, state);
   return (
     <YStack>
@@ -63,13 +76,13 @@ export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhonePro
       )}
       <YStack height={flowHeight(screen)}>
         <PhoneScreen
-          key={`${screen.id}/${state ?? "play"}`}
           screen={screen}
           theme={flowTheme}
           onChange={onChange}
           onLink={onLink}
+          interaction={state ? undefined : interaction}
           interactive={!state}
-          reduceMotion
+          reduceMotion={state ? true : undefined}
         />
       </YStack>
     </YStack>

@@ -9,7 +9,8 @@ export function flowHeight(screen: ScreenLike) {
   }, 0);
   const textOnly = screen.components.every(({ c }) => c === "Header" || c === "Note" || c === "Button");
   const baseline = component.Gallery.flowHeight;
-  if (screen.components.some(({ c }) => c === "Waitlist")) return baseline + 3 * space.lg;
+  if (screen.components.some(({ c }) => c === "Waitlist" || c === "HandoffReceipt"))
+    return baseline + 3 * space.lg;
   if (textOnly) return baseline - (hasFooter ? 6 : 8) * space.lg;
   if (hasStatus) return baseline - (screen.components.some(({ c }) => c === "List") ? 4 : 3) * space.lg;
   const choices = screen.components.find(({ id }) => id === "choices");

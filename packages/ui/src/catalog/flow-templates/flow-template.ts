@@ -21,6 +21,9 @@ const stepLayout = z.union([
 const preview = z.strictObject({
   title: text(28),
   action: text(24).optional(),
+  back: z.literal(true).optional(),
+  actionList: z.literal(true).optional(),
+  receipt: z.enum(["waiting", "received", "returned"]).optional(),
   fields: z.array(id).min(1).max(6).optional(),
   messages: z.partialRecord(flowState, text(160)).optional(),
 });

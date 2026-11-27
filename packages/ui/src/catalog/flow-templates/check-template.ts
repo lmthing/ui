@@ -44,12 +44,18 @@ function checkStep(
     checkSlots(template, step.preview.title, report);
     if (step.preview.action) checkSlots(template, step.preview.action, report);
   }
+  for (const { label } of step.choices ?? []) checkSlots(template, label, report);
   const layout = step.layout;
   if ("archetype" in layout) {
     if (!lookups.archetype(layout.archetype)) report(`Unknown archetype: ${layout.archetype}`);
   } else {
     for (const id of layout.components) {
       if (!lookups.component(id)) report(`Unknown component: ${id}`);
+    }
+    if (layout.components.includes("HandoffReceipt")) {
+      if (!step.preview?.receipt) report("HandoffReceipt preview needs an explicit phase");
+      for (const key of ["subject", "reference", "sender", "recipient"])
+        if (template.recordShape[key] !== "string") report(`HandoffReceipt needs string record field ${key}`);
     }
   }
   const handoff = step.hands_off_to;

@@ -42,6 +42,22 @@ function waitlistOffer(flow: FilledFlow, frame: FlowFrame, state?: FlowState): C
   ];
 }
 
+function handoffReceipt(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
+  const { subject, reference, sender, recipient } = flow.record;
+  return [
+    {
+      id: "receipt",
+      c: "HandoffReceipt",
+      subject: clip(String(subject), 36),
+      reference: clip(String(reference), 20),
+      fromRole: clip(String(sender), 24),
+      toRole: clip(String(recipient), 24),
+      phase: frame.receipt,
+      summary: clip((state && frame.messages[state]) || frame.see, 120),
+    },
+  ];
+}
+
 function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
   const body = frame.see;
   switch (c) {
@@ -69,6 +85,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "Waitlist":
       return waitlistOffer(flow, frame, state);
+    case "HandoffReceipt":
+      return handoffReceipt(flow, frame, state);
     case "List":
       return [
         {
@@ -94,7 +112,7 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
     title: clip(label, 24),
     goto: previewTarget(flow, target),
   }));
-  if (next.length > 1)
+  if (next.length > 1 || frame.actionList)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
     ];
@@ -102,7 +120,12 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
 }
 
 /** Gallery fixture for a played step. Model output never writes a screen or a goto. */
-export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowState): ScreenLike {
+export function flowPreviewScreen(
+  flow: FilledFlow,
+  index: number,
+  state?: FlowState,
+  { validationError = false }: { validationError?: boolean } = {},
+): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
   if (state && !frame.states.includes(state))
@@ -112,8 +135,13 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
   } else {
-    body.unshift({ id: "header", c: "Header", title: frame.title });
-    if (!body.some(({ c }) => c === "Note"))
+    body.unshift({
+      id: "header",
+      c: "Header",
+      title: frame.title,
+      ...(frame.back && !state ? { style: "back" } : {}),
+    });
+    if (!body.some(({ c }) => c === "Note" || c === "HandoffReceipt" || (c === "List" && frame.actionList)))
       body.splice(1, 0, {
         id: "note",
         c: "Note",
@@ -121,14 +149,14 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
         emphasis: "quiet",
       });
   }
-  const message = state && frame.messages[state];
-  if (message) {
+  const message = validationError ? frame.messages.error : state && frame.messages[state];
+  if (message && !body.some(({ c }) => c === "HandoffReceipt")) {
     const note = body.findIndex(({ c }) => c === "Note");
     body.splice(note < 0 ? body.length : note, note < 0 ? 0 : 1, {
       id: "message",
       c: "Note",
       text: clip(message, 120),
-      ...(state === "error" ? { tone: "bad" } : {}),
+      ...(state === "error" || validationError ? { tone: "bad" } : {}),
     });
   }
   return {

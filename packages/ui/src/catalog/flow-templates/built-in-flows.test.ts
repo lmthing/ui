@@ -19,6 +19,7 @@ const outcomes = {
   class_waitlist: ["member/booked", "member/left"],
   assign_work_order: ["requester/closed"],
   lead_to_client: ["owner/client", "prospect/declined"],
+  transfer_acknowledge: ["sender/acknowledged", "sender/returned"],
 };
 
 test("the full catalog exposes the named core and pack templates", () => {

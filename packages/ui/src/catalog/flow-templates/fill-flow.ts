@@ -39,6 +39,9 @@ export type FlowFrame = {
   states: readonly FlowState[];
   messages: Partial<Record<FlowState, string>>;
   fields: readonly string[];
+  back?: true;
+  actionList?: true;
+  receipt?: NonNullable<Step["preview"]>["receipt"];
   forward: readonly Transition[];
 };
 
@@ -50,7 +53,7 @@ export function optionalFlowSteps(template: FlowTemplateSource) {
 
 function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill): FlowFrame {
   const forward = (step.choices ?? []).map(({ label, step }) => ({
-    label,
+    label: fill(label),
     target: keyOf(role.role, step),
   }));
   const handoff = step.hands_off_to;
@@ -75,6 +78,9 @@ function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill)
     states: step.states,
     messages,
     fields: step.preview?.fields ?? [],
+    ...(step.preview?.back ? { back: step.preview.back } : {}),
+    ...(step.preview?.actionList ? { actionList: step.preview.actionList } : {}),
+    ...(step.preview?.receipt ? { receipt: step.preview.receipt } : {}),
     forward,
   };
 }

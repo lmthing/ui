@@ -99,10 +99,8 @@ export function FlowPlayer({
   template: FlowTemplateSource;
   example: FlowTemplateSource["examples"][number];
 }) {
-  const { flow, frame, index, state, inspect, openStep, restart, onChange, onLink } = useFlowPlayback(
-    template,
-    example,
-  );
+  const { flow, frame, index, state, inspect, openStep, restart, interaction, validationError, onLink } =
+    useFlowPlayback(template, example);
   const complete = !frame.forward.length;
   return (
     <YStack gap={space.sm} data-flow-player={frame.key} data-flow-state={state ?? "play"}>
@@ -122,7 +120,7 @@ export function FlowPlayer({
         overflow="hidden"
         data-flow-phone
       >
-        <FlowPhone {...{ flow, index, state, onChange, onLink }} />
+        <FlowPhone {...{ flow, index, state, interaction, validationError, onLink }} />
       </YStack>
       {(state || complete) && (
         <XStack justifyContent="flex-end">

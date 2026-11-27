@@ -15,6 +15,7 @@ const cases = [
   ["class_waitlist", "member/offer"],
   ["assign_work_order", "dispatcher/verify"],
   ["lead_to_client", "prospect/review"],
+  ["transfer_acknowledge", "receiver/review"],
 ] as const satisfies readonly (readonly [string, string, FlowState?])[];
 
 function LookPhone({
