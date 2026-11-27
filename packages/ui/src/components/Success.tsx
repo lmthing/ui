@@ -1,4 +1,4 @@
-import { useWords, KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -27,7 +27,7 @@ export const meta = {
   realPath: "The result of an action that saved or changed an item in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "icon", "title", "sub", "undo", "close"],
+  parts: ["root", "icon", "title", "sub", "owner", "next", "subject", "when", "receipt", "undo", "close"],
   states: ["filled"],
   // A toast can be swept away and may offer to take the action back.
   actions: {
@@ -48,6 +48,16 @@ export const props = z
     sub: text(100).optional(),
     icon: icon.default("circle_check"),
     undo: z.boolean().default(false),
+    outcome: z.enum(["pending", "confirmed", "done"]).optional(),
+    owner: text(32).optional(),
+    next: text(80).optional(),
+    subject: text(48).optional(),
+    when: text(40).optional(),
+    receipt: text(48).optional(),
+  })
+  .refine(validOutcome, {
+    path: ["outcome"],
+    message: "Give pending an owner and next step, confirmed a subject and time, or done a receipt",
   })
   // Taking an action back only makes sense in a toast, so `undo` makes it one. `undoable` is derived,
   // never written.
@@ -57,6 +67,24 @@ export const props = z
     sub: value.detail === "brief" ? undefined : value.sub,
     undoable: value.undo,
   }));
+
+function validOutcome(input: {
+  outcome?: "pending" | "confirmed" | "done" | undefined;
+  owner?: string | undefined;
+  next?: string | undefined;
+  subject?: string | undefined;
+  when?: string | undefined;
+  receipt?: string | undefined;
+  undo: boolean;
+  style: "screen" | "toast";
+}) {
+  const { outcome, owner, next, subject, when, receipt } = input;
+  if (!outcome) return !owner && !next && !subject && !when && !receipt;
+  if (input.undo || input.style === "toast") return false;
+  if (outcome === "pending") return Boolean(owner && next && !when && !receipt);
+  if (outcome === "confirmed") return Boolean(subject && when && !owner && !next && !receipt);
+  return Boolean(receipt && !owner && !next && !when);
+}
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail, saved } = wordsFor(lang);
@@ -72,6 +100,20 @@ export const examples = [
   booked,
   { style: "toast", title: "Walk cancelled", icon: "circle_check", undo: true },
   { ...booked, detail: "brief" },
+  {
+    title: "Repotting request received",
+    outcome: "pending",
+    subject: "Bird's nest fern",
+    owner: "Glasshouse team",
+    next: "The team will check bench space and confirm a date.",
+  },
+  {
+    title: "Walk confirmed",
+    outcome: "confirmed",
+    subject: "Clover · 45-minute walk",
+    when: "Friday at 09:00",
+  },
+  { title: "Care notes saved", outcome: "done", subject: "Bird's nest fern", receipt: "Record FN-104" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Success");
@@ -89,6 +131,12 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Undo the cancellation", { address: "s1/undo", action: "press" }, 2),
+  {
+    ...write(
+      "The repotting request is still waiting. Say Repotting request received, show Glasshouse team as the next owner and say they will confirm a date.",
+    ),
+    expectProps: { outcome: "pending", owner: "Glasshouse team" },
+  },
 ] satisfies Probe[];
 
 type SuccessProps = Props<typeof props, typeof meta>;
@@ -122,9 +170,47 @@ function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
 export function Success(input: SuccessProps) {
   if (input.style === "toast") return <SuccessToast {...input} />;
   const { title, sub, icon } = input;
+  if (input.outcome) return <OutcomeReceipt {...input} />;
   return (
     <KitCard style="plain" part="root">
       <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} fill tone="good" />
+    </KitCard>
+  );
+}
+
+function OutcomeReceipt({ title, sub, outcome, subject, owner, next, when, receipt, icon }: SuccessProps) {
+  const pending = outcome === "pending";
+  return (
+    <KitCard style="inset" part="root" padded>
+      <KitContent
+        lead={<KitIcon part="icon" name={pending ? "clock" : icon} tone={pending ? "warn" : "good"} />}
+      >
+        <KitText role="heading" part="title">
+          {title}
+        </KitText>
+        {subject && <KitText part="subject">{subject}</KitText>}
+        {owner && (
+          <KitText part="owner" emphasis="strong">
+            {owner}
+          </KitText>
+        )}
+        {when && (
+          <KitText part="when" emphasis="strong">
+            {when}
+          </KitText>
+        )}
+        {receipt && (
+          <KitText part="receipt" emphasis="strong">
+            {receipt}
+          </KitText>
+        )}
+        {next && <KitText part="next">{next}</KitText>}
+        {sub && (
+          <KitText part="sub" tone="muted">
+            {sub}
+          </KitText>
+        )}
+      </KitContent>
     </KitCard>
   );
 }

@@ -46,10 +46,29 @@ it("validates the fallback for empty and populated casts", () => {
 });
 
 it("declares choose, near miss, write and read probes", () => {
-  expect(probes.map(({ kind }) => kind)).toEqual(["choose", "choose", "choose", "write", "read", "write"]);
+  expect(probes.map(({ kind }) => kind)).toEqual([
+    "choose",
+    "choose",
+    "choose",
+    "write",
+    "read",
+    "write",
+    "write",
+  ]);
   expect(probes[1]).toMatchObject({ expect: "Slots" });
   expect(probes[2]).toMatchObject({ expect: "List" });
   expect(valid.sessions[0]?.title).toBe(placeholderTitle(0));
+});
+
+it("keeps capacity visible in brief staffing rows, with an optional assignee and valid time range", () => {
+  const input = examples[3]!;
+  const row = input.sessions[0]!;
+  expect(props.safeParse({ ...input, sessions: [{ ...row, filled: 12 }] }).success).toBe(false);
+  expect(props.safeParse({ ...input, sessions: [{ ...row, end: "07:00" }] }).success).toBe(false);
+  const brief = { ...input, detail: "brief" };
+  const parts = addressedElements(renderInstance("SlotAgenda", brief, "filled", theme));
+  expect(parts.has("home/c1/r1/assignee")).toBe(false);
+  expect(parts.get("home/c1/r1/capacity")?.text.join("")).toBe("4 of 6 places filled");
 });
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -73,7 +92,7 @@ it("hides only locations in the brief view and preserves addressed links", () =>
   expect(parts.has("home/c1/r1/location")).toBe(false);
   expect(parts.has("home/c1/r1/open")).toBe(true);
   expect(readComponent(components.SlotAgenda, input, "a1").join("\n")).not.toContain("Glasshouse");
-  expect(input.sessions[0]?.location).toBe("Glasshouse");
+  expect(input.sessions[0]).toMatchObject({ location: "Glasshouse" });
 });
 
 it("shows specific empty copy and no links while empty or loading", () => {

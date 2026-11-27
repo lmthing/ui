@@ -123,7 +123,7 @@ describe("Success metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "undo", "close"],
+      parts: ["root", "icon", "title", "sub", "owner", "next", "subject", "when", "receipt", "undo", "close"],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");
@@ -134,7 +134,7 @@ describe("Success metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Success" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       expect: { address: "s1/undo", action: "press" },

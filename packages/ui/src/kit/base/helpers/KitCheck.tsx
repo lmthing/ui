@@ -2,7 +2,7 @@ import { DrawnCheck, useSignatureProgress } from "../../motion";
 import { variants } from "../../../catalog";
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
-import { YStack, styled } from "tamagui";
+import { isWeb, YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { usePart } from "../../part";
 
@@ -27,6 +27,24 @@ const Box = styled(YStack, {
     },
   } as const,
 });
+
+function checkHandlers(press: () => void) {
+  return {
+    onPress: (event: { stopPropagation?(): void }) => {
+      event.stopPropagation?.();
+      press();
+    },
+    ...(isWeb && {
+      tabIndex: 0,
+      onKeyDown: (event: Pick<KeyboardEvent, "key" | "repeat" | "preventDefault" | "stopPropagation">) => {
+        if (event.key !== " " && event.key !== "Enter") return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (!event.repeat) press();
+      },
+    }),
+  };
+}
 
 /**
  * A tick box: a 24px box inside a 44px touch area, filled with a check when done. The touch area
@@ -54,12 +72,7 @@ export function KitCheck({
     <Hit
       {...address}
       {...(kit.interactive && kit.controller && !disabled && !readonly
-        ? {
-            onPress: (event: { stopPropagation?(): void }) => {
-              event.stopPropagation?.();
-              kit.controller!.press(address.testID);
-            },
-          }
+        ? checkHandlers(() => kit.controller!.press(address.testID))
         : {})}
       accessibilityRole={readonly ? "image" : "checkbox"}
       aria-checked={readonly ? undefined : checked}

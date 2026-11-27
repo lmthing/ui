@@ -24,6 +24,36 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const view = (input: unknown, state: "filled" | "empty" | "success" = "filled") =>
   addressedElements(renderInstance("Approval", input, state, theme));
 
+it("binds a decline and its reason to one confirmation and withholds a second decision", async () => {
+  const input = examples.find((example) => "review" in example && example.style === "review")!;
+  const screen = { id: "home", components: [{ id: "a1", c: "Approval", ...input }] };
+  const run = vi.fn().mockResolvedValue({ status: "accepted", records: [{ reason: "Replace the bench." }] });
+  const host = { allows: () => true, run };
+  const controller = createScreenController({
+    screen,
+    defs: components,
+    hostCommands: { commands: { "approval.accept": host, "approval.reject": host } },
+  });
+  try {
+    expect(controller.actionsAt("a1/reject")).toEqual([]);
+    expect(controller.act({ address: "a1/reason", action: "type", value: "Replace the bench." }).ok).toBe(
+      true,
+    );
+    expect(controller.press("a1/reject").ok).toBe(true);
+    expect(run).not.toHaveBeenCalled();
+    expect(controller.press("confirm/confirm").ok).toBe(true);
+    await vi.waitFor(() => expect(controller.read()).toContain("approval.reject accepted"));
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({ input: { reference: "GH-142", reason: "Replace the bench." } }),
+      expect.anything(),
+    );
+    expect(controller.read()).toContain("Replace the bench.");
+    for (const name of ["accept", "reject", "reason"]) expect(controller.actionsAt(`a1/${name}`)).toEqual([]);
+  } finally {
+    controller.dispose();
+  }
+});
+
 describe("Approval schema and boundaries", () => {
   it.each(examples)("accepts a domain example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -108,7 +138,7 @@ describe("Approval fallback and metadata", () => {
       ]);
   });
   it("retains the people tier, core near miss, write, lead write and decline read", () => {
-    expect(meta).toMatchObject({ tier: "people", confirmParts: ["decline"] });
+    expect(meta).toMatchObject({ tier: "people", confirmParts: ["decline", "reject"] });
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.realPath).not.toBe("");
     expect(meta.pick).toContain("Checklist");

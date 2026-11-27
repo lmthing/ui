@@ -4,7 +4,7 @@ Enter or change one labelled piece of information on a form.
 
 ## Pick
 
-Enter one named value, such as a name, date, amount, email address, password, one-time code or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).
+Enter one named form value, such as a date, amount, contact value, form choice or a new file attachment. Not finding things by typing a query (Search), a list of already attached files (FileList), quick filters (Chips), several lines of writing (Composer) or choices that each need a sentence (Choice).
 
 ## Writer
 
@@ -14,3 +14,4 @@ Enter one named value, such as a name, date, amount, email address, password, on
 - To hide an authored helper hint, keep its text in hint and set detail to "brief".
 - Use kind "email" for an email address and "phone" for a phone number, not "text", even on a general contact form.
 - Use "password" for a masked, revealable input and "code" for a numeric one-time code. Never prefill either. For "code" only, set length to the requested number of digits (4–8); omit it for six boxes.
+- Use kind "file" to choose or attach a document from the device. Omit value: only the host picker supplies an opaque attachment, never a typed filename or file path.

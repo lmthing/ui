@@ -36,6 +36,8 @@ export type HostCommands = {
   identity?: (input: Input) => string | undefined;
   /** Public record fields to include in read; request data is never read. */
   readFields?: readonly string[];
+  /** Withhold these actions after the current subject's host decision is accepted. */
+  settle?: readonly `${string}.${ActionName}`[];
 };
 export type HostCommandMeta = {
   /** Declared part/action pairs retained in loading or while a host operation is pending. */
@@ -128,7 +130,9 @@ export function hostOffer(
   const bindings = isRow ? meta.hostCommands?.items : meta.hostCommands?.parts;
   const binding = Object.hasOwn(bindings ?? {}, pair) ? bindings![pair] : undefined;
   const subject = meta.hostCommands && (!isRow || row) ? subjectAt(meta, instance, props, row) : undefined;
-  const pending = subject && policy?.operation?.(subject)?.status === "pending";
+  const phase = subject && policy?.operation?.(subject)?.status;
+  if (phase === "accepted" && meta.hostCommands?.settle?.includes(pair)) return;
+  const pending = phase === "pending";
   if (pending && (binding ? binding.kind !== "cancel" : !meta.loadingActions?.includes(pair))) return;
   if (!binding)
     return detail.startsWith("→") && policy?.allowsLink?.(detail.slice(1)) === false ? undefined : offer;

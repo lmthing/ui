@@ -125,7 +125,7 @@ export type RecordRuntime = {
   >;
 };
 
-export type AttachmentIntent = "pick" | "scan" | "preview" | "export";
+export type AttachmentIntent = "pick" | "scan" | "preview" | "export" | "remove";
 export type AttachmentTarget = { intent: AttachmentIntent; source?: string };
 
 export type MediaTargets = {

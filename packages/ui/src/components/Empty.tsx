@@ -34,7 +34,7 @@ export const meta = {
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
   read: (input, _state, lang?: string) => {
     const { messageLabels } = wordsFor(lang);
-    return (input as { kind: string }).kind === "none" ? [] : [messageLabels.retry];
+    return (input as { retryable?: boolean }).retryable ? [messageLabels.retry] : [];
   },
 } as const satisfies Meta;
 
@@ -44,13 +44,13 @@ export const props = z
     title: text(40),
     sub: text(100).optional(),
     icon: icon.optional(),
-    kind: z.enum(["none", "error", "offline"]).default("none"),
+    kind: z.enum(["none", "filtered", "complete", "error", "offline"]).default("none"),
   })
   // Derived, never written: a failed or offline message offers a retry.
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { sub: undefined } : {}),
-    retryable: value.kind !== "none",
+    retryable: value.kind === "error" || value.kind === "offline",
   }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -68,9 +68,15 @@ export const examples = [
   { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
   { title: "You're offline", kind: "offline" },
   { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
+  {
+    title: "No walks in this filter",
+    sub: "Try showing all routes instead of just the riverside route.",
+    kind: "filtered",
+  },
+  { title: "All plant care done", sub: "The next scheduled check is on Friday.", kind: "complete" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = probesFor("Empty");
+const { choose, write, read } = probesFor("Empty");
 export const probes = [
   choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
   choose(
@@ -87,9 +93,22 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "No walks match the Riverside filter. Explain that I can switch to all routes, without suggesting that anything failed.",
+    ),
+    expectProps: { kind: "filtered" },
+  },
+  read("Try loading my walks again", { address: "e1/retry", action: "press" }, 2),
 ] satisfies Probe[];
 
-const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
+const kindIcon = {
+  none: undefined,
+  filtered: "filter",
+  complete: "circle_check",
+  error: "alert",
+  offline: "wifi",
+} as const;
 
 function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
   const { messageLabels } = useWords().words;
@@ -100,8 +119,14 @@ export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof met
   const shown = icon ?? kindIcon[kind];
   return (
     <KitCard style="plain" part="root">
-      <KitEmpty title={title} {...(sub ? { sub } : {})} {...(shown ? { icon: shown } : {})} fill />
-      {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
+      <KitEmpty
+        title={title}
+        {...(sub ? { sub } : {})}
+        {...(shown ? { icon: shown } : {})}
+        fill
+        tone={kind === "complete" ? "good" : "neutral"}
+      />
+      {(kind === "error" || kind === "offline") && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );
 }

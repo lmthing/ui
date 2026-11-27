@@ -14,12 +14,17 @@ describe("Empty view", () => {
     const [empty] = [view.props.children].flat();
     expect(empty.type).toBe(KitEmpty);
     const { title, sub, icon } = parsed;
-    const shown = icon ?? { none: undefined, error: "alert", offline: "wifi" }[parsed.kind];
+    const shown =
+      icon ??
+      { none: undefined, filtered: "filter", complete: "circle_check", error: "alert", offline: "wifi" }[
+        parsed.kind
+      ];
     expect(empty.props).toEqual({
       title,
       ...(sub ? { sub } : {}),
       ...(shown ? { icon: shown } : {}),
       fill: true,
+      tone: parsed.kind === "complete" ? "good" : "neutral",
     });
   });
   it.each(examples)("reads the shown content and offers a retry only after a failure", (example) => {
@@ -28,7 +33,9 @@ describe("Empty view", () => {
     expect(read).toContain(`"${parsed.title}"`);
     if (parsed.sub) expect(read).toContain(`"${parsed.sub}"`);
     expect(affordancesOf(meta, parsed, "e1")).toEqual(
-      parsed.kind === "none" ? [] : [{ address: "e1/retry", part: "retry", action: "press", detail: "" }],
+      ["error", "offline"].includes(parsed.kind)
+        ? [{ address: "e1/retry", part: "retry", action: "press", detail: "" }]
+        : [],
     );
   });
 });

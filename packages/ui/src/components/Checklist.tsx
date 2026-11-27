@@ -1,8 +1,11 @@
 import { z } from "zod";
+import { useSyncExternalStore } from "react";
 import {
   probesFor,
   itemsOf,
   itemVariantProps,
+  numberLine,
+  wordsFor,
   placeholderTitle,
   text,
   thingOf,
@@ -13,7 +16,19 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty, useKit } from "../kit";
+import {
+  KitCard,
+  KitCheck,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+  KitEmpty,
+  useKit,
+  useWords,
+  useLiveControls,
+  usePartContext,
+} from "../kit";
 import { prompt } from "../entry/prompt-Checklist.generated";
 
 export const meta = {
@@ -34,8 +49,12 @@ export const meta = {
     variants: { mark: ["none", "highlight"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
+  parts: ["root", "count"],
   states: ["filled", "empty", "loading"],
   actions: { items: { check: ["check"] } },
+  live: { checks: { check: "done" } },
+  read: (input, state, lang): string[] =>
+    state === "filled" ? [completionLine((input as z.output<typeof props>).items, lang)] : [],
 } as const satisfies Meta;
 
 export const props = z
@@ -106,10 +125,26 @@ export const probes = [
   read("Tick off the first job", { address: "k1/r1/check", action: "check" }),
 ] satisfies Probe[];
 
-export function Checklist(input: Props<typeof props, typeof meta>) {
-  const { items } = input;
-  const density = useKit().density;
+function completionLine(items: readonly { done: boolean }[], lang?: string) {
+  return wordsFor(lang).checklist.count(
+    numberLine(items.filter(({ done }) => done).length, lang),
+    numberLine(items.length, lang),
+  );
+}
+
+type ChecklistProps = Props<typeof props, typeof meta>;
+const subscribeNone = () => () => {};
+export function Checklist(input: ChecklistProps) {
+  const { lang } = useWords();
+  const { controller, density } = useKit();
+  const { component } = usePartContext();
   const state = useComponentState();
+  const snapshot = () => {
+    const live = controller?.liveControls(meta, input, component) as ChecklistProps | undefined;
+    return completionLine(live?.items ?? input.items, lang);
+  };
+  const count = useSyncExternalStore(controller?.store.subscribe ?? subscribeNone, snapshot, snapshot);
+  const { items } = useLiveControls(meta, input) as ChecklistProps;
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root" density={density}>
@@ -130,26 +165,36 @@ export function Checklist(input: Props<typeof props, typeof meta>) {
     );
   }
   return (
-    <KitCard style="inset" part="root" density={density}>
+    <KitCard style="inset" part="root" density={density} padded>
+      <KitText role="label" part="count" density={density}>
+        {count}
+      </KitText>
       {items.map((it) => (
-        <KitRow
-          key={it.id}
-          item={it.id}
-          label={it.text}
-          mark={it.mark}
-          density={density}
-          leading={<KitCheck done={it.done} part="check" label={it.text} />}
-        >
-          <KitText role="body" tone={it.done ? "muted" : "text"} part="text" density={density}>
-            {it.text}
-          </KitText>
-          {it.meta && (
-            <KitText role="caption" tone="muted" part="meta" density={density}>
-              {it.meta}
-            </KitText>
-          )}
-        </KitRow>
+        <ChecklistRow key={it.id} item={it} />
       ))}
     </KitCard>
+  );
+}
+
+function ChecklistRow({ item }: { item: ChecklistProps["items"][number] }) {
+  const { density } = useKit();
+  return (
+    <KitRow
+      item={item.id}
+      label={item.text}
+      mark={item.mark}
+      inset="none"
+      density={density}
+      leading={<KitCheck done={item.done} part="check" label={item.text} />}
+    >
+      <KitText role="body" tone={item.done ? "muted" : "text"} part="text" density={density}>
+        {item.text}
+      </KitText>
+      {item.meta && (
+        <KitText role="caption" tone="muted" part="meta" density={density}>
+          {item.meta}
+        </KitText>
+      )}
+    </KitRow>
   );
 }

@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
-import { accents, presets, themeName, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import {
+  accents,
+  components,
+  presets,
+  themeName,
+  type ScreenLike,
+  type ThemeChoice,
+} from "@lmthing/ui/catalog";
+import { PhoneScreen, type AttachmentHost, type HostCommandAdapter } from "@lmthing/ui/kit";
 import { config } from "../index";
 import { resolvePhoto } from "./photos";
 const header = { id: "h1", c: "Header", title: "Try the controls" };
@@ -97,14 +104,77 @@ const screens: Record<string, ScreenLike> = {
     id: "controls",
     components: [header, { id: "f1", c: "Field", kind: "photo", label: "Plant photo" }, note, button],
   },
+  attachment: {
+    id: "controls",
+    components: [
+      { id: "h1", c: "Header", title: "Walk handover" },
+      {
+        id: "f1",
+        c: "Field",
+        kind: "file",
+        label: "Walk notes",
+        hint: "Choose the notes you want to share.",
+      },
+    ],
+  },
+  decision: {
+    id: "controls",
+    components: [
+      { id: "h1", c: "Header", title: "Estimate review" },
+      {
+        id: "a1",
+        c: "Approval",
+        ...components.Approval.examples.find(
+          (example) => example.style === "review" && !example.review?.reason,
+        ),
+      },
+    ],
+  },
 };
 const event = (name: string, detail: unknown) => globalThis.dispatchEvent(new CustomEvent(name, { detail }));
 const onSend = (text: string, address: string) => event("gallery-send", { text, address });
 const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
+const previewWait = () => new Promise<void>((resolve) => setTimeout(resolve, 420));
+
+function useDemoAttachments(): AttachmentHost {
+  const attempts = useRef(0);
+  return {
+    canRun: () => true,
+    async run({ signal }) {
+      attempts.current++;
+      await previewWait();
+      return signal.aborted || attempts.current === 1
+        ? { status: "rejected" }
+        : { status: "accepted", reference: "demo_walk_notes" };
+    },
+  };
+}
+
+const decisionHost: HostCommandAdapter = {
+  commands: Object.fromEntries(
+    ["approval.accept", "approval.reject"].map((name) => [
+      name,
+      {
+        allows: () => true,
+        async run({ input }, { signal }) {
+          await previewWait();
+          return signal.aborted
+            ? { status: "rejected" }
+            : {
+                status: "accepted",
+                records: typeof input.reason === "string" ? [{ reason: input.reason }] : [],
+              };
+        },
+      },
+    ]),
+  ),
+};
+
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
   const [activeTab, setActiveTab] = useState(0);
+  const attachments = useDemoAttachments();
   const fixture = screens[kind] ?? screens.form!;
   const screen =
     kind === "navigation"
@@ -133,6 +203,8 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
           onSend={onSend}
           onChange={onChange}
           requestPhoto={requestPhoto}
+          attachments={kind === "attachment" ? attachments : undefined}
+          hostCommands={kind === "decision" ? decisionHost : undefined}
         />
       </YStack>
     </TamaguiProvider>

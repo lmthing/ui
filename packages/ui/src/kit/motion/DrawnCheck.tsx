@@ -35,7 +35,7 @@ export function DrawnCheck({
   const { d, length } = ring ? circled : check;
   return (
     <YStack pointerEvents="none" scale={1 + pulse * variants.motion[motion].pulseScale} aria-hidden {...fade}>
-      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
         {ring && <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={2} />}
         <Path
           d={d}

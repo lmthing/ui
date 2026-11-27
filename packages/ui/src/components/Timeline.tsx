@@ -18,7 +18,17 @@ import {
   type ThemeDensity,
   variantProps,
 } from "../catalog";
-import { KitCard, KitEmpty, KitHours, KitSkeleton, useComponentState, useKit } from "../kit";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitHours,
+  KitLayoutText,
+  KitSkeleton,
+  KitTrail,
+  useComponentState,
+  useKit,
+} from "../kit";
 import { TimelineFlow, type TimelineFlowGroup } from "../kit/timeline";
 import { prompt } from "../entry/prompt-Timeline.generated";
 
@@ -38,11 +48,11 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   items: {
     key: "items",
-    parts: ["root", "time", "title", "meta"],
+    parts: ["root", "time", "title", "meta", "summary"],
     variants: { tone: ["neutral", "good", "warn", "bad"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
-  parts: ["root"],
+  parts: ["root", "record", "reference", "current"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
   read: (input, state) =>
@@ -56,6 +66,7 @@ const event = z.strictObject({
   time: text(12),
   title: text(32),
   meta: text(32).optional(),
+  summary: text(80).optional(),
   done: z.boolean().default(false),
   end: clock.optional(),
   goto: screenId.optional(),
@@ -64,9 +75,23 @@ const event = z.strictObject({
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    style: z.enum(["day", "history", "hours"]).default("day"),
+    style: z.enum(["day", "history", "hours", "record"]).default("day"),
+    record: text(48).optional(),
+    reference: text(24).optional(),
+    current: text(24).optional(),
+    audience: z.enum(["summary", "detail"]).optional().meta({ read: false }),
     items: z.array(event).min(1).max(8),
   })
+  .refine(
+    ({ style, record, reference, current, audience, items }) =>
+      style === "record"
+        ? Boolean(record && current)
+        : !record && !reference && !current && !audience && items.every((item) => item.summary === undefined),
+    {
+      path: ["style"],
+      message: "Only record history uses a record, current status, reference, audience or public summary",
+    },
+  )
   .refine(({ style, items }) => style === "hours" || items.length <= 6, {
     path: ["items"],
     message: "Day and history take up to six events",
@@ -95,7 +120,7 @@ export const props = z
             .sort((a, b) => a.time.localeCompare(b.time))
             .map((item) => ({ ...item, root: item.goto })),
         }
-      : value.detail === "brief"
+      : value.detail === "brief" || (value.style === "record" && value.audience !== "detail")
         ? { ...value, items: value.items.map((item) => ({ ...item, meta: undefined })) }
         : value,
   );
@@ -137,6 +162,32 @@ export const examples = [
     style: "hours" as const,
     items: careHours.map((item, index) => (index === 0 ? { ...item, tone } : item)),
   })),
+  {
+    style: "record",
+    record: "Fern fungus inspection",
+    reference: "GH-042",
+    current: "Follow-up booked",
+    audience: "detail",
+    items: [
+      {
+        time: "Thu 26 Nov",
+        title: "Follow-up booked",
+        summary: "A gardener will visit tomorrow.",
+        meta: "Bench 4 · check new fronds",
+      },
+      { time: "Wed 25 Nov", title: "Inspection requested", summary: "We received your request." },
+    ],
+  },
+  {
+    style: "record",
+    record: "Clover's Meadow walk",
+    reference: "WK-314",
+    current: "Walker assigned",
+    items: [
+      { time: "Fri 27 Nov", title: "Walker assigned", summary: "Sam will collect Clover at 09:00." },
+      { time: "Thu 26 Nov", title: "Request received" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Timeline");
@@ -158,19 +209,31 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the fern scheduled for watering", { address: "t1/r1", action: "press" }, 2),
+  {
+    ...write(
+      "Show the state changes of record GH-042, Fern fungus inspection. It's currently Follow-up booked. Thu 26 Nov: Follow-up booked, public summary A gardener will visit tomorrow. Only show the public summary.",
+    ),
+    expectProps: { style: "record", current: "Follow-up booked" },
+  },
 ] satisfies Probe[];
 
 type TimelineProps = Props<typeof props, typeof meta>;
 
-function TimelineEvents({ items, density }: Pick<TimelineProps, "items"> & { density: ThemeDensity }) {
+function TimelineEvents({
+  items,
+  density,
+  record,
+}: Pick<TimelineProps, "items"> & { density: ThemeDensity; record: boolean }) {
   const group: TimelineFlowGroup = {
     rows: items.map((item) => ({
       kind: "event",
       item: item.id,
       tone: item.tone,
+      inlineTime: record,
       slots: {
         title: { part: "title", text: item.title },
         time: { part: "time", text: item.time },
+        ...(item.summary ? { summary: { part: "summary", text: item.summary } } : {}),
         ...(item.meta ? { detail: { part: "meta", text: item.meta } } : {}),
         done: item.done,
       },
@@ -179,12 +242,25 @@ function TimelineEvents({ items, density }: Pick<TimelineProps, "items"> & { den
   return <TimelineFlow groups={[group]} density={density} />;
 }
 
-export function Timeline({ style, items }: TimelineProps) {
+export function Timeline({ style, items, record, reference, current }: TimelineProps) {
   const state = useComponentState();
   const density = useKit().density;
   const hours = style === "hours";
+  const recordHistory = style === "record";
   return (
-    <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
+    <KitCard
+      style="inset"
+      part="root"
+      density={density}
+      padded={state !== "empty" && (hours || recordHistory)}
+    >
+      {recordHistory && state !== "empty" && (
+        <KitContent density={density}>
+          <KitLayoutText line={{ text: record, part: "record", strong: true }} />
+          <KitLayoutText line={{ text: reference, part: "reference", role: "meta", tone: "muted" }} />
+          {current && <KitTrail part="current" kind="badge" value={current} />}
+        </KitContent>
+      )}
       {state === "loading" ? (
         <KitSkeleton rows={items.length} lead="time" items={items} density={density} />
       ) : state === "empty" ? (
@@ -201,7 +277,7 @@ export function Timeline({ style, items }: TimelineProps) {
           }))}
         />
       ) : (
-        <TimelineEvents {...{ items, density }} />
+        <TimelineEvents {...{ items, density }} record={recordHistory} />
       )}
     </KitCard>
   );

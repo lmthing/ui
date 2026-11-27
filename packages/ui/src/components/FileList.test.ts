@@ -38,7 +38,7 @@ describe("FileList schema", () => {
     { sizeBytes: NaN },
     { pages: 0 },
     { pages: 1.2 },
-    { status: "uploading" },
+    { status: "queued" },
     { goto: "Bad ID" },
     { url: "https://example.org" },
   ])("rejects invalid file data", (patch) =>

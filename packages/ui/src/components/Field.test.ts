@@ -1,4 +1,5 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { createScreenController } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   components,
@@ -11,6 +12,37 @@ import {
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Field;
+
+it("picks through the host, reports failure, retries, and detaches without exposing the token", async () => {
+  const input = { label: "Care notes", kind: "file" };
+  expect(props.safeParse({ ...input, value: "notes.pdf" }).success).toBe(false);
+  const screen = { id: "home", components: [{ id: "f1", c: "Field", ...input }] };
+  const run = vi
+    .fn()
+    .mockResolvedValueOnce({ status: "rejected" })
+    .mockResolvedValueOnce({ status: "accepted", reference: "opaque_notes" });
+  const controller = createScreenController({
+    screen,
+    defs: components,
+    attachments: { canRun: () => true, run },
+  });
+  try {
+    expect(controller.actionsAt("f1/field")).toEqual([]);
+    expect(controller.actionsAt("f1/remove_attachment")).toEqual([]);
+    expect(controller.press("f1/attach").ok).toBe(true);
+    expect(controller.read()).toContain("Adding file");
+    await vi.waitFor(() => expect(controller.read()).toContain("Couldn’t attach file"));
+    expect(controller.press("f1/attach").ok).toBe(true);
+    await vi.waitFor(() => expect(controller.attachmentReference("f1/attach")).toBe("opaque_notes"));
+    expect(controller.read()).not.toContain("opaque_notes");
+    expect(controller.press("f1/remove_attachment").ok).toBe(true);
+    expect(controller.attachmentReference("f1/attach")).toBeUndefined();
+    expect(controller.actionsAt("f1/remove_attachment")).toEqual([]);
+    expect(run).toHaveBeenCalledTimes(2);
+  } finally {
+    controller.dispose();
+  }
+});
 
 describe("Field schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -189,7 +221,7 @@ describe("Field fallback and metadata", () => {
       task: "Name the plant Basil",
       expect: { address: "f1/field", action: "type" },
     });
-    expect(new Set(examples.map((example) => example.kind)).size).toBe(15);
+    expect(new Set(examples.map((example) => example.kind)).size).toBe(16);
   });
   it("registers its data-only definition and ids", () => {
     const registry = createRegistry();

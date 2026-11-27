@@ -22,7 +22,7 @@ describe("KeyValue schema", () => {
     { pairs: [{ label: "", value: "Bathroom" }] }, { pairs: [{ label: "   ", value: "Bathroom" }] },
     { pairs: [{ label: "Room", value: "" }] }, { pairs: [{ label: "Room", value: "   " }] },
     { pairs: [{ label: "a".repeat(21), value: "Bathroom" }] },
-    { pairs: [{ label: "Room", value: "a".repeat(29) }] }, { pairs: [{ label: "Room", value: 4 }] },
+    { pairs: [{ label: "Room", value: "a".repeat(101) }] }, { pairs: [{ label: "Room", value: 4 }] },
     { pairs: [{ label: "Room", value: "Bathroom", icon: "unknown" }] },
     { pairs: [{ label: "Room", value: "Bathroom", goto: "bathroom" }] },
     { pairs: [{ label: "Room", value: "Bathroom", pixels: 4 }] },
@@ -33,7 +33,7 @@ describe("KeyValue schema", () => {
     { masked: "true", pairs: [{ label: "Room", value: "Bathroom" }] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths and count in both arrangements", () => {
-    const pair = { label: "a".repeat(20), value: "a".repeat(28), icon: "leaf" };
+    const pair = { label: "a".repeat(20), value: "a".repeat(100), icon: "leaf" };
     for (const arrange of meta.variants.arrange)
       expect(props.safeParse({ arrange, pairs: Array.from({ length: 6 }, () => pair) }).success).toBe(true);
   });
@@ -98,7 +98,7 @@ describe("KeyValue field labels and metadata", () => {
       items: [{ ...seed, blank: "", [field]: "a".repeat(40), "water-interval": "  Every seven days  " }],
     };
     expect(fallback({ cast }).pairs).toEqual([
-      { label: "Long field name for", value: "a".repeat(28) }, { label: "Water interval", value: "Every seven days" },
+      { label: "Long field name for", value: "a".repeat(40) }, { label: "Water interval", value: "Every seven days" },
     ]);
   });
   it("has the declared metadata and well-formed choose and write probes", () => {

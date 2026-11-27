@@ -139,9 +139,12 @@ describe("Empty metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Empty" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      expect: { address: "e1/retry", action: "press" },
+    });
     for (const probe of probes) {
-      const wording = probe.kind === "choose" ? probe.need : probe.brief;
+      const wording =
+        probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : probe.task;
       for (const name of [meta.id, "Hero", "Note"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
