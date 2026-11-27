@@ -83,12 +83,14 @@ a note, and approve and decline.
 - Pick: someone asked and a manager decides. Not a client accepting a quote (customers `Invoice` `quote`),
   not jobs to tick (`Checklist`).
 - Writes: `requests` of `from` text(20), `photo`, `kind` (`time_off`, `swap`, `expense`, `other`, `shift_claim`),
-  `title` text(32), `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
+  `title` text(32), `reference` text(24) optional (the same supplied request number in both roles),
+  `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
   `status` (`pending`, `approved`, `declined`) optional, 1–5; `style`.
 - Styles: `queue` (default, manager decisions), `my_requests` (requester status with no decision controls; missing status displays as pending).
-- Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `dates`, `amount`,
+- Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `reference`, `dates`, `amount`,
   `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`.
-- States: filled, empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success.
+- States: filled (including awaiting decision and already decided), empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success (read-only requests and their supplied decisions, no inferred outcome).
+- Motion: Enter on complete request rows, with no component reveal or signature. On a supplied decision change the status badge uses the kit's local change cue (fade in reduced motion); the request facts stay in place and settled decision buttons are removed immediately. Press and decline confirmation use kit feedback; cancel does not change the row. Leave by the host's navigation, with no Approval-specific exit.
 - Real path: requests in a shared app; the requester is told the answer.
 
 ### `Handover` · planned · content · people

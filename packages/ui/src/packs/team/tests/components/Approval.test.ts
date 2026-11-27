@@ -11,7 +11,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance, type AddressedElement } from "../../../../../test/render";
 import { teamWordsFor } from "../../lang";
 
 const def = components.Approval;
@@ -23,6 +23,10 @@ const emptyCast: CastLike = { things: [], items: [] };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const view = (input: unknown, state: "filled" | "empty" | "success" = "filled") =>
   addressedElements(renderInstance("Approval", input, state, theme));
+
+function textOf(node: AddressedElement | undefined): string[] {
+  return node ? [...node.text, ...node.children.flatMap(textOf)] : [];
+}
 
 describe("Approval schema and boundaries", () => {
   it.each(examples)("accepts a domain example", (example) =>
@@ -63,6 +67,7 @@ describe("Approval schema and boundaries", () => {
     { from: "x".repeat(21) },
     { title: "" },
     { title: "x".repeat(33) },
+    { reference: "x".repeat(25) },
     { dates: "x".repeat(25) },
     { note: "x".repeat(101) },
     { photo: undefined },
@@ -130,8 +135,8 @@ describe("Approval parts, reading and variants", () => {
     expect(parts.has("home/c1/root")).toBe(true);
     expect(parts.has("home/c1/message")).toBe(false);
     for (const part of meta.items.parts) {
-      expect(parts.has(`home/c1/r1/${part}`)).toBe(!["amount", "status"].includes(part));
-      expect(parts.has(`home/c1/r2/${part}`)).toBe(!["dates", "status"].includes(part));
+      expect(parts.has(`home/c1/r1/${part}`)).toBe(part !== "amount");
+      expect(parts.has(`home/c1/r2/${part}`)).toBe(part !== "dates");
     }
     expect(parts.get("home/c1/r1/photo")?.attributes).toContain('aria-label="Anna"');
     expect(parts.get("home/c1/r1/kind")?.text).toEqual([words.kinds.time_off]);
@@ -158,13 +163,37 @@ describe("Approval parts, reading and variants", () => {
 });
 
 describe("Approval states and dispatch", () => {
-  it.each(["empty", "success"] as const)("shows only feedback and offers no stale actions in %s", (state) => {
+  it("keeps the request and its acknowledged outcome on the same addressed row", () => {
+    const input = { requests: [{ ...row, reference: "LV-104" }] };
+    const incoming = view(input);
+    expect(textOf(incoming.get("home/c1/r1/status"))).toEqual([words.awaitingDecision]);
+    expect(incoming.get("home/c1/r1/approve")?.attributes).toContain('role="button"');
+
+    const acknowledged = { requests: [{ ...row, reference: "LV-104", status: "approved" }] };
+    const receipt = view(acknowledged, "success");
+    for (const part of ["title", "from", "reference", "dates", "note"])
+      expect(receipt.get(`home/c1/r1/${part}`)?.text).toEqual(incoming.get(`home/c1/r1/${part}`)?.text);
+    expect(receipt.get("home/c1/r1/reference")?.text).toEqual(["LV-104"]);
+    expect(textOf(receipt.get("home/c1/r1/status"))).toEqual([words.statuses.approved]);
+    expect(receipt.has("home/c1/r1/approve")).toBe(false);
+    expect(receipt.has("home/c1/r1/decline")).toBe(false);
+    const reading = readComponent(def, acknowledged, "a1", "success").join("\n");
+    expect(reading).toContain("LV-104");
+    expect(reading).toContain(words.statuses.approved);
+    expect(reading).not.toContain(" press");
+  });
+  it.each(["empty", "success"] as const)("offers no stale actions in %s", (state) => {
     const parts = view(full, state);
-    expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
-    expect(parts.get("home/c1/message")?.text).toEqual([
-      state === "success" ? words.success : words.queueEmpty,
-    ]);
-    expect(readComponent(def, full, "a1", state)).toEqual([`a1 Approval (${state})`]);
+    const reading = readComponent(def, full, "a1", state);
+    if (state === "empty") {
+      expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
+      expect(parts.get("home/c1/message")?.text).toEqual([words.queueEmpty]);
+      expect(reading).toEqual(["a1 Approval (empty)"]);
+    } else {
+      expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.awaitingDecision]);
+      expect(parts.has("home/c1/message")).toBe(false);
+      expect(reading.join("\n")).not.toContain(" press");
+    }
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(full)), "a1", {}, state)).toEqual([]);
     const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval", state }] };
     const onAction = vi.fn();
@@ -199,8 +228,8 @@ it("labels shift claims and leaves requester decisions read-only at their origin
   const own = examples[2]!;
   const parts = view(own);
   expect(parts.get("home/c1/r1/kind")?.text).toEqual(["Shift claim"]);
-  expect(parts.get("home/c1/r1/status")?.text).toEqual([words.awaitingDecision]);
-  expect(parts.get("home/c1/r2/status")?.text).toEqual(["Approved"]);
+  expect(textOf(parts.get("home/c1/r1/status"))).toEqual([words.awaitingDecision]);
+  expect(textOf(parts.get("home/c1/r2/status"))).toEqual(["Approved"]);
   expect(parts.has("home/c1/r1/approve")).toBe(false);
   expect(parts.has("home/c1/r1/decline")).toBe(false);
   const reading = readComponent(def, own, "a1").join("\n");
@@ -233,7 +262,7 @@ it("shows settled requests without offering a second decision in a mixed manager
     ["r1", words.statuses.approved],
     ["r2", words.statuses.declined],
   ]) {
-    expect(parts.get(`home/c1/${id}/status`)?.text).toEqual([status]);
+    expect(textOf(parts.get(`home/c1/${id}/status`))).toEqual([status]);
     expect(reading).toContain(`${id} Expense · ${status}`);
     for (const action of ["approve", "decline"]) {
       expect(parts.has(`home/c1/${id}/${action}`)).toBe(false);

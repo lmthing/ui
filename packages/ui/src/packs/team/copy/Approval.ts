@@ -19,18 +19,26 @@ export function approvalOpen(status: Request["status"]): status is "pending" | u
   return status === undefined || status === "pending";
 }
 
+export function approvalStatus(status: Request["status"], words: TeamWords["approval"]) {
+  return approvalOpen(status)
+    ? { label: words.awaitingDecision, tone: "muted" as const }
+    : { label: words.statuses[status], tone: status === "approved" ? ("good" as const) : ("bad" as const) };
+}
+
 export function approvalReading(
   { requests, style }: { requests: readonly Request[]; style?: string },
   lang?: string,
+  decisions = true,
 ) {
-  const { kinds, statuses, approve, decline, detailSeparator, awaitingDecision } =
-    teamWordsFor(lang).approval;
-  const own = style === "my_requests";
+  const words = teamWordsFor(lang).approval;
+  const { kinds, approve, decline, detailSeparator } = words;
   const rows = requests.map(({ kind, amount, status }, index) => {
     const heading = `r${numberLine(index + 1, lang)} ${kinds[kind]}`;
     const value = approvalAmount(amount, lang);
-    const outcome = approvalOpen(status) ? (own ? awaitingDecision : undefined) : statuses[status];
-    return [heading, value, outcome].filter((line) => line !== undefined).join(detailSeparator);
+    const outcome = approvalStatus(status, words);
+    return [heading, value, outcome.label].filter((line) => line !== undefined).join(detailSeparator);
   });
-  return own || !requests.some(({ status }) => approvalOpen(status)) ? rows : [...rows, approve, decline];
+  return decisions && style !== "my_requests" && requests.some(({ status }) => approvalOpen(status))
+    ? [...rows, approve, decline]
+    : rows;
 }

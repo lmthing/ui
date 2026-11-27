@@ -13,7 +13,6 @@ export const words = {
     queueEmpty: "No requests awaiting a decision",
     approve: "Approve",
     decline: "Decline",
-    success: "Decision recorded",
     detailSeparator: " · ",
   },
 };
