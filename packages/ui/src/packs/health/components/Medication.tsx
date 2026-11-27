@@ -1,6 +1,7 @@
 import {
   wordsFor,
   clock,
+  formatAddress,
   timeOfDayLine,
   probesFor,
   text,
@@ -12,10 +13,12 @@ import {
   type ThemeDensity,
   variantProps,
 } from "../../../catalog";
+import { useCallback, useContext, useEffect, useRef, type ContextType, type ReactNode } from "react";
 import { z } from "zod";
 import { seedTitles } from "..";
 import { healthWordsFor } from "../lang";
 import {
+  medicationFeedback,
   medicationLog,
   medicationReading,
   medicationStatus,
@@ -27,13 +30,15 @@ import {
 import {
   KitAction,
   KitCard,
-  KitCheck,
+  KitChip,
   KitContent,
   KitEmpty,
   KitRow,
   KitText,
+  PartRefScope,
   useComponentState,
   useLiveControls,
+  usePartContext,
   useVariant,
   useWords,
   useKit,
@@ -146,16 +151,73 @@ export const probes = [
 
 type Dose = Props<typeof props, typeof meta>["doses"][number];
 type DoseFinish = Pick<Props<typeof props, typeof meta>, "detail"> & { density: ThemeDensity };
-function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["detail"] }) {
+
+function MedicationReceiptScope({
+  dose,
+  acknowledged,
+  children,
+}: {
+  dose: Dose;
+  acknowledged: boolean;
+  children: ReactNode;
+}) {
+  const { screen, component } = usePartContext();
+  const { environment, nativeHost } = useKit();
+  const parent = useContext(PartRefScope);
+  const address = formatAddress({ screen, component, item: dose.id, part: "status" });
+  const target = useRef<{ current: unknown } | null>(null);
+  const seen = useRef(dose.status);
+  const register = useCallback<NonNullable<ContextType<typeof PartRefScope>>>(
+    (id, ref) => {
+      if (id === address) target.current = ref;
+      const unregister = parent?.(id, ref);
+      return () => {
+        if (target.current === ref) target.current = null;
+        unregister?.();
+      };
+    },
+    [address, parent],
+  );
+  useEffect(() => {
+    const wasDue = seen.current === "due";
+    seen.current = dose.status;
+    if (!wasDue || dose.status === "due" || !acknowledged || environment.agentMode) return;
+    const node = target.current?.current;
+    if (typeof HTMLElement === "undefined" || !(node instanceof HTMLElement)) {
+      if (node) nativeHost?.focusAccessibility?.(node);
+    } else if (node.ownerDocument.activeElement === node.ownerDocument.body) {
+      node.tabIndex = -1;
+      node.focus({ preventScroll: true });
+    }
+  }, [acknowledged, dose.status, environment.agentMode, nativeHost]);
+  return <PartRefScope.Provider value={register}>{children}</PartRefScope.Provider>;
+}
+
+function MedicationStatus({
+  dose,
+  detail,
+  canLog,
+}: {
+  dose: Dose;
+  detail: DoseFinish["detail"];
+  canLog: boolean;
+}) {
   const { lang, words } = useWords(healthWordsFor);
-  const taken = dose.status === "taken";
+  const status = !canLog && dose.status === "due" ? "notLogged" : dose.status;
   return (
     <KitContent lineRole="body" rhythm="flush">
+      <KitText
+        role="caption"
+        tone={status === "taken" ? "good" : status === "notLogged" ? "warn" : "text"}
+        part="status"
+      >
+        {words.medicationLabels[status]}
+      </KitText>
+      <KitText role="caption" tone="muted" tabular part="time">
+        {timeOfDayLine(dose.time, lang)}
+      </KitText>
       <KitText role="caption" tone="muted" part="dose">
         {dose.dose}
-      </KitText>
-      <KitText role="caption" tone={taken ? "good" : "muted"} part="status">
-        {words.medicationLabels[dose.status]}
       </KitText>
       {detail === "full" && dose.left !== undefined && (
         <KitText role="caption" tabular tone="muted" part="left">
@@ -165,41 +227,58 @@ function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["de
     </KitContent>
   );
 }
-function MedicationDose({ dose, density, detail, canLog }: { dose: Dose; canLog: boolean } & DoseFinish) {
+function MedicationDose({
+  dose,
+  density,
+  detail,
+  canLog,
+  acknowledged,
+}: {
+  dose: Dose;
+  canLog: boolean;
+  acknowledged: boolean;
+} & DoseFinish) {
   const { lang, words } = useWords(healthWordsFor);
   const time = timeOfDayLine(dose.time, lang);
   const actionLabel = (label: string) => words.medicationAction(label, dose.name, time);
   return (
-    <KitRow
-      item={dose.id}
-      mark={dose.mark}
-      {...{ density }}
-      label={dose.name}
-      trailing={
-        canLog && dose.status === "due" ? (
-          <>
-            <KitAction
-              label={words.medicationLabels.skip}
-              a11y={actionLabel(words.medicationLabels.skip)}
-              tone="neutral"
-              kind="quiet"
-              part="skip"
-            />
-            <KitCheck done={false} part="taken" label={actionLabel(words.medicationLabels.markTaken)} />
-          </>
-        ) : undefined
-      }
-    >
-      <KitContent lineRole="body">
-        <KitText role="body" part="name" breakLongWords>
-          {dose.name}
-        </KitText>
-        <KitText role="number" numberScale="compact" tabular part="time">
-          {time}
-        </KitText>
-        <MedicationStatus {...{ dose, detail }} />
-      </KitContent>
-    </KitRow>
+    <MedicationReceiptScope {...{ dose, acknowledged }}>
+      <KitRow
+        item={dose.id}
+        mark={dose.mark}
+        {...{ density }}
+        label={dose.name}
+        trailing={
+          canLog && dose.status === "due" ? (
+            <>
+              <KitChip
+                item={dose.id}
+                label={words.medicationLabels.markTaken}
+                part="taken"
+                labelPart={null}
+                role="checkbox"
+                on={false}
+                roving={false}
+              />
+              <KitAction
+                label={words.medicationLabels.skip}
+                a11y={actionLabel(words.medicationLabels.skip)}
+                tone="neutral"
+                kind="quiet"
+                part="skip"
+              />
+            </>
+          ) : undefined
+        }
+      >
+        <KitContent lineRole="body">
+          <KitText role="body" part="name" emphasis="strong" breakLongWords>
+            {dose.name}
+          </KitText>
+          <MedicationStatus {...{ dose, detail, canLog }} />
+        </KitContent>
+      </KitRow>
+    </MedicationReceiptScope>
   );
 }
 
@@ -217,17 +296,29 @@ export function Medication(input: Props<typeof props, typeof meta>) {
       </KitCard>
     );
   const refill = refillLine(doses, refillAt, lang);
-  const complete = doses.every((dose) => dose.status === "taken");
-  const unavailable = state === "error" || (state === "success" && !complete);
+  const { complete, unavailable } = medicationFeedback(doses, state);
+  const due = new Set(input.doses.filter(({ status }) => status === "due").map(({ id }) => id));
   return (
     <KitCard style="inset" part="root" density={density}>
+      {unavailable && (
+        <KitRow label={words.medicationLabels.unavailable} density={density}>
+          <KitText role="caption" tone="warn" part="status">
+            {words.medicationLabels.unavailable}
+          </KitText>
+        </KitRow>
+      )}
       {orderedDoses(doses).map((dose) => (
-        <MedicationDose key={dose.id} {...{ density, detail, dose }} canLog={state === "filled"} />
+        <MedicationDose
+          key={dose.id}
+          {...{ density, detail, dose }}
+          canLog={state === "filled"}
+          acknowledged={due.has(dose.id)}
+        />
       ))}
-      {(complete || unavailable) && (
-        <KitRow label={words.medicationLabels[unavailable ? "unavailable" : "success"]} density={density}>
-          <KitText role="body" tone={unavailable ? "warn" : "good"} part="status">
-            {words.medicationLabels[unavailable ? "unavailable" : "success"]}
+      {complete && !unavailable && (
+        <KitRow label={words.medicationLabels.success} density={density}>
+          <KitText role="caption" tone="good" part="status">
+            {words.medicationLabels.success}
           </KitText>
         </KitRow>
       )}

@@ -14,9 +14,9 @@ describe("Medication copy", () => {
   it("warns at the exact threshold, including zero, and never invents a threshold", () => {
     expect(refillLine(doses)).toBeUndefined();
     expect(refillLine(doses, 4)).toBeUndefined();
-    expect(refillLine(doses, 5)).toBe("Refill: Morning");
-    expect(refillLine(doses, 6)).toBe("Refill: Morning, Evening");
-    expect(refillLine([{ ...doses[0]!, left: 0 }], 0)).toBe("Refill: Evening");
+    expect(refillLine(doses, 5)).toBe("Low stock: Morning");
+    expect(refillLine(doses, 6)).toBe("Low stock: Morning, Evening");
+    expect(refillLine([{ ...doses[0]!, left: 0 }], 0)).toBe("Low stock: Evening");
     expect(refillLine([{ ...doses[0]!, left: undefined }], 10000)).toBeUndefined();
   });
   it("reads exact stock boundaries and every status with conditional actions", () => {
@@ -28,9 +28,9 @@ describe("Medication copy", () => {
       "Skip",
       "5 left",
       "No stock: 08:00 · 1 tablet · Skipped",
-      "Evening: 20:00 · 1 tablet · Taken",
+      "Evening: 20:00 · 1 tablet · Logged as taken",
       "6 left",
-      "Refill: Morning",
+      "Low stock: Morning",
     ]);
     expect(medicationReading({ doses: [doses[0]!] })).toContain(medicationLabels.success);
     expect(medicationReading({ doses })).not.toContain(medicationLabels.success);

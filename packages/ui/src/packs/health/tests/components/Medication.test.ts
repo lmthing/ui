@@ -127,6 +127,7 @@ describe("Medication state, parts and read/act", () => {
     for (const part of ["root", "name", "dose", "time", "status", "left"])
       expect(html).toContain(`data-testid="home/m1/r1/${part}"`);
     if (status === "due") {
+      expect(html).toContain("Mark taken");
       expect(elementAt(html, "home/m1/r1/taken").attributes).toContain('role="checkbox"');
       expect(elementAt(html, "home/m1/r1/skip").attributes).toContain('role="button"');
     } else {
@@ -137,7 +138,7 @@ describe("Medication state, parts and read/act", () => {
     const read = readComponent(components.Medication, input, "m1").join("\n");
     expect(read).toContain("08:00");
     expect(read).toContain(medicationLabels[status]);
-    expect(read).toContain("Refill: Vitamin D");
+    expect(read).toContain("Low stock: Vitamin D");
     if (status === "due") expect(read).toContain("[m1/r1/skip press]");
     else expect(read).not.toContain("[m1/r1/skip press]");
   });
@@ -154,6 +155,7 @@ describe("Medication state, parts and read/act", () => {
     for (const state of ["success", "error"] as const) {
       const offline = renderInstance("Medication", examples[0], state, theme);
       expect(offline).toContain("Dose logging unavailable");
+      expect(offline).toContain("Due · Not logged");
       expect(offline).toContain("1 tablet");
       expect(offline).not.toContain(medicationLabels.success);
       expect(offline).not.toContain('role="checkbox"');
@@ -175,7 +177,7 @@ describe("Medication dose acknowledgements", () => {
     expect(taken.ok).toBe(true);
     if (!taken.ok) return;
     const read = readScreen(screen, components, taken.values);
-    expect(read).toContain("Vitamin D: 09:00 · 1 tablet · Taken");
+    expect(read).toContain("Vitamin D: 09:00 · 1 tablet · Logged as taken");
     expect(read).toContain("Magnesium: 20:00 · 1 capsule · Due");
     expect(read).toContain("4 left");
     expect(planAct(screen, components, taken.values, [mark])).toMatchObject({ ok: false });
@@ -198,7 +200,7 @@ describe("Medication dose acknowledgements", () => {
       })),
     });
     const stock = readScreen(refresh({ left: 3 }), components, taken.values);
-    expect(stock).toContain("Vitamin D: 09:00 · 1 tablet · Taken");
+    expect(stock).toContain("Vitamin D: 09:00 · 1 tablet · Logged as taken");
     expect(stock).toContain("3 left");
     expect(readScreen(refresh({ dose: "2 tablets" }), components, taken.values)).toContain(
       "Vitamin D: 09:00 · 2 tablets · Due",

@@ -72,7 +72,7 @@ and a refill warning in `warn` when few remain.
 - Parts → actions: due doses `taken check`, doses `skip press` (confirm). Completed and unavailable rows are read-only.
 - States: filled, empty (no doses scheduled), success (all doses recorded taken), error (logging unavailable; preserve the last known details).
 - Real path: doses stored on the device; reminders need notifications (`ok`).
-- Motion: enter with the saved schedule visible and keep time, name and dose anchored. A local log updates only the acted-on row and removes its unavailable actions. Skip uses the kit confirmation; cancelling returns to Skip unchanged. No success celebration, idle motion or custom exit. Reduced motion uses the same immediate row cut and kit confirmation fallback.
+- Motion: enter with the saved schedule visible and keep time, name and dose anchored. A local log updates only the acted-on row and removes its unavailable actions; move focus to that row's recorded status. Skip uses the kit confirmation; cancelling returns to Skip unchanged. No success celebration, idle motion or custom exit. Reduced motion uses the same immediate row cut and kit confirmation fallback.
 - Wave 6 options: add `asNeeded` (`PRN`) boolean, `instruction` text(40), and `style: "today" | "cabinet"`.
 
 ### `HabitGrid` · planned · input · phone

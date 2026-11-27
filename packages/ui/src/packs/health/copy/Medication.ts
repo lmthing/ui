@@ -74,6 +74,12 @@ export function refillLine(doses: readonly Dose[], refillAt?: number, lang?: str
   return low.length ? healthWordsFor(lang).medicationRefill(low.map((dose) => dose.name)) : undefined;
 }
 
+export function medicationFeedback(doses: readonly Dose[], state: string) {
+  const complete = doses.every((dose) => dose.status === "taken");
+  const unavailable = state === "error" || (state === "success" && !complete);
+  return { complete, unavailable };
+}
+
 export function medicationReading(
   {
     doses,
@@ -90,17 +96,22 @@ export function medicationReading(
   const { medicationLabels, medicationReading: doseLine } = healthWordsFor(lang);
   if (state === "empty") return [medicationLabels.empty];
   const refill = refillLine(doses, refillAt, lang);
-  const complete = doses.every((dose) => dose.status === "taken");
-  const unavailable = state === "error" || (state === "success" && !complete);
+  const { complete, unavailable } = medicationFeedback(doses, state);
   return [
+    ...(unavailable ? [medicationLabels.unavailable] : []),
     ...orderedDoses(doses).flatMap((dose) => [
-      doseLine(dose.name, timeOfDayLine(dose.time, lang), dose.dose, medicationLabels[dose.status]),
+      doseLine(
+        dose.name,
+        timeOfDayLine(dose.time, lang),
+        dose.dose,
+        medicationLabels[unavailable && dose.status === "due" ? "notLogged" : dose.status],
+      ),
       ...(state === "filled" && dose.status === "due"
         ? [medicationLabels.markTaken, medicationLabels.skip]
         : []),
       ...(detail === "full" && dose.left !== undefined ? [stockLine(dose.left, lang)] : []),
     ]),
-    ...(unavailable ? [medicationLabels.unavailable] : complete ? [medicationLabels.success] : []),
+    ...(complete && !unavailable ? [medicationLabels.success] : []),
     ...(refill ? [refill] : []),
   ];
 }
