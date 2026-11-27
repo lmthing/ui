@@ -15,7 +15,15 @@ import {
 import { z } from "zod";
 import { seedTitles } from "..";
 import { healthWordsFor } from "../lang";
-import { medicationReading, orderedDoses, refillLine, stockLine } from "../copy";
+import {
+  medicationLog,
+  medicationReading,
+  medicationStatus,
+  orderedDoses,
+  projectMedication,
+  refillLine,
+  stockLine,
+} from "../copy";
 import {
   KitAction,
   KitCard,
@@ -25,6 +33,8 @@ import {
   KitRow,
   KitText,
   useComponentState,
+  useLiveControls,
+  useVariant,
   useWords,
   useKit,
 } from "../../../kit";
@@ -48,17 +58,23 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["left"] } },
   items: {
     key: "doses",
-    parts: ["root", "name", "dose", "time", "taken", "skip", "left"],
+    parts: ["root", "name", "dose", "time", "status", "taken", "skip", "left"],
     variants: { mark: ["none", "highlight"] },
   },
-  parts: ["root", "refill"],
-  states: ["filled", "empty", "success"],
+  parts: ["root", "refill", "status"],
+  states: ["filled", "empty", "success", "error"],
   confirmParts: ["skip"],
   actions: {
     items: { taken: ["check"], skip: ["press"] },
     when: { taken: { status: "due" }, skip: { status: "due" } },
   },
-  read: (input, _state, lang?: string): string[] => medicationReading(input as z.output<typeof props>, lang),
+  localState: medicationLog,
+  live: { derive: projectMedication },
+  readInState: (_input, state) => state === "empty",
+  readSuccess: true,
+  readError: true,
+  read: (input, state, lang?: string): string[] =>
+    medicationReading(input as z.output<typeof props>, lang, state),
 } as const satisfies Meta;
 export const props = z.strictObject({
   ...variantProps(meta.variants),
@@ -69,7 +85,7 @@ export const props = z.strictObject({
         name: text(24),
         dose: text(16),
         time: clock,
-        status: z.enum(["due", "taken", "skipped"]).default("due"),
+        status: medicationStatus.default("due"),
         left: z.int().min(0).max(10000).optional(),
       }),
     )
@@ -106,6 +122,10 @@ export const examples = [
     ],
     refillAt: 5,
   },
+  {
+    detail: "brief",
+    doses: [{ name: "Vitamin B12", dose: "1 tablet", time: "08:00", status: "taken" }],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Medication");
 export const probes = [
@@ -128,18 +148,14 @@ type Dose = Props<typeof props, typeof meta>["doses"][number];
 type DoseFinish = Pick<Props<typeof props, typeof meta>, "detail"> & { density: ThemeDensity };
 function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["detail"] }) {
   const { lang, words } = useWords(healthWordsFor);
+  const taken = dose.status === "taken";
   return (
-    <KitContent lineRole="body">
+    <KitContent lineRole="body" rhythm="flush">
       <KitText role="caption" tone="muted" part="dose">
         {dose.dose}
-        {"\u00a0\u00a0"}
-        <KitText
-          role="caption"
-          tone={dose.status === "taken" ? "good" : "muted"}
-          part={dose.status === "skipped" ? "skip" : null}
-        >
-          {words.medicationLabels[dose.status]}
-        </KitText>
+      </KitText>
+      <KitText role="caption" tone={taken ? "good" : "muted"} part="status">
+        {words.medicationLabels[dose.status]}
       </KitText>
       {detail === "full" && dose.left !== undefined && (
         <KitText role="caption" tabular tone="muted" part="left">
@@ -149,9 +165,10 @@ function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["de
     </KitContent>
   );
 }
-function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) {
+function MedicationDose({ dose, density, detail, canLog }: { dose: Dose; canLog: boolean } & DoseFinish) {
   const { lang, words } = useWords(healthWordsFor);
-  const due = dose.status === "due";
+  const time = timeOfDayLine(dose.time, lang);
+  const actionLabel = (label: string) => words.medicationAction(label, dose.name, time);
   return (
     <KitRow
       item={dose.id}
@@ -159,25 +176,26 @@ function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) 
       {...{ density }}
       label={dose.name}
       trailing={
-        <>
-          {due && <KitAction label={words.medicationLabels.skip} kind="quiet" part="skip" />}
-          {dose.status !== "skipped" && (
-            <KitCheck
-              done={dose.status === "taken"}
-              readonly={!due}
-              part="taken"
-              label={words.medicationLabels.taken}
+        canLog && dose.status === "due" ? (
+          <>
+            <KitAction
+              label={words.medicationLabels.skip}
+              a11y={actionLabel(words.medicationLabels.skip)}
+              tone="neutral"
+              kind="quiet"
+              part="skip"
             />
-          )}
-        </>
+            <KitCheck done={false} part="taken" label={actionLabel(words.medicationLabels.markTaken)} />
+          </>
+        ) : undefined
       }
     >
       <KitContent lineRole="body">
-        <KitText role="body" part="name">
+        <KitText role="body" part="name" breakLongWords>
           {dose.name}
         </KitText>
         <KitText role="number" numberScale="compact" tabular part="time">
-          {timeOfDayLine(dose.time, lang)}
+          {time}
         </KitText>
         <MedicationStatus {...{ dose, detail }} />
       </KitContent>
@@ -186,34 +204,33 @@ function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) 
 }
 
 export function Medication(input: Props<typeof props, typeof meta>) {
-  const { doses, refillAt, detail } = input;
+  const { doses } = useLiveControls(meta, input) as typeof input;
+  const { refillAt } = input;
+  const detail = useVariant("detail", meta.variants.detail, input.detail);
   const density = useKit().density;
   const { lang, words } = useWords(healthWordsFor);
   const state = useComponentState();
   if (state === "empty")
     return (
       <KitCard part="root" density={density}>
-        <KitEmpty part="name" />
+        <KitEmpty part="status" title={words.medicationLabels.empty} />
       </KitCard>
     );
   const refill = refillLine(doses, refillAt, lang);
-  const complete = state === "success" || doses.every((dose) => dose.status === "taken");
+  const complete = doses.every((dose) => dose.status === "taken");
+  const unavailable = state === "error" || (state === "success" && !complete);
   return (
     <KitCard style="inset" part="root" density={density}>
-      {complete && (
-        <KitRow label={words.medicationLabels.success} density={density}>
-          <KitText role="body" tone="good" part={null}>
-            {words.medicationLabels.success}
+      {orderedDoses(doses).map((dose) => (
+        <MedicationDose key={dose.id} {...{ density, detail, dose }} canLog={state === "filled"} />
+      ))}
+      {(complete || unavailable) && (
+        <KitRow label={words.medicationLabels[unavailable ? "unavailable" : "success"]} density={density}>
+          <KitText role="body" tone={unavailable ? "warn" : "good"} part="status">
+            {words.medicationLabels[unavailable ? "unavailable" : "success"]}
           </KitText>
         </KitRow>
       )}
-      {orderedDoses(doses).map((dose) => (
-        <MedicationDose
-          key={dose.id}
-          {...{ density, detail }}
-          dose={state === "success" ? { ...dose, status: "taken" } : dose}
-        />
-      ))}
       {refill && (
         <KitRow label={refill} density={density}>
           <KitText role="caption" tone="warn" part="refill">
