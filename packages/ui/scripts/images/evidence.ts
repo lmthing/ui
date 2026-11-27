@@ -4,6 +4,7 @@ import { URL, fileURLToPath, pathToFileURL } from "node:url";
 import type { Page } from "playwright-core";
 import { artStyles, imageKinds } from "../../src/catalog";
 import { launchChrome } from "../look";
+import { chargeImageUsd } from "./budget";
 import { comparisonStyles, routes, type ImageJob } from "./fixtures";
 
 const shots = fileURLToPath(new URL("../../shots/images/", import.meta.url));
@@ -15,6 +16,7 @@ type Usage = {
   inputTokens: number | null;
   outputTokens: number | null;
   usd: number | null;
+  reservedUsd?: number;
 };
 type Cell = { job: ImageJob; key: string; usage?: Usage | undefined };
 
@@ -24,17 +26,13 @@ const jpegPath = (key: string) => `../outputs/${key}.jpg`;
 async function measuredCells() {
   const matrix: Cell[] = JSON.parse(await readFile(join(shots, "matrix.json"), "utf8"));
   const log = await readFile(join(shots, "usage.jsonl"), "utf8");
-  const usage = new Map<string, Usage>(
-    log
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => {
-        const value: Usage = JSON.parse(line);
-        return [value.key, value];
-      }),
-  );
-  return { matrix: matrix.map((cell) => ({ ...cell, usage: usage.get(cell.key) })), usage };
+  const attempts: Usage[] = log
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  const usage = new Map(attempts.map((value) => [value.key, value]));
+  return { matrix: matrix.map((cell) => ({ ...cell, usage: usage.get(cell.key) })), attempts };
 }
 
 function cellHtml({ job: { slot, world, route, theme }, key, usage }: Cell, headings: readonly string[]) {
@@ -102,6 +100,15 @@ async function captureSheets(page: Page, matrix: Cell[]) {
     chosen.map((cell) => cellHtml(cell, [cell.job.theme.artStyle, cell.job.slot.kind])),
     6,
   );
+  await captureSheet(
+    page,
+    "gallery-empty-state",
+    "Ledge: empty-state assets for all eight styles",
+    chosen
+      .filter(({ job }) => job.slot.kind === "empty_state")
+      .map((cell) => cellHtml(cell, [cell.job.theme.artStyle])),
+    4,
+  );
 }
 
 async function sampleBuffer(page: Page, cell: Cell) {
@@ -142,7 +149,7 @@ async function exportSamples(page: Page, matrix: Cell[]) {
   await writeFile(join(samples, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-function summarize(cells: Cell[], usage: ReadonlyMap<string, Usage>) {
+function summarize(cells: Cell[], attempts: readonly Usage[]) {
   const billed = [
     ...new Map(cells.filter((cell) => cell.usage).map((cell) => [cell.key, cell.usage!])).values(),
   ];
@@ -150,8 +157,8 @@ function summarize(cells: Cell[], usage: ReadonlyMap<string, Usage>) {
   console.log(
     `${billed.length} unique measured images; estimated $${spend.toFixed(2)} across reported usage`,
   );
-  const cumulative = [...usage.values()].reduce((sum, { usd }) => sum + (usd ?? 0), 0);
-  console.log(`All iterations: ${usage.size} unique measured images; estimated $${cumulative.toFixed(2)}`);
+  const cumulative = attempts.reduce((sum, usage) => sum + chargeImageUsd(usage), 0);
+  console.log(`All iterations: ${attempts.length} generation attempts; estimated $${cumulative.toFixed(2)}`);
   return routes.map((route) => {
     const outcomes = cells.filter(({ job }) => !job.sample && job.route.id === route.id);
     const values = outcomes.flatMap(({ usage }) => (usage ? [usage] : []));
@@ -169,8 +176,8 @@ function summarize(cells: Cell[], usage: ReadonlyMap<string, Usage>) {
 }
 
 export async function writeEvidence(publishSamples: boolean) {
-  const { matrix, usage } = await measuredCells();
-  const summary = summarize(matrix, usage);
+  const { matrix, attempts } = await measuredCells();
+  const summary = summarize(matrix, attempts);
   console.log(JSON.stringify(summary, null, 2));
   await mkdir(join(shots, "sheets"), { recursive: true });
   const browser = await launchChrome();

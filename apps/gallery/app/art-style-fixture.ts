@@ -46,7 +46,7 @@ export const artStyleScreen = {
       c: "Empty",
       title: "No repotting due",
       sub: "Plants due for a bigger pot will appear here.",
-      photo: { kind: "empty_state", subject: "empty terracotta pot and a packet of seeds" },
+      photo: { kind: "empty_state", subject: "plain empty terracotta pot and a small pile of loose seeds" },
     },
   ],
 } satisfies ScreenLike;

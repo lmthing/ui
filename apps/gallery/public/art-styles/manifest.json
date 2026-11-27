@@ -54,10 +54,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 14.67469092599998,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.546781985,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008786
+    "estimatedUsd": 0.008838
   },
   {
     "file": "studio_photo-icon.jpg",
@@ -114,10 +114,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 12.981959369000048,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 15.089796998999999,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008834
+    "estimatedUsd": 0.008886
   },
   {
     "file": "soft_3d-icon.jpg",
@@ -174,10 +174,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 17.707095686,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.331810299,
     "outputTokens": 1056,
-    "estimatedUsd": 0.00884
+    "estimatedUsd": 0.008892
   },
   {
     "file": "flat_illustration-icon.jpg",
@@ -234,10 +234,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 13.32480136599997,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 15.009145011000001,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008788
+    "estimatedUsd": 0.00884
   },
   {
     "file": "line_art-icon.jpg",
@@ -294,10 +294,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 16.27259456300002,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 14.037303835000007,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008824
+    "estimatedUsd": 0.008876
   },
   {
     "file": "risograph-icon.jpg",
@@ -354,10 +354,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 15.61771818299999,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 16.623908123,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008848
+    "estimatedUsd": 0.0089
   },
   {
     "file": "watercolor-icon.jpg",
@@ -414,10 +414,10 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 13.892613739000051,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 14.803627794999993,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008808
+    "estimatedUsd": 0.00886
   },
   {
     "file": "paper_cut-icon.jpg",
@@ -474,9 +474,9 @@
     "model": "gpt-image-1-mini",
     "quality": "medium",
     "kind": "empty_state",
-    "subject": "empty terracotta pot and a packet of seeds",
-    "seconds": 13.433126142999972,
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.930611661000002,
     "outputTokens": 1056,
-    "estimatedUsd": 0.008834
+    "estimatedUsd": 0.008886
   }
 ]

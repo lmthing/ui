@@ -71,3 +71,9 @@ At the measured sizes, an icon, hero, three moments (`empty_state`, `success`, `
 and one of each of the ten content kinds cost an estimated **$0.09** at the
 [Azure public token rates](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/),
 before vision checks, regeneration, taxes or region-specific pricing.
+
+The budget fixture uses the measured output sizes and 180 input tokens per generation. With
+two rejected hero attempts and one rejection each for the empty state and plant, it counts
+19 generations for the 15 published images: **$0.114** instead of **$0.088** for generation
+alone. Rejected generations still cost money; when the provider omits usage, the fixture
+uses the route's reserved estimate. This fixture does not price the vision check itself.

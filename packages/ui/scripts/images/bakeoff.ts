@@ -5,16 +5,13 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath, URL } from "node:url";
 import { buildImagePrompt } from "../../src/catalog";
 import { azureImageGenerator, imageRequestSize } from "./azure-image";
-import { bakeoffJobs, sampleJobs, type ImageJob, type Route } from "./fixtures";
+import { chargeImageUsd, estimateImageUsd, reserveUsd } from "./budget";
+import { bakeoffJobs, sampleJobs, type ImageJob } from "./fixtures";
 
 const root = fileURLToPath(new URL("../../shots/images/", import.meta.url));
 const maxUsd = 5;
 const workersPerDeployment = 3;
 const attemptsOnThrottle = 4;
-const reserveUsd = { "image2-low": 0.02, "mini-low": 0.008, "mini-medium": 0.018 } satisfies Record<
-  Route["id"],
-  number
->;
 const canary = process.argv.includes("--canary");
 const planned = process.argv.includes("--plan");
 const sheetsOnly = process.argv.includes("--sheets");
@@ -47,12 +44,6 @@ async function attempt({ job, prompt }: Work, generate: Generator) {
   }
 }
 
-function estimate(route: Route, input: number | null, output: number | null) {
-  return input === null || output === null
-    ? null
-    : (input * route.textRate + output * route.imageRate) / 1_000_000;
-}
-
 async function alreadyRendered(key: string) {
   return access(join(root, "outputs", `${key}.jpg`)).then(
     () => true,
@@ -72,10 +63,7 @@ async function checkBudget(work: Work[]) {
     .trim()
     .split("\n")
     .filter(Boolean)
-    .reduce((sum, line) => {
-      const { usd, reservedUsd } = JSON.parse(line) as { usd: number | null; reservedUsd?: number };
-      return sum + (usd ?? reservedUsd ?? Math.max(...Object.values(reserveUsd)));
-    }, 0);
+    .reduce((sum, line) => sum + chargeImageUsd(JSON.parse(line)), 0);
   const pending = await Promise.all(
     work.map(async ({ key, job }) => ((await alreadyRendered(key)) ? 0 : reserveUsd[job.route.id])),
   );
@@ -94,7 +82,7 @@ async function render(work: Work, generate: Generator) {
     return result.status;
   }
   const { seconds, inputTokens, outputTokens } = result;
-  const usd = estimate(job.route, inputTokens, outputTokens);
+  const usd = estimateImageUsd(job.route, inputTokens, outputTokens);
   await writeFile(path, result.jpeg);
   await appendFile(
     join(root, "usage.jsonl"),

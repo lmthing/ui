@@ -7,7 +7,7 @@ const subjects = {
   cover: ["beagle beside a trail leash", "Trot"],
   onboarding: ["pour-over coffee dripper and a fresh cup", "Cafe"],
   pattern: ["stacked weight plates", "Gym"],
-  empty_state: ["empty terracotta pot and a packet of seeds", "Ledge"],
+  empty_state: ["plain empty terracotta pot and a small pile of loose seeds", "Ledge"],
   success: ["dog leash hanging beside muddy walking boots", "Trot"],
   badge: ["jumprope looped around a kettlebell", "Gym"],
   error: ["tipped paper cup beside a coffee dripper", "Cafe"],
