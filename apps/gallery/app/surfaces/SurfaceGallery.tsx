@@ -31,10 +31,16 @@ function SurfaceChooser({
           color="$text"
           backgroundColor={kind === value ? "$accentSoft" : "$surface"}
           borderColor={kind === value ? "$accent" : "$line"}
-          textDecorationLine={kind === value ? "underline" : "none"}
           onPress={() => choose(value)}
         >
-          {labels[value]}
+          <Text
+            fontFamily={control.fontFamily}
+            fontSize={control.fontSize}
+            color="$text"
+            textDecorationLine={kind === value ? "underline" : "none"}
+          >
+            {labels[value]}
+          </Text>
         </Button>
       ))}
     </XStack>
