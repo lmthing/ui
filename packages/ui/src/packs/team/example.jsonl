@@ -18,6 +18,6 @@
 {"id":"b2","c":"Button","label":"Send request"}
 {"id":"h6","c":"Header","title":"Manager requests"}
 {"id":"s3","c":"Segmented","options":[{"label":"Requests"},{"label":"Hours"}],"at":0}
-{"id":"a1","c":"Approval","requests":[{"from":"Lee","photo":"lib:people","kind":"time_off","title":"Monday off","dates":"23 Nov","note":"Rae can cover Monday opening."}]}
+{"id":"a1","c":"Approval","requests":[{"from":"Lee","photo":"lib:people","kind":"time_off","title":"Monday off","reference":"LV-117","dates":"23 Nov","note":"Rae can cover Monday opening."}]}
 {"id":"h7","c":"Header","title":"Weekly hours"}
 {"id":"t2","c":"Timesheet","period":"16–22 Nov 2026","rows":[{"name":"Lee","hours":[6,0,0,0,0,6,0],"approved":false},{"name":"Rae","hours":[6,0,0,0,0,0,6],"approved":true}]}
