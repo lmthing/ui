@@ -37,11 +37,12 @@ export function useFlowPlayback(
       if (typeof value === "string" && typeof record[field] === "string") draft.current[field] = value.trim();
     }
   };
-  const onLink: NonNullable<PhoneScreenProps["onLink"]> = (goto) => {
+  const onLink = (goto: string, admitsDemoInput: boolean) => {
     const next = flow.frames.findIndex((_, i) => flowScreenId(i) === goto);
     if (next < 0) return;
-    if (!state && Object.values(draft.current).includes("") && frame.states.includes("error")) {
-      inspect("error");
+    const missingBoundField = !state && Object.values(draft.current).includes("");
+    if (!admitsDemoInput || (missingBoundField && frame.states.includes("error"))) {
+      if (frame.states.includes("error")) inspect("error");
       return;
     }
     if (!state && Object.keys(draft.current).length) setRecord({ ...record, ...draft.current });

@@ -12,6 +12,8 @@ export const flowWords = {
   done: "Journey complete",
   resume: "Return to playback",
   restart: "Play again",
+  codeRetry: (step: string) =>
+    `Return to playback and enter six sample digits, or choose ${step} in Inspect steps and states to start again.`,
   tiers: {
     phone: "Works on the phone",
     ok: "Needs your OK",

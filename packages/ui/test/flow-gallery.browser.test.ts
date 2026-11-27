@@ -114,7 +114,12 @@ const cases = [
 
 test.each(cases)("plays %s through actual kit controls (%j)", async (id, actions, end) => {
   await page.goto(`${base()}?flows=${id}`);
-  for (const action of actions) await (branches.has(action) ? choice(action) : button(action)).click();
+  for (const action of actions) {
+    if (action === "Verify reset code")
+      await phone().getByLabel("Reset code", { exact: true }).fill("000000");
+    if (action === "Verify and log in") await phone().getByLabel("Verification code").fill("000000");
+    await (branches.has(action) ? choice(action) : button(action)).click();
+  }
   await at(end);
   expect(await page.getByText("Journey complete", { exact: true }).count()).toBe(1);
   expect(errors).toEqual([]);
@@ -144,6 +149,17 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
   expect(await phone().getByLabel("Email address", { exact: true }).inputValue()).toBe("");
   await button("Request reset code").click();
   await at("member/recovery_verify");
+  await button("Verify reset code").click();
+  await page.locator("[data-flow-state=error]").waitFor();
+  await page.getByText(/choose Reset your password in Inspect steps and states/).waitFor();
+  await playback("Return to playback").click();
+  expect(await phone().evaluate((node) => document.activeElement === node)).toBe(true);
+  await page.keyboard.press("Tab");
+  expect(
+    await phone()
+      .getByLabel("Reset code", { exact: true })
+      .evaluate((node) => document.activeElement === node),
+  ).toBe(true);
   await page.getByText("Inspect steps and states", { exact: true }).click();
   await page.getByText("Needs an outside service", { exact: true }).waitFor();
   await playback("Waiting").click();
@@ -153,13 +169,22 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
     .getByText("That code didn’t work or has expired. Request a new code and try again.")
     .waitFor();
   expect(await button("Verify reset code").count()).toBe(0);
-  await playback("Return to playback").click();
+  await playback("Reset your password").click();
+  await at("member/recover");
+  await button("Request reset code").click();
+  await phone().getByLabel("Reset code", { exact: true }).fill("000000");
   await button("Verify reset code").click();
   await phone().getByLabel("New password", { exact: true }).fill("another-made-up-value");
   await button("Reset password").click();
   await at("member/login_after_reset");
   expect(await phone().getByLabel("Password", { exact: true }).inputValue()).toBe("");
   await button("Log in").click();
+  expect(await phone().getByLabel("Verification code").inputValue()).toBe("");
+  await phone().getByLabel("Verification code").fill("11111");
+  await button("Verify and log in").click();
+  await page.locator("[data-flow-state=error]").waitFor();
+  await playback("Return to playback").click();
+  await phone().getByLabel("Verification code").fill("111111");
   await button("Verify and log in").click();
   await phone().getByText("Class schedule", { exact: true }).waitFor();
   await phone().getByText("Tuesday pottery", { exact: true }).waitFor();

@@ -936,6 +936,9 @@ link. The gallery opens on a complete form and changes steps on explicit taps, u
 existing non-spatial entrance fade. Inspect replaces instructions with readable waiting or error
 feedback. Leaving a step unmounts demo inputs and their drafts, with no delayed work or decorative
 exit. The gallery uses the same reduced-motion presentation and destination at either system setting.
+Verification requires six sample digits; it never sends or saves them. The player moves keyboard
+focus to the opened frame, and Inspect can reopen the request step without committing anything.
+Steps are not separate browser history entries.
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
