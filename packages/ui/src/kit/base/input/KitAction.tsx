@@ -72,7 +72,7 @@ type ActionProps = {
   mark?: string | undefined;
   kind?: ActionKind;
   /** Neutral treatment for secondary and quiet actions. */
-  tone?: "accent" | "neutral";
+  tone?: "accent" | "neutral" | "bad";
   align?: "start";
   goto?: string | undefined;
   part?: string | null;
@@ -293,7 +293,8 @@ function actionAppearance(
   const neutral =
     props.tone === "neutral" || (props.tone === undefined && (!props.label || props.icon === "close"));
   const neutralOutline = kind === "secondary" && props.tone === "neutral";
-  const tone = neutralOutline ? "text" : kind === "quiet" && neutral ? "muted" : toneOf[kind];
+  const quietTone = props.tone === "bad" ? "bad" : neutral ? "muted" : "accent";
+  const tone = neutralOutline ? "text" : kind === "quiet" ? quietTone : toneOf[kind];
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];

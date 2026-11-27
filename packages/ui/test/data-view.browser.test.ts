@@ -43,6 +43,65 @@ async function open(example: string) {
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
 
+it("keeps the complete date label inside each timeline row at phone width", async () => {
+  await open("timeline");
+  await page.evaluate(() => document.fonts.ready);
+  for (const [index, label] of ["Wednesday AM", "11:30", "Thursday PM"].entries()) {
+    const row = page.getByTestId(`job_timeline/history/r${index + 1}/root`);
+    const time = row.getByText(label, { exact: true });
+    const title = row.getByTestId(`job_timeline/history/r${index + 1}/title`);
+    const bounds = (await row.boundingBox())!;
+    const titleBounds = (await title.boundingBox())!;
+    const lines = await time.evaluate((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return Array.from(range.getClientRects(), ({ top, right, bottom }) => ({ top, right, bottom }));
+    });
+    expect(lines.length).toBeGreaterThan(0);
+    if (label === "11:30") expect(new Set(lines.map(({ top }) => top)).size).toBe(1);
+    for (const { top, right, bottom } of lines) {
+      expect(right).toBeLessThanOrEqual(titleBounds.x);
+      expect(top).toBeGreaterThanOrEqual(bounds.y);
+      expect(bottom).toBeLessThanOrEqual(bounds.y + bounds.height);
+    }
+  }
+});
+
+it("keeps fully booked slots disabled and lets a person select another free time", async () => {
+  await open("slots");
+  const available = page.getByTestId("booking/available/root");
+  const full = page.getByTestId("booking/full/root");
+  const next = available.getByRole("button", { name: "10:00, free" });
+  await next.click();
+  expect(await next.getAttribute("aria-pressed")).toBe("true");
+  expect(await available.getByRole("button", { name: "09:00, free" }).getAttribute("aria-pressed")).toBe(
+    "false",
+  );
+  expect(await full.getByText("No free times").isVisible()).toBe(true);
+  for (const slot of await full.getByRole("button").all()) expect(await slot.isDisabled()).toBe(true);
+});
+
+it("ends settled approval rows with status and asks before declining a pending one", async () => {
+  await open("approvals");
+  const approved = page.getByTestId("review/queue/r1/root");
+  const pending = page.getByTestId("review/queue/r3/root");
+  expect(await approved.getByText("Approved").isVisible()).toBe(true);
+  expect(await approved.getByRole("button").count()).toBe(0);
+  await pending.getByRole("button", { name: "Decline" }).click();
+  expect(await page.getByTestId("review/confirm/cancel").isVisible()).toBe(true);
+  await page.getByTestId("review/confirm/cancel").click();
+  expect(await pending.getByRole("button", { name: "Approve" }).isVisible()).toBe(true);
+});
+
+it("opens the linked record from a hand-off receipt without changing its phase", async () => {
+  await open("receipt");
+  const status = page.getByText("Awaiting receipt");
+  expect(await status.isVisible()).toBe(true);
+  await page.getByRole("link", { name: /View record/ }).click();
+  expect(await page.getByTestId("link-target").textContent()).toBe("key_request");
+  expect(await status.isVisible()).toBe(true);
+});
+
 async function intactLabels(track: Locator) {
   return track.locator("[data-report-clipped]").evaluateAll((labels) =>
     labels
