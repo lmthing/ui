@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { components, signatures, type SignatureName, type ScreenLike } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
 import { config } from "../index";
 
 const ringExample = { style: "ring", bars: [{ label: "Watered today", value: 3, of: 5 }] };
@@ -35,6 +35,7 @@ export function MotionPreview({ name }: { name: SignatureName }) {
       <YStack width="100%" maxWidth={430} height="100vh" alignSelf="center">
         <PhoneScreen
           screen={screen}
+          onReady={publishBrowserAgent}
           theme={{ preset: "calm", mode: "light", accent: "moss" }}
           signature={name}
           cue={cue}

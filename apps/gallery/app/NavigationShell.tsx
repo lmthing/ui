@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
 import { themeName, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
 import { navigationRoots, navigationScreens, navigationStart } from "../fixtures/navigation-shell";
 import { config } from "../index";
 
@@ -29,6 +29,7 @@ export function NavigationShell({ start }: { start: string }) {
       >
         <PhoneScreen
           key={current}
+          onReady={publishBrowserAgent}
           screen={navigationScreens[current]!}
           theme={theme}
           onLink={onLink}

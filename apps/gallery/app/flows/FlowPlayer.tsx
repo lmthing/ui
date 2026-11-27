@@ -1,4 +1,5 @@
 import { Button, Text, XStack, YStack } from "tamagui";
+import { publishBrowserAgent } from "@lmthing/ui/kit";
 import {
   component,
   radius,
@@ -122,7 +123,7 @@ export function FlowPlayer({
         overflow="hidden"
         data-flow-phone
       >
-        <FlowPhone {...{ flow, index, state, onChange, onLink }} />
+        <FlowPhone {...{ flow, index, state, onChange, onLink }} onReady={publishBrowserAgent} />
       </YStack>
       {(state || complete) && (
         <XStack justifyContent="flex-end">

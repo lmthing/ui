@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import { createRegistry, themeName, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen, kitFonts, kitThemes, kitTokens } from "@lmthing/ui/kit";
+import { PhoneScreen, kitFonts, kitThemes, kitTokens, publishBrowserAgent } from "@lmthing/ui/kit";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const scheme = kitThemes.kit_calm_light_moss;
@@ -30,6 +30,7 @@ function App() {
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <PhoneScreen
+        onReady={publishBrowserAgent}
         key={screen.id}
         {...{ screen, theme }}
         reduceMotion

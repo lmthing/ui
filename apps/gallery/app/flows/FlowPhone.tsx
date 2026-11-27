@@ -29,13 +29,13 @@ function primaryNumber(flow: FilledFlow, index: number, state?: FlowState) {
   return { label, value: raw.match(figure)![0] };
 }
 
-type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange"> & {
+type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onChange" | "onReady"> & {
   flow: FilledFlow;
   index: number;
   state?: FlowState | undefined;
 };
 
-export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhoneProps) {
+export function FlowPhone({ flow, index, state, onLink, onChange, onReady }: FlowPhoneProps) {
   const screen = flowPreviewScreen(flow, index, state);
   const number = primaryNumber(flow, index, state);
   return (
@@ -68,6 +68,7 @@ export function FlowPhone({ flow, index, state, onLink, onChange }: FlowPhonePro
           theme={flowTheme}
           onChange={onChange}
           onLink={onLink}
+          onReady={onReady}
           interactive={!state}
           reduceMotion
         />
