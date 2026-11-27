@@ -111,10 +111,8 @@ function SlotItem({
       justifyContent={list ? "space-between" : "center"}
       borderRadius={list ? shifted("md", ks.radiusShift) : radius.pill}
       borderWidth={component.base.strongBorder}
-      borderColor={loading ? "transparent" : selected ? "$accent" : "$line"}
-      backgroundColor={
-        loading ? "transparent" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"
-      }
+      borderColor={!loading && selected ? "$accent" : "$line"}
+      backgroundColor={loading ? "$surface" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"}
       width={list ? "100%" : width ? (width - space.sm * 2) / 3 : "30%"}
     >
       <SlotLine loading={loading} value>
