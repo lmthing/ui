@@ -158,9 +158,9 @@ function GalleryItem({
   shape: "wide" | "square" | "tall";
 }) {
   const { lang, words } = useWords();
-  const cue = entry.goto && entry.caption && <KitIcon name="chevron_right" scale="sm" decorative />;
+  const cue = entry.goto && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && (
-    <KitText role="caption" tone="muted" part="caption" breakLongWords>
+    <KitText role="body" part="caption" breakLongWords>
       {entry.caption}
     </KitText>
   );
@@ -183,13 +183,10 @@ function GalleryItem({
           }
           {...(entry.caption ? { label: entry.caption } : {})}
         />
-        {cue ? (
-          <KitGrid fitLast>
+        {(cue || caption) && (
+          <KitContent lead={cue} lineRole="body">
             {caption}
-            {cue}
-          </KitGrid>
-        ) : (
-          caption
+          </KitContent>
         )}
       </KitContent>
     </KitRow>
@@ -231,7 +228,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
           aspect={shape}
           inset="none"
           contentGap="xs"
-          content={entry.caption ? [["caption", entry.caption]] : []}
+          content={entry.caption ? [["body", entry.caption]] : []}
         />
       </KitRow>
     ) : (

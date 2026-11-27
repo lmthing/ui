@@ -219,6 +219,17 @@ it("keeps portrait jackets in a two-column grid through loading and retains real
   }
 });
 
+it("keeps a decorative navigation cue only on linked images when captions are hidden", () => {
+  const html = renderInstance("Gallery", { ...examples[0], detail: "brief" }, "filled", theme, {
+    resolvePhoto,
+  });
+  const hasGlyph = (node: ReturnType<typeof elementAt>): boolean =>
+    node.tag === "svg" || node.children.some(hasGlyph);
+  expect(hasGlyph(elementAt(html, "home/c1/r1/root"))).toBe(true);
+  expect(hasGlyph(elementAt(html, "home/c1/r3/root"))).toBe(false);
+  expect(html).not.toMatch(/data-testid="[^"]+\/caption"/);
+});
+
 // prettier-ignore
 it.each(["strip", "grid"] as const)("migrates the legacy %s layout and keeps link addresses", (style) => {
   const legacy = { c: "Gallery", id: "g1", style, photos: [{ ...pair[0], caption: "First", goto: "first" }, pair[1]] };
