@@ -12,6 +12,7 @@ export const flowWords = {
   done: "Journey complete",
   resume: "Return to playback",
   restart: "Play again",
+  codeLength: "Enter six sample digits.",
   codeRetry: (step: string) =>
     `Return to playback and enter six sample digits, or choose ${step} in Inspect steps and states to start again.`,
   tiers: {

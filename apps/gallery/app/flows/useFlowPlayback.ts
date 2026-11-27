@@ -12,17 +12,20 @@ export function useFlowPlayback(
   const [record, setRecord] = useState<RecordData>({ ...seed });
   const [index, setIndex] = useState(0);
   const [state, selectState] = useState<FlowState>();
+  const [incompleteCode, setIncompleteCode] = useState(false);
   const draft = useRef<Record<string, string>>({});
   const flow = useMemo(() => fillFlow(template, { names, record, omit }), [template, names, record, omit]);
   const frame = flow.frames[index]!;
 
   function inspect(next: FlowState | undefined) {
+    setIncompleteCode(false);
     if (next === state) return;
     draft.current = {};
     selectState(next);
   }
   function openStep(next: number) {
     draft.current = {};
+    setIncompleteCode(false);
     setIndex(next);
     selectState(undefined);
   }
@@ -43,10 +46,11 @@ export function useFlowPlayback(
     const missingBoundField = !state && Object.values(draft.current).includes("");
     if (!admitsDemoInput || (missingBoundField && frame.states.includes("error"))) {
       if (frame.states.includes("error")) inspect("error");
+      setIncompleteCode(!admitsDemoInput);
       return;
     }
     if (!state && Object.keys(draft.current).length) setRecord({ ...record, ...draft.current });
     openStep(next);
   };
-  return { flow, frame, index, state, inspect, openStep, restart, onChange, onLink };
+  return { flow, frame, index, state, incompleteCode, inspect, openStep, restart, onChange, onLink };
 }

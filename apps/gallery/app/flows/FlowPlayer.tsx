@@ -15,7 +15,7 @@ import { useFlowPlayback } from "./useFlowPlayback";
 
 type Playback = ReturnType<typeof useFlowPlayback>;
 
-function FlowPlaybackPhone({ flow, frame, index, state, onChange, onLink }: Playback) {
+function FlowPlaybackPhone({ flow, frame, index, state, incompleteCode, onChange, onLink }: Playback) {
   const phone = useRef<HTMLDivElement>(null);
   const previousView = useRef({ index, state });
   useLayoutEffect(() => {
@@ -38,7 +38,7 @@ function FlowPlaybackPhone({ flow, frame, index, state, onChange, onLink }: Play
         borderRadius={radius.lg}
         overflow="hidden"
       >
-        <FlowPhone {...{ flow, index, state, onChange }} onLink={follow} />
+        <FlowPhone {...{ flow, index, state, incompleteCode, onChange }} onLink={follow} />
       </YStack>
     </div>
   );
@@ -137,10 +137,10 @@ export function FlowPlayer({
   example: FlowTemplateSource["examples"][number];
 }) {
   const playback = useFlowPlayback(template, example);
-  const { flow, frame, index, state, inspect, openStep, restart } = playback;
+  const { flow, frame, index, state, incompleteCode, inspect, openStep, restart } = playback;
   const complete = !frame.forward.length;
   const retryFrom =
-    state === "error" && frame.demoInputs?.some(({ kind }) => kind === "code")
+    state === "error" && !incompleteCode && frame.demoInputs?.some(({ kind }) => kind === "code")
       ? flow.frames.find(({ forward }) => forward.some(({ target }) => target === frame.key))
       : undefined;
   return (

@@ -121,12 +121,22 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
 }
 
 /** Gallery fixture for a played step. Model output never writes a screen or a goto. */
-export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowState): ScreenLike {
+export function flowPreviewScreen(
+  flow: FilledFlow,
+  index: number,
+  state?: FlowState,
+  copy?: { message?: string; codeHint?: string },
+): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
   if (state && !frame.states.includes(state))
     throw new Error(`Flow step does not show ${state}: ${frame.key}`);
   const body = frame.layout.components.flatMap((c) => previewPart(c, flow, frame, state));
+  const codeHint = copy?.codeHint;
+  if (codeHint) {
+    const code = body.find((part) => part.c === "Field" && part.kind === "code");
+    if (code) code.hint = clip(codeHint, 60);
+  }
   const success = body.some(({ id }) => id === "success");
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
@@ -140,7 +150,7 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
         emphasis: "quiet",
       });
   }
-  const message = state && frame.messages[state];
+  const message = state && (copy?.message ?? frame.messages[state]);
   if (message) {
     const note = body.findIndex(({ c }) => c === "Note");
     body.splice(note < 0 ? body.length : note, note < 0 ? 0 : 1, {

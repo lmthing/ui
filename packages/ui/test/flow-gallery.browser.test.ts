@@ -149,9 +149,10 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
   expect(await phone().getByLabel("Email address", { exact: true }).inputValue()).toBe("");
   await button("Request reset code").click();
   await at("member/recovery_verify");
+  await phone().getByText("Enter six sample digits.", { exact: true }).waitFor();
   await button("Verify reset code").click();
   await page.locator("[data-flow-state=error]").waitFor();
-  await page.getByText(/choose Reset your password in Inspect steps and states/).waitFor();
+  await phone().getByText("Enter six sample digits.", { exact: true }).waitFor();
   await playback("Return to playback").click();
   expect(await phone().evaluate((node) => document.activeElement === node)).toBe(true);
   await page.keyboard.press("Tab");
@@ -160,11 +161,12 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
       .getByLabel("Reset code", { exact: true })
       .evaluate((node) => document.activeElement === node),
   ).toBe(true);
-  await page.getByText("Inspect steps and states", { exact: true }).click();
+  await page.locator("details > summary").filter({ hasText: "Inspect steps and states" }).press("Enter");
   await page.getByText("Needs an outside service", { exact: true }).waitFor();
   await playback("Waiting").click();
   await phone().getByText("A real service would send a code if the address matches an account.").waitFor();
   await playback("Error").click();
+  await page.getByText(/choose Reset your password in Inspect steps and states/).waitFor();
   await phone()
     .getByText("That code didn’t work or has expired. Request a new code and try again.")
     .waitFor();
