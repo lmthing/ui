@@ -38,9 +38,10 @@ export function usePresence(children: ReactNode, keepExit?: (node: ReactNode) =>
   const removed = useRef<Exit[]>([]);
   const [, refresh] = useState(0);
   const keys = new Set(current.map(keyOf));
-  const missing = environment.agentMode ? [] : exitsOf(previous.current, keys, keepExit ?? (() => true));
+  const cut = environment.agentMode || environment.reduceMotion;
+  const missing = cut ? [] : exitsOf(previous.current, keys, keepExit ?? (() => true));
   const now = Date.now();
-  const retained = environment.agentMode
+  const retained = cut
     ? []
     : removed.current.filter(
         (item) => item.expires > now && !keys.has(keyOf(item.node)) && (keepExit?.(item.node) ?? true),

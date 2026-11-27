@@ -117,6 +117,23 @@ function useActionAvailability(
   };
 }
 
+function keyboardPress(onPress: () => unknown) {
+  return {
+    tabIndex: 0,
+    onKeyDown: (event: {
+      key?: string;
+      repeat?: boolean;
+      preventDefault(): void;
+      stopPropagation(): void;
+    }) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.repeat) onPress();
+    },
+  };
+}
+
 function useActionPress(
   props: { action: ActionProps["action"]; value: ActionProps["value"]; goto: ActionProps["goto"] },
   address: string,
@@ -125,14 +142,26 @@ function useActionPress(
 ) {
   const kit = useKit();
   const [pressed, setPressed] = useState(false);
-  const settled = !kit.interactive || inactive || kit.environment.agentMode || kit.environment.reduceMotion;
+  const settled = !kit.interactive || inactive || kit.environment.agentMode;
+  const still = settled || kit.environment.reduceMotion;
   useLayoutEffect(() => {
-    if (settled) setPressed(false);
-  }, [settled]);
-  const scale = useMotionValue(pressed && !settled ? motion.pressScale : 1, settled);
+    if (still) setPressed(false);
+  }, [still]);
+  const scale = useMotionValue(pressed && !still ? motion.pressScale : 1, still);
   const dispatch = useActionDispatch(props, address, inactive, reveal);
-  if (!kit.interactive || inactive) return { scale };
-  return { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false), ...dispatch };
+  const keyboard =
+    isWeb && props.action !== "copy" && dispatch.onPress && !dispatch.onKeyDown
+      ? keyboardPress(dispatch.onPress)
+      : {};
+  if (settled) return { ...dispatch, ...keyboard };
+  return {
+    pressStyle: { opacity: motion.pressOpacity },
+    ...(kit.environment.reduceMotion
+      ? {}
+      : { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }),
+    ...dispatch,
+    ...keyboard,
+  };
 }
 
 function useCopyState(address: string | undefined, value: unknown, hostCopy: boolean, disabled: boolean) {

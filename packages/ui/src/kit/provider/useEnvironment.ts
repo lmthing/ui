@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { defaultEnvironment, type Environment, type NativeHost } from "./environment";
+import { useReducedMotion } from "./useReducedMotion";
 function browserSnapshot() {
   if (typeof document === "undefined") return defaultEnvironment;
   const probe = document.createElement("div");
@@ -29,7 +30,6 @@ function browserSnapshot() {
         (window.visualViewport?.height ?? window.innerHeight) -
         (window.visualViewport?.offsetTop ?? 0),
     ),
-    reduceMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   };
 }
 /** Browser viewport/accessibility data or the native host's subscribed snapshot. */
@@ -43,35 +43,40 @@ export function useEnvironment(
   },
 ): Environment {
   const [device, setDevice] = useState(() => nativeHost?.snapshot() ?? defaultEnvironment);
+  const reduced = useReducedMotion(true, nativeHost);
   useEffect(() => {
+    let frame: number | undefined;
     const update = () => {
       setDevice(nativeHost?.snapshot() ?? browserSnapshot());
-      if (typeof document !== "undefined" && /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName ?? ""))
-        requestAnimationFrame(() =>
-          (document.activeElement as HTMLElement | null)?.scrollIntoView({ block: "nearest" }),
-        );
     };
     update();
     if (nativeHost) return nativeHost.subscribe(update);
     if (typeof window === "undefined") return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    window.addEventListener("resize", update);
-    window.visualViewport?.addEventListener("resize", update);
-    media.addEventListener("change", update);
+    const resize = () => {
+      update();
+      const field = document.activeElement;
+      if (!(field instanceof HTMLElement) || !field.matches("input, textarea")) return;
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (document.activeElement === field) field.scrollIntoView({ block: "nearest" });
+      });
+    };
+    window.addEventListener("resize", resize);
+    window.visualViewport?.addEventListener("resize", resize);
     return () => {
-      window.removeEventListener("resize", update);
-      window.visualViewport?.removeEventListener("resize", update);
-      media.removeEventListener("change", update);
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+      window.visualViewport?.removeEventListener("resize", resize);
     };
   }, [nativeHost]);
   return useMemo(
     () => ({
       ...device,
-      reduceMotion: overrides.reduceMotion ?? device.reduceMotion,
+      reduceMotion: overrides.reduceMotion === true || reduced,
       agentMode: overrides.agentMode ?? false,
       ...(overrides.signature ? { signature: overrides.signature } : {}),
       ...(overrides.cue === undefined ? {} : { cue: overrides.cue }),
     }),
-    [device, overrides.reduceMotion, overrides.agentMode, overrides.signature, overrides.cue],
+    [device, reduced, overrides.reduceMotion, overrides.agentMode, overrides.signature, overrides.cue],
   );
 }

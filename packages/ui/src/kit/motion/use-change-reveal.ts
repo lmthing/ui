@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { durations, motion as tokens, motionProfiles } from "../../catalog";
 import { useKit } from "../provider";
-import { animateNumber } from "./animate";
+import { animateNumber, easeOut } from "./animate";
 
 export function useChangeReveal(key: string | undefined, allowFade = true) {
   const { motion, environment } = useKit();
@@ -16,7 +16,7 @@ export function useChangeReveal(key: string | undefined, allowFade = true) {
       setProgress(1);
       return;
     }
-    if (changed) return animateNumber(0, 1, setProgress, { duration });
+    if (changed) return animateNumber(0, 1, setProgress, { duration, easing: easeOut });
     setProgress(1);
   }, [duration, key, off]);
   return off ? 1 : progress;
