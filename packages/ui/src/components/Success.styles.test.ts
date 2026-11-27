@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { affordancesOf, components, readComponent } from "@lmthing/ui/catalog";
 import { KitCard, KitEmpty } from "@lmthing/ui/kit";
+import { addressedElements, renderInstance } from "../../test/render";
 import { Success } from "./Success";
 
 const { props, meta, examples } = components.Success;
@@ -24,21 +25,24 @@ describe("Success view", () => {
     }
   });
   const screens = examples.filter((example) => !("style" in example));
-  it.each(screens)("draws the centred good-toned kit state with a root address", (example) => {
-    const parsed = props.parse(example);
-    const view = Success(parsed) as ScreenView;
-    expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ style: "plain", part: "root" });
-    expect(view.props.children.type).toBe(KitEmpty);
-    const { title, sub, icon } = parsed;
-    expect(view.props.children.props).toEqual({
-      title,
-      ...(sub ? { sub } : {}),
-      icon,
-      fill: true,
-      tone: "good",
-    });
-  });
+  it.each(screens.filter((example) => !("outcome" in example)))(
+    "draws the centred good-toned kit state with a root address",
+    (example) => {
+      const parsed = props.parse(example);
+      const view = Success(parsed) as ScreenView;
+      expect(view.type).toBe(KitCard);
+      expect(view.props).toMatchObject({ style: "plain", part: "root" });
+      expect(view.props.children.type).toBe(KitEmpty);
+      const { title, sub, icon } = parsed;
+      expect(view.props.children.props).toEqual({
+        title,
+        ...(sub ? { sub } : {}),
+        icon,
+        fill: true,
+        tone: "good",
+      });
+    },
+  );
   it.each(screens)("reads the shown content without offering actions", (example) => {
     const parsed = props.parse(example);
     const read = readComponent(components.Success, example, "s1").join("\n");
@@ -63,3 +67,17 @@ describe("Success view", () => {
     ).toContain("Undo");
   });
 });
+
+it.each(examples.filter((example) => "outcome" in example))(
+  "draws the facts required by the structured outcome",
+  (example) => {
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const rendered = addressedElements(renderInstance("Success", example, "filled", theme));
+    const outcomeParts = { pending: ["owner", "next"], confirmed: ["subject", "when"], done: ["receipt"] };
+    const { outcome } = props.parse(example);
+    if (!outcome) throw new Error("Missing structured outcome");
+    for (const part of ["root", "icon", "title", ...outcomeParts[outcome]])
+      expect(rendered.has(`home/c1/${part}`)).toBe(true);
+    expect(rendered.has("home/c1/undo")).toBe(false);
+  },
+);

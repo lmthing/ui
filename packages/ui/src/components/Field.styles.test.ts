@@ -4,18 +4,12 @@ import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { examples } = components.Field;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+const specialParts = { range: ["lower", "upper"], voice: ["voice"], file: ["attach"] } as const;
 
 describe("Field rendering", () => {
   it.each(examples)("draws unique parts and the actual control value", (example) => {
     const html = renderInstance("Field", example, "filled", theme);
-    const controls =
-      example.kind === "range"
-        ? ["lower", "upper"]
-        : example.kind === "voice"
-          ? ["voice"]
-          : example.kind === "file"
-            ? ["attach"]
-            : ["field"];
+    const controls = specialParts[example.kind as keyof typeof specialParts] ?? ["field"];
     for (const part of ["root", "label", ...controls]) {
       expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
     }
