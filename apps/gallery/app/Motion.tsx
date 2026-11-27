@@ -179,13 +179,13 @@ const pickup: ScreenLike = {
 const dispatch = handoffScreen("received");
 const walkNotes = walkNotesScreen();
 
-function useWalkNotesFocus(screen: string) {
+function useWalkNotesFocus(screen: string, enabled = true) {
   useLayoutEffect(() => {
-    if (screen === "walk_notes" && typeof document !== "undefined")
+    if (enabled && screen === "walk_notes" && typeof document !== "undefined")
       document.querySelector<HTMLElement>('[data-testid="walk_notes/header/back"]')?.focus({
         preventScroll: true,
       });
-  }, [screen]);
+  }, [enabled, screen]);
 }
 
 function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack: boolean }) {
@@ -195,7 +195,7 @@ function CrossTreePreview({ mounted, agentBack }: { mounted: boolean; agentBack:
   const [play, setPlay] = useState<{ screen: ScreenLike; transition?: ScreenTransition | undefined }>({
     screen: dispatch,
   });
-  useWalkNotesFocus(play.screen.id);
+  useWalkNotesFocus(play.screen.id, !agentBack);
   const onLink = (goto: string, address: string) => {
     const back = goto === "back";
     const source = play.screen === dispatch ? inbox : detail;

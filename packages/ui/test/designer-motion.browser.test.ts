@@ -162,6 +162,9 @@ changed("restores the same control on two scripted returns to an already mounted
 changed("does not restore scripted agent focus on a later render", async () => {
   await openMotion("no-preference", "navigation_agent");
   await tap("dispatch/next/root");
+  expect(await part("walk_notes/header/back").evaluate((node) => node === document.activeElement)).toBe(
+    false,
+  );
   await tap("walk_notes/header/back");
   await part("dispatch/receipt/reference").waitFor();
   await page.evaluate(async () => {
