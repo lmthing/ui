@@ -145,12 +145,14 @@ describe("skeleton loading through the real entry", () => {
     for (const node of textNodes) expect(styleAt(html, node)).toContain("text-align:center");
   });
   it("keeps resolved media at the filled card inset", () => {
-    const html = renderInstance("Card", components.Card.examples[0], "loading", theme, {
-      resolvePhoto: () => "photo-uri",
-    });
-    const root = elementAt(html, "home/c1/root");
-    expect(styleAt(html, root)).toContain(`padding-left:${space.xs}px`);
-    expect(styleAt(html, root.children[0]!)).toContain(`padding-left:${space.md - space.xs}px`);
+    const source = { resolvePhoto: () => "photo-uri" };
+    const loading = renderInstance("Card", components.Card.examples[0], "loading", theme, source);
+    const filled = renderInstance("Card", components.Card.examples[0], "filled", theme, source);
+    const loadRoot = elementAt(loading, "home/c1/root");
+    expect(styleAt(loading, loadRoot)).toContain(`padding-left:${space.md}px`);
+    expect(styleAt(filled, "home/c1/root")).toContain(`padding-left:${space.md}px`);
+    expect(styleAt(loading, loadRoot.children[0]!)).toContain(`aspect-ratio:${component.base.panoramaRatio}`);
+    expect(styleAt(filled, "home/c1/photo")).toContain(`aspect-ratio:${component.base.panoramaRatio}`);
   });
 });
 

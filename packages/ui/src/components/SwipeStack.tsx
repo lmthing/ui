@@ -23,7 +23,9 @@ import {
   KitSwipeStack,
   KitText,
   useComponentState,
+  useControlValue,
   useKit,
+  usePartContext,
   useWords,
 } from "../kit";
 import { prompt } from "../entry/prompt-SwipeStack.generated";
@@ -49,7 +51,8 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty"],
   readInState: (_input, state) => state === "empty",
-  read: (_input, state, lang) => (state === "empty" ? [wordsFor(lang).swipeStackEmpty] : []),
+  read: (_input, state, lang, _data, _currency, get) =>
+    state === "empty" && Number(get?.("$cursor") ?? 0) > 0 ? [wordsFor(lang).swipeStackEmpty] : [],
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
 } as const satisfies Meta;
 
@@ -169,10 +172,16 @@ export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
   const density = useKit().density;
   const { swipeStackEmpty } = useWords().words;
+  const { screen, component } = usePartContext();
+  const cursor = useControlValue(`${screen}/${component}/$cursor`, 0);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitEmpty part="title" title={swipeStackEmpty} announce="status" />
+        {cursor >= cards.length ? (
+          <KitEmpty part="title" title={swipeStackEmpty} announce="status" />
+        ) : (
+          <KitEmpty part="title" />
+        )}
       </KitCard>
     );
   }

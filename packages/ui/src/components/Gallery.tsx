@@ -160,7 +160,12 @@ function GalleryItem({
   const { lang, words } = useWords();
   const cue = entry.goto && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && (
-    <KitText role="body" part="caption" breakLongWords>
+    <KitText
+      role={shape === "tall" ? "body" : "caption"}
+      tone={shape === "tall" ? "text" : "muted"}
+      part="caption"
+      breakLongWords
+    >
       {entry.caption}
     </KitText>
   );
@@ -228,7 +233,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
           aspect={shape}
           inset="none"
           contentGap="xs"
-          content={entry.caption ? [["body", entry.caption]] : []}
+          content={entry.caption ? [[shape === "tall" ? "body" : "caption", entry.caption]] : []}
         />
       </KitRow>
     ) : (

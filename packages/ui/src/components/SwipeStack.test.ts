@@ -102,14 +102,17 @@ describe("SwipeStack fallback", () => {
       "  +1 more",
     ]);
     expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty")).toEqual([
-      "s1 SwipeStack (empty) No cards left to review",
+      "s1 SwipeStack (empty)",
     ]);
+    expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty", { "s1/$cursor": 2 })).toEqual(
+      ["s1 SwipeStack (empty) No cards left to review"],
+    );
     const html = renderInstance("SwipeStack", { cards: pair }, "empty", {
       preset: "calm",
       mode: "light",
       accent: "moss",
     });
-    expect(html).toContain("No cards left to review");
+    expect(html).toContain("Nothing here yet");
     expect(html).not.toContain('role="button"');
   });
 });
