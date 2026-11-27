@@ -57,7 +57,10 @@ function connectLink({
     if (goto === "back") {
       const previous = history.pop();
       if (previous) {
-        interaction.reset(screen);
+        // Back within a numbered form moves between draft steps; it isn't a discard.
+        const previousFrame = flow.frames[previous.index]!;
+        if (!frame.progress || !previousFrame.progress || frame.role !== previousFrame.role)
+          interaction.reset(screen);
         setRecord(previous.record);
         move(previous.index);
       }
