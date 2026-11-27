@@ -55,7 +55,7 @@ The head of a show, album, book or course: large artwork, title, author, a line 
 and duration, optional ratings and shelf details, and play and follow buttons.
 - Pick: the top of one show, album, book or course page. Not a person (`Profile`), not a headline (`Hero`),
   not one recording (`Player`), not a collection of owned things (inventory `Things`).
-- Writes: `style` (`show` | `album` | `book`) optional, `title` text(40), `by` text(32), `photo`,
+- Writes: `style` (`show` | `album` | `book`) optional, `title` text(40), `by` text(32), `photo` photo-or-image[media_cover|poster],
   `about` text(200) optional, `followed` boolean, `rating` number 0–5 optional, `ratingCount` int ≥0
   optional, `tags` text(20) each 0–3 optional, `shelfStatus` text(24) optional. Count and total length
   are computed from the screen's `Playlist` or the host playlist data. Rating and rating count may be
