@@ -50,7 +50,7 @@ export const meta = {
 
 const gift = z.strictObject({
   title: c.text(28),
-  photo: c.photo.optional(),
+  photo: c.photoOrImage(["item", "product"]).optional(),
   price: z.number().nonnegative().optional(),
   where: c.text(24).optional(),
   claimed: z.boolean(),

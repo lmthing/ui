@@ -65,7 +65,7 @@ export const meta = {
 
 const item = z.strictObject({
   name: c.text(28),
-  photo: c.photo.optional(),
+  photo: c.photoOrImage(["item", "product"]).optional(),
   qty: z.int().nonnegative(),
   min: z.int().nonnegative().optional(),
   where: c.text(24).optional(),

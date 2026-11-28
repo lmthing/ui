@@ -33,7 +33,7 @@ export const meta = {
 export const props = z
   .strictObject({
     title: c.text(40),
-    photo: c.photo,
+    photo: c.photoOrImage(["media_cover"]),
     at: z.int().min(0).max(36000),
     seconds: z.int().min(1).max(36000),
     playing: z.boolean(),

@@ -43,7 +43,7 @@ export const props = z
           sub: c.text(36).optional(),
           seconds: z.int().min(1).max(36000),
           played: z.number().min(0).max(1),
-          photo: c.photo.optional(),
+          photo: c.photoOrImage(["media_cover"]).optional(),
           goto: c.screenId,
         }),
       )

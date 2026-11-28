@@ -38,7 +38,7 @@ export const props = z
     date: c.isoDate,
     time: c.clock,
     place: c.text(40),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["poster", "cover", "place"]).optional(),
     going: z.int().min(0).max(999999),
     status: z.enum(["none", "going", "interested"]).default("none"),
     goto: c.screenId,

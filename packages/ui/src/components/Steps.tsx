@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   probesFor,
+  imageSlotFor,
   stepLine,
   text,
   type CastLike,
@@ -9,7 +10,7 @@ import {
   type Props,
   variantProps,
 } from "../catalog";
-import { KitBlock, KitContent, KitStepsTrack, KitText, useWords, useKit } from "../kit";
+import { KitBlock, KitContent, KitPhoto, KitStepsTrack, KitText, useWords, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Steps.generated";
 
 export const meta = {
@@ -23,7 +24,7 @@ export const meta = {
   tier: "phone",
   realPath: "The current position in a flow stored in the on-device app.",
   variants: { detail: ["full", "brief"] },
-  parts: ["root", "track", "label"],
+  parts: ["root", "track", "label", "photo"],
   states: ["filled"],
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
@@ -39,9 +40,12 @@ export const props = z
     count: z.int().min(2).max(6),
     at: z.int().min(1).max(6),
     label: text(32).optional(),
+    photo: imageSlotFor(["step_illustration"]).optional(),
   })
   .refine(({ count, at }) => at <= count, { path: ["at"], message: "Must not exceed count" })
-  .overwrite((value) => (value.detail === "brief" ? { ...value, label: undefined } : value));
+  .overwrite((value) =>
+    value.detail === "brief" ? { ...value, label: undefined, photo: undefined } : value,
+  );
 
 export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
   return { count: 3, at: 1 };
@@ -76,7 +80,7 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {
+export function Steps({ style, count, at, label, photo }: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
   const density = useKit().density;
 
@@ -98,6 +102,7 @@ export function Steps({ style, count, at, label }: Props<typeof props, typeof me
             {position}
           </KitText>
         )}
+        {photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
       </KitContent>
     </KitBlock>
   );

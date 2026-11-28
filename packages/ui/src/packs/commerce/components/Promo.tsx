@@ -51,7 +51,7 @@ export const props = z
     ends: c.isoDate.optional(),
     endsAt: c.clock.optional(),
     style: z.literal("countdown").optional(),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["cover", "poster", "product"]).optional(),
     goto: c.screenId,
     ...c.variantProps(meta.variants),
   })

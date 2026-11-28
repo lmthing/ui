@@ -15,3 +15,4 @@ Assessed practice questions with correct answers and immediate feedback. Use for
 - Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.
 - Leave selected_option, selected_left and selected_right null; selections are made by the learner.
 - When asked to hide the question photo, write media "none" and retain its photo reference. Use media null for unrequested media.
+- For a generated image, use `step_illustration` or `item` or `plant` or `pet` or `place` in `photo`. Use only for a representative image that supports the question without revealing the answer. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

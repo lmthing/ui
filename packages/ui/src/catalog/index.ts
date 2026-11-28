@@ -8,3 +8,4 @@ export * from "./agent";
 export * from "./rules";
 export * from "./archetypes";
 export * from "./flow-templates";
+export { buildImagePrompt, imageRejectIf } from "./images";

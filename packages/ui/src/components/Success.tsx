@@ -1,8 +1,9 @@
-import { useWords, KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
+import { useWords, KitAction, KitCard, KitEmpty, KitIcon, KitPhoto, KitRow, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
   icon,
+  imageSlotFor,
   text,
   thingOf,
   titleOf,
@@ -27,7 +28,7 @@ export const meta = {
   realPath: "The result of an action that saved or changed an item in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "icon", "title", "sub", "undo", "close"],
+  parts: ["root", "icon", "title", "sub", "undo", "close", "photo"],
   states: ["filled"],
   // A toast can be swept away and may offer to take the action back.
   actions: {
@@ -47,6 +48,7 @@ export const props = z
     title: text(40),
     sub: text(100).optional(),
     icon: icon.default("circle_check"),
+    photo: imageSlotFor(["success"]).optional(),
     undo: z.boolean().default(false),
   })
   // Taking an action back only makes sense in a toast, so `undo` makes it one. `undoable` is derived,
@@ -55,6 +57,7 @@ export const props = z
     ...value,
     style: value.undo ? "toast" : value.style,
     sub: value.detail === "brief" ? undefined : value.sub,
+    photo: value.undo || value.style === "toast" ? undefined : value.photo,
     undoable: value.undo,
   }));
 
@@ -121,10 +124,11 @@ function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
 
 export function Success(input: SuccessProps) {
   if (input.style === "toast") return <SuccessToast {...input} />;
-  const { title, sub, icon } = input;
+  const { title, sub, icon, photo } = input;
+  const artwork = photo && <KitPhoto photo={photo} part="photo" shape="avatar" decorative />;
   return (
     <KitCard style="plain" part="root">
-      <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} fill tone="good" />
+      <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} artwork={artwork} fill tone="good" />
     </KitCard>
   );
 }

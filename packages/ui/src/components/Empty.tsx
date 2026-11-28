@@ -1,10 +1,11 @@
-import { useWords, KitAction, KitCard, KitEmpty } from "../kit";
+import { useWords, KitAction, KitCard, KitEmpty, KitPhoto } from "../kit";
 import {
   wordsFor,
   probesFor,
   clip,
   emptyLine,
   icon,
+  imageSlotFor,
   text,
   thingOf,
   variantProps,
@@ -28,7 +29,7 @@ export const meta = {
   realPath: "The absence of results from a query over one thing in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "icon", "title", "sub", "retry"],
+  parts: ["root", "icon", "title", "sub", "retry", "photo"],
   states: ["filled"],
   // Only a message about something that failed offers another try.
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
@@ -44,7 +45,12 @@ export const props = z
     title: text(40),
     sub: text(100).optional(),
     icon: icon.optional(),
+    photo: imageSlotFor(["empty_state", "error"]).optional(),
     kind: z.enum(["none", "error", "offline"]).default("none"),
+  })
+  .refine(({ photo, kind }) => !photo || photo.kind === (kind === "none" ? "empty_state" : "error"), {
+    path: ["photo"],
+    message: "Use empty_state for no results and error for a failed or offline result",
   })
   // Derived, never written: a failed or offline message offers a retry.
   .overwrite((value) => ({
@@ -96,11 +102,18 @@ function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
   return <KitAction {...props} label={messageLabels.retry} />;
 }
 
-export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
+export function Empty({ title, sub, icon, kind, photo }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
+  const artwork = photo && <KitPhoto photo={photo} part="photo" shape="avatar" decorative />;
   return (
     <KitCard style="plain" part="root">
-      <KitEmpty title={title} {...(sub ? { sub } : {})} {...(shown ? { icon: shown } : {})} fill />
+      <KitEmpty
+        title={title}
+        {...(sub ? { sub } : {})}
+        {...(shown ? { icon: shown } : {})}
+        artwork={artwork}
+        fill
+      />
       {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );

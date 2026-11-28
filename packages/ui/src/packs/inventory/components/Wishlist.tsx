@@ -49,7 +49,7 @@ export const props = z.strictObject({
     .array(
       z.strictObject({
         name: c.text(28),
-        photo: c.photo.optional(),
+        photo: c.photoOrImage(["item", "product"]).optional(),
         price: z.number().nonnegative().optional(),
         target: z.number().nonnegative().optional(),
         priority: z.int().min(1).max(3),

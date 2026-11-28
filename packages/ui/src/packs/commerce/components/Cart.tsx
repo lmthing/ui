@@ -38,7 +38,7 @@ export const meta = {
 const lineProps = z.strictObject({
   name: c.text(28),
   variant: c.text(20).optional(),
-  photo: c.photo,
+  photo: c.photoOrImage(["product", "dish"]),
   qty: z.int().min(1).max(99),
   price: z.number().min(0).multipleOf(0.01),
 });

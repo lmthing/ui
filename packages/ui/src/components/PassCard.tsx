@@ -20,7 +20,7 @@ export const meta = {
   parts: [
     "root", "frame", "issuer", "title", "member_name", "member_id", "reveal", "reveal_icon", "reveal_label",
     "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "message",
-    "bright", "bright_label", "bright_status",
+    "bright", "bright_label", "bright_status", "photo",
   ],
   items: { key: "facts", parts: ["root", "label", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "empty", "loading", "error"],
@@ -56,6 +56,7 @@ export const meta = {
 // prettier-ignore
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
+  photo: c.imageSlotFor(["badge"]).optional(),
   issuer: c.text(28), title: c.text(32), memberName: c.text(24).optional(),
   memberId: c.text(24).meta({ kind: "secret", max: 24 }).optional(), masked: z.boolean().default(true),
   code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr", "barcode"]).default("qr"),
@@ -327,6 +328,7 @@ function PassSkeleton(input: PassProps, layout: Layout, scannable: boolean, word
     <kit.KitCard padded part="root" density={density}>
       <kit.KitSkeleton
         shape="figure"
+        {...(input.photo ? { lead: "box" } : {})}
         content={[
           ["label", input.issuer],
           ["heading", input.title],
@@ -425,7 +427,14 @@ export function PassCard(input: PassProps) {
       density={density}
       look={input.style === "coupon" && !input.used ? "tinted" : "surface"}
     >
-      <kit.KitRow part="root" role="button" label={input.title} inline density={density}>
+      <kit.KitRow
+        part="root"
+        role="button"
+        label={input.title}
+        inline
+        density={density}
+        leading={input.photo && <kit.KitPhoto photo={input.photo} part="photo" decorative />}
+      >
         <kit.KitText part="issuer" role="label" tone="muted" {...layout}>
           {input.issuer}
         </kit.KitText>

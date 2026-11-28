@@ -1,0 +1,482 @@
+[
+  {
+    "file": "natural_photo-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 13.588468631,
+    "outputTokens": 173,
+    "estimatedUsd": 0.006025
+  },
+  {
+    "file": "natural_photo-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 12.077855925,
+    "outputTokens": 107,
+    "estimatedUsd": 0.004045
+  },
+  {
+    "file": "natural_photo-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 12.96572011600004,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008756
+  },
+  {
+    "file": "natural_photo-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 14.522360433000024,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008756
+  },
+  {
+    "file": "natural_photo-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 15.951990851999959,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008754
+  },
+  {
+    "file": "natural_photo-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.546781985,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008838
+  },
+  {
+    "file": "studio_photo-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 12.58256643800001,
+    "outputTokens": 173,
+    "estimatedUsd": 0.006145
+  },
+  {
+    "file": "studio_photo-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 15.207826119000005,
+    "outputTokens": 107,
+    "estimatedUsd": 0.004165
+  },
+  {
+    "file": "studio_photo-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 14.826076239000017,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008804
+  },
+  {
+    "file": "studio_photo-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 14.912801297000028,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008804
+  },
+  {
+    "file": "studio_photo-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 13.892488336999959,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008802
+  },
+  {
+    "file": "studio_photo-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 15.089796998999999,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008886
+  },
+  {
+    "file": "soft_3d-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 14.627705118000002,
+    "outputTokens": 173,
+    "estimatedUsd": 0.00616
+  },
+  {
+    "file": "soft_3d-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 11.538022418,
+    "outputTokens": 107,
+    "estimatedUsd": 0.00418
+  },
+  {
+    "file": "soft_3d-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 14.500318842000038,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.00881
+  },
+  {
+    "file": "soft_3d-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 17.026058543000023,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.00881
+  },
+  {
+    "file": "soft_3d-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 12.97644237299997,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008808
+  },
+  {
+    "file": "soft_3d-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.331810299,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008892
+  },
+  {
+    "file": "flat_illustration-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 11.293602826999965,
+    "outputTokens": 173,
+    "estimatedUsd": 0.00603
+  },
+  {
+    "file": "flat_illustration-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 14.887032312000054,
+    "outputTokens": 107,
+    "estimatedUsd": 0.00405
+  },
+  {
+    "file": "flat_illustration-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 15.22441557000007,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008758
+  },
+  {
+    "file": "flat_illustration-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 14.008759537000092,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008758
+  },
+  {
+    "file": "flat_illustration-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 16.43009806999995,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008756
+  },
+  {
+    "file": "flat_illustration-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 15.009145011000001,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.00884
+  },
+  {
+    "file": "line_art-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 13.126830217999988,
+    "outputTokens": 173,
+    "estimatedUsd": 0.00612
+  },
+  {
+    "file": "line_art-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 13.076031609999948,
+    "outputTokens": 107,
+    "estimatedUsd": 0.00414
+  },
+  {
+    "file": "line_art-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 16.173521462999982,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008794
+  },
+  {
+    "file": "line_art-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 15.36528463499999,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008794
+  },
+  {
+    "file": "line_art-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 17.19422200400004,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008792
+  },
+  {
+    "file": "line_art-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 14.037303835000007,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008876
+  },
+  {
+    "file": "risograph-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 13.36561652,
+    "outputTokens": 173,
+    "estimatedUsd": 0.00618
+  },
+  {
+    "file": "risograph-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 14.738362619,
+    "outputTokens": 107,
+    "estimatedUsd": 0.0042
+  },
+  {
+    "file": "risograph-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 15.201275474999973,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008818
+  },
+  {
+    "file": "risograph-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 16.992925568000008,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008818
+  },
+  {
+    "file": "risograph-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 15.095848289000045,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008816
+  },
+  {
+    "file": "risograph-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 16.623908123,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.0089
+  },
+  {
+    "file": "watercolor-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 11.93656873,
+    "outputTokens": 173,
+    "estimatedUsd": 0.00608
+  },
+  {
+    "file": "watercolor-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 12.488846862000006,
+    "outputTokens": 107,
+    "estimatedUsd": 0.0041
+  },
+  {
+    "file": "watercolor-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 14.199444386999938,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008778
+  },
+  {
+    "file": "watercolor-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 14.053606950999937,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008778
+  },
+  {
+    "file": "watercolor-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 15.812666884000064,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008776
+  },
+  {
+    "file": "watercolor-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 14.803627794999993,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.00886
+  },
+  {
+    "file": "paper_cut-icon.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "app_icon",
+    "subject": "split monstera leaf",
+    "seconds": 11.20797909400001,
+    "outputTokens": 173,
+    "estimatedUsd": 0.006145
+  },
+  {
+    "file": "paper_cut-hero.jpg",
+    "model": "gpt-image-2",
+    "quality": "low",
+    "kind": "hero",
+    "subject": "potted monstera on a greenhouse bench",
+    "seconds": 15.306826361999963,
+    "outputTokens": 107,
+    "estimatedUsd": 0.004165
+  },
+  {
+    "file": "paper_cut-monstera.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted swiss cheese monstera",
+    "seconds": 14.024643056,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008804
+  },
+  {
+    "file": "paper_cut-fern.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted bird’s nest fern",
+    "seconds": 13.11480657700001,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008804
+  },
+  {
+    "file": "paper_cut-aloe.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "plant",
+    "subject": "potted spotted aloe vera",
+    "seconds": 13.889102623999992,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008802
+  },
+  {
+    "file": "paper_cut-empty.jpg",
+    "model": "gpt-image-1-mini",
+    "quality": "medium",
+    "kind": "empty_state",
+    "subject": "plain empty terracotta pot and a small pile of loose seeds",
+    "seconds": 13.930611661000002,
+    "outputTokens": 1056,
+    "estimatedUsd": 0.008886
+  }
+]
