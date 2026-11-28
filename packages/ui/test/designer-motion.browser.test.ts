@@ -572,6 +572,7 @@ changed.each(["no-preference", "reduce"] as const)(
         () => window.__lmthingUI!.act({ address: "fern/save/root", action: "press" }, { dryRun: true }).ok,
       ),
     ).toBe(false);
+    await part("fern/done/title").waitFor();
     await expect.poll(() => focused("fern/done/title")).toBe(true);
   },
 );
