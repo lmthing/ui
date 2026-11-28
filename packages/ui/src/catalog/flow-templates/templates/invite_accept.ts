@@ -29,7 +29,7 @@ export const inviteAccept: FlowTemplate = {
           preview: {
             title: "New invitation",
             action: "Send invitation",
-            fields: ["space", "access"],
+            fields: ["reference", "space", "access"],
             messages: {
               error: "The invitation could not be sent. Check the recipient and try again.",
             },
@@ -44,12 +44,13 @@ export const inviteAccept: FlowTemplate = {
             step: "review",
           },
           layout: {
-            components: ["Note"],
+            components: ["KeyValue"],
           },
           states: ["waiting"],
           preview: {
             title: "Invitation pending",
             action: "Open invitation",
+            fields: ["reference", "space", "access"],
           },
         },
         {
@@ -75,7 +76,7 @@ export const inviteAccept: FlowTemplate = {
       steps: [
         {
           id: "review",
-          see: "{name.inviter} invited you to {record.space}. You will join as {record.access}.",
+          see: "{name.inviter} invited {name.invitee} to {record.space} as {record.access}.",
           do: "Tap Accept invitation",
           layout: {
             components: ["KeyValue"],
@@ -84,9 +85,11 @@ export const inviteAccept: FlowTemplate = {
           preview: {
             title: "Review invitation",
             action: "Accept invitation",
-            fields: ["space", "access"],
+            fields: ["reference", "space", "access"],
+            back: true,
             messages: {
-              error: "This invitation has expired. Ask the sender for a new one.",
+              error:
+                "This invitation is expired or belongs to someone else. Don't join; ask {name.inviter} for a new link.",
             },
           },
         },
@@ -104,7 +107,7 @@ export const inviteAccept: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "You joined",
-            fields: ["space", "access"],
+            fields: ["reference", "space", "access"],
             action: "Show joined status",
           },
         },

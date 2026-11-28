@@ -12,13 +12,15 @@ const replacesRoute = (from: string, to: string) => from === "log" && to === "sa
 export function NavigationShell({ start }: { start: string }) {
   const [stack, setStack] = useState(() => navigationStart(start));
   const current = stack.at(-1)!;
-  const onLink = (goto: string) =>
+  const roundTwo = start.startsWith("round2_");
+  const onLink = (goto: string) => {
     setStack((path) => {
       if (goto === "back") return path.length > 1 ? path.slice(0, -1) : path;
       if (!Object.hasOwn(navigationScreens, goto) || goto === path.at(-1)) return path;
       if (replacesRoute(path.at(-1)!, goto)) return [...path.slice(0, -1), goto];
       return navigationRoots.includes(goto) ? [goto] : [...path, goto];
     });
+  };
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <YStack
@@ -34,7 +36,7 @@ export function NavigationShell({ start }: { start: string }) {
           theme={theme}
           onLink={onLink}
           replacesRoute={replacesRoute}
-          reduceMotion
+          {...(roundTwo ? { navigationMotion: "cut" as const } : { reduceMotion: true })}
         />
       </YStack>
     </TamaguiProvider>

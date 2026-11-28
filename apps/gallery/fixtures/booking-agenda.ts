@@ -25,10 +25,10 @@ function destination(id: string, title: string, status: string, time: string): S
 const baseline: Component = {
   id: "agenda",
   c: "List",
-  rows: schedule.sessions.map(({ time, title, location, status, goto }) => ({
-    title,
-    meta: [time, location, status].filter(Boolean).join(" · "),
-    ...(goto ? { goto, trail: "chevron" } : {}),
+  rows: schedule.sessions.map((row) => ({
+    title: row.title,
+    meta: [row.time, "location" in row ? row.location : undefined, row.status].filter(Boolean).join(" · "),
+    ...(row.goto ? { goto: row.goto, trail: "chevron" } : {}),
   })),
 };
 

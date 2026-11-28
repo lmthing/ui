@@ -11,6 +11,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
+import type { HostOperation } from "../host-commands";
 import { hasRecordClock, hasRuntimeSets, hasTimestampClock, projectLiveClocks } from "../clocks";
 import { projectDraw, readDraw } from "../draw";
 import { projectParsedControls } from "../live-props";
@@ -80,12 +81,13 @@ type Content = {
   state: StateName;
   session: SessionState | undefined;
   draw: DrawState | undefined;
+  hostOperations: readonly HostOperation[];
   summaryOnly: boolean;
 };
 export function readContent(
   meta: Meta,
   schema: ReadSchema,
-  { props, validated, instance, values, state, session, draw, summaryOnly }: Content,
+  { props, validated, instance, values, state, session, draw, hostOperations, summaryOnly }: Content,
   {
     lang,
     deviceData,
@@ -115,6 +117,7 @@ export function readContent(
       selectDeviceData(meta, deviceData),
       parseAppCurrency(currency),
       get,
+      hostOperations,
     ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),

@@ -1,7 +1,19 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TamaguiProvider, YStack } from "tamagui";
-import { accents, presets, themeName, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
-import { PhoneScreen, publishBrowserAgent } from "@lmthing/ui/kit";
+import {
+  accents,
+  components,
+  presets,
+  themeName,
+  type ScreenLike,
+  type ThemeChoice,
+} from "@lmthing/ui/catalog";
+import {
+  PhoneScreen,
+  publishBrowserAgent,
+  type AttachmentHost,
+  type HostCommandAdapter,
+} from "@lmthing/ui/kit";
 import { config } from "../index";
 import { resolvePhoto } from "./photos";
 const header = { id: "h1", c: "Header", title: "Try the controls" };
@@ -139,14 +151,86 @@ const screens: Record<string, ScreenLike> = {
     id: "controls",
     components: [header, { id: "f1", c: "Field", kind: "photo", label: "Plant photo" }, note, button],
   },
+  attachment: {
+    id: "controls",
+    components: [
+      { id: "h1", c: "Header", title: "Walk handover" },
+      {
+        id: "f1",
+        c: "Field",
+        kind: "file",
+        label: "Walk notes",
+        hint: "Choose the notes you want to share.",
+      },
+    ],
+  },
+  decision: {
+    id: "controls",
+    components: [
+      { id: "h1", c: "Header", title: "Estimate review" },
+      {
+        id: "a1",
+        c: "Approval",
+        ...components.Approval.examples.find(
+          (example) => example.style === "review" && !example.review?.reason,
+        ),
+      },
+    ],
+  },
 };
 const event = (name: string, detail: unknown) => globalThis.dispatchEvent(new CustomEvent(name, { detail }));
 const onSend = (text: string, address: string) => event("gallery-send", { text, address });
 const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
+function previewWait(signal: AbortSignal, manual: boolean) {
+  if (!manual) return new Promise<void>((resolve) => setTimeout(resolve, 1600));
+  return new Promise<void>((resolve) => {
+    const finish = () => {
+      signal.removeEventListener("abort", finish);
+      globalThis.removeEventListener("gallery-settle-demo", finish);
+      resolve();
+    };
+    if (signal.aborted) return finish();
+    signal.addEventListener("abort", finish, { once: true });
+    globalThis.addEventListener("gallery-settle-demo", finish, { once: true });
+  });
+}
+
+function useDemoAttachments(manual: boolean): AttachmentHost {
+  const attempts = useRef(0);
+  return {
+    canRun: () => true,
+    async run({ signal }) {
+      const attempt = ++attempts.current;
+      await previewWait(signal, manual);
+      return signal.aborted || attempt === 1
+        ? { status: "rejected" }
+        : { status: "accepted", reference: "demo_walk_notes" };
+    },
+  };
+}
+
+function useDemoDecision(manual: boolean): HostCommandAdapter {
+  const attempts = useRef(0);
+  const handler: NonNullable<HostCommandAdapter["commands"]>[string] = {
+    allows: () => true,
+    async run({ input }, { signal }) {
+      const attempt = ++attempts.current;
+      await previewWait(signal, manual);
+      return signal.aborted || attempt === 1
+        ? { status: "rejected" }
+        : { status: "accepted", records: typeof input.reason === "string" ? [{ reason: input.reason }] : [] };
+    },
+  };
+  return { commands: { "approval.accept": handler, "approval.reject": handler } };
+}
+
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
   const [activeTab, setActiveTab] = useState(0);
+  const manual = query.has("manual-settle");
+  const attachments = useDemoAttachments(manual);
+  const decisionHost = useDemoDecision(manual);
   const fixture = screens[kind] ?? screens.form!;
   const screen =
     kind === "navigation"
@@ -176,6 +260,9 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
           onSend={onSend}
           onChange={onChange}
           requestPhoto={requestPhoto}
+          attachments={kind === "attachment" ? attachments : undefined}
+          hostCommands={kind === "decision" ? decisionHost : undefined}
+          navigationMotion={manual ? "cut" : undefined}
         />
       </YStack>
     </TamaguiProvider>

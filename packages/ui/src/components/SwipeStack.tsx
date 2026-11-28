@@ -13,6 +13,7 @@ import {
   type Probe,
   type Props,
   variantProps,
+  wordsFor,
 } from "../catalog";
 import {
   KitCard,
@@ -28,6 +29,7 @@ import { prompt } from "../entry/prompt-SwipeStack.generated";
 
 export const meta = {
   id: "SwipeStack",
+  status: "ready",
   signature: "card_swipe",
   group: "content",
   purpose: prompt.purpose,
@@ -45,6 +47,13 @@ export const meta = {
   items: { key: "cards", parts: ["root", "photo", "title", "meta"], visible: "first" },
   parts: ["root"],
   states: ["filled", "empty"],
+  readInState: (_input, state) => state === "empty",
+  read: (input, state, lang, _data, _currency, get) => {
+    const { cards } = input as { cards?: unknown };
+    return state === "empty" && Array.isArray(cards) && Number(get?.("$cursor")) >= cards.length
+      ? [wordsFor(lang).swipeStackEmpty]
+      : [];
+  },
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
 } as const satisfies Meta;
 
@@ -109,7 +118,10 @@ export const examples = [
 const { choose, write, read } = probesFor("SwipeStack");
 export const probes = [
   choose("Help me pick plants to adopt, showing one at a time so I can swipe to keep or skip"),
-  choose("Show four plant pictures together with their names underneath so I can browse them", "Gallery"),
+  choose(
+    "I want a grid of four plant photos, with a name below each image. The pictures are the main thing, not a list of plant records.",
+    "Gallery",
+  ),
   write(
     "Pick dogs for a group walk, one at a time: Clover with a dog photo and Ready for a group walk, Pip with Gentle park companion, and Milo",
   ),
@@ -161,9 +173,9 @@ export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
   const density = useKit().density;
   return (
-    <KitCard style="plain" part="root">
+    <KitCard style={state === "empty" ? "inset" : "plain"} part="root">
       <KitSwipeStack
-        empty={state === "empty" ? <KitEmpty part="title" /> : undefined}
+        empty={state === "empty" ? <KitEmpty part="title" decorativeIcon /> : undefined}
         cards={cards.map((card) => ({
           id: card.id,
           label: card.title,

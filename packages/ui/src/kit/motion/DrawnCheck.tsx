@@ -14,20 +14,22 @@ export function DrawnCheck({
   active = true,
   ring = false,
   complete = false,
+  immediate = false,
 }: {
   size: number;
   tone: string;
   active?: boolean;
   ring?: boolean;
   complete?: boolean;
+  immediate?: boolean;
 }) {
   const { motion, environment } = useKit();
   const theme = useTheme();
-  const play = active && !environment.agentMode && !environment.reduceMotion;
+  const play = active && !immediate && !environment.agentMode && !environment.reduceMotion;
   const profile = motionProfiles[motion];
   const arrival = useReveal(1, complete && play, { duration: profile.navigation });
-  const change = useChangeReveal(!complete && active ? "checked" : undefined, false);
-  const fade = useReducedFade(active ? "checked" : undefined);
+  const change = useChangeReveal(!immediate && !complete && active ? "checked" : undefined, false);
+  const fade = useReducedFade(!immediate && active ? "checked" : undefined);
   const progress = play ? arrival * change : 1;
   if (!active) return null;
   const color = getVariable(theme[tone]);
@@ -35,7 +37,7 @@ export function DrawnCheck({
   const { d, length } = ring ? circled : check;
   return (
     <YStack pointerEvents="none" scale={1 + pulse * variants.motion[motion].pulseScale} aria-hidden {...fade}>
-      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
         {ring && <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={2} />}
         <Path
           d={d}

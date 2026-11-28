@@ -5,7 +5,8 @@ import { useCallback, useLayoutEffect, useRef, type ReactNode, type RefObject } 
 import { XStack, YStack, isWeb, type TamaguiElement } from "tamagui";
 import { component, formatAddress, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitLocalAction, KitText, shifted, surfaceOf } from "../text";
+import { KitLocalAction, shifted, surfaceOf } from "../text";
+import { KitEmpty } from "../helpers";
 
 type Direction = "left" | "right";
 type Card = { id: string; label: string; children: ReactNode };
@@ -138,7 +139,7 @@ function useSwipeFocus(cursor: number) {
 export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?: ReactNode }) {
   const context = usePartContext();
   const { interactive, controller } = useKit();
-  const { swipeLabels, swipeComplete } = useWords().words;
+  const { swipeLabels, swipeStackEmpty } = useWords().words;
   const cursor = useControlValue(`${context.screen}/${context.component}/$cursor`, 0);
   const visible = cards.slice(cursor);
   const behind = visible.slice(1, 3);
@@ -161,7 +162,7 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
       accessibilityRole={finished ? "status" : undefined}
       aria-live={finished ? "polite" : undefined}
       {...(isWeb && finished ? { tabIndex: -1 } : {})}
-      {...(!isWeb && finished ? { accessible: true, accessibilityLabel: swipeComplete } : {})}
+      {...(!isWeb && finished ? { accessible: true, accessibilityLabel: swipeStackEmpty } : {})}
     >
       {front ? (
         <YStack paddingBottom={behind.length * peek} paddingTop={space.xs}>
@@ -173,9 +174,7 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
           </PartContext.Provider>
         </YStack>
       ) : finished ? (
-        <KitText role="label" part={null}>
-          {swipeComplete}
-        </KitText>
+        <KitEmpty part="title" title={swipeStackEmpty} decorativeIcon />
       ) : (
         empty
       )}

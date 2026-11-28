@@ -233,6 +233,19 @@ export const examples = [
       },
     ],
   },
+  {
+    style: "shelf",
+    rows: [
+      {
+        title: "Fern field guide",
+        meta: "Houseplants · 28 plates",
+        photo: "lib:fern_shelf",
+        goto: "guide",
+        trail: "chevron",
+      },
+      { title: "Windowsill plants", photo: "lib:window_pots", badge: "On loan", tone: "warn" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("List");
 export const probes = [
@@ -279,9 +292,14 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
   } = kit.useWords();
   const mark = row.unread && row.mark === "none" ? "new" : row.mark;
   const chevron = row.trail === "chevron" && row.goto;
-  const sideTrail = grid && chevron;
+  const trail = chevron ? <kit.KitIcon name="chevron_right" part="trail" scale="sm" /> : undefined;
   const { badge, unread, pinned, progress } = CardExtras(row, listLabels, lang);
   const leading = <CardLeading {...{ row, aspect, lead, index, density }} {...(grid && { grid })} />;
+  const title = (
+    <kit.KitText role="body" part="title" density={density} tone={cardTitleTone(row, mark)} breakLongWords>
+      {row.title}
+    </kit.KitText>
+  );
   return (
     <kit.KitRow
       item={row.id}
@@ -291,7 +309,7 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
       mark={mark}
       surface={grid}
       leading={leading}
-      trailing={sideTrail ? <kit.KitIcon name="chevron_right" part="trail" scale="sm" /> : undefined}
+      trailing={grid ? trail : undefined}
       leadingAlign={lead === "thumb" || (grid && (row.photo || !row.icon)) ? "row" : "line"}
       inset={grid ? "md" : "none"}
     >
@@ -299,7 +317,9 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
         {!grid && !lead && row.photo && (
           <kit.KitPhoto photo={row.photo} aspect={aspect} part="icon" label={row.title} />
         )}
-        <CardTitle {...{ row, mark, density }} chevron={Boolean(chevron && !sideTrail)} />
+        <kit.KitContent lead={grid ? undefined : trail} lineRole="body" density={density}>
+          {title}
+        </kit.KitContent>
         {(["meta", "fact"] as const).map((part) => (
           <kit.KitLayoutText
             key={part}
@@ -307,7 +327,7 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
             density={density}
           />
         ))}
-        <CardTrail {...{ row, sideTrail: Boolean(sideTrail), density }} />
+        <CardTrail {...{ row, density }} />
         {badge}
         {unread}
         {pinned}
@@ -328,39 +348,8 @@ function CardLeading({ row, lead, index, density, grid }: CardDetailProps) {
   if (lead === "thumb" && row.photo) return <kit.KitPhoto photo={row.photo} part="icon" />;
 }
 
-function CardTitle({
-  row,
-  mark,
-  density,
-  chevron,
-}: {
-  row: ListRow;
-  mark: ListRow["mark"];
-  density: c.ThemeDensity;
-  chevron: boolean;
-}) {
-  return (
-    <kit.KitContent
-      lead={chevron && <kit.KitIcon name="chevron_right" part="trail" scale="sm" />}
-      lineRole="body"
-    >
-      <kit.KitText role="body" part="title" density={density} tone={cardTitleTone(row, mark)} breakLongWords>
-        {row.title}
-      </kit.KitText>
-    </kit.KitContent>
-  );
-}
-
-function CardTrail({
-  row,
-  sideTrail,
-  density,
-}: {
-  row: ListRow;
-  sideTrail: boolean;
-  density: c.ThemeDensity;
-}) {
-  if (sideTrail || row.trail === "none" || row.trail === "chevron") return null;
+function CardTrail({ row, density }: { row: ListRow; density: c.ThemeDensity }) {
+  if (row.trail === "none" || row.trail === "chevron") return null;
   return (
     <kit.KitTrail
       kind={row.trail ?? "none"}
@@ -373,7 +362,7 @@ function CardTrail({
 }
 
 function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
-  const { style, density, lead, trail, aspect, pending, grid, unread, pinned } = layout;
+  const { style, density, lead, trail, aspect, pending, grid, enhancedShelf, unread, pinned } = layout;
   if (pending) return <PendingRow key={row.id} row={row} layout={layout} />;
   const finish = {
     density,
@@ -382,9 +371,7 @@ function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
     surface: style === "cards" ? ("card" as const) : undefined,
   };
   const leading = lead === "icon" && style === "shelf" ? undefined : lead;
-  const shelf =
-    style === "shelf" && (aspect !== "wide" || row.progress !== undefined || row.badge !== undefined);
-  if (shelf || grid)
+  if (enhancedShelf || grid)
     return (
       <CardDetails
         key={row.id}
@@ -501,19 +488,31 @@ type ListRowLayout = Pick<ListProps, "style" | "lead" | "trail" | "aspect"> & {
   density: c.ThemeDensity;
   pending: boolean | undefined;
   grid: boolean;
+  enhancedShelf: boolean;
   unread: string;
   pinned: string;
 };
 
-function ListRows(input: ListProps & { pending?: boolean }) {
-  const { rows, style, group, lead, trail, aspect, arrange, pending } = input;
+function ListRows(input: ListProps & { enhancedShelf: boolean; pending?: boolean }) {
+  const { rows, style, group, lead, trail, aspect, arrange, pending, enhancedShelf } = input;
   const density = kit.useKit().density;
   const { unread, pinned } = kit.useWords().words.listLabels;
   const grid = arrange === "grid" && style !== "shelf" && style !== "expand";
   const layout = style === "shelf" ? (rows.length <= 2 ? "grid" : "strip") : grid ? "grid" : "rows";
   const listRowGap = group === "sections" ? "group" : style === "cards" ? "cards" : undefined;
   const children = rows.map((row, index) =>
-    ListRow(row, index, { style, density, lead, trail, aspect, pending, grid, unread, pinned }),
+    ListRow(row, index, {
+      style,
+      density,
+      lead,
+      trail,
+      aspect,
+      pending,
+      grid,
+      enhancedShelf,
+      unread,
+      pinned,
+    }),
   );
   const groups: { id: string; heading: string; children: typeof children }[] = [];
   const draw = (items: typeof children) => (
@@ -554,10 +553,9 @@ export function List(input: ListProps) {
       : style === "cards" || (arrange === "grid" && style !== "expand")
         ? "cards"
         : "inset";
-  const structured =
-    arrange === "grid" ||
-    (style === "shelf" &&
-      (input.aspect !== "wide" || rows.some((row) => row.badge || row.progress !== undefined)));
+  const enhancedShelf =
+    style === "shelf" &&
+    (input.aspect !== "wide" || input.rows.some((row) => row.badge || row.progress !== undefined));
   return (
     <kit.KitCard
       style={frame}
@@ -565,8 +563,8 @@ export function List(input: ListProps) {
       padded={frame === "inset" && state !== "empty" && rows.some((row) => row.mark === "highlight")}
     >
       {state === "loading" ? (
-        structured ? (
-          <ListRows {...input} rows={rows} pending />
+        arrange === "grid" || enhancedShelf ? (
+          <ListRows {...input} rows={rows} enhancedShelf={enhancedShelf} pending />
         ) : (
           <kit.KitSkeleton
             rows={rows.length}
@@ -578,7 +576,7 @@ export function List(input: ListProps) {
         <kit.KitEmpty part="title" />
       ) : (
         <>
-          <ListRows {...input} rows={rows} />
+          <ListRows {...input} rows={rows} enhancedShelf={enhancedShelf} />
           {more && (
             <kit.KitRow part="more" role="button" expanded={open} {...{ label, density }}>
               {!open && (

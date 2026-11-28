@@ -11,6 +11,8 @@ export const orderTrack: FlowTemplate = {
     reference: "string",
     destination: "string",
     eta: "string",
+    departed_at: "string",
+    delivered_at: "string",
   },
   journeys: [
     {
@@ -51,7 +53,7 @@ export const orderTrack: FlowTemplate = {
         },
         {
           id: "in_transit",
-          see: "{record.reference} is on the way. Estimated arrival: {record.eta}.",
+          see: "Left for {record.destination} at {record.departed_at}. The arrival time is an estimate, not a live location.",
           do: "Tap View arrival",
           layout: {
             components: ["KeyValue"],
@@ -60,15 +62,15 @@ export const orderTrack: FlowTemplate = {
           preview: {
             title: "On the way",
             action: "View arrival",
-            fields: ["reference", "eta", "destination"],
+            fields: ["reference", "departed_at", "eta", "destination"],
             messages: {
-              error: "Delivery is running late. The order is still active; the estimate will update here.",
+              error: "Running late. The last confirmed update was departure at {record.departed_at}.",
             },
           },
         },
         {
           id: "delivered",
-          see: "{record.item} was delivered to {record.destination}. Order {record.reference}.",
+          see: "{record.item} was delivered to {record.destination} at {record.delivered_at}.",
           next: null,
           layout: {
             components: ["Success"],
@@ -76,7 +78,7 @@ export const orderTrack: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "Order delivered",
-            fields: ["reference", "destination"],
+            fields: ["reference", "delivered_at", "destination"],
           },
         },
       ],
@@ -93,6 +95,8 @@ export const orderTrack: FlowTemplate = {
         reference: "OR-118",
         destination: "Lobby desk",
         eta: "18:40",
+        departed_at: "Fri 27 Nov, 18:10",
+        delivered_at: "Fri 27 Nov, 18:43",
       },
     },
     {
@@ -105,6 +109,8 @@ export const orderTrack: FlowTemplate = {
         reference: "OR-614",
         destination: "Side entrance",
         eta: "13:15",
+        departed_at: "Sat 28 Nov, 12:55",
+        delivered_at: "Sat 28 Nov, 13:10",
       },
     },
   ],
@@ -121,7 +127,8 @@ export const orderTrack: FlowTemplate = {
     ],
     fill: [
       {
-        request: "Lina orders a Market box, OR-118, for the Lobby desk. The estimated arrival is 18:40.",
+        request:
+          "Lina orders a Market box, OR-118, for the Lobby desk. ETA 18:40. Departed Fri 27 Nov, 18:10; delivered Fri 27 Nov, 18:43.",
         expect: {
           names: {
             customer: "Lina",
@@ -131,6 +138,8 @@ export const orderTrack: FlowTemplate = {
             reference: "OR-118",
             destination: "Lobby desk",
             eta: "18:40",
+            departed_at: "Fri 27 Nov, 18:10",
+            delivered_at: "Fri 27 Nov, 18:43",
           },
         },
       },

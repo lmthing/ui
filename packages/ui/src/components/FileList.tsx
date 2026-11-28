@@ -61,7 +61,7 @@ const file = z.strictObject({
   ext: z.enum(["pdf", "doc", "sheet", "zip", "audio", "other"]),
   sizeBytes: z.number().nonnegative(),
   pages: z.number().int().min(1).optional(),
-  status: z.enum(["ready", "downloading", "missing"]),
+  status: z.enum(["ready", "downloading", "missing", "uploading", "failed"]),
   goto: c.screenId.optional(),
 });
 
@@ -126,6 +126,13 @@ export const examples = [
     ],
     style: "cards",
   },
+  {
+    removable: true,
+    files: [
+      { fileRef: "demo_log", name: "Watering log.pdf", ext: "pdf", sizeBytes: 240000, status: "uploading" },
+      { fileRef: "demo_soil", name: "Soil readings.xlsx", ext: "sheet", sizeBytes: 18000, status: "failed" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FileList");
@@ -142,6 +149,12 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the attached Fern care guide PDF for a preview.", { address: "c1/r1", action: "press" }),
+  {
+    ...write(
+      "Show an attachment named Watering log.pdf, reference demo_log, 240000 bytes, PDF. Its upload failed and I want to remove it.",
+    ),
+    fields: { "files.0.status": "failed", removable: true },
+  },
 ] satisfies c.Probe[];
 
 type FileListProps = c.Props<typeof props, typeof meta>;
@@ -197,7 +210,10 @@ function FileRow({ row, density, cards, removable, showPages }: FileRowProps) {
           <kit.KitText part="name" density={density} lines={2}>
             {row.name}
           </kit.KitText>
-          <FileMetadata {...{ size, pages, status, density, cards }} missing={row.status === "missing"} />
+          <FileMetadata
+            {...{ size, pages, status, density, cards }}
+            missing={row.status === "missing" || row.status === "failed"}
+          />
         </>
       )}
     </kit.KitRow>

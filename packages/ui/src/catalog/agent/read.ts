@@ -29,7 +29,12 @@ import { driveTarget, projectDriveObservation, type CanDrive } from "./drives";
 import { captureDeviceTime, isDeviceDataVisible, projectDeviceData, type DeviceData } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
 import { redactPrivateMarks } from "./private-controls";
-import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./host-commands";
+import {
+  formatHostOperations,
+  hostActionPolicy,
+  readHostOperations,
+  type HostActionPolicy,
+} from "./host-commands";
 import { projectDataViewList, resolveDataViews } from "./data-view";
 
 type Props = Record<string, unknown>;
@@ -131,10 +136,12 @@ export function readComponent(
     state,
     session,
     draw,
+    hostOperations: operations,
     summaryOnly: !!optedIn,
   };
   const copy = { lang, deviceData, currency };
-  return formatReading(meta, schema, content, copy, head, affordances, operations, get);
+  const hostLines = formatHostOperations(instance, operations);
+  return formatReading(meta, schema, content, copy, head, affordances, hostLines, get);
 }
 
 export type ScreenLike = {

@@ -4,6 +4,14 @@ export const words = {
   fieldDateError: "Use a real date in YYYY-MM-DD",
   fieldTimeError: "Use a time in HH:MM",
   fieldValueError: "The value does not fit this field",
+  fieldAttachment: {
+    pick: "Choose file",
+    replace: "Replace file",
+    remove: "Remove file",
+    pending: "Adding file…",
+    ready: "File attached",
+    error: "Couldn’t attach file. Try again.",
+  },
   fieldPassword: {
     show: "Show",
     hide: "Hide",

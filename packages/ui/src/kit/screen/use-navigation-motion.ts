@@ -4,150 +4,201 @@ import { durations, motionEase, motionProfiles, type ScreenLike, type ThemeMotio
 import { captureShared, flyShared } from "./shared-elements";
 import { captureTab, fadeTab } from "./tab-ghost";
 import type { NativeTabShot } from "./NativeTabGhost";
-import { animateNumber } from "../motion";
+import { animateNumber, expireRecordArrival } from "../motion";
 import { announceMotionSettled } from "../part";
 import {
-  popReturnPoint,
-  rememberRoute,
-  restoreWebArrival,
-  returnIndex,
-  type ReturnPoint,
-} from "./return-point";
-
-type Intent = {
-  from: string;
-  goto: string;
-  kind: "push" | "back" | "tab";
-  shared: ReturnType<typeof captureShared>;
-  ghost: ReturnType<typeof captureTab>;
-  nativeGhost?: NativeTabShot;
-  agent: boolean;
-  expires: number;
-  address: string;
-  top: number;
-};
+  captureTransition,
+  matchesNavigation as matches,
+  readTransition,
+  takeTransition,
+  type NavigationIntent as Intent,
+  type ScreenTransition,
+  type ScreenTransitionRequest,
+} from "./screen-navigation";
+import { useNavigationHistory } from "./use-navigation-history";
+import { arrivalAddress } from "./return-point";
+import type { NavigationFocus } from "./use-return-focus";
 type Pose = { x: number; opacity: number };
 type NativeFlight = { pose: Pose; ghost?: NativeTabShot };
+type CaptureOptions = {
+  reduced: boolean;
+  agent: boolean;
+  cut: boolean;
+  scrollTop(): number;
+  captureNative(): NativeTabShot;
+};
+type NavigationOptions = CaptureOptions & {
+  mode: ThemeMotion;
+  transition: ScreenTransition | undefined;
+  replacesRoute?: ((from: string, to: string) => boolean) | undefined;
+};
 
-function matches(move: Intent | undefined, screen: string): move is Intent {
-  return Boolean(
-    move &&
-    move.from !== screen &&
-    (move.goto === screen || move.goto === "back") &&
-    Date.now() < move.expires,
-  );
-}
-
-function useNavigationIntent(
+function captureIntent(
   screen: ScreenLike,
-  ref: RefObject<TamaguiElement | null>,
+  node: HTMLElement | null,
+  target: Pick<Intent, "goto" | "address" | "agent" | "scrollTop"> & { kind?: Intent["kind"] },
   reduced: boolean,
-  agent: boolean,
+  canAnimate: boolean,
   captureNative: () => NativeTabShot,
-  getScroll: () => number,
-) {
-  const intent = useRef<Intent | undefined>(undefined);
-  const capture = useCallback(
-    (goto: string, address: string, byAgent: boolean) => {
-      const source = screen.components.find(({ id }) => id === address.split("/")[1]);
-      const kind = goto === "back" ? "back" : source?.c === "TabBar" ? "tab" : "push";
-      const tab = kind === "tab" && goto !== screen.id && !agent && !byAgent && !reduced;
-      const node = isWeb && !agent && !byAgent ? (ref.current as HTMLElement | null) : null;
-      intent.current = {
-        from: screen.id,
-        goto,
-        kind,
-        address,
-        top: node?.querySelector<HTMLElement>("[data-kit-screen-body]")?.scrollTop ?? getScroll(),
-        agent: byAgent,
-        expires: Date.now() + durations.slow * 2,
-        shared: kind === "push" && !reduced ? captureShared(node, address) : undefined,
-        ghost: tab ? captureTab(node) : undefined,
-        ...(!isWeb && tab ? { nativeGhost: captureNative() } : {}),
-      };
-    },
-    [ref, screen, reduced, agent, captureNative, getScroll],
-  );
-  return { intent, capture };
-}
-
-function focusArrival(
-  node: TamaguiElement | null,
-  screen: ScreenLike,
-  move: Intent,
-  returnPoint: ReturnPoint | undefined,
-  restoreNative: (point: ReturnPoint | undefined) => void,
-) {
-  if (isWeb && node) {
-    if (move.kind === "tab")
-      (node as HTMLElement)
-        .querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
-        ?.focus({ preventScroll: true });
-    else restoreWebArrival(node as HTMLElement, screen, returnPoint);
-  } else if (move.kind !== "tab") restoreNative(returnPoint);
-}
-
-function trackArrival(
-  history: ReturnPoint[],
-  { kind, from, address, top }: Intent,
-  to: string,
-  replacesRoute: ((from: string, to: string) => boolean) | undefined,
-) {
-  if (kind === "back") return popReturnPoint(history, from, to);
-  if (kind === "tab") history.length = 0;
-  else rememberRoute(history, { from, to, address, top }, replacesRoute?.(from, to) ?? false);
+): Intent {
+  const { address, goto } = target;
+  const source = screen.components.find(({ id }) => id === address.split("/")[1]);
+  const kind = target.kind ?? (goto === "back" ? "back" : source?.c === "TabBar" ? "tab" : "push");
+  const tab = kind === "tab" && (target.kind !== undefined || goto !== screen.id) && canAnimate && !reduced;
+  return {
+    ...target,
+    from: screen.id,
+    kind,
+    reduced,
+    expires: Date.now() + durations.slow * 2,
+    shared: kind === "push" && !reduced ? captureShared(node, address) : undefined,
+    ghost: tab ? captureTab(node) : undefined,
+    ...(!isWeb && tab ? { nativeGhost: captureNative() } : {}),
+  };
 }
 
 /** The link tells us why the host changed screens; stage jumps and unrelated updates don't fly. */
 export function useNavigationMotion(
   screen: ScreenLike,
-  mode: ThemeMotion,
-  reduced: boolean,
-  agent: boolean,
-  captureNative: () => NativeTabShot,
-  getScroll: () => number,
-  restoreNative: (point: ReturnPoint | undefined) => void,
-  replacesRoute?: (from: string, to: string) => boolean,
+  { mode, reduced, agent, cut, scrollTop, captureNative, transition, replacesRoute }: NavigationOptions,
 ) {
   const ref = useRef<TamaguiElement>(null);
-  const previous = useRef(screen.id);
-  const { intent, capture } = useNavigationIntent(screen, ref, reduced, agent, captureNative, getScroll);
-  const arrivedByAgent = useRef<string | undefined>(undefined);
-  const history = useRef<ReturnPoint[]>([]);
-  const returnTop = useRef<{ id: string; top: number } | undefined>(undefined);
+  const intent = useRef<Intent | undefined>(undefined);
   const [native, setNative] = useState<NativeFlight | undefined>(undefined);
-  const pending = intent.current;
-  const navigating = matches(pending, screen.id);
-  const cut = navigating && pending.agent;
-  const returnPoint =
-    navigating && pending.kind === "back"
-      ? history.current[returnIndex(history.current, pending.from, screen.id)]
-      : undefined;
+  const makeIntent = useCaptureIntent(screen, ref, { reduced, agent, cut, scrollTop, captureNative });
+  const skipMotion = agent || cut;
+  const play = (move: Intent) => playNavigation(ref.current, screen, move, mode, reduced, setNative);
+  const scripted = readTransition(transition, screen.id);
+  const startScripted = useScriptedFlight(
+    transition,
+    screen.id,
+    `${mode}:${reduced}:${skipMotion}`,
+    skipMotion,
+    play,
+  );
+  const history = useNavigationHistory(screen.id, scripted ?? intent.current, replacesRoute);
+  const returnTo = scripted?.restore ?? history.returnTo;
   useLayoutEffect(() => {
-    if (previous.current === screen.id) return;
-    previous.current = screen.id;
+    if (scripted) {
+      intent.current = undefined;
+      history.commit(scripted, agent || scripted.agent, true);
+      const cue = scripted.record;
+      // Exactly one commit can use this cue, even if no matching receipt was mounted.
+      if (cue) expireRecordArrival(cue);
+      return startScripted();
+    }
+    if (!history.changed()) return;
     const move = intent.current;
     intent.current = undefined;
-    arrivedByAgent.current = cut ? screen.id : undefined;
-    returnTop.current = undefined;
-    if (!matches(move, screen.id)) {
-      history.current.length = 0;
+    history.commit(move);
+    if (skipMotion || !matches(move, screen.id) || move.agent) {
       if (!isWeb) setNative(undefined);
       return;
     }
-    const point = trackArrival(history.current, move, screen.id, replacesRoute);
-    if (point) returnTop.current = { id: screen.id, top: point.top };
-    if (agent || move.agent) return;
-    focusArrival(ref.current, screen, move, returnPoint, restoreNative);
-    return playNavigation(ref.current, screen, move, mode, reduced, setNative);
-  }, [screen.id, mode, reduced, agent]);
+    return play(move);
+  }, [screen.id, mode, reduced, agent, cut, transition]);
   return {
     ref,
-    capture,
-    pose: agent ? undefined : native?.pose,
-    nativeGhost: agent ? undefined : native?.ghost,
-    agentArrival: cut || arrivedByAgent.current === screen.id,
-    initialBodyScroll: returnPoint?.top ?? (returnTop.current?.id === screen.id ? returnTop.current.top : 0),
+    capture: (goto: string, address: string, byAgent: boolean) => {
+      intent.current = makeIntent(goto, address, byAgent);
+    },
+    prepare: (request: ScreenTransitionRequest) => captureTransition(moveFor(request, makeIntent)),
+    record: scripted ? (scripted.agent ? undefined : scripted.record) : history.record,
+    pose: skipMotion ? undefined : native?.pose,
+    nativeGhost: skipMotion ? undefined : native?.ghost,
+    agentArrival: history.agentArrival,
+    returnTo,
+    focus: focusOf(screen, agent, scripted, intent.current, returnTo, history.scriptedFocus),
+  };
+}
+
+function moveFor(request: ScreenTransitionRequest, make: ReturnType<typeof useCaptureIntent>): Intent {
+  const { to, kind, address = "", restore } = request;
+  const motion = kind === "pop" ? "back" : kind;
+  return {
+    ...make(to, address, false, motion),
+    ...(motion === "back" && restore ? { restore: { ...restore } } : {}),
+    ...(kind === "record" ? { record: { ...request.record } } : {}),
+  };
+}
+
+function focusOf(
+  screen: ScreenLike,
+  agent: boolean,
+  scripted: Intent | undefined,
+  pending: Intent | undefined,
+  returnTo: ReturnType<typeof useNavigationHistory>["returnTo"],
+  settledScripted: boolean,
+): NavigationFocus | undefined {
+  if (agent || scripted?.agent) return;
+  if (scripted && scripted.kind !== "back") return;
+  if (scripted || (settledScripted && !pending))
+    return returnTo?.address ? { address: returnTo.address, defer: true, point: returnTo } : undefined;
+  if (!matches(pending, screen.id) || pending.agent) return;
+  return {
+    address: pending.kind === "back" ? returnTo?.address : undefined,
+    fallback: arrivalAddress(screen),
+    tab: pending.kind === "tab",
+    point: returnTo,
+  };
+}
+
+function useCaptureIntent(
+  screen: ScreenLike,
+  ref: { current: TamaguiElement | null },
+  { reduced, agent, cut, scrollTop, captureNative }: CaptureOptions,
+) {
+  return useCallback(
+    (goto: string, address: string, byAgent: boolean, kind?: Intent["kind"]) => {
+      const agentAction = agent || byAgent;
+      const canAnimate = !agentAction && !cut;
+      return captureIntent(
+        screen,
+        isWeb && canAnimate ? (ref.current as HTMLElement | null) : null,
+        { goto, address, scrollTop: scrollTop(), agent: agentAction, ...(kind ? { kind } : {}) },
+        reduced,
+        canAnimate,
+        captureNative,
+      );
+    },
+    [screen, ref, reduced, agent, cut, scrollTop, captureNative],
+  );
+}
+
+type Flight = { token: ScreenTransition; key: string; kept: boolean; stop: (() => void) | undefined };
+
+function useScriptedFlight(
+  token: ScreenTransition | undefined,
+  screen: string,
+  preferences: string,
+  skipMotion: boolean,
+  play: (move: Intent) => (() => void) | undefined,
+) {
+  const active = useRef<Flight | undefined>(undefined);
+  const key = `${screen}:${preferences}`;
+  return () => {
+    if (!token) return;
+    let flight = active.current;
+    if (!flight || flight.token !== token || flight.key !== key) {
+      active.current = undefined;
+      flight?.stop?.();
+      const move = takeTransition(token, screen);
+      if (!move) return;
+      flight = { token, key, kept: true, stop: !skipMotion && !move.agent ? play(move) : undefined };
+      active.current = flight;
+    }
+    const retained = flight;
+    retained.kept = true;
+    return () => {
+      retained.kept = false;
+      // Adopt the existing flight during Strict Mode's synchronous effect replay.
+      queueMicrotask(() => {
+        if (active.current === retained && !retained.kept) {
+          retained.stop?.();
+          active.current = undefined;
+        }
+      });
+    };
   };
 }
 
@@ -159,20 +210,27 @@ function playNavigation(
   reduced: boolean,
   setNative: (flight: NativeFlight | undefined) => void,
 ) {
-  if (reduced) return;
+  if (move.kind === "record" || reduced || move.reduced) return;
   const profile = motionProfiles[mode];
   const fade = move.kind === "tab";
   const node = ref as HTMLElement | null;
   const sign = isWeb && node && getComputedStyle(node).direction === "rtl" ? -1 : 1;
   const shift = fade ? 0 : sign * profile.push * (move.kind === "back" ? -1 : 1);
-  const options = { duration: profile.navigation, easing: motionEase };
+  const options = {
+    duration: profile.navigation,
+    easing: motionEase,
+    fill: "backwards" as const,
+  };
   if (!isWeb) {
     const stop = animateNumber(
       0,
       1,
-      (opacity) =>
+      (progress) =>
         setNative({
-          pose: { x: shift * (1 - opacity), opacity: fade ? opacity : 1 },
+          pose: {
+            x: shift * (1 - progress),
+            opacity: fade ? progress : 1,
+          },
           ...(move.nativeGhost ? { ghost: move.nativeGhost } : {}),
         }),
       { duration: options.duration, done: () => setNative(undefined) },
@@ -184,9 +242,7 @@ function playNavigation(
   }
   if (!node?.animate) return;
   if (move.ghost) return fadeTab(node, move.ghost, options);
-  const header = screen.components.find(({ c }) => c === "Header");
-  const shared =
-    !fade && move.shared ? flyShared(node, screen.id, header?.id, move.shared, shift, options) : [];
+  const shared = fade ? [] : matchingFlight(node, screen, move, shift, options);
   const flight = node.animate(
     [
       { opacity: 1, transform: fade ? "none" : `translateX(${shift}px)` },
@@ -203,4 +259,16 @@ function playNavigation(
     flight.cancel();
     shared.forEach((animation) => animation.cancel());
   };
+}
+
+function matchingFlight(
+  node: HTMLElement,
+  screen: ScreenLike,
+  move: Intent,
+  shift: number,
+  options: KeyframeAnimationOptions,
+) {
+  if (!move.shared) return [];
+  const header = screen.components.find(({ c }) => c === "Header");
+  return flyShared(node, screen.id, header?.id, move.shared, shift, options);
 }

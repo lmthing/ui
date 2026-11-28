@@ -2,14 +2,21 @@ import {
   useLiveControls,
   useKit,
   useWords,
+  usePartContext,
+  useControlValue,
+  KitAction,
   KitCard,
   KitFieldControl,
+  KitGrid,
   KitMicCapture,
   KitSlider,
   KitText,
 } from "../kit";
+import { useRef } from "react";
 import {
   wordsFor,
+  attachmentKey,
+  type AttachmentStatus,
   probesFor,
   clip,
   clock,
@@ -52,8 +59,27 @@ export const meta = {
   realPath: "A field value stored on one record in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
-  parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading", "reveal"],
-  partTiers: { voice: "ok", reveal: "service" },
+  parts: [
+    "root",
+    "label",
+    "field",
+    "hint",
+    "photo",
+    "lower",
+    "upper",
+    "voice",
+    "range_reading",
+    "reveal",
+    "attach",
+    "attach_label",
+    "attachment_status",
+    "remove_attachment",
+    "remove_attachment_label",
+  ],
+  partTiers: { voice: "ok", reveal: "service", attach: "ok" },
+  media: {
+    attachments: { attach: { intent: "pick" }, remove_attachment: { intent: "remove", source: "attach" } },
+  },
   partTiersBy: { field: { prop: "kind", tiers: { photo: "ok", password: "service", code: "service" } } },
   localState: rangeState,
   states: ["filled"],
@@ -62,6 +88,7 @@ export const meta = {
     parts: {
       field: ["type", "select", "toggle", "set", "press"],
       lower: ["set"], upper: ["set"], voice: ["start", "stop"],
+      attach: ["press"], remove_attachment: ["press"],
     },
     when: {
       "field.type": { mode: "input" }, "field.select": { mode: "choice" },
@@ -69,12 +96,21 @@ export const meta = {
       "field.set": { kind: "slider" }, "field.press": { kind: "photo" },
       lower: { kind: "range" }, upper: { kind: "range" },
       voice: { kind: "voice" },
+      attach: { kind: "file" }, remove_attachment: { kind: "file" },
     },
   },
   read: (input, state, lang, _data, _currency, get): string[] => {
     const { repeatLabels, photoLabels, chosen, fieldRange, composer, mediaUnavailable } = wordsFor(lang);
     const { kind, options, lower, upper, repeat } = input as z.output<typeof props>;
     if (state !== "filled") return [];
+    if (kind === "file") {
+      const { fieldAttachment } = wordsFor(lang);
+      const status = get?.(attachmentKey("attach")) as AttachmentStatus | undefined;
+      const pick = status?.present ? fieldAttachment.replace : fieldAttachment.pick;
+      return status
+        ? [fieldAttachment[status.phase], pick, ...(status.present ? [fieldAttachment.remove] : [])]
+        : [pick];
+    }
     if (kind === "voice") return get?.("$runtime") ? [composer.voice] : [composer.voice, mediaUnavailable];
     if (kind === "range") return [fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))];
     if (kind === "repeat") {
@@ -111,7 +147,7 @@ function fitsRange({ min, max, lower, upper }: Endpoints) {
 // prettier-ignore
 export const props = z.strictObject({
   ...variantProps(meta.variants),
-  kind: z.enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo", "range", "voice", "email", "password", "code", "phone"]).default("text"),
+  kind: z.enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo", "range", "voice", "email", "password", "code", "phone", "file"]).default("text"),
   label: text(24),
   value: text(40).refine((value) => !/[\r\n]/.test(value), "A field is one line").optional(),
   length: z.int().min(4).max(8).optional(),
@@ -121,8 +157,8 @@ export const props = z.strictObject({
 })
   .refine(({ kind, min, max, lower, upper, value }) => kind === "range"
     ? value === undefined && fitsRange({ min, max, lower, upper })
-    : [min, max, lower, upper].every((point) => point === undefined) && (kind !== "voice" || value === undefined),
-    { message: "Use ordered numeric endpoints only for range and no text value for range or voice" })
+    : [min, max, lower, upper].every((point) => point === undefined) && (!["voice", "file"].includes(kind) || value === undefined),
+    { message: "Use ordered numeric endpoints only for range and no text value for range, voice or file" })
   .refine(({ kind, options }) => (kind === "choice") === (options !== undefined),
     { path: ["options"], message: "Options are required only for choice" })
   .refine(({ options, value }) => !options || (new Set(options).size === options.length && (value === undefined || options.includes(value))),
@@ -189,11 +225,15 @@ export const examples = [
   { kind: "code", label: "Verification code" },
   { kind: "code", label: "Text message code", length: 8 },
   { kind: "phone", label: "Phone number", value: "+1 202-555-0142" },
+  { kind: "file", label: "Plant care notes", hint: "Choose the notes you want to share." },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
 export const probes = [
   choose("Let me enter the name of a new plant on its form"),
   choose("Find a plant in my collection by typing part of its name", "Search"),
+  choose(
+    "On my form, give me one labelled control to pick a PDF from my device instead of typing a filename. I don't need a list of existing attachments.",
+  ),
   write("A form input labelled Plant name, with Fern already entered"),
   write("A form input labelled Water it, set to repeat every week"),
   {
@@ -229,6 +269,12 @@ export const probes = [
     ...write("Add a blank Phone number input that opens the phone keypad."),
     expectProps: { kind: "phone" },
   },
+  {
+    ...write(
+      "On the handover form let me attach a document from my device, not type a filename. Label it Walk notes.",
+    ),
+    expectProps: { kind: "file", label: "Walk notes" },
+  },
 ] satisfies Probe[];
 
 function RangeField(input: Props<typeof props, typeof meta>) {
@@ -243,11 +289,59 @@ function RangeField(input: Props<typeof props, typeof meta>) {
       <KitSlider
         min={min!}
         max={max!}
+        alignTrack
         range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },
         ]}
       />
+    </>
+  );
+}
+
+function AttachmentField() {
+  const { screen, component } = usePartContext();
+  const { controller, interactive } = useKit();
+  const { fieldAttachment: copy } = useWords().words;
+  const picker = useRef<{ focus(): void }>(null);
+  const state = useControlValue<AttachmentStatus | undefined>(
+    `${screen}/${component}/${attachmentKey("attach")}`,
+    undefined,
+  );
+  const available =
+    !interactive || controller?.actionsAt(`${screen}/${component}/attach`).includes("press") === true;
+  return (
+    <>
+      <KitGrid fitLast>
+        <KitAction
+          part="attach"
+          action="press"
+          kind="secondary"
+          align="start"
+          label={state?.present ? copy.replace : copy.pick}
+          disabled={!available}
+          focusRef={picker}
+          contentParts={{ label: "attach_label" }}
+        />
+        {state?.present && (
+          <KitAction
+            part="remove_attachment"
+            action="press"
+            kind="quiet"
+            label={copy.remove}
+            onAccepted={() => picker.current?.focus()}
+            contentParts={{ label: "remove_attachment_label" }}
+          />
+        )}
+      </KitGrid>
+      <KitText
+        part={state ? "attachment_status" : null}
+        announce="status"
+        role="caption"
+        tone={state?.phase === "error" ? "bad" : "text"}
+      >
+        {state ? copy[state.phase] : "\u00a0"}
+      </KitText>
     </>
   );
 }
@@ -262,6 +356,8 @@ export function Field(input: Props<typeof props, typeof meta>) {
       </KitText>
       {input.kind === "range" ? (
         <RangeField {...input} />
+      ) : input.kind === "file" ? (
+        <AttachmentField />
       ) : input.kind === "voice" ? (
         <KitMicCapture
           part="voice"

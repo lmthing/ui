@@ -15,6 +15,7 @@ import { prompt } from "../entry/prompt-Steps.generated";
 
 export const meta = {
   id: "Steps",
+  status: "ready",
   group: "structure",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -56,10 +57,11 @@ const reminderStep = { count: 4, at: 2, label: "Set a watering reminder" } as co
 export const examples = [
   { style: "dots", count: 3, at: 2, label: "Add your first plant" },
   { style: "numbered", count: 4, at: 3, label: "Confirm Clover's walk" },
-  { style: "bar", count: 5, at: 1 },
+  { style: "bar", count: 5, at: 1, label: "Choose a pickup time" },
   reminderStep,
   { ...reminderStep },
   { ...reminderStep, detail: "brief" },
+  { style: "numbered", count: 4, at: 4, label: "Review the pickup instructions" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Steps");
@@ -90,15 +92,15 @@ export function Steps({ style, count, at, label, photo }: Props<typeof props, ty
       <KitContent density={density}>
         <KitStepsTrack style={style} count={count} at={at} part="track" />
         {label ? (
-          <KitText role="body" tone="muted" part="label" density={density}>
-            <KitText role="number" part={null} density={density}>
+          <KitText role="label" part="label" density={density}>
+            <KitText role="caption" tone="muted" part={null} density={density}>
               {position}
             </KitText>
             {"\n"}
             {label}
           </KitText>
         ) : (
-          <KitText role="number" part="label" density={density}>
+          <KitText role="caption" tone="muted" part="label" density={density}>
             {position}
           </KitText>
         )}

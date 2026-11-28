@@ -1,5 +1,14 @@
-import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { YStack, type TamaguiElement } from "tamagui";
+import {
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Ref,
+  type RefObject,
+} from "react";
+import { isWeb, YStack } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
   emptyDeviceData,
@@ -35,8 +44,11 @@ import { useNavigationMotion } from "./use-navigation-motion";
 import { NativeTabGhost, type NativeTabShot } from "./NativeTabGhost";
 import type { PhoneAgent } from "./agent-access";
 import { usePhoneAgent } from "./use-phone-agent";
+import { useReturnFocus } from "./use-return-focus";
 import { PartRefScope } from "../part";
-import { arrivalAddress, type ReturnPoint } from "./return-point";
+import { RecordArrivalContext } from "../motion";
+import type { ScreenNavigation, ScreenOverlay, ScreenTransition } from "./screen-navigation";
+import type { BodyScrollHandle } from "./screen-parts";
 
 function usePhoneLifecycle(controller: ScreenController) {
   const lifecycle = useMemo(() => ({ mounted: false, started: false }), [controller]);
@@ -73,6 +85,12 @@ export type PhoneScreenProps = {
   onLink?: ((goto: string, address: string) => void) | undefined;
   /** Whether a committed link replaces the current route instead of adding to host history. */
   replacesRoute?: ((from: string, to: string) => boolean) | undefined;
+  /** Capture a scripted transition before changing the screen prop on this mounted phone. */
+  navigationRef?: Ref<ScreenNavigation> | undefined;
+  /** A new capture animates only this destination; reuse, preference changes and remounts do not replay it. */
+  navigationTransition?: ScreenTransition | undefined;
+  /** Read-only playback of an on-screen Sheet. Null closes; undefined returns to local navigation. */
+  navigationOverlay?: ScreenOverlay | null | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;
   privateValues?: PrivateValuesHost | undefined;
@@ -101,6 +119,8 @@ export type PhoneScreenProps = {
   onReport?: ((issues: Issue[]) => void) | undefined;
   nativeHost?: NativeHost | undefined;
   reduceMotion?: boolean | undefined;
+  /** Cut between screens while leaving component-local feedback within the chosen motion profile. */
+  navigationMotion?: "cut" | undefined;
   agentMode?: boolean | undefined;
   signature?: string | undefined;
   cue?: number | undefined;
@@ -134,41 +154,39 @@ function usePhoneNavigation(
 ) {
   const { screen } = props;
   const bodyScroll = useRef({ id: screen.id, top: 0 });
-  const refs = useMemo(() => new Map<string, RefObject<TamaguiElement | null>>(), []);
-  const parent = useContext(PartRefScope);
-  const register = useMemo(
-    () => (address: string, ref: RefObject<TamaguiElement | null>) => {
-      refs.set(address, ref);
-      const unregister = parent?.(address, ref);
-      return () => {
-        if (refs.get(address) === ref) refs.delete(address);
-        unregister?.();
-      };
-    },
-    [refs, parent],
-  );
-  const navigation = useNavigationMotion(
-    screen,
-    props.theme.motion ?? "calm",
-    environment.reduceMotion,
-    environment.agentMode,
-    () =>
-      freezeNativeTab(props, controller, bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
-    () => (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
-    (point: ReturnPoint | undefined) => {
-      const open = point && (refs.get(point.address) ?? refs.get(`${point.address}/root`));
-      const heading = arrivalAddress(screen);
-      const target = open?.current ?? (heading ? refs.get(heading)?.current : undefined);
-      if (target) props.nativeHost?.focusAccessibility?.(target);
-    },
-    props.replacesRoute,
+  const scrollRef = useRef<BodyScrollHandle>(null);
+  const scrollTop = (): number => {
+    const node = isWeb ? scrollRef.current?.getScrollableNode?.() : undefined;
+    return node?.scrollTop ?? (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0);
+  };
+  const navigation = useNavigationMotion(screen, {
+    mode: props.theme.motion ?? "calm",
+    reduced: environment.reduceMotion,
+    agent: environment.agentMode,
+    cut: props.navigationMotion === "cut",
+    scrollTop,
+    captureNative: () => freezeNativeTab(props, controller, scrollTop()),
+    transition: props.navigationTransition,
+    replacesRoute: props.replacesRoute,
+  });
+  useImperativeHandle(
+    props.navigationRef,
+    () => ({
+      prepare: navigation.prepare,
+      getReturnPoint: (address) => ({ scrollTop: scrollTop(), ...(address ? { address } : {}) }),
+    }),
+    [navigation.prepare],
   );
   useLayoutEffect(() => {
     observe.current = navigation.capture;
   }, [observe, navigation.capture]);
+  useLayoutEffect(() => {
+    if (bodyScroll.current.id !== screen.id)
+      bodyScroll.current = { id: screen.id, top: navigation.returnTo?.scrollTop ?? 0 };
+  }, [screen.id, navigation.returnTo]);
   return {
     ...navigation,
-    register,
+    scrollRef,
     onBodyScroll: (top: number) => {
       bodyScroll.current = { id: screen.id, top };
     },
@@ -178,7 +196,8 @@ function usePhoneNavigation(
 export function PhoneScreen(props: PhoneScreenProps) {
   const { defs, screen, nativeHost, reduceMotion, agentMode, signature, cue, onReady } = props;
   const observe = useRef<LinkObserver>(undefined);
-  const controller = usePhoneController(props, (...args) => observe.current?.(...args));
+  const interactive = props.navigationOverlay === undefined && (props.interactive ?? true);
+  const controller = usePhoneController({ ...props, interactive }, (...args) => observe.current?.(...args));
   const storeAgent = controller.store.get(`${screen.id}/$agentMode`);
   const environment = useEnvironment(nativeHost, {
     reduceMotion,
@@ -192,7 +211,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
     [controller, screen, defs],
   );
   usePhoneLifecycle(controller);
-  usePhoneAgent(agent, onReady, props.interactive ?? true, props.agentReadOnly ?? false);
+  usePhoneAgent(agent, onReady, interactive, props.agentReadOnly ?? false);
   return (
     <KitProvider
       theme={props.theme}
@@ -201,7 +220,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
       {...(props.resolvePhoto ? { resolvePhoto: props.resolvePhoto } : {})}
       resolveImage={props.resolveImage}
       controller={controller}
-      interactive={props.interactive ?? true}
+      interactive={interactive}
       environment={
         agentMode === undefined && storeAgent === undefined && navigation.agentArrival
           ? { ...environment, agentMode: true }
@@ -209,22 +228,45 @@ export function PhoneScreen(props: PhoneScreenProps) {
       }
       {...(nativeHost ? { nativeHost } : {})}
     >
-      <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
-        <YStack flex={1} minHeight={0} position="relative">
-          {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
-          <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
-            <PartRefScope.Provider value={navigation.register}>
+      <PhoneScreenFrame {...{ props, navigation, controller }} />
+    </KitProvider>
+  );
+}
+
+function PhoneScreenFrame({
+  props,
+  navigation,
+  controller,
+}: {
+  props: PhoneScreenProps;
+  navigation: ReturnType<typeof usePhoneNavigation>;
+  controller: ScreenController;
+}) {
+  const register = useReturnFocus(navigation.ref, navigation.focus, props.nativeHost);
+  const navigationSheet =
+    props.navigationOverlay &&
+    props.screen.components.find(({ id, c }) => id === props.navigationOverlay?.id && c === "Sheet");
+  return (
+    <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
+      <YStack flex={1} minHeight={0} position="relative" overflow="hidden">
+        {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
+        <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
+          <PartRefScope.Provider value={register}>
+            <RecordArrivalContext.Provider value={navigation.record}>
               <Screen
                 controller={controller}
                 renderers={props.renderers}
-                initialBodyScroll={navigation.initialBodyScroll}
+                scrollRef={navigation.scrollRef}
                 onBodyScroll={navigation.onBodyScroll}
+                navigationOverlay={props.navigationOverlay}
+                navigationSheet={navigationSheet || undefined}
+                {...(navigation.returnTo ? { restoration: navigation.returnTo } : {})}
                 {...(props.onReport ? { onReport: props.onReport } : {})}
               />
-            </PartRefScope.Provider>
-          </YStack>
+            </RecordArrivalContext.Provider>
+          </PartRefScope.Provider>
         </YStack>
-      </DeviceDataContext.Provider>
-    </KitProvider>
+      </YStack>
+    </DeviceDataContext.Provider>
   );
 }

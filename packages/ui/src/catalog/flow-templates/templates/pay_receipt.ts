@@ -10,7 +10,9 @@ export const payReceipt: FlowTemplate = {
     payee: "string",
     amount: "string",
     method: "string",
+    order: "string",
     reference: "string",
+    first_check_fails: "boolean",
   },
   journeys: [
     {
@@ -30,7 +32,7 @@ export const payReceipt: FlowTemplate = {
           preview: {
             title: "Review payment",
             action: "Confirm payment",
-            fields: ["payee", "amount", "method"],
+            fields: ["order", "payee", "amount", "method"],
             messages: {
               error: "Choose an available payment method before continuing.",
             },
@@ -38,17 +40,20 @@ export const payReceipt: FlowTemplate = {
         },
         {
           id: "processing",
-          see: "Payment of {record.amount} is pending. A receipt is not available yet.",
-          do: "Tap Check payment",
+          see: "Payment for {record.order} is pending. Don't send another payment while this one is processing.",
+          do: "Check the latest recorded status, without sending another payment.",
           layout: {
-            components: ["Note"],
+            components: ["KeyValue"],
           },
           states: ["waiting", "error"],
           preview: {
             title: "Payment processing",
-            action: "Check payment",
+            action: "Check payment status",
+            fields: ["order", "payee", "amount"],
+            retry: "first_check_fails",
             messages: {
-              error: "Payment did not go through. Check the method before you try again.",
+              error:
+                "{record.order}: payment wasn't recorded. Recheck the status; don't send another payment.",
             },
           },
         },
@@ -62,7 +67,7 @@ export const payReceipt: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "Payment successful",
-            fields: ["payee", "amount"],
+            fields: ["order", "payee", "amount", "reference"],
             action: "View receipt",
           },
         },
@@ -76,7 +81,7 @@ export const payReceipt: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "Receipt",
-            fields: ["reference", "payee", "amount", "method"],
+            fields: ["reference", "order", "payee", "amount", "method"],
           },
         },
       ],
@@ -92,7 +97,9 @@ export const payReceipt: FlowTemplate = {
         payee: "Workshop desk",
         amount: "$28.00",
         method: "Card ending 2041",
+        order: "Workshop WR-528",
         reference: "RC-802",
+        first_check_fails: false,
       },
     },
     {
@@ -104,7 +111,9 @@ export const payReceipt: FlowTemplate = {
         payee: "Studio office",
         amount: "$45.00",
         method: "Bank transfer",
+        order: "Studio hire SH-113",
         reference: "RC-953",
+        first_check_fails: true,
       },
     },
   ],
@@ -121,7 +130,8 @@ export const payReceipt: FlowTemplate = {
     ],
     fill: [
       {
-        request: "Ari pays Workshop desk $28.00 using Card ending 2041. The receipt reference is RC-802.",
+        request:
+          "Ari pays Workshop desk $28.00 for Workshop WR-528 using Card ending 2041. The receipt reference is RC-802.",
         expect: {
           names: {
             payer: "Ari",
@@ -130,6 +140,7 @@ export const payReceipt: FlowTemplate = {
             payee: "Workshop desk",
             amount: "$28.00",
             method: "Card ending 2041",
+            order: "Workshop WR-528",
             reference: "RC-802",
           },
         },

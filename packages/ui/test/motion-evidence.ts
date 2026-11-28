@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { relative } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import type { Browser, Page } from "playwright-core";
-import { build, preview, type InlineConfig, type Plugin } from "vite";
+import type { Plugin } from "vite";
 
 const folder = fileURLToPath(new URL("../shots/p5-designer-motion/", import.meta.url));
 export { folder as motionEvidenceFolder };
@@ -27,12 +27,6 @@ export function baselineMotionKit(): Plugin {
       if (sources.has(path)) return git("show", `main:${path}`);
     },
   };
-}
-
-export async function releaseGallery(config: InlineConfig, baseline: boolean) {
-  const buildOptions = { outDir: `${folder}build-${baseline ? "main" : "change"}`, emptyOutDir: true };
-  await build({ ...config, mode: "production", logLevel: "error", build: buildOptions });
-  return preview({ ...config, build: buildOptions, preview: { host: "127.0.0.1", port: 0 } });
 }
 
 async function startTrace(page: Page) {

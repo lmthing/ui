@@ -1,7 +1,7 @@
-import { useKit, useKitStyle } from "../../provider";
+import { SheetPreviewContext, useKit, useKitStyle } from "../../provider";
 import { usePartContext } from "../../part";
 import { useSwipe } from "../../interact";
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, space, size, zIndex } from "../../../catalog";
 import { usePart } from "../../part";
@@ -46,6 +46,7 @@ function Grabber({ handlers }: { handlers: object }) {
 
 export function KitSheet({ title, sub, closeLabel, children }: SheetProps) {
   const kit = useKit();
+  const preview = useContext(SheetPreviewContext);
   const ks = useKitStyle();
   const context = usePartContext();
   const swipe = useSwipe("vertical", Boolean(kit.interactive && kit.controller), (direction) => {
@@ -64,14 +65,14 @@ export function KitSheet({ title, sub, closeLabel, children }: SheetProps) {
       paddingBottom={Math.max(space.xl, kit.environment.insets.bottom)}
       gap={space.md}
     >
-      <Grabber handlers={swipe.handlers as object} />
+      {!preview && <Grabber handlers={swipe.handlers as object} />}
       <XStack alignItems="center" justifyContent="space-between" gap={space.md}>
         <YStack flex={component.base.bodyFlex} minWidth={component.base.none}>
           <KitText role="heading" part="title" breakLongWords>
             {title}
           </KitText>
         </YStack>
-        <KitAction icon="close" a11y={closeLabel} kind="quiet" part="close" />
+        {!preview && <KitAction icon="close" a11y={closeLabel} kind="quiet" part="close" />}
       </XStack>
       {sub && (
         <KitText role="body" tone="muted" part="sub">

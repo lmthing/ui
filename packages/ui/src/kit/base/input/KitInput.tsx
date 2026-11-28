@@ -100,6 +100,7 @@ export function KitInput(props: InputProps) {
         paddingRight={end}
         borderRadius={ruled ? component.base.none : inputRadius(kind, ks.radiusShift, ks.frame.corner)}
         {...finish}
+        {...(props.visibleBoundary && { borderColor: "$muted" })}
       >
         {lead && (
           <YStack

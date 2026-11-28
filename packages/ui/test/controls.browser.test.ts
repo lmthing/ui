@@ -1,24 +1,33 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
-import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-let server: ViteDevServer, browser: Browser, page: Page;
+import { releaseGallery } from "./release-gallery";
+let server: Awaited<ReturnType<typeof releaseGallery>>, browser: Browser, page: Page;
+let starting: Promise<void> | undefined;
+const setup = new AbortController();
 const errors: string[] = [];
-beforeAll(async () => {
-  server = await createServer(galleryConfig(0));
-  await server.listen();
+beforeAll(() => (starting = startGallery()), 60000);
+async function startGallery() {
+  server = await releaseGallery(galleryConfig(0), setup.signal);
+  setup.signal.throwIfAborted();
   browser = await launchChrome();
+  setup.signal.throwIfAborted();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript(
     `globalThis.__name = (fn) => fn; globalThis.links = []; globalThis.sends = []; globalThis.changes = []; addEventListener("gallery-link", (event) => links.push(event.detail)); addEventListener("gallery-send", (event) => sends.push(event.detail)); addEventListener("gallery-change", (event) => changes.push(event.detail));`,
   );
-}, 60000);
+}
 afterAll(async () => {
-  await browser?.close();
-  await server?.close();
-});
+  setup.abort();
+  await starting?.catch(() => undefined); // The setup hook reports errors; wait for its cleanup.
+  try {
+    await browser?.close();
+  } finally {
+    await server?.close();
+  }
+}, 60000);
 const part = (address: string) => page.getByTestId(`controls/${address}`);
 async function open(kind: string) {
   errors.length = 0;

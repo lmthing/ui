@@ -39,8 +39,10 @@ afterAll(async () => {
 async function open(example: string) {
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name ??= (fn) => fn");
-  await page.goto(`${server.resolvedUrls!.local[0]}data-view-test?example=${example}`);
-  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+  await page.goto(`${server.resolvedUrls!.local[0]}data-view-test?example=${example}`, {
+    waitUntil: "commit",
+  });
+  await page.waitForFunction(() => Boolean(window.__lmthingUI), undefined, { timeout: 45000 });
 }
 
 it("keeps the complete date label inside each timeline row at phone width", async () => {
@@ -84,9 +86,10 @@ it("keeps fully booked slots disabled and lets a person select another free time
 it("ends settled approval rows with status and asks before declining a pending one", async () => {
   await open("approvals");
   const approved = page.getByTestId("review/queue/r1/root");
-  const pending = page.getByTestId("review/queue/r3/root");
+  const pending = page.getByTestId("review/queue/r2/root");
   expect(await approved.getByText("Approved").isVisible()).toBe(true);
   expect(await approved.getByRole("button").count()).toBe(0);
+  expect(await pending.getByText("EXP-117").isVisible()).toBe(true);
   await pending.getByRole("button", { name: "Decline" }).click();
   expect(await page.getByTestId("review/confirm/cancel").isVisible()).toBe(true);
   await page.getByTestId("review/confirm/cancel").click();

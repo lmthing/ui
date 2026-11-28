@@ -50,9 +50,9 @@ export const props = z
   // Expose the same code-owned back target to the reader and the screen controller.
   .overwrite((value) => ({
     ...value,
-    action: value.action,
+    action: value.style === "back" && value.action?.goto === backTarget.goto ? undefined : value.action,
     ...(value.style === "back" ? { back: backTarget } : {}),
-    ...(value.detail === "brief" ? { sub: undefined } : {}),
+    ...(value.detail === "brief" || value.sub === value.title ? { sub: undefined } : {}),
   }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -87,9 +87,10 @@ export const examples = [
     action: { icon: "plus", label: "Add a plant", goto: "new_plant" },
   },
   {
-    title: "My plants",
-    sub: "Three need water today",
-    action: { icon: "plus", label: "Add a plant", goto: "new_plant" },
+    style: "back",
+    title: "Vaccination records",
+    sub: "North clinic · Mobile outreach team",
+    action: { icon: "calendar", label: "View schedule", goto: "schedule" },
   },
 ] satisfies z.input<typeof props>[];
 
@@ -124,15 +125,23 @@ export function Header(input: Props<typeof props, typeof meta>) {
       }
       trailing={
         action ? (
-          <KitAction kind="quiet" icon={action.icon} part="action" a11y={action.label} goto={action.goto} />
+          <KitAction
+            kind="quiet"
+            icon={action.icon}
+            part="action"
+            label={action.label}
+            a11y={action.label}
+            goto={action.goto}
+            contentParts={{}}
+          />
         ) : undefined
       }
     >
-      <KitText role={role} part="title" {...{ density, emphasis }}>
+      <KitText role={role} part="title" {...{ density, emphasis }} breakLongWords>
         {title}
       </KitText>
       {sub && (
-        <KitText role="caption" tone="muted" part="sub" density={density}>
+        <KitText role="caption" tone="muted" part="sub" density={density} breakLongWords>
           {sub}
         </KitText>
       )}

@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { motion, signatures, springs } from "../../catalog";
-import { springStep } from "./animate";
+import { animateNumber, easeOut, springStep } from "./animate";
 import { countText } from "./use-motion";
 import { swipeDirection } from "../interact";
 describe("motion and gesture contracts", () => {
@@ -27,10 +27,58 @@ describe("motion and gesture contracts", () => {
     expect(swipeDirection(5, 80, "vertical")).toBe("down");
     expect(swipeDirection(5, -80, "vertical")).toBeUndefined();
   });
-  it("exports all ten signatures and bounded arrival/press tokens", () => {
-    expect(Object.keys(signatures)).toHaveLength(10);
-    expect(motion.staggerLimit).toBe(6);
+  it("bounds arrival to four groups and preserves the shared press tokens", () => {
+    expect(Object.keys(signatures)).toHaveLength(11);
+    expect(motion.staggerLimit).toBe(4);
     expect(motion.pressScale).toBeLessThan(1);
     expect(signatures.day_unfold).toMatchObject({ component: "Timeline", style: "hours" });
+    expect(signatures.record_arrive.component).toBe("HandoffReceipt");
+  });
+});
+
+describe("animation driver", () => {
+  it("carries velocity into a reversed spring and cancels the obsolete completion", () => {
+    let frame: FrameRequestCallback;
+    vi.stubGlobal("requestAnimationFrame", (run: FrameRequestCallback) => ((frame = run), 1));
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+    try {
+      let position = 0;
+      let velocity = 0;
+      const done = vi.fn();
+      const stop = animateNumber(0, 8, (value) => (position = value), {
+        onVelocity: (value) => (velocity = value),
+        done,
+      });
+      frame!(0);
+      frame!(16);
+      const prior = position;
+      stop();
+      const obsolete = frame!;
+      animateNumber(position, 0, (value) => (position = value), { velocity });
+      expect(position).toBe(prior);
+      obsolete(1000);
+      expect(done).not.toHaveBeenCalled();
+      frame!(17);
+      expect(position).toBeGreaterThan(prior);
+      for (let time = 33; time < 2000; time += 16) frame!(time);
+      expect(position).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+  it("eases timed effects without overshooting or extending their duration", () => {
+    let frame: FrameRequestCallback;
+    vi.stubGlobal("requestAnimationFrame", (run: FrameRequestCallback) => ((frame = run), 1));
+    try {
+      const update = vi.fn();
+      animateNumber(0, 1, update, { duration: 120, easing: easeOut });
+      frame!(0);
+      frame!(60);
+      expect(update).toHaveBeenLastCalledWith(0.75);
+      frame!(120);
+      expect(update).toHaveBeenLastCalledWith(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

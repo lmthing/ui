@@ -55,14 +55,15 @@ taken ones dimmed and disabled. Picking one highlights it.
 
 ### `SlotAgenda` · ready · data · phone
 
-A day of named sessions with a consistent time rail, optional locations, and explicit available,
-full, or booked states. A row opens an existing screen, it does not select or reserve a slot.
+A day of named sessions with consistent time labels, optional locations and staffing, and explicit available,
+full, or booked states. A row opens an existing screen, it does not select, assign or reserve a slot.
 
 - Pick: compare different sessions with their own times and availability. Not start times for one
   service (`Slots`) or a conference agenda filtered by track (`Sessions`).
 - Writes: `date` YYYY-MM-DD, `sessions` of `time` HH:MM, `title` text(32), `location` text(24) optional,
-  `status` (`available`, `full`, `booked`), `goto` optional, 1–12.
-- Styles: detail: `full` (default), `brief`.
+  `status` (`available`, `full`, `booked`), `goto` optional, 1–12. For staffing add optional later `end`
+  HH:MM, `assignee` text(32), `capacity` (1–999), and `filled` (0 through capacity).
+- Styles: detail: `full` (default), `brief` (hides location and assignee, not capacity).
 - Parts → actions: items `root press`. · States: filled, empty (no sessions), loading.
 - Only items with a destination are actionable.
 - Real path: read schedule and member reservations from the shared booking service; open the linked record without mutating it.

@@ -1,52 +1,57 @@
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
-import { createServer, type ViteDevServer } from "vite";
 import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-import {
-  baselineMotionKit,
-  contactSheet,
-  motionEvidenceFolder,
-  releaseGallery,
-  sampleMotionFrames,
-} from "./motion-evidence";
+import { baselineMotionKit, contactSheet, motionEvidenceFolder, sampleMotionFrames } from "./motion-evidence";
+import { releaseGallery } from "./release-gallery";
 
 type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[]; firstHeadingOpacity?: number };
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
-let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
+let server: Awaited<ReturnType<typeof releaseGallery>>, browser: Browser, page: Page;
+let starting: Promise<void> | undefined;
+const setup = new AbortController();
 const errors: string[] = [];
-beforeAll(async () => {
+beforeAll(() => (starting = startGallery()), 150000);
+async function startGallery() {
   const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
-  if (process.env.UI_MOTION_PERF || process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_RELEASE)
-    server = await releaseGallery(config, baseline);
-  else {
-    const dev = await createServer(config);
-    await dev.listen();
-    server = dev;
-  }
+  server = await releaseGallery(config, setup.signal);
+  setup.signal.throwIfAborted();
   browser = await launchChrome();
+  setup.signal.throwIfAborted();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.setDefaultTimeout(25000);
   page.on("pageerror", (error) => errors.push(error.message));
-}, 60000);
+}
 afterAll(async () => {
-  await browser?.close();
-  await server?.close();
-});
+  setup.abort();
+  await starting?.catch(() => undefined); // The setup hook reports errors; wait for its cleanup.
+  try {
+    await browser?.close();
+  } finally {
+    await server?.close();
+  }
+}, 150000);
 beforeEach(async () => {
   errors.length = 0;
   await openLab();
-}, 35000);
+}, 45000);
 
-async function openLab(motion: "no-preference" | "reduce" = "no-preference") {
+async function openLab(
+  motion: "no-preference" | "reduce" = "no-preference",
+  profile: "calm" | "lively" = process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF
+    ? "calm"
+    : "lively",
+) {
   await page.emulateMedia({ reducedMotion: motion });
-  const profile = process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF ? "calm" : "lively";
-  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=${profile}`, { waitUntil: "commit" });
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=${profile}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 20000,
+  });
   await page
     .getByText("My garden")
-    .waitFor()
+    .waitFor({ timeout: 15000 })
     .catch((cause) => {
       throw new Error(`The motion gallery did not render: ${errors.join("; ")}`, { cause });
     });
@@ -57,6 +62,372 @@ const part = (address: string) => page.getByTestId(address);
 const tap = (address: string) => part(address).click({ force: true });
 const styleOf = (address: string, property: "transform" | "opacity") =>
   part(address).evaluate((node, name) => getComputedStyle(node)[name], property);
+const scrollTopOf = (address: string, next?: number) =>
+  part(address).evaluate((node, value) => {
+    for (let frame = node.parentElement; frame; frame = frame.parentElement) {
+      if (["auto", "scroll"].includes(getComputedStyle(frame).overflowY)) {
+        if (value !== undefined) frame.scrollTop = value;
+        return frame.scrollTop;
+      }
+    }
+  }, next);
+
+async function openRecord(preference: "no-preference" | "reduce") {
+  await openMotion(preference, "record_arrive");
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "plays every scripted kind inside one phone in %s",
+  async (preference) => {
+    await openMotion(preference, "journey");
+    const phone = page.locator("[data-journey-phone]");
+    const keys = await phone.evaluateHandle((node) => node.firstElementChild);
+    const step = (name: string) => page.getByRole("button", { name, exact: true }).click({ force: true });
+    await watchJourney();
+    await step("Open walk notes");
+    await part("walk_notes/header/sub").waitFor();
+    expect(await part("walk_notes/header/back").count()).toBe(0);
+    await page.getByRole("button", { name: "Show route sheet", exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => page.getByRole("dialog", { name: "Canal route details" }).count()).toBe(1);
+    expect(await page.getByRole("dialog").getByRole("button").count()).toBe(0);
+    expect(await page.evaluate(() => window.__lmthingUI === undefined)).toBe(true);
+    expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Close route sheet");
+    await step("Close route sheet");
+    expect(await page.getByRole("dialog").count()).toBe(0);
+    await step("Back to outbox");
+    await part("dispatch/receipt/reference").waitFor();
+    await step("Switch to inbox");
+    await part("inbox/receipt/reference").waitFor();
+    await step("Show review dialog");
+    await expect.poll(() => page.getByRole("dialog", { name: "Review TROT-92 handoff" }).count()).toBe(1);
+    await step("Dismiss review dialog");
+    expect(await page.getByRole("dialog").count()).toBe(0);
+    await step("Acknowledge TROT-92");
+    expect(await part("receiving/receipt/reference").textContent()).toBe("TROT-92");
+    expect(await part("receiving/receipt/phase").textContent()).toBe("Received");
+    expect(await phone.evaluate((node, first) => node.firstElementChild === first, keys)).toBe(true);
+    const marks = await page.locator("body").getAttribute("data-journey-marks");
+    const animated = [
+      "data-screen-overlay-exiting:sheet",
+      "data-screen-overlay-exiting:modal",
+      "data-kit-outgoing-tab:",
+      "data-record-arrival:",
+    ];
+    for (const mark of animated)
+      if (preference === "reduce") expect(marks).not.toContain(mark);
+      else expect(marks).toContain(mark);
+    expect(await page.locator("body").getAttribute("data-active-ghost")).toBeNull();
+    expect(errors).toEqual([]);
+  },
+);
+
+function watchJourney() {
+  return page.evaluate(() => {
+    const seen = new Set<string>();
+    const tags = [
+      "data-screen-overlay",
+      "data-screen-overlay-exiting",
+      "data-kit-outgoing-tab",
+      "data-record-arrival",
+    ];
+    new MutationObserver((changes) => {
+      for (const change of changes) {
+        for (const node of change.type === "attributes" ? [change.target] : Array.from(change.addedNodes)) {
+          if (!(node instanceof Element)) continue;
+          for (const tag of tags) {
+            const marked = node.hasAttribute(tag) ? node : node.querySelector(`[${tag}]`);
+            if (marked) seen.add(`${tag}:${marked.getAttribute(tag)}`);
+            if (
+              marked &&
+              tag === "data-screen-overlay-exiting" &&
+              (!marked.hasAttribute("inert") || marked.querySelector("[data-testid]:not([data-testid=''])"))
+            )
+              document.body.dataset.activeGhost = "true";
+          }
+        }
+      }
+      document.body.dataset.journeyMarks = [...seen].join(";");
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: tags });
+  });
+}
+
+changed("reverses a half-open scripted sheet from its current pose", async () => {
+  await openMotion("no-preference", "journey");
+  const click = (name: string) =>
+    page.getByRole("button", { name, exact: true }).evaluate((button) => (button as HTMLElement).click());
+  await click("Open walk notes");
+  await part("walk_notes/header/sub").waitFor();
+  await page.clock.install({ time: 10000 });
+  await page.clock.pauseAt(11000);
+  try {
+    await click("Show route sheet");
+    await page.clock.runFor(48);
+    const before = Number(await page.getByRole("dialog").evaluate((node) => getComputedStyle(node).opacity));
+    expect(before).toBeGreaterThan(0);
+    expect(before).toBeLessThan(1);
+    await click("Close route sheet");
+    const visual = page.locator("[data-screen-overlay-exiting=sheet] > :last-child");
+    const pose = async () => Number(await visual.evaluate((node) => getComputedStyle(node).opacity));
+    expect(await pose()).toBeCloseTo(before, 3);
+    await page.clock.runFor(48);
+    expect(await pose()).toBeLessThan(before);
+    await page.clock.runFor(150);
+    expect(await visual.count()).toBe(0);
+  } finally {
+    await page.clock.resume();
+  }
+});
+
+async function openMotion(preference: "no-preference" | "reduce", fixture: string) {
+  await page.emulateMedia({ reducedMotion: preference });
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion=${fixture}`, {
+    waitUntil: "domcontentloaded",
+    timeout: 20000,
+  });
+  await part("dispatch/receipt/reference").waitFor({ timeout: 15000 });
+  if (fixture !== "journey") await page.waitForFunction(() => Boolean(window.__lmthingUI));
+}
+
+changed("cuts round-two screen navigation without suppressing human Back press feedback", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?nav-shell=round2_record`);
+  await part("round2_record/detail/root").click();
+  const back = part("round2_record_staff/h1/back");
+  const bounds = (await back.boundingBox())!;
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  try {
+    await expect
+      .poll(() => back.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).a))
+      .toBeLessThan(1);
+  } finally {
+    await page.mouse.up();
+  }
+  await part("round2_record/detail/root").waitFor();
+});
+
+changed.each(["no-preference", "reduce"] as const)(
+  "plays an explicit transition across remounted trees in %s",
+  async (preference) => {
+    await openMotion(preference, "navigation");
+    await page.setViewportSize({ width: 390, height: 340 });
+    try {
+      await checkCrossTree(preference);
+    } finally {
+      await page.setViewportSize({ width: 390, height: 844 });
+    }
+  },
+);
+
+async function checkCrossTree(preference: "no-preference" | "reduce") {
+  await page.evaluate(() => {
+    const original = Element.prototype.animate;
+    Element.prototype.animate = function (frames, options) {
+      if (Array.isArray(frames) && frames[0] && "transform" in frames[0])
+        document.body.dataset.transitions = `${document.body.dataset.transitions ?? ""}|${frames[0].transform}`;
+      return original.call(this, frames, options);
+    };
+    const observer = new MutationObserver(() => {
+      const title = document.querySelector('[data-testid="walk_notes/header/title"]');
+      if (!title) return;
+      observer.disconnect();
+      let x = 0;
+      for (let node: Element | null = title; node; node = node.parentElement) {
+        const t = getComputedStyle(node).transform;
+        if (t !== "none") x += new DOMMatrixReadOnly(t).m41;
+      }
+      document.body.dataset.firstScriptedX = String(x);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+  const moves = () => page.locator("body").getAttribute("data-transitions");
+  const reference = "dispatch/receipt/reference";
+  await part("dispatch/next/root").evaluate((button) => {
+    const receipt = document.querySelector('[data-testid="dispatch/receipt/reference"]');
+    let viewport = receipt?.parentElement;
+    while (viewport && !["auto", "scroll"].includes(getComputedStyle(viewport).overflowY))
+      viewport = viewport.parentElement;
+    if (!viewport) throw new Error("No source viewport");
+    viewport.scrollTop = 36;
+    if (viewport.scrollTop !== 36) throw new Error("The test did not scroll the source viewport");
+    (button as HTMLElement).click();
+  });
+  await part("walk_notes/header/sub").waitFor();
+  await expect.poll(moves).toBe(preference === "reduce" ? null : "|translateX(20px)");
+  const x = Number(await page.locator("body").getAttribute("data-first-scripted-x"));
+  if (preference === "reduce") expect(x).toBe(0);
+  else expect(x).toBeGreaterThan(0);
+  expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
+  expect(await part("walk_notes/header/back").evaluate((node) => node === document.activeElement)).toBe(true);
+  await page.keyboard.press("Enter");
+  await part(reference).waitFor();
+  await expect.poll(moves).toBe(preference === "reduce" ? null : "|translateX(20px)|translateX(-20px)");
+  expect(await part(reference).textContent()).toBe("TROT-92");
+  expect(await scrollTopOf(reference)).toBe(36);
+  await expect
+    .poll(() => part("dispatch/next/root").evaluate((node) => node === document.activeElement))
+    .toBe(true);
+  expect(errors).toEqual([]);
+}
+
+changed("restores the same control on two scripted returns to an already mounted phone", async () => {
+  await openMotion("no-preference", "navigation_mounted");
+  const next = part("dispatch/next/root");
+  const node = await next.elementHandle();
+  for (let index = 0; index < 2; index++) {
+    await next.focus();
+    await page.keyboard.press("Enter");
+    expect(await part("walk_notes/header/back").evaluate((back) => back === document.activeElement)).toBe(
+      true,
+    );
+    await page.keyboard.press("Enter");
+    await expect.poll(() => node!.evaluate((button) => button === document.activeElement)).toBe(true);
+  }
+});
+
+changed("does not restore scripted agent focus on a later render", async () => {
+  await openMotion("no-preference", "navigation_agent");
+  await tap("dispatch/next/root");
+  expect(await part("walk_notes/header/back").evaluate((node) => node === document.activeElement)).toBe(
+    false,
+  );
+  await tap("walk_notes/header/back");
+  await part("dispatch/receipt/reference").waitFor();
+  await page.evaluate(async () => {
+    window.dispatchEvent(new Event("resize"));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
+});
+
+changed("accents only an acknowledged handoff, without delaying the receipt or nav", async () => {
+  await openRecord("no-preference");
+  const phase = part("dispatch/receipt/phase");
+  const ref = part("dispatch/receipt/reference");
+  const next = part("dispatch/next/root");
+  const mark = page.locator("[data-record-arrival]");
+  expect(await phase.textContent()).toBe("Awaiting receipt");
+  expect(await mark.count()).toBe(0);
+  const origin = await ref.boundingBox();
+  await page.evaluate(() => {
+    const observer = new MutationObserver((changes) => {
+      const added = changes.some((change) =>
+        Array.from(change.addedNodes).some(
+          (node) => node instanceof Element && node.matches("[data-record-arrival]"),
+        ),
+      );
+      if (!added) return;
+      document.body.dataset.recordArrived = "true";
+      observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+  await next.focus();
+  await page.keyboard.press("Enter");
+  expect(await phase.textContent()).toBe("Received");
+  expect(await ref.textContent()).toBe("TROT-92");
+  expect(await ref.boundingBox()).toEqual(origin);
+  expect(await page.locator("body").getAttribute("data-record-arrived")).toBe("true");
+  expect(await next.evaluate((node) => document.activeElement === node)).toBe(true);
+  await page.keyboard.press("Enter");
+  await part("walk_notes/header/sub").waitFor();
+  await tap("walk_notes/header/back");
+  expect(await phase.textContent()).toBe("Received");
+  expect(await mark.count()).toBe(0);
+});
+
+changed("cuts the arrival in reduced motion and leaves a returned record quiet", async () => {
+  await openRecord("reduce");
+  await tap("dispatch/next/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Received");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await openRecord("no-preference");
+  await tap("dispatch/return/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Returned");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await tap("dispatch/next/root");
+  expect(await part("pickup_time/header/sub").textContent()).toContain("TROT-92");
+  expect(await part("pickup_time/add/root").textContent()).toBe("Send 13:43 UTC pickup");
+  await tap("pickup_time/add/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Awaiting receipt");
+  expect(await part("dispatch/receipt/summary").textContent()).toContain("13:43 UTC");
+  expect(await part("dispatch/receipt/time").textContent()).toContain("2:21 PM UTC");
+  expect(await page.locator("[data-record-arrival]").count()).toBe(0);
+  await tap("dispatch/next/root");
+  expect(await part("dispatch/receipt/phase").textContent()).toBe("Received");
+  expect(await part("dispatch/receipt/summary").textContent()).toContain("13:43 UTC");
+  expect(await part("dispatch/receipt/time").textContent()).toContain("2:25 PM UTC");
+  await tap("dispatch/next/root");
+  expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
+  expect(await page.getByText("13:43 UTC", { exact: true }).textContent()).toBe("13:43 UTC");
+});
+
+changed.each(["calm", "lively"] as const)("paints the first working frame in %s", async (profile) => {
+  await page.addInitScript(() => {
+    const observer = new MutationObserver(() => {
+      const title = document.querySelector('[data-testid="garden/heading/title"]');
+      const button = document.querySelector('[data-testid="garden/nav/r2/root"]');
+      if (!title || !button) return;
+      observer.disconnect();
+      const opacity = (node: Element) => {
+        let alpha = 1;
+        for (let parent: Element | null = node; parent; parent = parent.parentElement)
+          alpha *= Number(getComputedStyle(parent).opacity);
+        return alpha;
+      };
+      document.body.dataset.firstMotionFrame = JSON.stringify([opacity(title), opacity(button)]);
+    });
+    observer.observe(document, { subtree: true, childList: true });
+  });
+  for (const preference of ["no-preference", "reduce"] as const) {
+    await openLab(preference, profile);
+    expect(await page.locator("body").getAttribute("data-first-motion-frame")).toBe("[1,1]");
+  }
+});
+
+changed("does not replay or arm insertion when a mounted group crosses the stagger cutoff", async () => {
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion=insertions`, { timeout: 20000 });
+  const control = part("route_notes/advance/root");
+  await page.waitForFunction(() => Boolean(window.__lmthingUI), { timeout: 20000 });
+  const firstFrame = () =>
+    control.evaluate(async (button) => {
+      (button as HTMLElement).click();
+      await new Promise(requestAnimationFrame);
+      const offset = (id: string) => {
+        let y = 0;
+        const text = document.querySelector(`[data-testid="route_notes/${id}/text"]`);
+        for (let node = text; node; node = node.parentElement) {
+          const transform = getComputedStyle(node).transform;
+          if (transform !== "none") y += new DOMMatrixReadOnly(transform).m42;
+        }
+        return y;
+      };
+      return [offset("early"), offset("late")];
+    });
+  const [early, late] = await firstFrame();
+  expect(early).toBeGreaterThan(0);
+  expect(late).toBe(0);
+  await page.waitForTimeout(750);
+  expect(await firstFrame()).toEqual([0, 0]);
+  expect(await firstFrame()).toEqual([0, 0]);
+});
+
+changed("restores keyboard focus on Back even while the push is still running", async () => {
+  const origin = part("garden/plants/r1/root");
+  const top = (next?: number) => scrollTopOf("garden/plants/r1/root", next);
+  await origin.focus();
+  expect(await top(36)).toBe(36);
+  await page.waitForTimeout(60); // Deliver the native scroll event, then interrupt Back rather than the scroll.
+  await tap("garden/plants/r1/root");
+  const back = part("fern/heading/back");
+  await back.focus();
+  await page.keyboard.press("Enter");
+  await expect
+    .poll(() => origin.evaluate((node) => document.activeElement === node), { timeout: 6000 })
+    .toBe(true);
+  expect(await top()).toBe(36);
+  expect(await page.locator("[data-kit-outgoing-tab]").count()).toBe(0);
+});
 
 async function focused(address: string) {
   return part(address).evaluate((node) => node === document.activeElement);
@@ -247,7 +618,7 @@ changed("offers visible, keyboard-operable alternatives to swiping and restores 
   await page.keyboard.press("Space");
   await expect.poll(() => focused("controls/s1/r3/root")).toBe(true);
   await page.keyboard.press("ArrowLeft");
-  const complete = page.getByRole("status").filter({ hasText: "All cards reviewed" });
+  const complete = page.getByRole("status").filter({ hasText: "No cards left to review" });
   await expect
     .poll(() =>
       complete.evaluate((node) => {
@@ -486,7 +857,7 @@ changed("does not replay an agent reorder on the next human input", async () => 
   await page.evaluate(() => window.__lmthingUI!.act({ address: "today/link", action: "press" }));
   await part("garden/plants/r4/root").waitFor();
   await tap("garden/plants/r2/trail");
-  expect(await part("garden/plants/r2/trail").getAttribute("aria-checked")).toBe("true");
+  await expect.poll(() => part("garden/plants/r2/trail").getAttribute("aria-checked")).toBe("true");
   expect(
     await page
       .locator("[data-list-motion]")
@@ -510,17 +881,16 @@ changed("refreshes reorder origins after height-neutral row edits", async () => 
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
   );
-  await tap("garden/today/link");
+  await row.evaluate((node) => {
+    const original = node.animate;
+    node.animate = function (frames, options) {
+      this.setAttribute("data-test-flight", JSON.stringify(frames));
+      return original.call(this, frames, options);
+    };
+    document.querySelector<HTMLElement>('[data-testid="garden/today/link"]')!.click();
+  });
   const delta = resized.top - (await layout()).top;
-  expect(
-    await row.evaluate((node) =>
-      node
-        .getAnimations()
-        .flatMap((animation) =>
-          (animation.effect as KeyframeEffect).getKeyframes().map((frame) => frame.transform),
-        ),
-    ),
-  ).toContain(`translateY(${delta}px)`);
+  expect(await row.getAttribute("data-test-flight")).toContain(`translateY(${delta}px)`);
 });
 
 changed("replaces tabs with an inert outgoing picture during the cross-fade", async () => {
@@ -680,6 +1050,40 @@ it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
     expect(errors).toEqual([]);
   },
   180000,
+);
+
+it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
+  "captures normal and reduced handoff evidence",
+  async () => {
+    const prefix = baseline ? "before" : "after";
+    for (const preference of ["no-preference", "reduce"] as const) {
+      const mode = preference === "reduce" ? "reduced" : "normal";
+      await openRecord(preference);
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-acknowledge`, async () => {
+        if (baseline) return tap("dispatch/next/root");
+        await part("dispatch/next/root").focus();
+        await page.keyboard.press("Enter");
+      });
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-review`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-back`, () =>
+        tap("walk_notes/header/back"),
+      );
+      await openRecord(preference);
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-return`, () =>
+        tap("dispatch/return/root"),
+      );
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-pickup`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-handoff-${mode}-resubmit`, () =>
+        tap("pickup_time/add/root"),
+      );
+      await openMotion(preference, "navigation");
+      await contactSheet(browser, page, `${prefix}-cross-tree-${mode}-push`, () => tap("dispatch/next/root"));
+      await contactSheet(browser, page, `${prefix}-cross-tree-${mode}-back`, () =>
+        tap("walk_notes/header/back"),
+      );
+    }
+    expect(errors).toEqual([]);
+  },
 );
 
 it.runIf(Boolean(process.env.UI_MOTION_PERF))(

@@ -123,7 +123,20 @@ describe("Success metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "undo", "close", "photo"],
+      parts: [
+        "root",
+        "icon",
+        "title",
+        "sub",
+        "owner",
+        "next",
+        "subject",
+        "when",
+        "receipt",
+        "undo",
+        "close",
+        "photo",
+      ],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");
@@ -131,10 +144,10 @@ describe("Success metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Empty");
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Success" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       expect: { address: "s1/undo", action: "press" },
@@ -171,4 +184,18 @@ it.each(["screen", "toast"] as const)("brief hides sub but preserves %s actions"
   expect(affordancesOf(meta, props.parse(brief), "s1")).toEqual(
     affordancesOf(meta, props.parse(input), "s1"),
   );
+});
+
+it("shows artwork with a structured receipt", () => {
+  const input = {
+    title: "Care notes saved",
+    outcome: "done",
+    receipt: "Record FN-104",
+    photo: { kind: "success", subject: "potted fern" },
+  };
+  const html = renderInstance("Success", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('data-testid="home/c1/photo"');
+  expect(html).toContain('data-testid="home/c1/icon"');
+  expect(html).toContain('data-testid="home/c1/receipt"');
+  expect(html).toContain(input.receipt);
 });

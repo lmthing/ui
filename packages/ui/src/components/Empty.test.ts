@@ -75,6 +75,21 @@ it("brief hides only the explanation and preserves the retry action and its addr
   expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual(["c1/retry"]);
 });
 
+it.each(["error", "offline"] as const)("shows artwork without losing the %s retry", (kind) => {
+  const input = { title: "Couldn't load", kind, photo: { kind: "error", subject: "empty pot" } };
+  const html = renderInstance("Empty", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('data-testid="home/c1/photo"');
+  expect(html).toContain('data-testid="home/c1/retry"');
+  expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual(["c1/retry"]);
+});
+
+it.each(["filtered", "complete"] as const)("rejects either artwork slot for %s", (kind) => {
+  for (const slot of ["empty_state", "error"])
+    expect(
+      props.safeParse({ title: "No walks", kind, photo: { kind: slot, subject: "empty pot" } }).success,
+    ).toBe(false);
+});
+
 describe("Empty fallback", () => {
   it("validates empty, matching, mixed and malformed casts", () => {
     const casts: CastLike[] = [
@@ -118,6 +133,14 @@ describe("Empty fallback", () => {
   });
 });
 
+it.each(examples.slice(-3))("announces $title without offering retry", (input) => {
+  const html = renderInstance("Empty", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('role="status"');
+  expect(html).not.toContain('data-testid="home/c1/retry"');
+  expect(affordancesOf(meta, props.parse(input), "c1")).toEqual([]);
+  expect(readComponent(components.Empty, input, "c1").join(" ")).toContain(input.title);
+});
+
 describe("Empty metadata and probes", () => {
   it("has the required metadata and well-formed choose and write probes", () => {
     expect(meta).toMatchObject({
@@ -135,13 +158,16 @@ describe("Empty metadata and probes", () => {
     expect(meta.pick).toContain("Hero");
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Note");
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Empty" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      expect: { address: "e1/retry", action: "press" },
+    });
     for (const probe of probes) {
-      const wording = probe.kind === "choose" ? probe.need : probe.brief;
+      const wording =
+        probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : probe.task;
       for (const name of [meta.id, "Hero", "Note"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
@@ -152,7 +178,7 @@ describe("Empty metadata and probes", () => {
     const nearMiss = probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero");
     expect(nearMiss).toMatchObject({
       kind: "choose",
-      need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+      need: expect.stringContaining("the single big headline of my plant dashboard"),
       expect: "Hero",
     });
     if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");

@@ -23,6 +23,6 @@ export const example =
   '{"id":"b2","c":"Button","label":"Send request"}\n' +
   '{"id":"h6","c":"Header","title":"Manager requests"}\n' +
   '{"id":"s3","c":"Segmented","options":[{"label":"Requests"},{"label":"Hours"}],"at":0}\n' +
-  '{"id":"a1","c":"Approval","requests":[{"from":"Lee","photo":"lib:people","kind":"time_off","title":"Monday off","dates":"23 Nov","note":"Rae can cover Monday opening."}]}\n' +
+  '{"id":"a1","c":"Approval","requests":[{"from":"Lee","photo":"lib:people","kind":"time_off","title":"Monday off","reference":"LV-117","dates":"23 Nov","note":"Rae can cover Monday opening."}]}\n' +
   '{"id":"h7","c":"Header","title":"Weekly hours"}\n' +
   '{"id":"t2","c":"Timesheet","period":"16–22 Nov 2026","rows":[{"name":"Lee","hours":[6,0,0,0,0,6,0],"approved":false},{"name":"Rae","hours":[6,0,0,0,0,0,6],"approved":true}]}\n';

@@ -104,7 +104,23 @@ describe("SwipeStack fallback", () => {
     expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty")).toEqual([
       "s1 SwipeStack (empty)",
     ]);
+    expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty", { "s1/$cursor": 1 })).toEqual(
+      ["s1 SwipeStack (empty)"],
+    );
+    expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty", { "s1/$cursor": 2 })).toEqual(
+      ["s1 SwipeStack (empty) No cards left to review"],
+    );
+    const html = renderInstance("SwipeStack", { cards: pair }, "empty", {
+      preset: "calm",
+      mode: "light",
+      accent: "moss",
+    });
+    expect(html).toContain("Nothing here yet");
+    expect(html).not.toContain('role="button"');
   });
+});
+
+describe("SwipeStack affordances", () => {
   it.each([2, 3, 6])("offers swipe only on the first of %i cards", (count) => {
     const cards = Array.from({ length: count }, (_, index) => ({ title: `Choice ${index}` }));
     const value = stampItemIds(meta, props.parse({ cards }));

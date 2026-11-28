@@ -10,7 +10,7 @@ export const meta = createMeta(
   {
     week: [
       ...timelineHint,
-      'Lead with a Header naming the week’s agenda, e.g. "Appointments this week". In its subtitle give the span from first to last event and the event count, e.g. "Nov 18–20 · 2 appointments". Next show the week Calendar under its supplied month and year, with tone good on event dates.',
+      'Use the same specific title for the screen and Header, naming what is scheduled this week, e.g. "Appointments this week". In Header.sub give the span from first to last event and the event count, e.g. "Nov 18–20 · 2 appointments". Next show the week Calendar under its supplied month and year, with tone good on event dates.',
       'Below the Calendar, list all the supplied events for that week in date and time order. Keep the names and times, then put the readable date and supplied purpose in each meta, e.g. "Nov 18 · Routine review". This is an agenda: done is null.',
       "The subtitle and every event's date and purpose must stay visible. Emit literal null for Header.emphasis, Header.detail and Timeline.detail.",
     ],

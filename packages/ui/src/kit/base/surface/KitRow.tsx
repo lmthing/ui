@@ -37,6 +37,7 @@ type RowProps = {
   children: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
+  trailingAlign?: "line" | "row";
   goto?: string | undefined;
   label: string;
   lineRole?: LineRole;
@@ -170,6 +171,7 @@ function RowTextRail({
   line,
   children,
   trailing,
+  trailingAlign,
   selected,
   rowTone,
   warningId,
@@ -183,7 +185,7 @@ function RowTextRail({
           {selected && <KitStateMark kind="selected" />}
           {rowTone === "warn" && <KitStateMark kind="warning" id={warningId} />}
         </YStack>
-        {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+        <RowTrailing line={line} align={trailingAlign} slot={trailing} />
       </RowGroupLead.Provider>
     </RowLabelContext.Provider>
   );
@@ -209,10 +211,19 @@ function RowLeading({
   );
 }
 
-function RowTrailing({ line, children }: { line: number; children: ReactNode }) {
+function RowTrailing({
+  line,
+  align,
+  slot,
+}: {
+  line: number;
+  align?: RowProps["trailingAlign"];
+  slot?: ReactNode;
+}) {
+  if (!slot) return null;
   return (
-    <Edge height={line}>
-      <XStack alignItems="center">{children}</XStack>
+    <Edge height={line} alignSelf={align === "row" ? "center" : "flex-start"}>
+      <XStack alignItems="center">{slot}</XStack>
     </Edge>
   );
 }

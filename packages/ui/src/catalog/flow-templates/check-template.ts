@@ -44,6 +44,9 @@ function checkStep(
     checkSlots(template, step.preview.title, report);
     if (step.preview.action) checkSlots(template, step.preview.action, report);
   }
+  if (step.preview?.search) checkSearchPreview(template, step, report);
+  checkSpecialPreview(template, step, report);
+  for (const { label } of step.choices ?? []) checkSlots(template, label, report);
   const layout = step.layout;
   if (step.preview?.demoInputs && (!("components" in layout) || !layout.components.includes("Field")))
     report("Demo inputs require a Field in the layout");
@@ -55,6 +58,11 @@ function checkStep(
     for (const id of layout.components) {
       if (!lookups.component(id)) report(`Unknown component: ${id}`);
     }
+    if (layout.components.includes("HandoffReceipt")) {
+      if (!step.preview?.receipt) report("HandoffReceipt preview needs an explicit phase");
+      for (const key of ["subject", "reference", "sender", "recipient"])
+        if (template.recordShape[key] !== "string") report(`HandoffReceipt needs string record field ${key}`);
+    }
   }
   const handoff = step.hands_off_to;
   if (!handoff) return;
@@ -64,6 +72,48 @@ function checkStep(
     ?.steps.find(({ id }) => id === handoff.step);
   if (!target || target.optional || handoff.role === role) {
     report(`Invalid hand-off: ${role}/${step.id} -> ${handoff.role}/${handoff.step}`);
+  }
+}
+
+function checkSpecialPreview(template: FlowTemplate, step: Step, report: Report) {
+  const preview = step.preview;
+  const parts = "components" in step.layout ? step.layout.components : [];
+  const thread = preview?.thread;
+  if ((parts.includes("Bubbles") || parts.includes("Composer")) && !thread)
+    report("Bubbles and Composer previews need a thread");
+  if (parts.includes("Composer") && (!thread?.compose || step.choices || step.next === null))
+    report("Composer preview needs one field and one forward destination");
+  if (parts.includes("Choice") && !preview?.choice) report("Choice preview needs options");
+  if (parts.includes("Steps") && (!preview?.progress || preview.progress.at > preview.progress.count))
+    report("Steps preview needs a valid progress position");
+  const keys = thread?.messages.map(({ field }) => field) ?? [];
+  if (thread?.compose) keys.push(thread.compose);
+  if (preview?.retry && (template.recordShape[preview.retry] !== "boolean" || !preview.messages?.error))
+    report("Preview retry needs a boolean record field and error copy");
+  if (preview?.choice) keys.push(preview.choice.field, ...preview.choice.options);
+  const total = preview?.choice?.total;
+  if (total) {
+    keys.push(total.field);
+    if (template.recordShape[total.unitPrice] !== "number") report("Preview unit price must be numeric");
+  }
+  if (parts.includes("Profile")) keys.push("display_name", "profile_context");
+  for (const key of keys)
+    if (template.recordShape[key] !== "string") report(`Preview needs string record field ${key}`);
+}
+
+function checkSearchPreview(template: FlowTemplate, step: Step, report: Report) {
+  const search = step.preview!.search!;
+  checkSlots(template, search.hint, report);
+  unique(
+    search.results.map(({ step: target }) => target),
+    "search result destination",
+    report,
+  );
+  for (const { title, category, detail, step: target } of search.results) {
+    for (const key of [title, category, detail])
+      if (template.recordShape[key] !== "string") report(`Search result needs string record field ${key}`);
+    if (!step.choices?.some(({ step: destination }) => destination === target))
+      report(`Undeclared search result destination: ${target}`);
   }
 }
 

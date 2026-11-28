@@ -4,6 +4,7 @@ import {
   clock,
   isoDate,
   itemsOf,
+  numberLine,
   placeholderTitle,
   probesFor,
   screenId,
@@ -43,9 +44,12 @@ export const meta = {
   weight: 2,
   realPath: "Read a shared schedule and open an existing booking screen without reserving a place.",
   variants: { detail: ["full", "brief"] },
-  variantParts: { "detail.brief": { hides: ["location"] } },
+  variantParts: { "detail.brief": { hides: ["location", "assignee"] } },
   parts: ["root", "date", "empty"],
-  items: { key: "sessions", parts: ["root", "time", "title", "location", "status", "open"] },
+  items: {
+    key: "sessions",
+    parts: ["root", "time", "title", "location", "assignee", "capacity", "status", "open"],
+  },
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
   states: ["filled", "empty", "loading"],
   readInState: (_input, state) => state === "empty",
@@ -55,17 +59,30 @@ export const meta = {
     const { date, sessions } = input as z.output<typeof props>;
     return [
       appointmentDate(date, lang),
-      ...sessions.map(({ status }, index) => `r${index + 1} ${slotAgenda[status]}`),
+      ...sessions.map(
+        (row, index) =>
+          `r${index + 1} ${[timeLine(row), slotAgenda[row.status], row.assignee && slotAgenda.assignedTo(row.assignee), capacityLine(row, lang)].filter(Boolean).join(" · ")}`,
+      ),
     ];
   },
 } as const satisfies Meta;
-const session = z.strictObject({
-  time: clock.meta({ kind: "text" }),
-  title: text(32),
-  location: text(24).optional(),
-  status: z.enum(["available", "full", "booked"]).meta({ read: false }),
-  goto: screenId.optional(),
-});
+const session = z
+  .strictObject({
+    time: clock.meta({ kind: "text", read: false }),
+    end: clock.optional().meta({ read: false }),
+    title: text(32),
+    location: text(24).optional(),
+    assignee: text(32).optional(),
+    capacity: z.int().min(1).max(999).optional(),
+    filled: z.int().min(0).max(999).optional(),
+    status: z.enum(["available", "full", "booked"]).meta({ read: false }),
+    goto: screenId.optional(),
+  })
+  .refine(
+    ({ time, end, capacity, filled }) =>
+      (!end || time < end) && (filled === undefined || (capacity !== undefined && filled <= capacity)),
+    { message: "End follows start; occupancy fits capacity" },
+  );
 
 export const props = z
   .strictObject({
@@ -78,7 +95,7 @@ export const props = z
     sessions: input.sessions.map((row) => ({
       ...row,
       linked: Boolean(row.goto),
-      ...(input.detail === "brief" ? { location: undefined } : {}),
+      ...(input.detail === "brief" ? { location: undefined, assignee: undefined } : {}),
     })),
   }));
 
@@ -133,6 +150,30 @@ export const examples = [
     ],
   },
   { ...garden, detail: "brief" },
+  {
+    date: "2026-11-29",
+    sessions: [
+      {
+        time: "08:00",
+        end: "09:30",
+        title: "Meadow group walk",
+        assignee: "Nia",
+        capacity: 6,
+        filled: 4,
+        status: "available",
+        goto: "staff_meadow",
+      },
+      {
+        time: "11:00",
+        end: "12:30",
+        title: "Riverside puppy walk",
+        assignee: "Sam",
+        capacity: 4,
+        filled: 4,
+        status: "full",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SlotAgenda");
@@ -158,13 +199,31 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Show staffing for 2026-11-29: Meadow group walk from 08:00 to 09:30, assigned to Nia, 4 of 6 places filled and still available, with staff_meadow as the detail link.",
+    ),
+    fields: { "sessions.0.assignee": "Nia", "sessions.0.capacity": 6, "sessions.0.filled": 4 },
+  },
+  choose(
+    "Show one day of named sessions so I can see the start times, who is staffed on each session, and the number of places filled.",
+  ),
 ] satisfies Probe[];
 
 type AgendaProps = Props<typeof props, typeof meta>;
 const statusTone = { available: "good", full: "muted", booked: "accent" } as const;
 
+const timeLine = ({ time, end }: z.output<typeof session>) => (end ? `${time}–${end}` : time);
+function capacityLine({ capacity, filled }: z.output<typeof session>, lang?: string) {
+  if (capacity === undefined) return undefined;
+  const words = bookingWordsFor(lang).slotAgenda;
+  return filled === undefined
+    ? words.capacity(numberLine(capacity, lang))
+    : words.occupancy(numberLine(filled, lang), numberLine(capacity, lang));
+}
+
 function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
-  const { words } = useWords(bookingWordsFor);
+  const { words, lang } = useWords(bookingWordsFor);
   const density = useKit().density;
   const active = useComponentState() === "filled";
   return (
@@ -177,7 +236,7 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
           inset="none"
           label={row.title}
           goto={active ? row.goto : undefined}
-          leading={<KitLayoutText line={{ text: row.time, part: "time", role: "meta", tabular: true }} />}
+          trailingAlign="row"
           trailing={
             row.goto &&
             (active ? (
@@ -188,8 +247,8 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
           }
         >
           <KitContent rhythm="flush" density={density}>
+            <KitLayoutText line={{ text: timeLine(row), part: "time", role: "meta", tabular: true }} />
             <KitLayoutText line={{ text: row.title, part: "title", strong: true }} />
-            <KitLayoutText line={{ text: row.location, part: "location", role: "meta", tone: "muted" }} />
             <KitLayoutText
               line={{
                 text: words.slotAgenda[row.status],
@@ -198,6 +257,18 @@ function AgendaRows({ sessions }: Pick<AgendaProps, "sessions">) {
                 tone: statusTone[row.status],
               }}
             />
+            <KitLayoutText line={{ text: row.location, part: "location", role: "meta", tone: "muted" }} />
+            {row.assignee && (
+              <KitLayoutText
+                line={{
+                  text: words.slotAgenda.assignedTo(row.assignee),
+                  part: "assignee",
+                  role: "meta",
+                  tone: "muted",
+                }}
+              />
+            )}
+            <KitLayoutText line={{ text: capacityLine(row, lang), part: "capacity", role: "meta" }} />
           </KitContent>
         </KitRow>
       ))}

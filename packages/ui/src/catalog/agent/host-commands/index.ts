@@ -25,7 +25,15 @@ export type HostOperation = Readonly<{
 }>;
 type Input = { props: Readonly<Values>; row: Readonly<Values> | undefined };
 type Binding =
-  | { kind: "command"; name: string; input?: (input: Input) => HostFields | undefined }
+  | {
+      kind: "command";
+      name: string;
+      input?: (input: Input) => HostFields | undefined;
+      confirmation?: (
+        request: CommandRequest,
+        lang?: string,
+      ) => { message: string; label: string } | undefined;
+    }
   | { kind: "external"; uri: (input: Input) => string | undefined }
   | { kind: "cancel" };
 type Bindings = Readonly<Partial<Record<`${string}.${ActionName}`, Binding>>>;
@@ -36,6 +44,8 @@ export type HostCommands = {
   identity?: (input: Input) => string | undefined;
   /** Public record fields to include in read; request data is never read. */
   readFields?: readonly string[];
+  /** Withhold these actions after the current subject's host decision is accepted. */
+  settle?: readonly `${string}.${ActionName}`[];
 };
 export type HostCommandMeta = {
   /** Declared part/action pairs retained in loading or while a host operation is pending. */
@@ -128,7 +138,9 @@ export function hostOffer(
   const bindings = isRow ? meta.hostCommands?.items : meta.hostCommands?.parts;
   const binding = Object.hasOwn(bindings ?? {}, pair) ? bindings![pair] : undefined;
   const subject = meta.hostCommands && (!isRow || row) ? subjectAt(meta, instance, props, row) : undefined;
-  const pending = subject && policy?.operation?.(subject)?.status === "pending";
+  const phase = subject && policy?.operation?.(subject)?.status;
+  if (phase === "accepted" && meta.hostCommands?.settle?.includes(pair)) return;
+  const pending = phase === "pending";
   if (pending && (binding ? binding.kind !== "cancel" : !meta.loadingActions?.includes(pair))) return;
   if (!binding)
     return detail.startsWith("→") && policy?.allowsLink?.(detail.slice(1)) === false ? undefined : offer;
@@ -148,7 +160,7 @@ export function readHostOperations(
   instance: string,
   policy: HostActionPolicy | undefined,
   peekOpen: boolean,
-): string[] {
+): HostOperation[] {
   if (!policy?.operation || !meta.hostCommands) return [];
   const fields = meta.hostCommands.readFields ?? [];
   const limit =
@@ -171,12 +183,28 @@ export function readHostOperations(
     if (!operation) return [];
     const records = fields.length
       ? operation.records?.map((row) =>
-          Object.fromEntries(fields.filter((k) => Object.hasOwn(row, k)).map((k) => [k, row[k]])),
+          Object.fromEntries(
+            fields.flatMap((key) => {
+              const value = row[key];
+              return value === undefined || !Object.hasOwn(row, key) ? [] : [[key, value] as const];
+            }),
+          ),
         )
       : undefined;
-    const at = subject.row ? `${instance}/${subject.row}` : instance;
     return [
-      `${at} operation ${operation.name} ${operation.status}${records?.length ? ` ${JSON.stringify(records)}` : ""}`,
+      {
+        name: operation.name,
+        status: operation.status,
+        ...(subject.row ? { row: subject.row } : {}),
+        ...(records?.length ? { records } : {}),
+      },
     ];
+  });
+}
+
+export function formatHostOperations(instance: string, operations: readonly HostOperation[]) {
+  return operations.map(({ row, name, status, records }) => {
+    const at = row ? `${instance}/${row}` : instance;
+    return `${at} operation ${name} ${status}${records?.length ? ` ${JSON.stringify(records)}` : ""}`;
   });
 }
