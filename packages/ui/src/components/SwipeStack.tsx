@@ -161,7 +161,7 @@ export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
   const density = useKit().density;
   return (
-    <KitCard style={state === "empty" ? "inset" : "plain"} part="root">
+    <KitCard style="plain" part="root">
       <KitSwipeStack
         empty={state === "empty" ? <KitEmpty part="title" /> : undefined}
         cards={cards.map((card) => ({

@@ -98,7 +98,6 @@ function useSwipeFocus(cursor: number) {
   const { nativeHost } = useKit();
   const root = useRef<TamaguiElement>(null);
   const first = useRef<TamaguiElement>(null);
-  const terminal = useRef<TamaguiElement>(null);
   const restore = useRef(false);
   const request = () => {
     restore.current =
@@ -113,7 +112,7 @@ function useSwipeFocus(cursor: number) {
     // Read the ref after the terminal content has committed.
     const active = isWeb ? document.activeElement : undefined;
     const frame = requestAnimationFrame(() => {
-      const target = terminal.current ?? first.current;
+      const target = first.current ?? root.current;
       if (!target) return;
       if (!isWeb) {
         nativeHost?.focusAccessibility?.(target);
@@ -122,12 +121,12 @@ function useSwipeFocus(cursor: number) {
       const node = target as HTMLElement;
       const focused = node.ownerDocument.activeElement;
       if (!node.isConnected || (focused !== active && focused !== node.ownerDocument.body)) return;
-      if (target === terminal.current) node.tabIndex = -1;
+      if (target === root.current) node.tabIndex = -1;
       node.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
   }, [cursor, nativeHost]);
-  return { root, first, terminal, request, cancel };
+  return { root, first, request, cancel };
 }
 
 /**
@@ -143,41 +142,41 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
   const visible = cards.slice(cursor);
   const behind = visible.slice(1, 3);
   const peek = component.base.stackPeek;
-  const { root, first, terminal, request, cancel } = useSwipeFocus(cursor);
-  const front = visible[0];
-  if (!front || empty) {
-    if (!cursor) return empty ?? null;
-    return (
-      <YStack
-        ref={terminal}
-        accessibilityRole="status"
-        aria-live="polite"
-        {...(isWeb ? { tabIndex: -1 } : {})}
-      >
-        <KitText role="label" part={null}>
-          {swipeComplete}
-        </KitText>
-      </YStack>
-    );
-  }
-  const address = formatAddress({ ...context, item: front.id, part: "root" });
+  const { root, first, request, cancel } = useSwipeFocus(cursor);
+  const front = empty ? undefined : visible[0];
+  const finished = !front && cursor >= cards.length && cursor > 0;
+  const address = front && formatAddress({ ...context, item: front.id, part: "root" });
   const move =
-    interactive && controller
+    interactive && controller && address
       ? (direction: Direction) => {
           request();
           if (!controller.act({ address, action: "swipe", value: direction }).ok) cancel();
         }
       : undefined;
   return (
-    <YStack ref={root} gap={space.sm}>
-      <YStack paddingBottom={behind.length * peek} paddingTop={space.xs}>
-        <StackBackdrop cards={behind} />
-        <PartContext.Provider value={{ ...context, item: front.id }}>
-          <Front key={front.id} label={front.label} move={move} target={first}>
-            {front.children}
-          </Front>
-        </PartContext.Provider>
-      </YStack>
+    <YStack
+      ref={root}
+      gap={space.sm}
+      accessibilityRole={finished ? "status" : undefined}
+      aria-live={finished ? "polite" : undefined}
+      {...(isWeb && finished ? { tabIndex: -1 } : {})}
+    >
+      {front ? (
+        <YStack paddingBottom={behind.length * peek} paddingTop={space.xs}>
+          <StackBackdrop cards={behind} />
+          <PartContext.Provider value={{ ...context, item: front.id }}>
+            <Front key={front.id} label={front.label} move={move} target={first}>
+              {front.children}
+            </Front>
+          </PartContext.Provider>
+        </YStack>
+      ) : finished ? (
+        <KitText role="label" part={null}>
+          {swipeComplete}
+        </KitText>
+      ) : (
+        empty
+      )}
       {move && (
         <XStack gap={space.sm} justifyContent="space-between">
           <KitLocalAction label={swipeLabels.left} onPress={() => move("left")} />
