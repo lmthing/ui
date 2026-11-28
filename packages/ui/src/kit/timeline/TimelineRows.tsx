@@ -8,7 +8,14 @@ type EventRow = {
   kind: "event";
   item: string;
   tone?: AxisValue<"tone"> | undefined;
-  slots: { title: TimelineLine; time: TimelineLine; detail?: TimelineLine; done?: boolean };
+  inlineTime?: boolean;
+  slots: {
+    title: TimelineLine;
+    time: TimelineLine;
+    summary?: TimelineLine;
+    detail?: TimelineLine;
+    done?: boolean;
+  };
 };
 type SummaryRow = {
   kind: "summary";
@@ -86,7 +93,7 @@ function rowEdges(row: Row) {
       ),
     };
   return {
-    leading: <KitTime value={time.text} part={time.part} wrap />,
+    leading: row.inlineTime ? undefined : <KitTime value={time.text} part={time.part} wrap />,
     leadingAlign: "start" as const,
     trailing: row.slots.done ? <KitIcon name="check" decorative /> : undefined,
   };
@@ -107,6 +114,7 @@ function TimelineRow({
   const rail = row.kind === "rail";
   const { title } = row.slots;
   const detail = summary ? undefined : row.slots.detail;
+  const publicLine = "summary" in row.slots ? row.slots.summary : undefined;
   const textDensity = rail ? "comfortable" : density;
   return (
     <KitRow
@@ -115,6 +123,7 @@ function TimelineRow({
       label={summary ? row.label : title.text}
       {...(summary ? { role: "button", inline: true } : {})}
       goto={rail ? row.goto : undefined}
+      inset={row.kind === "event" && row.inlineTime ? "none" : "md"}
       tone={row.kind === "event" ? row.tone : undefined}
       density={density}
       {...rowEdges(row)}
@@ -123,9 +132,19 @@ function TimelineRow({
         <SummarySlots slots={row.slots} date={date} later={later} />
       ) : (
         <>
+          {row.kind === "event" && row.inlineTime && (
+            <KitText part={row.slots.time.part} role="caption" tone="muted" tabular density={textDensity}>
+              {row.slots.time.text}
+            </KitText>
+          )}
           <KitText part={title.part} role="body" density={textDensity}>
             {title.text}
           </KitText>
+          {publicLine && (
+            <KitText part={publicLine.part} role="body" density={textDensity}>
+              {publicLine.text}
+            </KitText>
+          )}
           {detail && (
             <KitText part={detail.part} role={rail ? "label" : "caption"} tone="muted" density={textDensity}>
               {detail.text}

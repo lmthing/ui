@@ -13,6 +13,7 @@ import {
   type Probe,
   type Props,
   variantProps,
+  wordsFor,
 } from "../catalog";
 import {
   KitCard,
@@ -22,12 +23,16 @@ import {
   KitSwipeStack,
   KitText,
   useComponentState,
+  useControlValue,
   useKit,
+  usePartContext,
+  useWords,
 } from "../kit";
 import { prompt } from "../entry/prompt-SwipeStack.generated";
 
 export const meta = {
   id: "SwipeStack",
+  status: "ready",
   signature: "card_swipe",
   group: "content",
   purpose: prompt.purpose,
@@ -45,6 +50,9 @@ export const meta = {
   items: { key: "cards", parts: ["root", "photo", "title", "meta"], visible: "first" },
   parts: ["root"],
   states: ["filled", "empty"],
+  readInState: (_input, state) => state === "empty",
+  read: (_input, state, lang, _data, _currency, get) =>
+    state === "empty" && Number(get?.("$cursor") ?? 0) > 0 ? [wordsFor(lang).swipeStackEmpty] : [],
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
 } as const satisfies Meta;
 
@@ -109,7 +117,10 @@ export const examples = [
 const { choose, write, read } = probesFor("SwipeStack");
 export const probes = [
   choose("Help me pick plants to adopt, showing one at a time so I can swipe to keep or skip"),
-  choose("Show four plant pictures together with their names underneath so I can browse them", "Gallery"),
+  choose(
+    "I want a grid of four plant photos, with a name below each image. The pictures are the main thing, not a list of plant records.",
+    "Gallery",
+  ),
   write(
     "Pick dogs for a group walk, one at a time: Clover with a dog photo and Ready for a group walk, Pip with Gentle park companion, and Milo",
   ),
@@ -160,10 +171,17 @@ function SwipeCard({ card, compact }: { card: StackProps["cards"][number]; compa
 export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
   const density = useKit().density;
+  const { swipeStackEmpty } = useWords().words;
+  const { screen, component } = usePartContext();
+  const cursor = useControlValue(`${screen}/${component}/$cursor`, 0);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitEmpty part="title" />
+        {cursor >= cards.length ? (
+          <KitEmpty part="title" title={swipeStackEmpty} announce="status" />
+        ) : (
+          <KitEmpty part="title" />
+        )}
       </KitCard>
     );
   }

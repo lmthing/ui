@@ -137,6 +137,12 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   const host = ctx.options.attachments;
   if (!host || ctx.status.disposed) return;
   const { address, spec } = offer;
+  if (spec.intent === "remove") {
+    detach(ctx, jobs, offer);
+    return;
+  }
+  const command = attachmentCommand(ctx.screen.id, offer);
+  if (!command) return;
   discardConsumed(ctx, jobs, address);
   const token = ctx.mounted.get(address);
   const prior = ctx.attachmentEntries.get(address);
@@ -156,7 +162,7 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   try {
     if (current() && admitted(ctx, offer, job))
       output = await host.run({
-        ...attachmentCommand(ctx.screen.id, offer),
+        ...command,
         ...(input ? { reference: input } : {}),
         signal: job.abort.signal,
       });
@@ -173,6 +179,17 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   )
     storeEntry(ctx, address, { ...pending, phase: "error" });
   else storeEntry(ctx, address, { offer, phase: "ready", reference: output.reference, revision: Symbol() });
+  reconcile(ctx, jobs);
+  ctx.notifyChange();
+}
+
+function detach(ctx: ControllerContext, jobs: Map<string, Job>, offer: AttachmentOffer) {
+  const source = attachmentSource(offer);
+  if (!source || source === offer.address || !admitted(ctx, offer)) return;
+  const pending = jobs.get(source);
+  jobs.delete(source);
+  storeEntry(ctx, source);
+  pending?.abort.abort();
   reconcile(ctx, jobs);
   ctx.notifyChange();
 }

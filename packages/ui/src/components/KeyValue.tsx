@@ -61,7 +61,7 @@ export const meta = {
 
 const pairProps = z.strictObject({
   label: text(20),
-  value: text(28),
+  value: text(100),
   goto: screenId.optional(),
   icon: icon.optional(),
   status: z.boolean().optional(),
@@ -77,6 +77,13 @@ export const props = z
     path: ["pairs"],
     message: "Mark at most one unmasked pair as the primary status",
   })
+  .refine(
+    ({ pairs, masked }) => pairs.every((pair) => pair.value.length <= (masked ? 28 : pair.status ? 20 : 100)),
+    {
+      path: ["pairs"],
+      message: "Keep statuses to 20 characters and masked values to 28",
+    },
+  )
   .refine(({ pairs, masked }) => pairs.every((pair) => !pair.goto || (!masked && !pair.status)), {
     path: ["pairs"],
     message: "Only an unmasked, non-status value can link to a screen",
@@ -99,7 +106,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
         .trim();
       const label = clip(readable.charAt(0).toUpperCase() + readable.slice(1), 20);
       return label && typeof value === "string" && value.trim()
-        ? [{ label, value: clip(value.trim(), 28) }]
+        ? [{ label, value: clip(value.trim(), 100) }]
         : [];
     })
     .slice(0, 4);
@@ -131,9 +138,24 @@ export const examples = [
   { pairs: [...facts] },
   { pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
-  { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
-  { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
-  { pairs: [{ label: "Drainage", value: "Blocked", icon: "filter", tone: "bad" }, ...facts.slice(1)] },
+  {
+    pairs: [
+      { label: "Plant health", value: "Healthy", icon: "heart", tone: "good", status: true },
+      ...facts.slice(1),
+    ],
+  },
+  {
+    pairs: [
+      { label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn", status: true },
+      ...facts.slice(1),
+    ],
+  },
+  {
+    pairs: [
+      { label: "Drainage", value: "Blocked", icon: "filter", tone: "bad", status: true },
+      ...facts.slice(1),
+    ],
+  },
   { pairs: [facts[0], facts[1], { ...facts[2], mark: "highlight" }, facts[3]] },
   { pairs: [facts[0], facts[1], facts[2], { ...facts[3], mark: "muted" }] },
   { masked: true, pairs: [{ label: "Walk entry code", value: "DEMO-042" }] },
@@ -142,6 +164,10 @@ export const examples = [
       { label: "Order status", value: "Ready for pickup", tone: "good", status: true },
       { label: "Order no.", value: "LC-104" },
       { label: "Pickup", value: "Friday, 3–5 pm" },
+      {
+        label: "Instructions",
+        value: "Use the side entrance and bring the printed receipt to the collection bench.",
+      },
     ],
   },
   {
@@ -151,12 +177,21 @@ export const examples = [
       { label: "Follow status", value: "Followed", status: true, tone: "good", icon: "check" },
     ],
   },
+  {
+    pairs: [
+      { label: "Last updated", value: "Friday at 2:40 pm", icon: "clock" },
+      { label: "Reference", value: "LC-104" },
+      { label: "Task", value: "Swap out the derailleur cage" },
+      { label: "Free bays", value: "7" },
+      { label: "Total bays", value: "12" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("KeyValue");
 export const probes = [
   choose("the facts about one plant: room, light, water interval"),
-  choose("show all my plants to pick one", "List"),
+  choose("Show the names of all my plants in tappable rows so I can pick a record, with no photos.", "List"),
   write("One plant in the bathroom, bright indirect light, watered every seven days"),
   {
     ...write(
@@ -165,8 +200,11 @@ export const probes = [
     variant: { axis: "arrange", value: "grid" },
   },
   {
-    ...write("Hide the dog walk's entry code until revealed. Use the fake code DEMO-042."),
+    ...write(
+      "Show one row labelled Walk entry code, with the synthetic example value DEMO-042. Start with that value masked until I tap to reveal it.",
+    ),
     expectProps: { masked: true },
+    fields: { "pairs.0.label": "Walk entry code", "pairs.0.value": "DEMO-042" },
   },
   {
     ...write("Show Order status: Ready for pickup as the primary status, then Order number: LC-104."),
@@ -248,12 +286,13 @@ function PairRow({
       label={pair.label}
       {...(!loading && !pair.status && { tone: pair.tone, mark: pair.mark })}
       inline={!horizontal}
+      fitContent={!horizontal}
       density={density}
       leading={lead}
       leadingAlign={linked && horizontal ? "row" : "line"}
     >
       <kit.KitGrid
-        arrange={horizontal && !masked ? "grid" : "rows"}
+        arrange={horizontal && !masked && pair.value.length <= 28 ? "grid" : "rows"}
         keyColumn
         fitLast={linked}
         density={density}
@@ -285,7 +324,12 @@ function PairValue({ pair, horizontal, loading }: { pair: Pair; horizontal: bool
   const role = horizontal && figure ? "number" : "body";
   if (loading)
     return (
-      <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        density="comfortable"
+        content={[[role, pair.value, role === "number" && horizontal ? "end" : "start"]]}
+      />
     );
   if (pair.goto)
     return (
@@ -300,6 +344,7 @@ function PairValue({ pair, horizontal, loading }: { pair: Pair; horizontal: bool
       role={role}
       part="value"
       density="comfortable"
+      {...(role === "number" && { align: "end" })}
       tabular={figure}
       breakLongWords
       {...(pair.status && { emphasis: "strong", tone: pair.tone === "neutral" ? "text" : pair.tone })}
@@ -315,22 +360,28 @@ export function KeyValue({ arrange, pairs, masked = false }: Props<typeof props,
   const density = kit.useKit().density;
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
+  const mixedIcons = pairs.some((pair) => pair.icon) && pairs.some((pair) => !pair.icon);
+  const rows = pairs.map((pair) => (
+    <PairRow
+      key={pair.id}
+      pair={pair}
+      horizontal={!grid}
+      density={spacing}
+      loading={state === "loading"}
+      masked={masked}
+    />
+  ));
   return (
     <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"}>
       {state === "empty" ? (
         <kit.KitEmpty part="label" />
+      ) : mixedIcons && !grid ? (
+        <kit.KitRowGroup separators={false} leadingWidth="avatar" density={spacing}>
+          {rows}
+        </kit.KitRowGroup>
       ) : (
         <kit.KitGrid arrange={arrange} density={spacing}>
-          {pairs.map((pair) => (
-            <PairRow
-              key={pair.id}
-              pair={pair}
-              horizontal={!grid}
-              density={spacing}
-              loading={state === "loading"}
-              masked={masked}
-            />
-          ))}
+          {rows}
         </kit.KitGrid>
       )}
     </kit.KitCard>

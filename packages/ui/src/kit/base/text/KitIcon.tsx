@@ -14,6 +14,7 @@ export function KitIcon({
   tone = "muted",
   scale = "md",
   decorative = false,
+  hidden = false,
   loading = false,
 }: {
   name?: IconName | undefined;
@@ -22,9 +23,11 @@ export function KitIcon({
   scale?: keyof typeof size.icon;
   /** Pure decoration (a chevron): no address, hidden from reading and acting. */
   decorative?: boolean;
+  /** Reserve the icon's footprint without drawing a pictogram. */
+  hidden?: boolean;
   loading?: boolean;
 }) {
-  const addressed = !decorative && !loading;
+  const addressed = !decorative && !loading && !hidden;
   const address = usePart(part, addressed);
   const progress = useSignatureProgress("streak_flame");
   const { state } = usePartContext();
@@ -37,7 +40,9 @@ export function KitIcon({
       accessibilityElementsHidden
       aria-hidden
     >
-      {loading ? (
+      {hidden ? (
+        <YStack width={size.icon[scale]} height={size.icon[scale]} />
+      ) : loading ? (
         <YStack
           width={size.icon[scale]}
           height={size.icon[scale]}

@@ -138,12 +138,13 @@ const config = createTamagui({
 });
 const defs = { Fixture: fixture, FixtureFooter: footer, Button: components.Button };
 const renderers = { Fixture: FixtureView, FixtureFooter: FooterView, Button: catalogRenderers.Button };
-const moveButton = new URLSearchParams(location.search).has("move-button");
+const options = new URLSearchParams(location.search);
+const moveButton = options.has("move-button");
 const nativeHost: NativeHost = {
   snapshot: () => ({
     insets: { top: 0, bottom: 32, left: 28, right: 36 },
     keyboardHeight: 0,
-    reduceMotion: true,
+    reduceMotion: !options.has("animate-exit"),
   }),
   subscribe: () => () => {},
 };

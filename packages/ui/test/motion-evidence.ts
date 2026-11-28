@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { relative } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import type { Browser, Page } from "playwright-core";
-import { build, preview, type InlineConfig, type Plugin } from "vite";
+import type { Plugin } from "vite";
 
 const folder = fileURLToPath(new URL("../shots/p5-designer-motion/", import.meta.url));
 const project = fileURLToPath(new URL("../../../", import.meta.url));
@@ -24,41 +24,42 @@ export function baselineMotionKit(): Plugin {
   };
 }
 
-export async function releaseGallery(config: InlineConfig, baseline: boolean) {
-  const buildOptions = { outDir: `${folder}build-${baseline ? "main" : "change"}`, emptyOutDir: true };
-  await build({ ...config, mode: "production", logLevel: "error", build: buildOptions });
-  return preview({ ...config, build: buildOptions, preview: { host: "127.0.0.1", port: 0 } });
-}
-
 export async function contactSheet(browser: Browser, page: Page, label: string, action: () => Promise<void>) {
   if (!process.env.UI_MOTION_EVIDENCE) return action();
   await mkdir(folder, { recursive: true });
   const frames = [await page.screenshot({ scale: "css" })];
+  const times = ["Source"];
+  const started = performance.now();
+  const capture = async (state = "") => {
+    times.push(`${state}${Math.round(performance.now() - started)} ms`);
+    frames.push(await page.screenshot({ scale: "css" }));
+  };
   const inFlight = action();
   for (let frame = 0; frame < 4; frame++) {
-    frames.push(await page.screenshot({ scale: "css" }));
+    await capture();
   }
   await inFlight;
   if (label.endsWith("submit-working-success")) {
     await page.waitForTimeout(700);
-    frames.push(await page.screenshot({ scale: "css" }));
+    await capture();
     await page.waitForTimeout(150);
-    frames.push(await page.screenshot({ scale: "css" }));
+    await capture();
   }
   // The last frame shows the settled layout, not a later interaction.
   await page.waitForTimeout(700);
-  frames.push(await page.screenshot({ scale: "css" }));
+  await capture("Settled · ");
   const sheet = await browser.newPage({ viewport: { width: 702, height: 1013 } });
   try {
     const tiles = frames.map(
       (png, index) =>
-        `<figure><img src="data:image/png;base64,${png.toString("base64")}"><figcaption>${index + 1}</figcaption></figure>`,
+        `<figure><figcaption>${times[index]}</figcaption><img src="data:image/png;base64,${png.toString("base64")}"></figure>`,
     );
     await sheet.setContent(`<style>
-      body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:rgb(224 226 230);}
-      figure{position:relative;margin:0;border:1px solid rgb(224 226 230);}
-      img{display:block;width:100%;}figcaption{position:absolute;top:4px;left:4px;background:rgb(33 35 42);color:white;padding:2px 6px;}
-      </style>${tiles.join("")}`);
+      body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:rgb(224 226 230);font:14px system-ui;}
+      header{grid-column:1/-1;padding:8px;}
+      figure{margin:0;border:1px solid rgb(224 226 230);}
+      img{display:block;width:100%;}figcaption{background:rgb(33 35 42);color:white;padding:2px 6px;}
+      </style><header>Calm preset · light · 390px · ${label}</header>${tiles.join("")}`);
     await sheet.screenshot({ path: `${folder}${label}.png`, fullPage: true });
   } finally {
     await sheet.close();

@@ -77,15 +77,18 @@ export const examples = [
     sub: "Meet at the park gate at 9:00",
     photo: "lib:dogs",
   },
-  { title: "Clover and Pip are ready", sub: "Meet at the park gate at 9:00" },
+  { title: "Pip’s lead is at reception", sub: "Pick it up before the river walk" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
-  { title: "Watered", sub: "Next check on Friday" },
-  { title: "Watered", tone: "good", sub: "Next check on Friday" },
-  { title: "Watered", sub: "Next check on Friday" },
-  { title: "Cancelled", tone: "bad" },
-  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", emphasis: "quiet" },
-  { title: "Check the ferns first", sub: "Water only if the topsoil is dry", detail: "brief" },
-  { title: "Check the ferns first", sub: "Water only if the topsoil is dry" },
+  { title: "Fern watered", tone: "good", sub: "Check its soil again Friday" },
+  { title: "Pip’s river walk is cancelled", tone: "bad", sub: "Choose a new walk time in Schedule." },
+  { title: "The balcony trays can wait", sub: "Rain is due before the next soil check", emphasis: "quiet" },
+  { title: "Fern care is up to date", sub: "Last watered Monday", detail: "brief" },
+  {
+    title: "The midnight meteor watch",
+    sub: "Dark-sky terrace · Gates open at 11:30 pm",
+    media: "cover",
+    photo: "lib:night_sky",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Hero");
@@ -135,16 +138,25 @@ export function Hero(input: Props<typeof props, typeof meta>) {
           tone={tone === "neutral" ? (number ? "accent" : "text") : tone}
           {...{ density, emphasis }}
           part="title"
+          breakLongWords
         >
           {title}
         </KitText>
         {sub && (
-          <KitText role={subRole} tone="muted" part="sub" density={density}>
+          <KitText role={subRole} tone="muted" part="sub" density={density} breakLongWords>
             {sub}
           </KitText>
         )}
       </KitContent>
-      {hasPhoto && <KitPhoto photo={photo} shape={shape} part="photo" error={null} />}
+      {hasPhoto && (
+        <KitPhoto
+          photo={photo}
+          shape={shape}
+          part="photo"
+          decorative={typeof photo === "string"}
+          error={null}
+        />
+      )}
     </KitCard>
   );
 }

@@ -1,5 +1,15 @@
-import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
-import type { TamaguiElement } from "tamagui";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useSyncExternalStore,
+  type Ref,
+  type RefObject,
+} from "react";
+import { isWeb, type TamaguiElement } from "tamagui";
 import { formatAddress } from "../../catalog";
 import { useKit } from "../provider";
 import { usePartContext } from "./part-context";
@@ -8,6 +18,23 @@ import { listenMotionSettled } from "./motion-settled";
 import { noopParts } from "../registry";
 
 const subscribeNone = () => () => {};
+
+/** Forward focus using the mounted part ref on web and the accessibility host on native. */
+export function usePartFocus(handle: Ref<{ focus(): void }> | undefined, ref: RefObject<unknown>) {
+  const { nativeHost } = useKit();
+  useImperativeHandle(
+    handle,
+    () => ({
+      focus() {
+        const element = ref.current;
+        if (isWeb) (element as { focus?(): void } | null)?.focus?.();
+        else if (element) nativeHost?.focusAccessibility?.(element);
+      },
+    }),
+    [ref, nativeHost],
+  );
+}
+
 export function usePartDisabled(address: string | undefined) {
   const { controller } = useKit();
   return useSyncExternalStore(

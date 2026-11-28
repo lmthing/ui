@@ -13,6 +13,7 @@ const button = (name: string) => phone().getByRole("button", { name, exact: true
 const playback = (name: string) => page.getByRole("button", { name, exact: true });
 const choice = (name: string) => phone().getByRole("link", { name, exact: true });
 const branches = new Set([
+  "Tue at 10:00",
   "Reschedule",
   "Cancel booking",
   "Approve",
@@ -51,8 +52,8 @@ afterAll(async () => {
 });
 
 const cases = [
-  ["book_slot", ["Review booking", "Confirm booking", "Reschedule", "Confirm change"], "guest/rescheduled"],
-  ["book_slot", ["Review booking", "Confirm booking", "Cancel booking", "Release time"], "guest/cancelled"],
+  ["book_slot", ["Tue at 10:00", "Confirm booking", "Reschedule", "Confirm change"], "guest/rescheduled"],
+  ["book_slot", ["Tue at 10:00", "Confirm booking", "Cancel booking", "Release time"], "guest/cancelled"],
   [
     "invite_accept",
     ["Send invitation", "Open invitation", "Accept invitation", "Show joined status"],
@@ -63,17 +64,23 @@ const cases = [
     ["Send request", "Open for review", "Approve", "Confirm approval"],
     "requester/approved",
   ],
-  ["order_track", ["Place order", "View delivery", "View arrival"], "customer/delivered"],
   [
     "report_issue",
-    ["Review report", "Continue", "Send report", "Start work", "Resolve and notify"],
+    [
+      "Review report",
+      "Review report",
+      "Send report",
+      "Open resolver's report",
+      "Start work",
+      "Resolve and notify",
+    ],
     "reporter/resolved",
   ],
-  ["check_in", ["Show pass", "Review arrival", "Mark present"], "attendee/arrived"],
-  ["pay_receipt", ["Confirm payment", "Check payment", "View receipt"], "payer/receipt"],
+  ["check_in", ["Show pass", "Review matched pass", "Mark present"], "attendee/arrived"],
+  ["pay_receipt", ["Confirm payment", "Check payment status", "View receipt"], "payer/receipt"],
   [
     "signup_onboard",
-    ["Create account", "Continue after verifying", "Save goal", "Make a first list"],
+    ["Create account", "Preview verified setup", "Skip for now", "Make a first list"],
     "member/ready",
   ],
   ["login_recovery", ["Log in", "Verify and log in"], "member/signed_in"],
@@ -98,17 +105,39 @@ const cases = [
   ["class_waitlist", ["Join waitlist if full", "Leave waitlist", "Confirm leave"], "member/left"],
   [
     "assign_work_order",
-    ["Send request", "Assign work order", "Review work outcome", "Submit outcome", "Close and notify"],
+    [
+      "Send request",
+      "Assign work order",
+      "Acknowledge assignment",
+      "Review work outcome",
+      "Submit outcome",
+      "Close and notify",
+    ],
     "requester/closed",
   ],
   [
     "lead_to_client",
-    ["Review inquiry", "Send proposal", "Accept proposal", "Send acceptance", "Create client"],
+    [
+      "Send inquiry",
+      "Open inquiry queue",
+      "Review inquiry",
+      "Send proposal",
+      "Accept proposal",
+      "Send acceptance",
+      "Create client",
+    ],
     "owner/client",
   ],
   [
     "lead_to_client",
-    ["Review inquiry", "Send proposal", "Decline proposal", "Confirm decline"],
+    [
+      "Send inquiry",
+      "Open inquiry queue",
+      "Review inquiry",
+      "Send proposal",
+      "Decline proposal",
+      "Confirm decline",
+    ],
     "prospect/declined",
   ],
 ] as const;
@@ -122,8 +151,23 @@ test.each(cases)("plays %s through actual kit controls (%j)", async (id, actions
     await (branches.has(action) ? choice(action) : button(action)).click();
   }
   await at(end);
-  expect(await page.getByText("Journey complete", { exact: true }).count()).toBe(1);
+  await playback("Play again").waitFor();
+  expect(await button("Play again").count()).toBe(0);
   expect(errors).toEqual([]);
+});
+
+test("tracks the same order through to arrival", async () => {
+  await page.goto(`${base()}?flows=order_track`);
+  await at("customer/review");
+  await button("Place order").click();
+  await at("customer/preparing");
+  await button("View delivery").click();
+  await at("customer/in_transit");
+  await phone().getByText("OR-118", { exact: true }).waitFor();
+  await button("View arrival").click();
+  await at("customer/delivered");
+  await phone().getByText("OR-118", { exact: true }).waitFor();
+  await playback("Play again").waitFor();
 });
 
 test("an expired offer has no booking affordance and can return to the sample", async () => {
@@ -167,13 +211,21 @@ test("login recovery keeps demo credentials local and shows waiting and expired-
   await playback("Waiting").click();
   await phone().getByText("A real service would send a code if the address matches an account.").waitFor();
   await playback("Error").click();
-  await page.getByText(/choose Reset your password in Inspect steps and states/).waitFor();
+  await page.getByText(/play again to request a new code/).waitFor();
   await phone()
     .getByText("That code didn’t work or has expired. Request a new code and try again.")
     .waitFor();
   expect(await button("Verify reset code").count()).toBe(0);
   await playback("Reset your password").click();
   await at("member/recover");
+  expect(await page.evaluate(() => window.__lmthingUI)).toBeUndefined();
+  await button("Request reset code").click();
+  await page.locator('[data-flow-player="member/recover"][data-flow-state="inspect"]').waitFor();
+  await playback("Return to playback").click();
+  await at("member/recovery_verify");
+  await playback("Error").click();
+  await playback("Play again").click();
+  await choice("Forgot password?").click();
   await button("Request reset code").click();
   await phone().getByLabel("Reset code", { exact: true }).fill("000000");
   await button("Verify reset code").click();
@@ -206,25 +258,32 @@ test("the agenda opens the full session's details without booking or linking the
   expect(errors).toEqual([]);
 });
 
-test("opens the launcher, inspects an error, and carries a typed reason across the hand-off", async () => {
-  await page.goto(base());
-  await page.getByRole("link", { name: "Flow templates", exact: true }).click();
+test("opens the flow launcher from the gallery", async () => {
+  await page.goto(base(), { waitUntil: "commit" });
+  await page.getByRole("link", { name: "Flow templates", exact: true }).click({ timeout: 75000 });
   await page.getByRole("link", { name: /Book a slot/ }).waitFor();
   await page.getByRole("link", { name: /Request and approve/ }).click();
+  await at("requester/draft");
+}, 120000);
+
+test("inspects an error and carries a typed reason across the hand-off", async () => {
+  await page.goto(`${base()}?flows=request_approve`);
   await at("requester/draft");
   await page.getByText("Inspect steps and states", { exact: true }).click();
   await page.getByRole("button", { name: "Error", exact: true }).click();
   await page.locator("[data-flow-state=error]").waitFor();
+  expect(await page.evaluate(() => window.__lmthingUI === undefined)).toBe(true);
   await playback("Return to playback").click();
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
   for (const action of ["Send request", "Open for review"]) await button(action).click();
   await choice("Decline").click();
   await at("approver/reason");
   const reason = phone().getByRole("textbox");
   await reason.fill("");
   await button("Send decision").click();
-  await page.locator("[data-flow-player='approver/reason'][data-flow-state=error]").waitFor();
-  expect(await phone().getByRole("textbox").inputValue()).toBe("");
-  await playback("Return to playback").click();
+  await at("approver/reason");
+  await phone().getByText("Enter a reason so the requester knows what to change.", { exact: true }).waitFor();
+  expect(await reason.inputValue()).toBe("");
   await reason.fill("No permit on file");
   await button("Send decision").click();
   await at("requester/rejected");

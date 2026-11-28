@@ -1,9 +1,12 @@
 import type { Component } from "../types";
 import type { ScreenLike } from "../agent";
 import { clip } from "../cast";
+import { wordsFor } from "../lang";
 import { checkScreen, type RegistryLike } from "../rules";
 import type { FilledFlow, FlowFrame } from "./fill-flow";
 import type { FlowState } from "./flow-template";
+import { previewSearch, type FlowSearch } from "./preview-search";
+import { previewSpecial } from "./preview-special";
 
 export const flowScreenId = (index: number) => `step_${index + 1}`;
 
@@ -13,8 +16,12 @@ function fieldLabel(id: string) {
 }
 
 function pairs(flow: FilledFlow, frame: FlowFrame) {
+  const search = flow.frames.find((source) =>
+    source.search?.results.some(({ step }) => frame.key === `${source.role}/${step}`),
+  )?.search;
+  const category = search?.results.find(({ step }) => frame.key === `${frame.role}/${step}`)?.category;
   return frame.fields.map((key) => ({
-    label: clip(fieldLabel(key), 20),
+    label: clip(frame.labels?.[key] ?? (key === category ? search!.filterLabel : fieldLabel(key)), 20),
     value: clip(String(flow.record[key]), 28),
   }));
 }
@@ -42,6 +49,22 @@ function waitlistOffer(flow: FilledFlow, frame: FlowFrame, state?: FlowState): C
   ];
 }
 
+function handoffReceipt(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
+  const { subject, reference, sender, recipient } = flow.record;
+  return [
+    {
+      id: "receipt",
+      c: "HandoffReceipt",
+      subject: clip(String(subject), 36),
+      reference: clip(String(reference), 20),
+      fromRole: clip(String(sender), 24),
+      toRole: clip(String(recipient), 24),
+      phase: frame.receipt,
+      summary: clip((state && frame.messages[state]) || frame.see, 120),
+    },
+  ];
+}
+
 function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
   const body = frame.see;
   switch (c) {
@@ -60,8 +83,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
       const bound = frame.fields.map((field, i) => ({
         id: `field_${i + 1}`,
         c,
-        label: clip(fieldLabel(field), 24),
-        ...(state === "empty" || state === "error"
+        label: clip(frame.labels?.[field] ?? fieldLabel(field), 24),
+        ...(state === "empty" || (state === "error" && field === frame.invalidField)
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
@@ -80,6 +103,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "Waitlist":
       return waitlistOffer(flow, frame, state);
+    case "HandoffReceipt":
+      return handoffReceipt(flow, frame, state);
     case "List":
       return [
         {
@@ -95,16 +120,23 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
         { id: "note", c: "Note", text: clip(body, 120), emphasis: "quiet" },
       ];
     default:
-      throw new Error(`Unsupported flow preview component: ${c}`);
+      return previewSpecial(c, flow, frame, state);
   }
 }
 
 function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): Component[] {
-  if ((state && state !== "success") || !frame.forward.length) return [];
+  if ((state && state !== "success") || !frame.forward.length || frame.thread?.compose) return [];
   const next = frame.forward.map(({ label, target }) => ({
     title: clip(label, 24),
     goto: previewTarget(flow, target),
   }));
+  if (frame.receipt === "waiting" && next.length === 2) {
+    const [confirm, decline] = next;
+    return [
+      { id: "secondary", c: "List", lead: "none", rows: [{ ...decline!, trail: "chevron" }] },
+      { id: "action_1", c: "Button", label: confirm!.title, goto: confirm!.goto },
+    ];
+  }
   if (frame.choiceButtons)
     return next.map(({ title: label, goto }, i) => ({
       id: `action_${i + 1}`,
@@ -113,7 +145,7 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
       goto,
       ...(i > 0 ? { emphasis: "quiet" } : {}),
     }));
-  if (next.length > 1)
+  if (next.length > 1 || frame.actionList)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
     ];
@@ -125,14 +157,44 @@ export function flowPreviewScreen(
   flow: FilledFlow,
   index: number,
   state?: FlowState,
-  copy?: { message?: string; codeHint?: string },
+  options: { validationError?: boolean; search?: FlowSearch; message?: string; codeHint?: string } = {},
 ): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
   if (state && !frame.states.includes(state))
     throw new Error(`Flow step does not show ${state}: ${frame.key}`);
-  const body = frame.layout.components.flatMap((c) => previewPart(c, flow, frame, state));
-  const codeHint = copy?.codeHint;
+  if (frame.search) {
+    return {
+      id: flowScreenId(index),
+      title: frame.title,
+      components: [
+        { id: "header", c: "Header", title: frame.title },
+        ...previewSearch(flow, frame, (target) => previewTarget(flow, target), state, options.search),
+      ],
+    };
+  }
+  const body = previewBody(flow, frame, frame.layout.components, state, options);
+  return {
+    id: flowScreenId(index),
+    title: frame.title,
+    components: body.some(({ c }) => c === "Waitlist")
+      ? body
+      : [...body, ...previewActions(flow, frame, state)],
+  };
+}
+
+function previewBody(
+  flow: FilledFlow,
+  frame: FlowFrame,
+  layout: readonly string[],
+  state: FlowState | undefined,
+  {
+    validationError,
+    message: copy,
+    codeHint,
+  }: { validationError?: boolean; message?: string; codeHint?: string },
+) {
+  const body = layout.flatMap((c) => previewPart(c, flow, frame, state));
   if (codeHint) {
     const code = body.find((part) => part.c === "Field" && part.kind === "code");
     if (code) code.hint = clip(codeHint, 60);
@@ -141,8 +203,23 @@ export function flowPreviewScreen(
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
   } else {
-    body.unshift({ id: "header", c: "Header", title: frame.title });
-    if (!body.some(({ c }) => c === "Note"))
+    const back = frame.back && !state;
+    body.unshift({
+      id: "header",
+      c: "Header",
+      title: frame.title,
+      ...(back && frame.receipt
+        ? { action: { icon: "chevron_left", label: wordsFor().backLabel, goto: "back" } }
+        : back
+          ? { style: "back" }
+          : {}),
+    });
+    if (
+      !body.some(
+        ({ c }) =>
+          c === "Note" || c === "HandoffReceipt" || c === "Bubbles" || (c === "List" && frame.actionList),
+      )
+    )
       body.splice(1, 0, {
         id: "note",
         c: "Note",
@@ -150,23 +227,19 @@ export function flowPreviewScreen(
         emphasis: "quiet",
       });
   }
-  const message = state && (copy?.message ?? frame.messages[state]);
-  if (message) {
+  const message = validationError ? frame.messages.error : state && (copy ?? frame.messages[state]);
+  if (message && !frame.invalidField && !body.some(({ c }) => c === "HandoffReceipt")) {
     const note = body.findIndex(({ c }) => c === "Note");
-    body.splice(note < 0 ? body.length : note, note < 0 ? 0 : 1, {
-      id: "message",
+    const composer = body.findIndex(({ c }) => c === "Composer");
+    const insertAt = note >= 0 ? note : composer >= 0 ? composer : body.length;
+    body.splice(insertAt, note < 0 ? 0 : 1, {
+      id: note < 0 ? "message" : body[note]!.id,
       c: "Note",
       text: clip(message, 120),
-      ...(state === "error" ? { tone: "bad" } : {}),
+      ...(state === "error" || validationError ? { tone: "bad" } : {}),
     });
   }
-  return {
-    id: flowScreenId(index),
-    title: frame.title,
-    components: body.some(({ c }) => c === "Waitlist")
-      ? body
-      : [...body, ...previewActions(flow, frame, state)],
-  };
+  return body;
 }
 
 /** Check fixture props and screen rules, without requiring isolated states to pad to a full screen. */

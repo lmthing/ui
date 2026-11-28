@@ -1,6 +1,14 @@
-import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
-import { ScrollView, YStack } from "tamagui";
-import { KitMotion, ListProjectionKey, usePresence } from "../motion";
+import {
+  isValidElement,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type RefObject,
+} from "react";
+import { isWeb, ScrollView, YStack } from "tamagui";
+import { KitMotion, KitRecordArrival, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
@@ -15,10 +23,12 @@ import {
   projectAdjustments,
   isDeviceDataVisible,
   projectDataViewList,
+  signatures,
   type resolveDataViews,
   type ScreenLike,
 } from "../../catalog";
 import type { RendererMap } from "./Screen";
+import type { ScreenReturnPoint } from "./screen-navigation";
 import { ScreenBottomOutlet, ScreenBottomSlots, ScreenBottomSource } from "./pinned-bottom";
 
 type RenderProps = {
@@ -27,7 +37,6 @@ type RenderProps = {
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
   compactTitle?: boolean;
-  navigationArrival?: boolean;
 };
 function listProjection(views: RenderProps["views"], id: string) {
   return JSON.stringify(
@@ -73,7 +82,13 @@ function ScreenEntry({
         </KitCard>
       ) : (
         <ListProjectionKey.Provider value={listProjection(views, id)}>
-          <View {...props} />
+          {c === signatures.record_arrive.component && state === "filled" ? (
+            <KitRecordArrival receipt={props}>
+              <View {...props} />
+            </KitRecordArrival>
+          ) : (
+            <View {...props} />
+          )}
         </ListProjectionKey.Provider>
       )}
       {emptyPanel && (
@@ -85,10 +100,16 @@ function ScreenEntry({
 function ScreenRegion({
   name,
   scroll,
+  initialScroll,
+  restoration,
+  scrollRef,
   ...props
 }: RenderProps & {
   name: string;
   scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
+  initialScroll?: number | undefined;
+  restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
 }) {
   const { controller, screen, views, compactTitle } = props;
   const components = controller.defs;
@@ -109,7 +130,7 @@ function ScreenRegion({
           : entry
       }
       sticky={name === "body" && entry.c === "SectionTitle"}
-      appear={!props.navigationArrival || !initial.current.has(entry.id)}
+      appear={!initial.current.has(entry.id)}
       index={index}
       marginTop={
         name === "body" && components[entry.c]
@@ -124,15 +145,57 @@ function ScreenRegion({
     !views?.hidden.has(node.props.entry.id);
   const present = usePresence(rows, keepExit);
   if (!scroll) return <>{present}</>;
-  const sticky = present.flatMap((node, index) =>
-    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
-  );
   return (
     <ScreenBottomSource>
-      <ScrollView {...scroll} stickyHeaderIndices={sticky}>
+      <ScreenBodyScroll
+        {...scroll}
+        stickyHeaderIndices={visibleStickyIndices(present)}
+        {...{ initialScroll, restoration, scrollRef }}
+      >
         {present}
-      </ScrollView>
+      </ScreenBodyScroll>
     </ScreenBottomSource>
+  );
+}
+
+function visibleStickyIndices(present: React.ReactNode[]) {
+  return present.flatMap((node, index) =>
+    isValidElement<RegionEntryProps>(node) && node.props.sticky && !node.props.exiting ? [index] : [],
+  );
+}
+
+export type BodyScrollHandle = {
+  scrollTo(options: { x: number; y: number; animated: boolean }): void;
+  getScrollableNode?(): HTMLElement;
+};
+
+function ScreenBodyScroll({
+  initialScroll,
+  restoration,
+  scrollRef,
+  ...props
+}: ComponentProps<typeof ScrollView> & {
+  initialScroll?: number | undefined;
+  restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
+}) {
+  const local = useRef<BodyScrollHandle>(null);
+  const ref = scrollRef ?? local;
+  const initial = useRef(initialScroll);
+  useLayoutEffect(() => {
+    // React Native Web does not consume contentOffset.
+    if (isWeb && initial.current) ref.current?.scrollTo({ x: 0, y: initial.current, animated: false });
+  }, []);
+  useLayoutEffect(() => {
+    if (restoration) ref.current?.scrollTo({ x: 0, y: restoration.scrollTop, animated: false });
+  }, [restoration]);
+  return (
+    <ScrollView
+      {...props}
+      ref={ref as never}
+      scrollEventThrottle={motion.scrollSampleMs}
+      {...(!isWeb && initial.current ? { contentOffset: { x: 0, y: initial.current } } : {})}
+    />
   );
 }
 
@@ -153,9 +216,19 @@ function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...prop
     </KitMotion>
   );
 }
+const coveredProps = {
+  "aria-hidden": true,
+  pointerEvents: "none",
+  ...(isWeb
+    ? { inert: true }
+    : { accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" as const }),
+} as const;
+
 export function ScreenContent({
   covered,
   initialBodyScroll,
+  restoration,
+  scrollRef,
   onBodyScroll,
   ...props
 }: RenderProps & BodyOptions) {
@@ -171,29 +244,24 @@ export function ScreenContent({
     .filter((entry) => regionOf(entry, defs) === "body")
     .map(({ id }) => id);
   const hasFooter = props.screen.components.some((entry) => regionOf(entry, defs) === "bottom");
-  const [compactTitle, setCompactTitle] = useState((initialBodyScroll ?? 0) >= motion.collapseTitleAt);
+  const { compactTitle, onScroll } = useCompactTitle(initialBodyScroll, restoration, onBodyScroll);
   return (
     <ScreenBottomSlots>
-      <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
+      <YStack flex={1} {...(covered ? coveredProps : {})}>
         <YStack flexShrink={0} {...horizontal} paddingTop={Math.max(space.lg, insets.top)} gap={space.md}>
           <ScreenRegion {...props} name="top" compactTitle={compactTitle} />
         </YStack>
         <ScreenRegion
           {...props}
           name="body"
+          {...{ initialScroll: initialBodyScroll, restoration, scrollRef }}
           scroll={{
             flex: 1,
             minHeight: 0,
             keyboardShouldPersistTaps: "handled",
             keyboardDismissMode: "on-drag",
-            onScroll: ({ nativeEvent }) => {
-              const y = nativeEvent.contentOffset.y;
-              onBodyScroll?.(y);
-              if (y >= motion.collapseTitleAt) setCompactTitle(true);
-              else if (y <= motion.expandTitleAt) setCompactTitle(false);
-            },
+            onScroll,
             contentContainerStyle: { paddingVertical: space.gutter, ...horizontal },
-            ...(initialBodyScroll ? { contentOffset: { x: 0, y: initialBodyScroll } } : {}),
           }}
         />
         <YStack
@@ -210,13 +278,35 @@ export function ScreenContent({
     </ScreenBottomSlots>
   );
 }
+function useCompactTitle(
+  initial: number | undefined,
+  restoration: ScreenReturnPoint | undefined,
+  onBodyScroll: BodyOptions["onBodyScroll"],
+) {
+  const [compactTitle, setCompactTitle] = useState(
+    (restoration?.scrollTop ?? initial ?? 0) >= motion.collapseTitleAt,
+  );
+  useLayoutEffect(() => {
+    if (restoration) setCompactTitle(restoration.scrollTop >= motion.collapseTitleAt);
+  }, [restoration]);
+  const onScroll: NonNullable<ComponentProps<typeof ScrollView>["onScroll"]> = ({ nativeEvent }) => {
+    const top = nativeEvent.contentOffset.y;
+    onBodyScroll?.(top);
+    if (top >= motion.collapseTitleAt) setCompactTitle(true);
+    else if (top <= motion.expandTitleAt) setCompactTitle(false);
+  };
+  return { compactTitle, onScroll };
+}
+
 type BodyOptions = {
   covered: boolean;
   initialBodyScroll?: number;
+  restoration?: ScreenReturnPoint | undefined;
+  scrollRef?: RefObject<BodyScrollHandle | null> | undefined;
   onBodyScroll?: (top: number) => void;
 };
-export function ScreenSheet({ controller, renderers, screen }: RenderProps) {
-  const entry = screen.components.find((item) => item.id === controller.openSheet);
+export function ScreenSheet({ controller, renderers, screen, id }: RenderProps & { id: string }) {
+  const entry = screen.components.find((item) => item.id === id);
   return entry ? (
     <ScreenEntry controller={controller} renderers={renderers} screen={screen} entry={entry} />
   ) : null;

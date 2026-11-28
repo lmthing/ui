@@ -22,7 +22,7 @@ describe("KeyValue schema", () => {
     { pairs: [{ label: "", value: "Bathroom" }] }, { pairs: [{ label: "   ", value: "Bathroom" }] },
     { pairs: [{ label: "Room", value: "" }] }, { pairs: [{ label: "Room", value: "   " }] },
     { pairs: [{ label: "a".repeat(21), value: "Bathroom" }] },
-    { pairs: [{ label: "Room", value: "a".repeat(29) }] }, { pairs: [{ label: "Room", value: 4 }] },
+    { pairs: [{ label: "Room", value: "a".repeat(101) }] }, { pairs: [{ label: "Room", value: 4 }] },
     { pairs: [{ label: "Room", value: "Bathroom", icon: "unknown" }] },
     { pairs: [{ label: "Room", value: "Bathroom", goto: "https://example.org" }] },
     { pairs: [{ label: "Room", value: "Bathroom", pixels: 4 }] },
@@ -33,7 +33,7 @@ describe("KeyValue schema", () => {
     { masked: "true", pairs: [{ label: "Room", value: "Bathroom" }] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths and count in both arrangements", () => {
-    const pair = { label: "a".repeat(20), value: "a".repeat(28), icon: "leaf" };
+    const pair = { label: "a".repeat(20), value: "a".repeat(100), icon: "leaf" };
     for (const arrange of meta.variants.arrange)
       expect(props.safeParse({ arrange, pairs: Array.from({ length: 6 }, () => pair) }).success).toBe(true);
   });
@@ -98,7 +98,7 @@ describe("KeyValue field labels and metadata", () => {
       items: [{ ...seed, blank: "", [field]: "a".repeat(40), "water-interval": "  Every seven days  " }],
     };
     expect(fallback({ cast }).pairs).toEqual([
-      { label: "Long field name for", value: "a".repeat(28) }, { label: "Water interval", value: "Every seven days" },
+      { label: "Long field name for", value: "a".repeat(40) }, { label: "Water interval", value: "Every seven days" },
     ]);
   });
   it("has the declared metadata and well-formed choose and write probes", () => {
@@ -169,6 +169,23 @@ function renderPairs(arrange: "rows" | "grid", count: number, loading = false, h
   return renderInstance("KeyValue", { arrange, pairs, ...(hideIcons ? { lead: "none" } : {}) },
     loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
+describe("KeyValue receipt", () => {
+  it("keeps record identity and full repair task on separate paired addresses", () => {
+    const input = examples.at(-1)!;
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const html = renderInstance("KeyValue", input, "filled", theme);
+    expect(html).toContain("Swap out the derailleur cage");
+    expect(html).toContain("LC-104");
+    expect(html).toContain('data-testid="home/c1/r1/icon"');
+    expect(html).not.toContain('data-testid="home/c1/r2/icon"');
+    expect(styleAt(html, "home/c1/r4/value")).toBe(styleAt(html, "home/c1/r5/value"));
+    const read = readComponent(components.KeyValue, input, "c1").join();
+    expect(read).toContain('"Reference" · "LC-104"');
+    expect(read).toContain('"Task" · "Swap out the derailleur cage"');
+    expect(read.indexOf("Last updated")).toBeLessThan(read.indexOf("Reference"));
+  });
+});
+
 describe("KeyValue links", () => {
   it.each(["rows", "grid"] as const)("offers only the linked value in %s", (arrange) => {
     const status = { label: "Share status", value: "Ready to share", status: true };

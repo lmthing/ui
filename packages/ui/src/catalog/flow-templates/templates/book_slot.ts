@@ -21,17 +21,21 @@ export const bookSlot: FlowTemplate = {
       steps: [
         {
           id: "availability",
-          see: "Available times for {record.service}, including {record.slot}. Times are local.",
-          do: "Tap Review booking",
+          see: "Available times for {record.service}. All times are local.",
+          do: "Choose a local time to review.",
+          next: null,
+          choices: [
+            { label: "{record.slot}", step: "review" },
+            { label: "{record.new_slot}", step: "review_alternate" },
+          ],
           layout: {
-            components: ["List"],
+            components: ["Note"],
           },
           states: ["empty", "waiting"],
           preview: {
             title: "Choose a time",
-            action: "Review booking",
-            fields: ["slot", "new_slot"],
             messages: {
+              empty: "No times are open for {record.service} on this date.",
               waiting: "Checking which times are still available.",
             },
           },
@@ -47,9 +51,10 @@ export const bookSlot: FlowTemplate = {
           preview: {
             title: "Review booking",
             action: "Confirm booking",
+            back: true,
             fields: ["service", "slot"],
             messages: {
-              error: "This time is no longer available. Choose another time.",
+              error: "This time is no longer available. Go back to choose another local time.",
             },
           },
         },
@@ -74,6 +79,7 @@ export const bookSlot: FlowTemplate = {
           states: ["success"],
           preview: {
             title: "Booking confirmed",
+            fields: ["reference", "service", "slot"],
           },
         },
         {
@@ -87,6 +93,7 @@ export const bookSlot: FlowTemplate = {
           preview: {
             title: "Choose a new time",
             action: "Confirm change",
+            back: true,
             fields: ["slot", "new_slot"],
             messages: {
               error: "The new time is not available. Your original booking is still active.",
@@ -117,6 +124,7 @@ export const bookSlot: FlowTemplate = {
           preview: {
             title: "Review cancellation",
             action: "Release time",
+            back: true,
             fields: ["reference", "slot"],
             messages: {
               error: "The cancellation was not sent. Your booking is unchanged.",
@@ -135,6 +143,27 @@ export const bookSlot: FlowTemplate = {
             title: "Booking cancelled",
             fields: ["reference"],
           },
+        },
+        {
+          id: "review_alternate",
+          see: "Review {record.service} on {record.new_slot} before reserving it.",
+          do: "Confirm this alternate booking.",
+          layout: { components: ["KeyValue"] },
+          states: ["waiting", "error"],
+          preview: {
+            title: "Review another time",
+            action: "Confirm booking",
+            fields: ["service", "new_slot"],
+            back: true,
+            messages: { error: "This time is no longer available. No booking was made." },
+          },
+        },
+        {
+          id: "alternate_booked",
+          see: "{record.service} is booked for {record.new_slot}. Reference {record.reference}.",
+          layout: { components: ["Success"] },
+          states: ["success"],
+          preview: { title: "Alternate time booked", fields: ["reference", "service", "new_slot"] },
         },
       ],
     },

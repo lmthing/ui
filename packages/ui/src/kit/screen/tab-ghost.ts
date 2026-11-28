@@ -1,3 +1,5 @@
+import { motion } from "../../catalog";
+
 type TabGhost = { canvas: HTMLElement; restoreScroll(): void };
 
 /** Draw the outgoing tab without retaining a second controller or a second address tree. */
@@ -43,7 +45,7 @@ export function captureTab(node: HTMLElement | null): TabGhost | undefined {
 export function fadeTab(node: HTMLElement, ghost: TabGhost, options: KeyframeAnimationOptions) {
   node.before(ghost.canvas);
   ghost.restoreScroll();
-  const incoming = node.animate([{ opacity: 0 }, { opacity: 1 }], options);
+  const incoming = node.animate([{ opacity: motion.reducedFadeStart }, { opacity: 1 }], options);
   const clean = () => ghost.canvas.remove();
   void incoming.finished.then(clean, clean);
   return () => {

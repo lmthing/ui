@@ -32,6 +32,10 @@ import { words as HeaderWords } from "./en/Header";
 import { words as HandoffReceiptWords } from "./en/HandoffReceipt";
 import { words as PhotoWords } from "./en/Photo";
 import { words as ProgressWords } from "./en/Progress";
+import { words as ChecklistWords } from "./en/Checklist";
+import { words as WorkQueueRowWords } from "./en/WorkQueueRow";
+import { words as RollupRowsWords } from "./en/RollupRows";
+import { words as TimelineWords } from "./en/Timeline";
 
 export const en = {
   ...SwipeStackWords,
@@ -68,6 +72,10 @@ export const en = {
   ...HandoffReceiptWords,
   ...PhotoWords,
   ...ProgressWords,
+  ...ChecklistWords,
+  ...WorkQueueRowWords,
+  ...RollupRowsWords,
+  ...TimelineWords,
 };
 
 export type Words = typeof en;

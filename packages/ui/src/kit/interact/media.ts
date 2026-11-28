@@ -3,7 +3,7 @@ import type { AttachmentIntent } from "../../catalog";
 
 export type AttachmentCommand = {
   address: string;
-  intent: AttachmentIntent;
+  intent: Exclude<AttachmentIntent, "remove">;
   source?: string;
 };
 export type AttachmentHost = {

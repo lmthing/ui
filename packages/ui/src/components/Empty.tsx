@@ -1,4 +1,4 @@
-import { useWords, KitAction, KitCard, KitEmpty, KitPhoto } from "../kit";
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitIcon, KitPhoto, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -19,6 +19,7 @@ import { prompt } from "../entry/prompt-Empty.generated";
 
 export const meta = {
   id: "Empty",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -35,7 +36,7 @@ export const meta = {
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
   read: (input, _state, lang?: string) => {
     const { messageLabels } = wordsFor(lang);
-    return (input as { kind: string }).kind === "none" ? [] : [messageLabels.retry];
+    return (input as { retryable?: boolean }).retryable ? [messageLabels.retry] : [];
   },
 } as const satisfies Meta;
 
@@ -46,17 +47,21 @@ export const props = z
     sub: text(100).optional(),
     icon: icon.optional(),
     photo: imageSlotFor(["empty_state", "error"]).optional(),
-    kind: z.enum(["none", "error", "offline"]).default("none"),
+    kind: z.enum(["none", "filtered", "complete", "error", "offline"]).default("none"),
   })
-  .refine(({ photo, kind }) => !photo || photo.kind === (kind === "none" ? "empty_state" : "error"), {
-    path: ["photo"],
-    message: "Use empty_state for no results and error for a failed or offline result",
-  })
+  .refine(
+    ({ photo, kind }) =>
+      !photo || (photo.kind === "empty_state" ? kind === "none" : kind === "error" || kind === "offline"),
+    {
+      path: ["photo"],
+      message: "Use empty_state for kind none and error for a failed or offline result",
+    },
+  )
   // Derived, never written: a failed or offline message offers a retry.
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { sub: undefined } : {}),
-    retryable: value.kind !== "none",
+    retryable: value.kind === "error" || value.kind === "offline",
   }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -72,16 +77,30 @@ export const examples = [
   { title: "No plants yet", icon: "leaf", sub: "Added plants will appear here." },
   { title: "No walks today", sub: "Booked walks will appear here." },
   { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
-  { title: "You're offline", kind: "offline" },
+  {
+    title: "Couldn’t load walks offline",
+    sub: "Reconnect, then try loading your walks again.",
+    kind: "offline",
+  },
   { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
+  {
+    title: "No walks in this filter",
+    sub: "Try showing all routes instead of just the riverside route.",
+    kind: "filtered",
+  },
+  { title: "All plant care done", sub: "The next scheduled check is on Friday.", kind: "complete" },
+  { title: "Walk reports are private", sub: "Only the assigned walker can see these reports.", icon: "lock" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = probesFor("Empty");
+const { choose, write, read } = probesFor("Empty");
 export const probes = [
   choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
   choose(
-    "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+    "Make ‘2 plants need water today’ the single big headline of my plant dashboard, with 2 in large type. This is a count of plants, not money, several statistics or a no-results message.",
     "Hero",
+  ),
+  choose(
+    "Nothing matches the active Riverside filter. Replace the absent results with a short message explaining why nothing is showing.",
   ),
   write("My walks could not be loaded. Show a calm message that says what went wrong."),
   write(
@@ -93,9 +112,22 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "No walks match the Riverside filter. Explain that I can switch to all routes, without suggesting that anything failed.",
+    ),
+    expectProps: { kind: "filtered" },
+  },
+  read("Try loading my walks again", { address: "e1/retry", action: "press" }, 2),
 ] satisfies Probe[];
 
-const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
+const kindIcon = {
+  none: undefined,
+  filtered: "filter",
+  complete: "circle_check",
+  error: "alert",
+  offline: "wifi",
+} as const;
 
 function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
   const { messageLabels } = useWords().words;
@@ -105,6 +137,27 @@ function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
 export function Empty({ title, sub, icon, kind, photo }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
   const artwork = photo && <KitPhoto photo={photo} part="photo" shape="avatar" decorative />;
+  const retry = kind === "error" || kind === "offline";
+  if (retry && shown)
+    return (
+      <KitCard style="plain" part="root" padded>
+        <KitContent
+          lead={artwork ?? <KitIcon name={shown} tone="muted" part="icon" />}
+          leadingAlign={artwork ? "row" : "line"}
+          lineRole="heading"
+        >
+          <KitText role="heading" part="title" breakLongWords>
+            {title}
+          </KitText>
+          {sub && (
+            <KitText role="body" tone="muted" part="sub" breakLongWords>
+              {sub}
+            </KitText>
+          )}
+          <RetryAction kind="secondary" part="retry" full />
+        </KitContent>
+      </KitCard>
+    );
   return (
     <KitCard style="plain" part="root">
       <KitEmpty
@@ -112,9 +165,10 @@ export function Empty({ title, sub, icon, kind, photo }: Props<typeof props, typ
         {...(sub ? { sub } : {})}
         {...(shown ? { icon: shown } : {})}
         artwork={artwork}
+        announce="status"
+        tone={kind === "complete" ? "good" : "neutral"}
         fill
       />
-      {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );
 }

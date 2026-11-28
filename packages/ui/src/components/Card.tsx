@@ -80,7 +80,7 @@ export const examples = [
     meta: "South gate",
     icon: "dog",
   },
-  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
+  { title: "Monstera", body: "Living room · due Friday", photo: "lib:monstera" },
   {
     title: "Basil",
     body: "Kitchen · freshly watered",
@@ -99,6 +99,15 @@ export const examples = [
   { title: "Walk confirmed", body: "Clover · Sunday", tone: "good" },
   { title: "Booking pending", body: "Pip · awaiting confirmation", tone: "warn" },
   { title: "Walk cancelled", body: "Clover · Friday morning", tone: "bad" },
+  {
+    title: "Rear derailleur replacement",
+    badge: "Waiting",
+    tone: "warn",
+    body: "Part expected Friday",
+    meta: "LC-104 · Bike in bay 7",
+    icon: "bike",
+    goto: "repair",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = catalog.probesFor("Card");
@@ -124,10 +133,15 @@ export const probes = [
 ] satisfies Probe[];
 
 type CardProps = Props<typeof props, typeof meta>;
-function CardText({ title, emphasis, body, meta, goto, reward, duration }: CardProps) {
+function CardText({ title, emphasis, body, meta, goto, reward, duration, badge, tone, media }: CardProps) {
   const density = kit.useKit().density;
   const heading = (
-    <kit.KitText role="heading" part="title" {...{ density, emphasis }}>
+    <kit.KitText
+      role={media === "cover" ? "title" : "heading"}
+      part="title"
+      {...{ density, emphasis }}
+      breakLongWords
+    >
       {title}
     </kit.KitText>
   );
@@ -139,20 +153,28 @@ function CardText({ title, emphasis, body, meta, goto, reward, duration }: CardP
   ) : (
     heading
   );
-  const prize = reward && <kit.KitTrail kind="badge" value={reward} part="reward" density={density} />;
+  const prize = reward && (
+    <kit.KitTrail kind="badge" value={reward} part="reward" tone="muted" density={density} />
+  );
   const time = duration && (
     <kit.KitTrail kind="badge" value={duration} part="duration" tone="muted" density={density} />
   );
   return (
     <>
       {header}
+      {badge && <CardBadge {...{ badge, density }} tone={tone === "neutral" ? "accent" : tone} />}
       {body && (
         <kit.KitText role="body" tone="muted" part="body" density={density}>
           {body}
         </kit.KitText>
       )}
       {meta && (
-        <kit.KitText role="caption" tone="muted" part="meta" density={density}>
+        <kit.KitText
+          role={badge || media === "cover" ? "body" : "caption"}
+          tone={media === "cover" ? "text" : "muted"}
+          part="meta"
+          density={density}
+        >
           {meta}
         </kit.KitText>
       )}
@@ -169,6 +191,26 @@ function CardText({ title, emphasis, body, meta, goto, reward, duration }: CardP
   );
 }
 
+function CardBadge({
+  badge,
+  density,
+  tone,
+}: {
+  badge: string;
+  density: catalog.ThemeDensity;
+  tone: "accent" | "good" | "warn" | "bad";
+}) {
+  return (
+    <kit.KitContent
+      density={density}
+      leadingAlign="row"
+      lead={<kit.KitTrail kind="badge" inline value={badge} part="badge" tone={tone} density={density} />}
+    >
+      {null}
+    </kit.KitContent>
+  );
+}
+
 export function Card(input: CardProps) {
   const { media, title, icon, photo, tone, emphasis, goto, badge } = input;
   const density = kit.useKit().density;
@@ -177,54 +219,44 @@ export function Card(input: CardProps) {
   const cover = media === "cover";
   const coverPhoto = cover && catalog.photoVisible(photo, resolvePhoto) ? photo : undefined;
   const finish = { density, emphasis };
-  const frame = { tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
+  const frame = {
+    tone,
+    density,
+    clip: cover,
+    padded: !loading || !!coverPhoto,
+    goto: loading ? undefined : goto,
+  };
   const thumbnail = !cover && photo;
   const lead = icon ? (
-    <kit.KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
+    <kit.KitIcon name={icon} part="icon" scale="md" />
   ) : (
     thumbnail && <kit.KitPhoto photo={thumbnail} part="photo" />
   );
   return (
     <kit.KitCard {...frame} part="root" label={title}>
+      {coverPhoto &&
+        (loading ? (
+          <kit.KitPhoto shape="panorama" part={null} loading />
+        ) : (
+          <kit.KitPhoto photo={coverPhoto} shape="panorama" part="photo" label={title} />
+        ))}
       {loading ? (
         <kit.KitSkeleton
-          shape={coverPhoto ? "media" : "figure"}
+          shape="figure"
           lead={icon ? "dot" : thumbnail ? "box" : "none"}
           {...finish}
-          inset="card"
-          aspect="wide"
+          inset={coverPhoto ? "none" : "card"}
           content={[
-            ["heading", title],
+            [cover ? "title" : "heading", title],
+            ["label", badge],
             ["body", input.body],
-            ["caption", input.meta],
+            [badge || cover ? "body" : "caption", input.meta],
           ]}
         />
       ) : (
-        <>
-          {coverPhoto && <kit.KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
-          {badge ? (
-            <kit.KitRow
-              part={null}
-              inline
-              label={title}
-              lineRole="heading"
-              leading={lead}
-              leadingAlign={thumbnail ? "row" : "line"}
-              {...finish}
-              trailing={
-                <kit.KitTrail kind="badge" value={badge} part="badge" tone="muted" density={density} />
-              }
-            >
-              <kit.KitContent {...finish}>
-                <CardText {...input} />
-              </kit.KitContent>
-            </kit.KitRow>
-          ) : (
-            <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
-              <CardText {...input} />
-            </kit.KitContent>
-          )}
-        </>
+        <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
+          <CardText {...input} />
+        </kit.KitContent>
       )}
     </kit.KitCard>
   );

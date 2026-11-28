@@ -8,4 +8,4 @@ Decide which of several things to keep or skip, one at a time. Swipe only the to
 
 ## Writer
 
-- A request to hide only photos sets media to "none" and leaves detail. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested must be null.
+- To hide only photos, write "media":"none" and "detail":null. Keep supplied descriptions in meta. Set "detail":"brief" only if asked to hide descriptions. Never write "detail":"full" to keep the default.

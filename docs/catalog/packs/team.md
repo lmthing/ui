@@ -83,12 +83,19 @@ a note, and approve and decline.
 - Pick: someone asked and a manager decides. Not a client accepting a quote (customers `Invoice` `quote`),
   not jobs to tick (`Checklist`).
 - Writes: `requests` of `from` text(20), `photo`, `kind` (`time_off`, `swap`, `expense`, `other`, `shift_claim`),
-  `title` text(32), `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
+  `title` text(32), `reference` text(24) optional (the same supplied request number in both roles),
+  `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
   `status` (`pending`, `approved`, `declined`) optional, 1–5; `style`.
 - Styles: `queue` (default, manager decisions), `my_requests` (requester status with no decision controls; missing status displays as pending).
-- Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `dates`, `amount`,
+- `review` is a single-record decision review. It takes one request and `review`: `reference` text(24),
+  `evidence` text(180), 1–6 priced `lines` of `label` text(48) and nonnegative `amount`, `total`, and optional settled `reason` text(120).
+  The phone collects `reason type`; `accept press` or confirmed `reject press` goes to the host.
+  A decline needs a nonblank reason. A host acknowledgement settles the review; rejection leaves it retryable.
+- Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `reference`, `dates`, `amount`,
   `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`.
-- States: filled, empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success.
+- States: filled (including awaiting decision and already decided), empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success (read-only requests and their supplied decisions, no inferred outcome).
+- Host acknowledgments: Publish `approvalDecisions` through device data, one current row per unique, non-recycled `reference`. A row takes `status`: `submitting`, `failed`, `approved` or `declined`. A missing or ambiguous reference leaves the row read-only. `submitting` disables both decisions on that request only; `failed` restores the manager's decisions; a terminal receipt removes actions in both views. Do not put these operation states in Writer props. The shared host owns admitting an attempt, serializing submissions and returning a current receipt; activity with no matching host snapshot is not evidence of an accepted decision.
+- Motion: Enter on complete request rows, with no component reveal or signature. When the host changes the decision state, the badge uses the kit's local change cue (fade in reduced motion); the request facts stay in place. Submission keeps disabled footer slots and failure re-enables them without reflow. A settled row no longer needs decision controls and compacts. Press and decline confirmation use kit feedback. Cancel does not change the row, and changing the target record invalidates an open confirmation. Leave by the host's navigation, with no Approval-specific exit.
 - Real path: requests in a shared app; the requester is told the answer.
 
 ### `Handover` · planned · content · people

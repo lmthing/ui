@@ -91,6 +91,7 @@ export function mediaAffordance(
   const identity = attachmentRowIdentity(meta, props, instance, media);
   if (attachmentOwner(media) !== instance && identity === undefined) return [];
   const source = attachmentSource(media);
+  if (media.spec.intent === "remove" && (!source || source === media.address)) return [];
   const sourceStatus = source ? gate.attachment(source, identity) : undefined;
   if (source && !sourceStatus?.present) return [];
   const status = gate.attachment(media.address, identity);

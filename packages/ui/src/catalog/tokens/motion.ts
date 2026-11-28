@@ -8,8 +8,10 @@ export const springs = {
 export const motion = {
   arriveY: 8,
   stagger: 40,
-  staggerLimit: 6,
+  staggerLimit: 4,
   pressScale: 0.97,
+  pressOpacity: 0.92,
+  scrollSampleMs: 16,
   pulseScale: 0.16,
   spinAngle: 20,
   chipDip: 0.94,
@@ -28,14 +30,16 @@ export const motionProfiles = {
     sheet: 24,
     error: 3,
     spring: springs.snappy,
+    arrival: springs.gentle,
   },
   lively: {
     navigation: durations.slow,
-    feedback: durations.base,
+    feedback: durations.fast,
     push: 40,
     sheet: 40,
     error: 6,
-    spring: springs.bouncy,
+    spring: springs.snappy,
+    arrival: springs.snappy,
   },
 } as const;
 
