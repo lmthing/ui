@@ -139,7 +139,10 @@ describe("Actions addresses", () => {
     const base = renderInstance("Actions", input, "filled", theme);
     const rows = renderInstance("Actions", { ...input, arrange: "rows" }, "filled", theme);
     expect(rows.match(/data-testid="home\/[^"]+"/g)).toEqual(base.match(/data-testid="home\/[^"]+"/g));
-    expect(rows.match(/role="link"/g)).toHaveLength(input.items.length);
+    for (const layout of [base, rows]) {
+      expect(layout.match(/role="link"/g)).toHaveLength(input.items.length);
+      expect(layout).not.toMatch(/role="button"|aria-pressed=|aria-current=/);
+    }
   });
 });
 describe("Actions metadata and probes", () => {

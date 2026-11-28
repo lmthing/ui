@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../catalog";
+import { amountChangeLabel, amountRateLabel } from "../catalog/lang/en/Amount";
 import * as kit from "../kit";
 import { prompt } from "../entry/prompt-Amount.generated";
 
@@ -18,14 +19,16 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "label", "value", "was", "change", "sub"],
+  parts: ["root", "label", "value", "rate", "was", "change", "sub"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const v = input as AmountData;
-    const { shown, sum, was, change } = amountCopy(v, lang);
-    return [!v.label ? shown : undefined, sum, was, change].filter((s) => s !== undefined);
+    const { shown, price, sum, rate, was, change } = amountCopy(v, lang);
+    return [!v.label ? shown : undefined, rate ? price : sum, rate, was, change].filter(
+      (s) => s !== undefined,
+    );
   },
 } as const satisfies c.Meta;
 
@@ -62,6 +65,23 @@ export const examples = [
   { style: "total", value: 54, currency: "GBP" },
   { label: "Weekly walks", value: 72, sub: "Four walks" },
   { label: "Weekly walks", value: 72, detail: "brief", sub: "Four walks" },
+  {
+    label: "April operating balance",
+    value: -9824567.45,
+    currency: "EUR",
+    change: -112345.76,
+    sub: "After payroll",
+    emphasis: "hero",
+  },
+  {
+    label: "Bookings revenue",
+    value: 4850,
+    currency: "GBP",
+    change: 12.4,
+    changeIn: "percent",
+    sub: "Compared with March",
+  },
+  { label: "Refund reserve", value: 0, currency: "GBP", change: 0, sub: "Since last close" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Amount");
@@ -79,24 +99,40 @@ export const probes = [
 type AmountData = z.output<typeof props>;
 type AmountProps = c.Props<typeof props, typeof meta>;
 
+function changeCopy(
+  change: number,
+  kind: AmountData["changeIn"],
+  currency: AmountData["currency"],
+  lang?: string,
+) {
+  if (change === 0) return amountChangeLabel.flat;
+  const magnitude = Math.abs(change);
+  const shown =
+    kind === "percent" ? c.percentageLine(magnitude, lang) : c.moneyLine(magnitude, currency, "none", lang);
+  return amountChangeLabel[change > 0 ? "up" : "down"](shown);
+}
+
 function amountCopy(
   { style, label, value, currency, per, was, change, changeIn }: AmountData,
   lang?: string,
 ) {
   const { moneyLabels, perAmount, perWords } = c.wordsFor(lang);
   const price = c.moneyLine(value, currency, undefined, lang);
+  const sum = per === "none" ? price : perAmount(price, perWords[per]);
   return {
     shown: label ?? (style === "total" ? moneyLabels.total : undefined),
     price,
-    sum: per === "none" ? price : perAmount(price, perWords[per]),
+    sum,
+    // Other dictionaries own the ordering of their full rate expression.
+    rate: per !== "none" && c.localeOf(lang) === c.defaultLang ? amountRateLabel(perWords[per]) : undefined,
     was: was === undefined ? undefined : c.moneyLine(was, currency, undefined, lang),
-    change: change === undefined ? undefined : c.changeLine(change, changeIn, currency, lang),
+    change: change === undefined ? undefined : changeCopy(change, changeIn, currency, lang),
   };
 }
 
 function AmountLoading(input: AmountProps & { density: "comfortable" | "compact" }) {
   const { lang } = kit.useWords();
-  const { shown, sum, was, change } = amountCopy(input, lang);
+  const { shown, price, sum, rate, was, change } = amountCopy(input, lang);
   const { density, sub } = input;
   const large = input.emphasis === "hero",
     centered = large && !input.style;
@@ -110,7 +146,8 @@ function AmountLoading(input: AmountProps & { density: "comfortable" | "compact"
         density={density}
         content={[
           [large ? "label" : "body", shown],
-          [large ? "number" : "body", sum, "end"],
+          [large ? "number" : "body", rate ? price : sum, "end"],
+          ["caption", rate, "end"],
           ["caption", was, "end"],
           ["caption", change, "end"],
           ["caption", sub, "end"],
@@ -125,14 +162,6 @@ function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<ty
   const density = kit.useKit().density;
   const large = emphasis === "hero",
     align = large && !input.style ? "center" : "end";
-  const delta = input.change ?? 0;
-  const rateAt = density === "compact" && input.per !== "none" ? copy.sum.indexOf(copy.price) : -1;
-  const rate = (word: string) =>
-    word && (
-      <kit.KitText role="caption" tone="muted" part={null}>
-        {word}
-      </kit.KitText>
-    );
   return (
     <>
       <kit.KitText
@@ -140,31 +169,31 @@ function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<ty
         numberScale={large ? "display" : "compact"}
         {...{ align, density }}
         tabular
+        breakLongWords
         part="value"
       >
-        {rateAt < 0 ? (
-          copy.sum
-        ) : (
-          <>
-            {rate(copy.sum.slice(0, rateAt))}
-            {copy.price}
-            {rate(copy.sum.slice(rateAt + copy.price.length))}
-          </>
-        )}
+        {copy.rate ? copy.price : copy.sum}
       </kit.KitText>
+      {copy.rate && (
+        <kit.KitText role="caption" tone="muted" {...{ align, density }} part="rate">
+          {copy.rate}
+        </kit.KitText>
+      )}
       {copy.was !== undefined && (
-        <kit.KitText role="caption" tone="muted" strike {...{ align, density }} tabular part="was">
+        <kit.KitText
+          role="caption"
+          tone="muted"
+          strike
+          {...{ align, density }}
+          tabular
+          breakLongWords
+          part="was"
+        >
           {copy.was}
         </kit.KitText>
       )}
       {copy.change !== undefined && (
-        <kit.KitText
-          role="caption"
-          tone={delta > 0 ? "good" : delta < 0 ? "bad" : "muted"}
-          {...{ align, density }}
-          tabular
-          part="change"
-        >
+        <kit.KitText role="caption" tone="muted" {...{ align, density }} tabular breakLongWords part="change">
           {copy.change}
         </kit.KitText>
       )}
@@ -177,6 +206,9 @@ function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<ty
   );
 }
 
+// Entry loads or cuts to an exact reading. The kit rolls the number on confirmed changes;
+// the unit, label and link stay put, and no component exit or focus move is
+// scheduled. A replacement value wins immediately; reduced motion shows the same final reading.
 export function Amount(input: AmountProps) {
   const { lang } = kit.useWords();
   const state = kit.useComponentState();
@@ -194,23 +226,35 @@ export function Amount(input: AmountProps) {
       tone={centered ? "muted" : "text"}
       align={centered ? "center" : "start"}
       part="label"
+      breakLongWords
       {...{ density }}
     >
       {shown}
     </kit.KitText>
   );
+  const label =
+    goto && name ? (
+      <kit.KitGrid fitLast density={density}>
+        {name}
+        <kit.KitIcon name="chevron_right" scale="sm" decorative />
+      </kit.KitGrid>
+    ) : (
+      name
+    );
   return (
     <kit.KitCard style="inset" part="root" padded {...{ density, goto }} label={shown ?? copy.sum}>
       {centered || !shown ? (
         <kit.KitContent {...{ density }}>
-          {name}
+          {label}
           {figure}
         </kit.KitContent>
       ) : (
-        <kit.KitGrid columns={2} {...{ density }}>
-          {name}
-          <kit.KitContent {...{ density }}>{figure}</kit.KitContent>
-        </kit.KitGrid>
+        <kit.KitContent inset="md" {...{ density }}>
+          <kit.KitGrid columns={2} {...{ density }}>
+            {label}
+            <kit.KitContent {...{ density }}>{figure}</kit.KitContent>
+          </kit.KitGrid>
+        </kit.KitContent>
       )}
     </kit.KitCard>
   );

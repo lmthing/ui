@@ -110,7 +110,8 @@ describe("Amount fallback, metadata and reading", () => {
       { value: 1240.5, currency: "EUR", per: "month", was: 1500, change: -32, label: "Balance" },
       "a1",
     ).join("\n");
-    for (const text of ["€1,240.50 / month", "€1,500", "-€32", '"Balance"']) expect(line).toContain(text);
+    for (const text of ["€1,240.50", "Per month", "€1,500", "Down €32", '"Balance"'])
+      expect(line).toContain(text);
     expect(readComponent(components.Amount, { style: "total", value: 54 }, "a1").join("\n")).toContain(
       "Total",
     );
@@ -146,23 +147,40 @@ describe("Amount rendering", () => {
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
   });
-  it("strikes an old price and colours a change by its direction", () => {
+  it("strikes an old price and states the change in words", () => {
     const html = renderInstance("Amount", { value: 18, was: 20, change: -2 }, "filled", theme);
     expect(html).toContain("line-through");
     expect(html).toContain('data-testid="home/c1/was"');
-    expect(html).toContain("-$2");
+    expect(html).toContain("Down $2");
     expect(html).not.toContain('data-testid="home/c1/label"');
+  });
+  it.each([
+    [-112345.76, "money", "Down €112,345.76"],
+    [12.4, "percent", "Up 12.4%"],
+    [0, "money", "No change"],
+  ])("keeps large debit amounts exact with a change of %s", (change, changeIn, expected) => {
+    const input = { label: "April operating balance", value: -9824567.45, currency: "EUR", change, changeIn };
+    for (const emphasis of ["normal", "hero"]) {
+      const variant = { ...input, emphasis };
+      const html = renderInstance("Amount", variant, "filled", theme);
+      const read = readComponent(components.Amount, variant, "a1").join("\n");
+      for (const value of ["-€9,824,567.45", expected]) {
+        expect(html.includes(`>${value}</span>`)).toBe(true);
+        expect(read).toContain(value);
+      }
+    }
   });
   it("draws a skeleton while loading", () => {
     const html = renderInstance("Amount", { value: 18 }, "loading", theme);
     expect(html).toContain('aria-busy="true"');
   });
-  it("draws the compact rate as secondary copy without adding an address", () => {
+  it("gives a rate a secondary line without moving the amount off its rail", () => {
     const input = { value: 18, per: "each" };
     const html = renderInstance("Amount", input, "filled", { ...theme, density: "compact" });
-    expect(html).toMatch(/\$18<span[^>]+> \/ each<\/span>/);
+    expect(html).toMatch(/data-testid="home\/c1\/value"[^>]+>\$18<\/span>/);
+    expect(html).toMatch(/data-testid="home\/c1\/rate"[^>]+>Each<\/span>/);
     expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
-    expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 / each"]);
+    expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 — Each"]);
   });
   it("keeps the value and price parts while hiding the secondary note", () => {
     const input = { label: "Walks", value: 18, was: 20, change: -2, sub: "Morning routes" };

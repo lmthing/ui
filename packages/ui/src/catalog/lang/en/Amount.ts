@@ -11,3 +11,11 @@ export const words = {
   },
   perAmount: (amount: string, per: string) => `${amount} / ${per}`,
 };
+
+export const amountChangeLabel = {
+  up: (amount: string) => `Up ${amount}`,
+  down: (amount: string) => `Down ${amount}`,
+  flat: "No change",
+};
+
+export const amountRateLabel = (unit: string) => (unit === "each" ? "Each" : `Per ${unit}`);

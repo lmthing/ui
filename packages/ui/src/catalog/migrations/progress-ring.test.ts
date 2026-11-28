@@ -94,7 +94,7 @@ it("reloads adjacent legacy goals and a linked bar without changing positions, w
     expect.objectContaining({ code: "S.unknown_component", address: "goals/r7/root" }),
   ]);
   const read = readScreen(screen, components);
-  expect(read).toContain(`r7 Progress[ring] 8 of 5 — "${goal.label}"`);
+  expect(read).toContain(`r7 Progress[ring] 8 of 5 — Over by 3 — "${goal.label}"`);
   expect(read).not.toMatch(/Private caption|r7\/r1/);
   expect(read).toContain("[p1/r2 press→more]");
   expect(planAct(screen, components, {}, [{ address: "r7/ring", action: "press" }])).toMatchObject({

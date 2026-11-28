@@ -193,7 +193,8 @@ it("mounts a single addressed Button while its emphasis moves it between regions
     waitUntil: "networkidle",
   });
   const target = part("b1/root");
-  const full = (await target.boundingBox())!.width;
+  const inBody = () => target.evaluate((node) => Boolean(node.closest(".is_ScrollView")));
+  expect(await inBody()).toBe(false);
   for (const quiet of [true, false, true]) {
     const count = await page.evaluate(async (quiet) => {
       window.dispatchEvent(new CustomEvent("fixture-quiet", { detail: quiet }));
@@ -201,8 +202,9 @@ it("mounts a single addressed Button while its emphasis moves it between regions
       return document.querySelectorAll('[data-testid="fixture/b1/root"]').length;
     }, quiet);
     expect(count).toBe(1);
-    const width = (await target.boundingBox())!.width;
-    expect(quiet ? width < full : width === full).toBe(true);
+    expect(await inBody()).toBe(quiet);
+    const control = page.getByRole(quiet ? "link" : "button", { name: "Existing footer", exact: true });
+    expect(await control.getAttribute("data-testid")).toBe("fixture/b1/root");
   }
   expect(errors).toEqual([]);
 });

@@ -56,8 +56,8 @@ it("switches peer roots by keyboard and agent action, then uses one back per pus
   await at("fern");
   expect(await page.getByRole("tablist").count()).toBe(0);
   expect(await back().count()).toBe(1);
-  const quiet = button("Watering history");
-  expect((await box(quiet)).width).toBeLessThan(width / 2);
+  const quiet = page.getByRole("link", { name: "Watering history", exact: true });
+  expect((await box(quiet)).height).toBeGreaterThanOrEqual(size.control.md);
   expect(
     await quiet.evaluate((node) => {
       for (let parent = node.parentElement; parent; parent = parent.parentElement)

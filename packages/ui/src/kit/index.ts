@@ -12,3 +12,4 @@ export {
 } from "./interact/runtime";
 export * from "./screen";
 export * from "./motion";
+export * from "./surfaces";

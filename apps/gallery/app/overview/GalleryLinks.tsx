@@ -15,6 +15,9 @@ export function GalleryLinks() {
       <Text tag="a" href="?art-styles" color="$accent" fontSize="$label">
         Art styles
       </Text>
+      <Text tag="a" href="?surfaces" color="$accent" fontSize="$label">
+        Outside surfaces
+      </Text>
     </>
   );
 }
