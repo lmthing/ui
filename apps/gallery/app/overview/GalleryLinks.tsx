@@ -12,6 +12,9 @@ export function GalleryLinks() {
       <Text tag="a" href="?flows" color="$accent" fontSize="$label">
         Flow templates
       </Text>
+      <Text tag="a" href="?surfaces" color="$accent" fontSize="$label">
+        Outside surfaces
+      </Text>
     </>
   );
 }

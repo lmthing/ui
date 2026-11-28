@@ -4,6 +4,7 @@ import {
   KitContent,
   KitFigure,
   KitHeader,
+  KitIcon,
   KitLayoutText,
   KitMeter,
   KitRing,
@@ -11,8 +12,10 @@ import {
   KitSkeleton,
   KitState,
   KitText,
+  PartScope,
   useComponentState,
   useKit,
+  usePartContext,
   useWords,
 } from "../kit";
 import {
@@ -32,6 +35,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
+import { progressLoadFailed, progressOverTarget, progressViewDetails } from "../catalog/lang/en/Progress";
 import { prompt } from "../entry/prompt-Progress.generated";
 export const meta = {
   id: "Progress",
@@ -54,20 +58,28 @@ export const meta = {
     addressedWhen: { style: "bars" },
     variants: { tone: ["warn", "good", "bad"] },
   },
-  parts: ["root", "ring", "value", "label", "sub", "deadline"],
-  states: ["filled", "empty", "loading"],
+  parts: ["root", "ring", "value", "label", "sub", "deadline", "status", "over_target"],
+  states: ["filled", "empty", "loading", "error"],
   actions: { items: { root: ["press"] } },
+  readError: true,
+  readInState: (_input, state) => state === "empty",
   read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
     const { style, bars, figures, sub, detail } = input as {
       style: "bars" | "ring";
-      bars: (Goal & { label: string })[];
+      bars: (Goal & { id?: string; label: string; goto?: string })[];
       figures: "exact" | "short";
       sub?: string;
       detail: "full" | "brief";
     };
+    if (state === "error") return [progressLoadFailed, ...bars.map(({ label }) => JSON.stringify(label))];
+    if (state === "empty") return [wordsFor(lang).progressUnavailable];
+    if (state !== "filled") return [];
     if (!bars.length) return [wordsFor(lang).progressUnavailable];
-    if (style !== "ring") return bars.flatMap((bar) => goalReading(bar, figures, lang));
+    if (style !== "ring")
+      return bars.flatMap((bar, index) => [
+        ...goalReading(bar, figures, lang),
+        ...(bar.goto ? [`${bar.id ?? `r${index + 1}`} ${progressViewDetails}`] : []),
+      ]);
     const goal = bars[0];
     return goal
       ? [
@@ -144,9 +156,21 @@ function deadlineLine({ due, unit, value, of }: Goal, lang?: string) {
   return `${words.progressDue(appointmentDate(due, lang))} · ${words.progressRemaining(remaining, unit)}`;
 }
 
+function exceededLine({ value, of, unit }: Goal, lang?: string) {
+  if (value <= of) return undefined;
+  const amount = numberLine(remainingAmount(of, value), lang);
+  return progressOverTarget(unit ? `${amount} ${unit}` : amount);
+}
+
 function goalReading(goal: Goal, figures: "exact" | "short", lang?: string) {
   const deadline = deadlineLine(goal, lang);
-  return [amountLine(goal, figures, lang), ...(deadline ? [deadline] : [])];
+  const exceeded = exceededLine(goal, lang);
+  return [
+    amountLine(goal, figures, lang),
+    ...(figures === "short" ? [amountLine(goal, "exact", lang)] : []),
+    ...(exceeded ? [exceeded] : []),
+    ...(deadline ? [deadline] : []),
+  ];
 }
 
 export function fallback(_input: FallbackInput): z.input<typeof props> {
@@ -184,6 +208,8 @@ export const examples = [
   { ...ring, detail: "brief" },
   { bars: [{ label: "Blocks sewn", value: 8, of: 12, unit: "blocks", due: "2026-12-05" }] },
   { style: "ring", bars: [{ label: "Blocks sewn", value: 8, of: 12, unit: "blocks", due: "2026-12-05" }] },
+  { style: "ring", bars: [{ label: "Meals packed", value: 0, of: 24, unit: "meals" }] },
+  { style: "ring", bars: [] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Progress");
@@ -230,7 +256,7 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
   const density = useKit().density;
   const goal = bars[0]!;
   const scale = emphasis === "hero" ? "lg" : "md";
-  const { lang } = useWords();
+  const { lang, words } = useWords();
   const caption = (
     <KitHeader
       align="center"
@@ -241,7 +267,11 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
   );
   const loading = (
     <KitFigure
-      caption={caption}
+      caption={
+        <KitText role="body" tone="muted" align="center" part={null}>
+          {goal.label} · {words.loadingLabel}
+        </KitText>
+      }
       media={<KitSkeleton shape="ring" ring={scale} lead="none" inset="none" density={density} />}
     />
   );
@@ -250,7 +280,7 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
       <KitFigure
         caption={caption}
         media={
-          <KitRing value={goal.value} of={goal.of} scale={scale} part="ring">
+          <GoalRing goal={goal} scale={scale}>
             <KitLayoutText
               line={{ text: numberLine(goal.value, lang), part: "value", role: "figure" }}
               align="center"
@@ -265,29 +295,76 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
               align="center"
               density={density}
             />
-          </KitRing>
+          </GoalRing>
         }
       />
+      <ProgressExceeded goal={goal} align="center" />
       <ProgressDeadline goal={goal} align="center" />
     </KitState>
   );
 }
 
+function ProgressExceeded({ goal, align }: { goal: Goal; align: "start" | "center" }) {
+  const { lang } = useWords();
+  const line = exceededLine(goal, lang);
+  return line ? (
+    <KitText role="caption" tone="muted" part={align === "center" ? "over_target" : null} align={align}>
+      {line}
+    </KitText>
+  ) : null;
+}
+
+function GoalRing({ goal, scale, children }: { goal: Goal; scale: "md" | "lg"; children: React.ReactNode }) {
+  const { signature, ...scope } = usePartContext();
+  const { environment } = useKit();
+  const cue = goal.value > 0 && Boolean(scope.cue || environment.cue);
+  return (
+    <PartScope {...scope} {...(cue && signature ? { signature } : {})}>
+      <KitRing value={goal.value} of={goal.of} scale={scale} part="ring">
+        {children}
+      </KitRing>
+    </PartScope>
+  );
+}
+
+function ProgressStatus({ bars }: Pick<ViewProps, "bars">) {
+  const { words } = useWords();
+  const scope = usePartContext();
+  const failed = scope.state === "error";
+  return (
+    <PartScope {...scope} state={failed ? "error" : "empty"}>
+      <KitState
+        part="status"
+        retain={failed && bars.length > 0}
+        message={failed ? progressLoadFailed : words.progressUnavailable}
+        {...(!failed ? { icon: "bar_chart" as const } : {})}
+      >
+        {failed &&
+          bars.map(({ id, label }) => (
+            <KitText key={id} part={null}>
+              {label}
+            </KitText>
+          ))}
+      </KitState>
+    </PartScope>
+  );
+}
+
+// Keep the confirmed value and goal anchored; only the ring's arc animates for a positive cue.
+// Bars update inside their tracks. Empty, unavailable and exit cut, without a new focus target.
+// Subsequent updates supersede the prior cue; reduced motion uses the same exact values.
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
   const density = useKit().density;
-  const { lang, words } = useWords();
+  const { lang } = useWords();
   const state = useComponentState();
+  const unavailable = state === "empty" || (state === "filled" && !bars.length);
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {!bars.length ? (
-        <KitState density={density}>
-          {state === "filled" && (
-            <KitText role="body" tone="muted" part={null}>
-              {words.progressUnavailable}
-            </KitText>
-          )}
-        </KitState>
+      {state === "error" || unavailable ? (
+        <ProgressStatus bars={bars} />
+      ) : !bars.length ? (
+        <KitState density={density} />
       ) : style === "ring" ? (
         <ProgressRing {...input} />
       ) : (
@@ -312,12 +389,24 @@ export function Progress(input: ViewProps) {
                   tone={bar.value > bar.of ? bar.tone : "accent"}
                   slim={density === "compact"}
                 />
+                <ProgressExceeded goal={bar} align="start" />
                 <ProgressDeadline goal={bar} align="start" />
+                {bar.goto && <ProgressDetails />}
               </KitContent>
             </KitRow>
           ))}
         </KitState>
       )}
     </KitCard>
+  );
+}
+
+function ProgressDetails() {
+  return (
+    <KitContent lead={<KitIcon name="chevron_right" scale="sm" decorative />} lineRole="body">
+      <KitText role="body" tone="muted" part={null}>
+        {progressViewDetails}
+      </KitText>
+    </KitContent>
   );
 }

@@ -56,8 +56,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
             : {}),
         },
       ];
-    case "Field":
-      return frame.fields.map((field, i) => ({
+    case "Field": {
+      const bound = frame.fields.map((field, i) => ({
         id: `field_${i + 1}`,
         c,
         label: clip(fieldLabel(field), 24),
@@ -65,6 +65,17 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
+      // The player only carries bound fields forward. Demo inputs always mount blank.
+      return [
+        ...bound,
+        ...(frame.demoInputs ?? []).map(({ kind, label }, i) => ({
+          id: `demo_${i + 1}`,
+          c,
+          kind,
+          label,
+        })),
+      ];
+    }
     case "KeyValue":
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "Waitlist":
@@ -94,6 +105,14 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
     title: clip(label, 24),
     goto: previewTarget(flow, target),
   }));
+  if (frame.choiceButtons)
+    return next.map(({ title: label, goto }, i) => ({
+      id: `action_${i + 1}`,
+      c: "Button",
+      label,
+      goto,
+      ...(i > 0 ? { emphasis: "quiet" } : {}),
+    }));
   if (next.length > 1)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
@@ -102,12 +121,22 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
 }
 
 /** Gallery fixture for a played step. Model output never writes a screen or a goto. */
-export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowState): ScreenLike {
+export function flowPreviewScreen(
+  flow: FilledFlow,
+  index: number,
+  state?: FlowState,
+  copy?: { message?: string; codeHint?: string },
+): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
   if (state && !frame.states.includes(state))
     throw new Error(`Flow step does not show ${state}: ${frame.key}`);
   const body = frame.layout.components.flatMap((c) => previewPart(c, flow, frame, state));
+  const codeHint = copy?.codeHint;
+  if (codeHint) {
+    const code = body.find((part) => part.c === "Field" && part.kind === "code");
+    if (code) code.hint = clip(codeHint, 60);
+  }
   const success = body.some(({ id }) => id === "success");
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
@@ -121,7 +150,7 @@ export function flowPreviewScreen(flow: FilledFlow, index: number, state?: FlowS
         emphasis: "quiet",
       });
   }
-  const message = state && frame.messages[state];
+  const message = state && (copy?.message ?? frame.messages[state]);
   if (message) {
     const note = body.findIndex(({ c }) => c === "Note");
     body.splice(note < 0 ? body.length : note, note < 0 ? 0 : 1, {

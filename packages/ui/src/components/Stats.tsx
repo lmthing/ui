@@ -12,18 +12,22 @@ import {
   type Props,
   type ThemeDensity,
   variantProps,
+  wordsFor,
 } from "../catalog";
+import { statsUnavailable } from "../catalog/lang/en/Stats";
 import {
   KitCard,
   KitContent,
   KitEmpty,
   KitGrid,
-  KitIcon,
   KitRow,
   KitSkeleton,
   KitText,
   useComponentState,
   useKit,
+  useWords,
+  PartScope,
+  usePartContext,
 } from "../kit";
 import { prompt } from "../entry/prompt-Stats.generated";
 
@@ -40,9 +44,19 @@ export const meta = {
   tier: "phone",
   realPath: "Aggregates over records in the on-device database.",
   items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
-  parts: ["root"],
+  parts: ["root", "period", "label"],
   variants: { arrange: ["grid", "rows"] },
   states: ["filled", "empty", "loading"],
+  readInState: (_input, state) => state === "empty",
+  read: (input, state, lang): string[] => {
+    const { tiles = [] } = input as { tiles?: (z.output<typeof tileProps> & { id?: string })[] };
+    if (state === "empty" || (state === "filled" && !tiles.length)) return [statsUnavailable];
+    return state === "filled"
+      ? tiles.flatMap((tile, index) =>
+          tile.trend ? [`${tile.id ?? `r${index + 1}`} ${trendLabel(tile.trend, lang)}`] : [],
+        )
+      : [];
+  },
 } as const satisfies Meta;
 
 // Keep older display-ready percentages, currency and grouped figures. Never accept prose as a figure.
@@ -61,6 +75,7 @@ const tileProps = z.strictObject({
 
 export const props = z.strictObject({
   ...variantProps(meta.variants),
+  period: text(36).optional(),
   tiles: z.array(tileProps).max(4).meta({ repair: "drop_invalid_items" }),
 });
 
@@ -98,15 +113,24 @@ const walkTiles = [
 
 export const examples = [
   {
+    period: "Today",
     tiles: [
-      { label: "Plants", value: "12" },
+      { label: "Soil checks", value: "12" },
       { label: "Watered", value: "3" },
-      { label: "Due", value: "2" },
+      { label: "Still due", value: "2" },
     ],
   },
-  { tiles: walkTiles },
-  { arrange: "rows", tiles: walkTiles },
-  { tiles: [{ label: "Overdue returns", value: "0" }] },
+  { period: "This week", tiles: walkTiles },
+  { arrange: "rows", period: "This week", tiles: walkTiles },
+  { period: "April 2026", tiles: [{ label: "Overdue returns", value: "0" }] },
+  {
+    arrange: "rows",
+    period: "April 2026",
+    tiles: [
+      { label: "Projected cash flow", value: "−125,400", unit: "EUR", trend: "down" },
+      { label: "Available credit", value: "995,000", unit: "EUR" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Stats");
@@ -124,47 +148,80 @@ export const probes = [
     ...write("Show the measured total Returns: 0. The exchange count is unavailable, so omit its tile."),
     expectProps: { tiles: [{ label: "Returns", value: "0" }] },
   },
+  {
+    ...write("For April 2026, show 12 plants watered and 3 repotted. Put April 2026 above both totals."),
+    fields: { period: "April 2026" },
+  },
 ] satisfies Probe[];
 
 type Tile = Props<typeof props, typeof meta>["tiles"][number];
 
+function trendLabel(trend: NonNullable<z.output<typeof tileProps>["trend"]>, lang?: string) {
+  return wordsFor(lang).trend[trend === "up" ? "rising" : trend === "down" ? "falling" : "steady"];
+}
+
 function TileValue({ tile, density, grid }: { tile: Tile; density: ThemeDensity; grid: boolean }) {
+  const { signature: _signature, ...scope } = usePartContext();
+  const align = grid ? "start" : "end";
+  // Legacy count_up remains a valid screen choice, but never substitutes an invented measurement.
   const unit = tile.unit && (
-    <KitText role="caption" tone="muted" part="unit" density={density} align={grid ? "start" : "end"}>
-      {grid ? " " : ""}
+    <KitText role="caption" tone="muted" part="unit" {...{ density, align }} breakLongWords>
       {tile.unit}
     </KitText>
   );
-  const value = (
-    <KitText role="number" part="value" align={grid ? "start" : "end"} density={density}>
-      {tile.value}
-      {grid && unit}
-    </KitText>
-  );
-  return grid ? (
-    value
-  ) : (
+  return (
     <>
-      {value}
-      {unit}
+      <PartScope {...scope}>
+        <KitText
+          role="number"
+          part="value"
+          numberScale={grid ? "display" : "compact"}
+          {...{ density, align }}
+          tabular
+          breakLongWords
+        >
+          {grid && unit ? (
+            <>
+              {tile.value} {unit}
+            </>
+          ) : (
+            tile.value
+          )}
+        </KitText>
+      </PartScope>
+      {!grid && unit}
     </>
   );
 }
 
-function TileRow({ tile, grid, density }: { tile: Tile; grid: boolean; density: ThemeDensity }) {
+function TileRow({
+  tile,
+  grid,
+  density,
+  padded,
+}: {
+  tile: Tile;
+  grid: boolean;
+  density: ThemeDensity;
+  padded: boolean;
+}) {
+  const { lang } = useWords();
   const trend = tile.trend && (
-    <KitIcon
-      name={tile.trend === "up" ? "trending_up" : tile.trend === "down" ? "trending_down" : "minus"}
+    <KitText
+      role="caption"
       tone={tile.trend === "up" ? "good" : tile.trend === "down" ? "bad" : "muted"}
-      scale="sm"
       part="trend"
-    />
+      density={density}
+    >
+      {trendLabel(tile.trend, lang)}
+    </KitText>
   );
   const label = (
-    <KitContent lead={trend} lineRole="body" density={density}>
-      <KitText role="body" tone="muted" part="label" density={density}>
+    <KitContent lineRole="body" rhythm="flush" density={density}>
+      <KitText role="body" tone="muted" part="label" density={density} breakLongWords>
         {tile.label}
       </KitText>
+      {trend}
     </KitContent>
   );
   const value = <TileValue {...{ tile, density, grid }} />;
@@ -172,19 +229,21 @@ function TileRow({ tile, grid, density }: { tile: Tile; grid: boolean; density: 
     <KitRow
       item={tile.id}
       label={tile.label}
-      lineRole="number"
+      lineRole={grid ? "number" : "body"}
       density={grid ? density : "compact"}
-      inset={grid ? "none" : "md"}
+      inset={padded ? "none" : "md"}
     >
       {grid ? (
-        <>
+        <KitContent lineRole="body" density={density}>
           {value}
           {label}
-        </>
+        </KitContent>
       ) : (
-        <KitGrid fitLast density={density}>
+        <KitGrid density={density}>
           {label}
-          {value}
+          <KitContent lineRole="body" rhythm="flush" density={density}>
+            {value}
+          </KitContent>
         </KitGrid>
       )}
     </KitRow>
@@ -199,34 +258,50 @@ function TileLoading({ tile, density }: { tile: Tile; density: ThemeDensity }) {
         inset="none"
         density={density}
         content={[
-          ["number", tile.value],
+          ["number", tile.unit ? `${tile.value} ${tile.unit}` : tile.value],
           ["body", tile.label],
+          ["caption", tile.trend && trendLabel(tile.trend)],
         ]}
       />
     </KitRow>
   );
 }
 
-export function Stats({ arrange, tiles }: Props<typeof props, typeof meta>) {
+// Entry and exit cut. A changed standalone figure rolls via KitText; a grid figure with an inline
+// unit cuts to keep the measurement together. Labels, units and period stay put. No focus or action
+// is owned here; the host can announce a confirmed refresh. Reduced motion cuts to the exact value.
+export function Stats({ arrange, period, tiles }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const density = useKit().density;
   const grid = arrange === "grid" && tiles.length !== 1;
-  const columns = tiles.length === 3 ? 3 : 2;
+  const columns = tiles.length === 3 && tiles.every((tile) => tile.value.length <= 5) ? 3 : 2;
   const layout = tiles.length <= 1 ? "rows" : arrange;
   const empty = state === "empty" || (!tiles.length && state !== "loading");
+  const padded = Boolean(period) || (!empty && grid);
   return (
-    <KitCard style="inset" part="root" padded={grid && !empty} density={density}>
+    <KitCard style="inset" part="root" padded={padded} density={density}>
+      {period && (
+        <KitText role="body" part="period" density={density} breakLongWords>
+          {period}
+        </KitText>
+      )}
       {empty ? (
-        <KitEmpty part="label" />
+        <KitEmpty part="label" title={statsUnavailable} icon="bar_chart" prominence="body" decorativeIcon />
       ) : state === "loading" && (!grid || !tiles.length) ? (
-        <KitSkeleton rows={Math.max(1, tiles.length)} lead="none" shape="pairs" density="compact" />
+        <KitSkeleton
+          rows={Math.max(1, tiles.length)}
+          lead="none"
+          shape="pairs"
+          density="compact"
+          inset={padded ? "none" : "md"}
+        />
       ) : (
         <KitGrid arrange={layout} {...{ columns, density }}>
           {tiles.map((tile) =>
             state === "loading" ? (
               <TileLoading key={tile.id} {...{ tile, density }} />
             ) : (
-              <TileRow key={tile.id} {...{ tile, grid, density }} />
+              <TileRow key={tile.id} {...{ tile, grid, density, padded }} />
             ),
           )}
         </KitGrid>

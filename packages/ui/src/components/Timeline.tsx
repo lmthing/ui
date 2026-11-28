@@ -6,7 +6,6 @@ import {
   detailOf,
   itemsOf,
   itemVariantProps,
-  placeholderTitle,
   screenId,
   text,
   thingOf,
@@ -18,8 +17,19 @@ import {
   type ThemeDensity,
   variantProps,
 } from "../catalog";
-import { KitCard, KitEmpty, KitHours, KitSkeleton, useComponentState, useKit } from "../kit";
-import { TimelineFlow, type TimelineFlowGroup } from "../kit/timeline";
+import { timelineLabels } from "../catalog/lang/en/Timeline";
+import {
+  KitCard,
+  KitEmpty,
+  KitHours,
+  KitIcon,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  KitTime,
+  useComponentState,
+  useKit,
+} from "../kit";
 import { prompt } from "../entry/prompt-Timeline.generated";
 
 export const meta = {
@@ -38,17 +48,23 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   items: {
     key: "items",
-    parts: ["root", "time", "title", "meta"],
+    parts: ["root", "time", "title", "meta", "status"],
     variants: { tone: ["neutral", "good", "warn", "bad"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
-  parts: ["root"],
+  parts: ["root", "status"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
-  read: (input, state) =>
-    state === "filled" && (input as { style: string }).style === "hours"
-      ? (input as { items: { time: string; end: string }[] }).items.map((item) => `${item.time}–${item.end}`)
-      : [],
+  readInState: (_input, state) => state === "empty",
+  read: (input, state): string[] => {
+    const { style, items } = input as { style: string; items: (z.output<typeof event> & { id?: string })[] };
+    if (state === "empty" || (state === "filled" && !items.length)) return [timelineLabels.empty];
+    if (state !== "filled") return [];
+    if (style === "hours") return items.map((item) => `${item.time}–${item.end}`);
+    return items.flatMap(({ id, done, status }, index) =>
+      done && !status ? [`${id ?? `r${index + 1}`} ${timelineLabels.completed}`] : [],
+    );
+  },
 } as const satisfies Meta;
 
 const event = z.strictObject({
@@ -56,6 +72,7 @@ const event = z.strictObject({
   time: text(12),
   title: text(32),
   meta: text(32).optional(),
+  status: text(26).optional(),
   done: z.boolean().default(false),
   end: clock.optional(),
   goto: screenId.optional(),
@@ -65,11 +82,11 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["day", "history", "hours"]).default("day"),
-    items: z.array(event).min(1).max(8),
+    items: z.array(event).max(8),
   })
-  .refine(({ style, items }) => style === "hours" || items.length <= 6, {
+  .refine(({ style, items }) => (style === "hours" ? items.length > 0 : items.length <= 6), {
     path: ["items"],
-    message: "Day and history take up to six events",
+    message: "Hours takes one to eight activities; day and history take up to six events",
   })
   .refine(
     ({ style, items }) =>
@@ -79,6 +96,7 @@ export const props = z
             item.end !== undefined &&
             item.time < item.end &&
             item.meta === undefined &&
+            item.status === undefined &&
             !item.done
           : item.end === undefined && item.goto === undefined,
       ),
@@ -100,19 +118,14 @@ export const props = z
         : value,
   );
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+export function fallback({ cast }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).flatMap((item) => {
     const title = titleOf(item, 32, thing),
       detail = detailOf(item, 32, thing);
     return title ? [{ time: "—", title, ...(detail ? { meta: detail } : {}) }] : [];
   });
-  return {
-    style: "day",
-    items: items.length
-      ? items
-      : [0, 1, 2].map((index) => ({ time: "—", title: placeholderTitle(index, lang) })),
-  };
+  return { style: "day", items };
 }
 
 const careHours = [
@@ -133,6 +146,20 @@ export const examples = [
   { style: "day", items: dayWalks },
   { style: "hours", items: careHours },
   { items: dayWalks },
+  {
+    style: "day",
+    items: [
+      { time: "09:15", title: "Clover’s key pickup", meta: "North gate lockbox", done: true },
+      {
+        time: "09:40",
+        title: "Clover’s park loop",
+        meta: "Riverside gate",
+        status: "Delayed by roadworks",
+        tone: "warn",
+      },
+    ],
+  },
+  { style: "history", items: [] },
   ...(["good", "warn", "bad"] as const).map((tone) => ({
     style: "hours" as const,
     items: careHours.map((item, index) => (index === 0 ? { ...item, tone } : item)),
@@ -162,23 +189,41 @@ export const probes = [
 
 type TimelineProps = Props<typeof props, typeof meta>;
 
-function TimelineEvents({ items, density }: Pick<TimelineProps, "items"> & { density: ThemeDensity }) {
-  const group: TimelineFlowGroup = {
-    rows: items.map((item) => ({
-      kind: "event",
-      item: item.id,
-      tone: item.tone,
-      slots: {
-        title: { part: "title", text: item.title },
-        time: { part: "time", text: item.time },
-        ...(item.meta ? { detail: { part: "meta", text: item.meta } } : {}),
-        done: item.done,
-      },
-    })),
-  };
-  return <TimelineFlow groups={[group]} density={density} />;
+function eventStatus(event: Pick<TimelineProps["items"][number], "status" | "done">) {
+  return event.status ?? (event.done ? timelineLabels.completed : undefined);
 }
 
+function TimelineEvent({ event, density }: { event: TimelineProps["items"][number]; density: ThemeDensity }) {
+  const status = eventStatus(event);
+  return (
+    <KitRow
+      item={event.id}
+      label={event.title}
+      tone={event.tone}
+      density={density}
+      leading={<KitTime value={event.time} part="time" wrap />}
+      leadingAlign="start"
+      trailing={event.done && <KitIcon name="check" decorative />}
+    >
+      <KitText role="body" part="title" density={density} breakLongWords>
+        {event.title}
+      </KitText>
+      {status && (
+        <KitText role="caption" part="status" density={density} breakLongWords>
+          {status}
+        </KitText>
+      )}
+      {event.meta && (
+        <KitText role="caption" part="meta" tone="muted" density={density} breakLongWords>
+          {event.meta}
+        </KitText>
+      )}
+    </KitRow>
+  );
+}
+
+// Event updates cut in place under the same row id and timestamp. The hours rail owns only its
+// cued day-unfold; the shared kit settles it in reduced motion. The event list has no focus or exit effect.
 export function Timeline({ style, items }: TimelineProps) {
   const state = useComponentState();
   const density = useKit().density;
@@ -186,9 +231,25 @@ export function Timeline({ style, items }: TimelineProps) {
   return (
     <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
       {state === "loading" ? (
-        <KitSkeleton rows={items.length} lead="time" items={items} density={density} />
-      ) : state === "empty" ? (
-        <KitEmpty part="title" />
+        <KitSkeleton
+          rows={Math.max(1, items.length)}
+          lead="time"
+          {...(items.length
+            ? {
+                items: items.map((event) => ({
+                  lines: [
+                    { text: event.title, role: "body" as const },
+                    ...[eventStatus(event), event.meta].flatMap((text) =>
+                      text ? [{ text, role: "caption" as const }] : [],
+                    ),
+                  ],
+                })),
+              }
+            : {})}
+          density={density}
+        />
+      ) : state === "empty" || !items.length ? (
+        <KitEmpty part="status" title={timelineLabels.empty} icon="clock" prominence="body" decorativeIcon />
       ) : hours ? (
         <KitHours
           blocks={items.map(({ id, time, end, title, tone, goto }) => ({
@@ -201,7 +262,7 @@ export function Timeline({ style, items }: TimelineProps) {
           }))}
         />
       ) : (
-        <TimelineEvents {...{ items, density }} />
+        items.map((event) => <TimelineEvent key={event.id} {...{ event, density }} />)
       )}
     </KitCard>
   );
