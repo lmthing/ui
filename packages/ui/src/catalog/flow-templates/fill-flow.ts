@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { flowBindingsSchema, type FlowState } from "./flow-template";
+import { flowBindingsSchema, flowTier, type FlowState } from "./flow-template";
 import { checkBindings } from "./check-template";
 import type { FlowTemplateSource } from "./registry";
 
@@ -18,6 +18,7 @@ const filledJourney = z.strictObject({
         id: z.string().min(1),
         see: z.string().min(1),
         do: z.string().min(1).optional(),
+        tier: flowTier.optional(),
         hands_off_to: z.strictObject({ role: z.string().min(1), step: z.string().min(1) }).optional(),
       }),
     )
@@ -36,6 +37,9 @@ export type FlowFrame = {
   do?: string;
   title: string;
   layout: Step["layout"];
+  tier?: Step["tier"];
+  choiceButtons?: true;
+  demoInputs?: NonNullable<Step["preview"]>["demoInputs"];
   states: readonly FlowState[];
   messages: Partial<Record<FlowState, string>>;
   fields: readonly string[];
@@ -82,6 +86,9 @@ function frameOf(role: Role, step: Step, fallback: Step | undefined, fill: Fill)
     ...(step.do ? { do: fill(step.do) } : {}),
     title: step.preview ? fill(step.preview.title) : step.id.replaceAll("_", " "),
     layout: step.layout,
+    ...(step.tier ? { tier: step.tier } : {}),
+    ...(step.preview?.choiceButtons ? { choiceButtons: true } : {}),
+    ...(step.preview?.demoInputs ? { demoInputs: step.preview.demoInputs } : {}),
     states: step.states,
     messages,
     fields: step.preview?.fields ?? [],
@@ -151,6 +158,7 @@ export function fillFlow(template: FlowTemplateSource, input: unknown) {
         id: step.id,
         see: fill(step.see),
         ...(step.do ? { do: fill(step.do) } : {}),
+        ...(step.tier ? { tier: step.tier } : {}),
         ...(step.hands_off_to ? { hands_off_to: step.hands_off_to } : {}),
       })),
     }),

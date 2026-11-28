@@ -16,6 +16,7 @@ const outcomes = {
   check_in: ["attendee/arrived"],
   pay_receipt: ["payer/receipt"],
   signup_onboard: ["member/ready"],
+  login_recovery: ["member/signed_in"],
   class_waitlist: ["member/booked", "member/left"],
   assign_work_order: ["requester/closed"],
   lead_to_client: ["owner/client", "prospect/declined"],
@@ -118,6 +119,44 @@ test("search intersects the query and category, preserves scope at zero, and cle
   });
   expect(flowPreviewScreen(flow, 3).components.find(({ c }) => c === "KeyValue")).toMatchObject({
     pairs: [{ label: "Category", value: "Brakes" }],
+  });
+});
+
+test("login and password recovery require verification, never bind secrets, and end at member content", () => {
+  const template = flowTemplates.get("login_recovery")!;
+  const { id: _id, ...sample } = template.examples[0]!;
+  const flow = fillFlow(template, sample);
+  const targets = (key: string) =>
+    flow.frames.find((frame) => frame.key === `member/${key}`)!.forward.map(({ target }) => target);
+  expect(targets("login")).toEqual(["member/verify", "member/recover"]);
+  expect(targets("recover")).toEqual(["member/recovery_verify"]);
+  expect(targets("recovery_verify")).toEqual(["member/reset"]);
+  expect(targets("reset")).toEqual(["member/login_after_reset"]);
+  expect(targets("login_after_reset")).toEqual(["member/verify"]);
+  expect(targets("verify")).toEqual(["member/signed_in"]);
+  expect(flow.journeys[0]!.steps.every(({ tier }) => tier === "service")).toBe(true);
+  expect(Object.keys(flow.record)).toEqual(["account_email", "member_area", "next_up"]);
+  expect(() => fillFlow(template, { ...sample, record: { ...sample.record, code: "000000" } })).toThrow(
+    "Unknown record field code",
+  );
+  for (const [index, frame] of flow.frames.entries()) {
+    const fields = flowPreviewScreen(flow, index).components.filter(({ c }) => c === "Field");
+    expect(fields.every(({ id, value }) => id.startsWith("demo_") && value === undefined)).toBe(true);
+    if (frame.states.includes("error")) {
+      expect(flowPreviewScreen(flow, index, "error").components.some(({ goto }) => goto)).toBe(false);
+    }
+  }
+  const login = flowPreviewScreen(flow, 0);
+  expect(login.components.filter(({ c }) => c === "Button")).toMatchObject([
+    { label: "Log in" },
+    { label: "Forgot password?", emphasis: "quiet" },
+  ]);
+  const home = flowPreviewScreen(flow, flow.frames.length - 1);
+  expect(home).toMatchObject({
+    title: "Class schedule",
+    components: expect.arrayContaining([
+      { id: "facts", c: "KeyValue", pairs: [{ label: "Next up", value: "Tuesday pottery" }] },
+    ]),
   });
 });
 

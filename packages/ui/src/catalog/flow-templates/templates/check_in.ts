@@ -135,7 +135,8 @@ export const checkIn: FlowTemplate = {
         expect: "check_in",
       },
       {
-        request: "Let a visitor choose an open time for a one-to-one consultation and reserve it.",
+        request:
+          "Let visitors reserve a class with seats available now. There is no waitlist, and this is only the reservation, not marking anyone present.",
         expect: "book_slot",
       },
     ],

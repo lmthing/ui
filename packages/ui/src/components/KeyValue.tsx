@@ -7,6 +7,7 @@ import {
   itemsOf,
   placeholderTitle,
   placeholderValue,
+  screenId,
   secretRevealKey,
   secretRevealMatches,
   text,
@@ -46,8 +47,13 @@ export const meta = {
   variantParts: { "lead.none": { hides: ["icon"] } },
   states: ["filled", "empty", "loading"],
   actions: {
-    items: { reveal: ["toggle"], copy: ["copy"] },
-    when: { reveal: { masked: true }, copy: { masked: true } },
+    items: { reveal: ["toggle"], copy: ["copy"], value: ["press"] },
+    when: { reveal: { masked: true }, copy: { masked: true }, value: { linked: true } },
+  },
+  live: {
+    derive: ({ pairs }) => ({
+      pairs: (pairs as { goto?: string }[]).map((pair) => ({ ...pair, linked: Boolean(pair.goto) })),
+    }),
   },
   partTiers: { reveal: "ok", copy: "ok" },
   confirmParts: ["copy"],
@@ -56,6 +62,7 @@ export const meta = {
 const pairProps = z.strictObject({
   label: text(20),
   value: text(100),
+  goto: screenId.optional(),
   icon: icon.optional(),
   status: z.boolean().optional(),
   ...itemVariantProps(meta.items.variants),
@@ -77,6 +84,10 @@ export const props = z
       message: "Keep statuses to 20 characters and masked values to 28",
     },
   )
+  .refine(({ pairs, masked }) => pairs.every((pair) => !pair.goto || (!masked && !pair.status)), {
+    path: ["pairs"],
+    message: "Only an unmasked, non-status value can link to a screen",
+  })
   .overwrite((value) =>
     value.lead === "none"
       ? { ...value, pairs: value.pairs.map((pair) => ({ ...pair, icon: undefined })) }
@@ -161,6 +172,13 @@ export const examples = [
   },
   {
     pairs: [
+      { label: "Latest release", value: "Orlando in Love", icon: "music" },
+      { label: "Spotify", value: "Open in Spotify", goto: "spotify_artist", icon: "link" },
+      { label: "Follow status", value: "Followed", status: true, tone: "good", icon: "check" },
+    ],
+  },
+  {
+    pairs: [
       { label: "Last updated", value: "Friday at 2:40 pm", icon: "clock" },
       { label: "Reference", value: "LC-104" },
       { label: "Task", value: "Swap out the derailleur cage" },
@@ -193,6 +211,13 @@ export const probes = [
     fields: { "pairs.0.label": "Order status", "pairs.0.status": true },
   },
   read("Show the hidden walk entry code", { address: "k1/r1/reveal", action: "toggle" }, 11),
+  {
+    ...write(
+      'Show a Spotify fact with value "Open in Spotify" that links to the supplied screen "spotify_artist".',
+    ),
+    fields: { "pairs.0.value": "Open in Spotify", "pairs.0.goto": "spotify_artist" },
+  },
+  read("Open in Spotify", { address: "k1/r2/value", action: "press" }, 13),
 ] satisfies Probe[];
 
 type Pair = Props<typeof props, typeof meta>["pairs"][number];
@@ -254,22 +279,22 @@ function PairRow({
   masked: boolean;
 }) {
   const lead = pair.icon && <kit.KitIcon name={pair.icon} tone="muted" part="icon" decorative={loading} />;
-  const role = valueRole(pair.value);
+  const linked = !!pair.goto && !loading;
   return (
     <kit.KitRow
       {...(loading ? { part: null } : { item: pair.id })}
       label={pair.label}
-      {...(pair.status
-        ? { surface: "tinted", tone: pair.tone }
-        : !loading && { tone: pair.tone, mark: pair.mark })}
+      {...(!loading && !pair.status && { tone: pair.tone, mark: pair.mark })}
       inline={!horizontal}
       fitContent={!horizontal}
       density={density}
       leading={lead}
+      leadingAlign={linked && horizontal ? "row" : "line"}
     >
       <kit.KitGrid
         arrange={horizontal && !masked && pair.value.length <= 28 ? "grid" : "rows"}
         keyColumn
+        fitLast={linked}
         density={density}
       >
         {loading ? (
@@ -287,24 +312,16 @@ function PairRow({
         {masked ? (
           <MaskedValue pair={pair} loading={loading} density={density} />
         ) : (
-          <PairValue {...{ pair, role, loading, horizontal }} />
+          <PairValue {...{ pair, loading, horizontal }} />
         )}
       </kit.KitGrid>
     </kit.KitRow>
   );
 }
 
-function PairValue({
-  pair,
-  role,
-  loading,
-  horizontal,
-}: {
-  pair: Pair;
-  role: ReturnType<typeof valueRole>;
-  loading: boolean;
-  horizontal: boolean;
-}) {
+function PairValue({ pair, horizontal, loading }: { pair: Pair; horizontal: boolean; loading: boolean }) {
+  const figure = valueRole(pair.value) === "number" && !pair.goto;
+  const role = horizontal && figure ? "number" : "body";
   if (loading)
     return (
       <kit.KitSkeleton
@@ -314,14 +331,23 @@ function PairValue({
         content={[[role, pair.value, role === "number" && horizontal ? "end" : "start"]]}
       />
     );
+  if (pair.goto)
+    return (
+      <kit.KitText part={null} density="comfortable">
+        <kit.KitText part="value" goto={pair.goto} density="comfortable" breakLongWords>
+          {pair.value}
+        </kit.KitText>
+      </kit.KitText>
+    );
   return (
     <kit.KitText
       role={role}
       part="value"
       density="comfortable"
-      {...(role === "number" && horizontal && { align: "end", tabular: true })}
-      {...(pair.status && { emphasis: "strong", tone: "text" })}
+      {...(role === "number" && { align: "end" })}
+      tabular={figure}
       breakLongWords
+      {...(pair.status && { emphasis: "strong", tone: pair.tone === "neutral" ? "text" : pair.tone })}
     >
       {pair.value}
     </kit.KitText>

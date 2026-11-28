@@ -8,6 +8,7 @@ const id = z
 const sampleValue = z.union([text(240), z.number(), z.boolean()]);
 const recordType = z.enum(["string", "number", "boolean"]);
 const flowState = z.enum(["empty", "waiting", "error", "success"]);
+export const flowTier = z.enum(["phone", "ok", "people", "service"]);
 const stepRef = z
   .string()
   .max(121)
@@ -61,6 +62,12 @@ const preview = z.strictObject({
     .optional(),
   fields: z.array(id).min(1).max(6).optional(),
   invalidField: id.optional(),
+  choiceButtons: z.literal(true).optional(),
+  demoInputs: z
+    .array(z.strictObject({ kind: z.enum(["email", "password", "code"]), label: text(24) }))
+    .min(1)
+    .max(3)
+    .optional(),
   messages: z.partialRecord(flowState, text(160)).optional(),
 });
 
@@ -76,6 +83,7 @@ const step = z.strictObject({
     .max(3)
     .optional(),
   layout: stepLayout,
+  tier: flowTier.optional(),
   states: z
     .array(flowState)
     .min(1)

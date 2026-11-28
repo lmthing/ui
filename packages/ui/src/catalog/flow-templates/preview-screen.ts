@@ -79,8 +79,8 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
             : {}),
         },
       ];
-    case "Field":
-      return frame.fields.map((field, i) => ({
+    case "Field": {
+      const bound = frame.fields.map((field, i) => ({
         id: `field_${i + 1}`,
         c,
         label: clip(frame.labels?.[field] ?? fieldLabel(field), 24),
@@ -88,6 +88,17 @@ function previewPart(c: string, flow: FilledFlow, frame: FlowFrame, state?: Flow
           ? {}
           : { value: clip(String(flow.record[field]).replaceAll(/[\r\n]/g, " "), 40) }),
       }));
+      // The player only carries bound fields forward. Demo inputs always mount blank.
+      return [
+        ...bound,
+        ...(frame.demoInputs ?? []).map(({ kind, label }, i) => ({
+          id: `demo_${i + 1}`,
+          c,
+          kind,
+          label,
+        })),
+      ];
+    }
     case "KeyValue":
       return [{ id: "facts", c, pairs: pairs(flow, frame), ...(state === "empty" ? { state } : {}) }];
     case "Waitlist":
@@ -126,6 +137,14 @@ function previewActions(flow: FilledFlow, frame: FlowFrame, state?: FlowState): 
       { id: "action_1", c: "Button", label: confirm!.title, goto: confirm!.goto },
     ];
   }
+  if (frame.choiceButtons)
+    return next.map(({ title: label, goto }, i) => ({
+      id: `action_${i + 1}`,
+      c: "Button",
+      label,
+      goto,
+      ...(i > 0 ? { emphasis: "quiet" } : {}),
+    }));
   if (next.length > 1 || frame.actionList)
     return [
       { id: "choices", c: "List", lead: "none", rows: next.map((row) => ({ ...row, trail: "chevron" })) },
@@ -138,7 +157,7 @@ export function flowPreviewScreen(
   flow: FilledFlow,
   index: number,
   state?: FlowState,
-  { validationError = false, search }: { validationError?: boolean; search?: FlowSearch } = {},
+  options: { validationError?: boolean; search?: FlowSearch; message?: string; codeHint?: string } = {},
 ): ScreenLike {
   const frame = flow.frames[index];
   if (!frame || !("components" in frame.layout)) throw new Error(`No preview for flow step ${index}`);
@@ -150,11 +169,11 @@ export function flowPreviewScreen(
       title: frame.title,
       components: [
         { id: "header", c: "Header", title: frame.title },
-        ...previewSearch(flow, frame, (target) => previewTarget(flow, target), state, search),
+        ...previewSearch(flow, frame, (target) => previewTarget(flow, target), state, options.search),
       ],
     };
   }
-  const body = previewBody(flow, frame, frame.layout.components, state, validationError);
+  const body = previewBody(flow, frame, frame.layout.components, state, options);
   return {
     id: flowScreenId(index),
     title: frame.title,
@@ -169,9 +188,17 @@ function previewBody(
   frame: FlowFrame,
   layout: readonly string[],
   state: FlowState | undefined,
-  validationError: boolean,
+  {
+    validationError,
+    message: copy,
+    codeHint,
+  }: { validationError?: boolean; message?: string; codeHint?: string },
 ) {
   const body = layout.flatMap((c) => previewPart(c, flow, frame, state));
+  if (codeHint) {
+    const code = body.find((part) => part.c === "Field" && part.kind === "code");
+    if (code) code.hint = clip(codeHint, 60);
+  }
   const success = body.some(({ id }) => id === "success");
   if (success) {
     if (frame.fields.length) body.push({ id: "facts", c: "KeyValue", pairs: pairs(flow, frame) });
@@ -200,7 +227,7 @@ function previewBody(
         emphasis: "quiet",
       });
   }
-  const message = validationError ? frame.messages.error : state && frame.messages[state];
+  const message = validationError ? frame.messages.error : state && (copy ?? frame.messages[state]);
   if (message && !frame.invalidField && !body.some(({ c }) => c === "HandoffReceipt")) {
     const note = body.findIndex(({ c }) => c === "Note");
     const composer = body.findIndex(({ c }) => c === "Composer");

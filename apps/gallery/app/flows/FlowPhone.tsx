@@ -65,8 +65,14 @@ type FlowPhoneProps = Pick<PhoneScreenProps, "onLink" | "onSend" | "interaction"
   index: number;
   state?: FlowState | undefined;
   validationError?: boolean;
+  incompleteCode?: boolean;
   inspection?: boolean;
 };
+
+function inspectionStore(flow: FilledFlow, index: number, state?: FlowState) {
+  if (state === "empty") return emptySearchStore(flow, index);
+  if (state === "error") return invalidFieldStore(flow, index);
+}
 
 export function FlowPhone({
   flow,
@@ -77,23 +83,21 @@ export function FlowPhone({
   onReady,
   interaction,
   validationError = false,
+  incompleteCode = false,
   inspection = false,
 }: FlowPhoneProps) {
-  const fixture = useMemo(
-    () =>
-      state === "empty"
-        ? emptySearchStore(flow, index)
-        : state === "error"
-          ? invalidFieldStore(flow, index)
-          : undefined,
-    [state, flow, index],
-  );
+  const fixture = useMemo(() => inspectionStore(flow, index, state), [state, flow, index]);
   const store = fixture ?? (inspection ? undefined : interaction);
   const search = useFlowSearch(store, flowScreenId(index));
   const screen = useMemo(() => {
-    const preview = flowPreviewScreen(flow, index, state, { validationError, search });
+    const preview = flowPreviewScreen(flow, index, state, {
+      validationError,
+      search,
+      ...(incompleteCode ? { message: flowWords.codeLength } : {}),
+      ...(!state ? { codeHint: flowWords.codeLength } : {}),
+    });
     return !inspection && onLink ? keepReceiptAnchor(flow, index, preview) : preview;
-  }, [flow, index, state, validationError, search, inspection, Boolean(onLink)]);
+  }, [flow, index, state, validationError, search, inspection, incompleteCode, Boolean(onLink)]);
   const nextFocus =
     screen.id !== flowScreenId(index)
       ? "action_1/root"
@@ -107,7 +111,7 @@ export function FlowPhone({
   return (
     <YStack>
       {number && <FlowFigure screen={screen.id} {...number} />}
-      <YStack height={flowHeight(screen)}>
+      <YStack height={flowHeight(screen, flow.frames[index]!)}>
         <PhoneScreen
           screen={screen}
           theme={flowTheme}

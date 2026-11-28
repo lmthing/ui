@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
 import { publishBrowserAgent } from "@lmthing/ui/kit";
 import {
@@ -13,6 +14,60 @@ import { flowWords, readableId } from "./flow-copy";
 import { FlowPhone } from "./FlowPhone";
 import { activateFlowControl } from "./flow-keyboard";
 import { useFlowPlayback } from "./useFlowPlayback";
+
+type Playback = ReturnType<typeof useFlowPlayback>;
+
+function FlowPlaybackPhone({
+  flow,
+  frame,
+  index,
+  state,
+  inspection,
+  incompleteCode,
+  interaction,
+  validationError,
+  onLink,
+  onSend,
+  showCodeError,
+}: Playback) {
+  const phone = useRef<HTMLDivElement>(null);
+  const previousView = useRef({ index, state });
+  useLayoutEffect(() => {
+    const previous = previousView.current;
+    previousView.current = { index, state };
+    if (
+      (frame.demoInputs || flow.frames[previous.index]?.demoInputs) &&
+      (previous.index !== index || previous.state !== state)
+    )
+      phone.current?.focus();
+  }, [flow, frame.demoInputs, index, state]);
+  const needsCode = frame.demoInputs?.some(({ kind }) => kind === "code");
+  function follow(goto: string, address: string) {
+    // The input owns its demo draft. Never copy it into the flow record.
+    const code = phone.current?.querySelector<HTMLInputElement>('input[inputmode="numeric"]');
+    if (needsCode && code?.value.length !== 6) showCodeError();
+    else onLink(goto, address);
+  }
+  return (
+    <div ref={phone} data-flow-phone role="group" aria-label={frame.title} tabIndex={-1}>
+      <YStack
+        backgroundColor="$bg"
+        borderColor="$line"
+        borderWidth={component.base.borderWidth}
+        borderRadius={radius.lg}
+        overflow="hidden"
+        onKeyDown={inspection ? undefined : activateFlowControl}
+      >
+        <FlowPhone
+          {...{ flow, index, state, inspection, incompleteCode, interaction, validationError }}
+          onLink={inspection ? undefined : follow}
+          onSend={inspection ? undefined : onSend}
+          onReady={inspection ? undefined : publishBrowserAgent}
+        />
+      </YStack>
+    </div>
+  );
+}
 
 type StateControlProps = {
   active: boolean;
@@ -84,6 +139,11 @@ function FlowInspector({ flow, index, state, openStep, inspect }: InspectorProps
         <Text color="$muted" fontSize="$label">
           {frame.goal}
         </Text>
+        {frame.tier && (
+          <Text color="$muted" fontSize="$label">
+            {flowWords.tiers[frame.tier]}
+          </Text>
+        )}
         {frame.do && (
           <Text color="$text" fontSize="$label">
             {frame.do}
@@ -104,6 +164,11 @@ export function FlowPlayer({
   const playback = useFlowPlayback(template, example);
   const { flow, frame, index, state, inspection, inspect, openStep, restart, resume } = playback;
   const complete = !inspection && !frame.forward.length && !frame.back;
+  const expiredCode =
+    inspection &&
+    state === "error" &&
+    !playback.incompleteCode &&
+    frame.demoInputs?.some(({ kind }) => kind === "code");
   return (
     <YStack
       gap={space.sm}
@@ -116,26 +181,19 @@ export function FlowPlayer({
           {inspection ? flowWords.readOnly : flowWords.simulation}
         </Text>
       </XStack>
-      <YStack
-        backgroundColor="$bg"
-        borderColor="$line"
-        borderWidth={component.base.borderWidth}
-        borderRadius={radius.lg}
-        overflow="hidden"
-        data-flow-phone
-        onKeyDown={inspection ? undefined : activateFlowControl}
-      >
-        <FlowPhone
-          {...{ flow, index, state, inspection }}
-          interaction={playback.interaction}
-          validationError={playback.validationError}
-          onLink={playback.onLink}
-          onSend={playback.onSend}
-          onReady={publishBrowserAgent}
-        />
-      </YStack>
+      <FlowPlaybackPhone {...playback} />
+      {expiredCode && (
+        <Text color="$muted" fontSize="$label">
+          {flowWords.codeRetry}
+        </Text>
+      )}
       {(inspection || complete) && (
-        <XStack justifyContent="flex-end">
+        <XStack gap={space.xs} justifyContent="flex-end">
+          {expiredCode && (
+            <FlowControl active={false} onPress={restart}>
+              {flowWords.restart}
+            </FlowControl>
+          )}
           <FlowControl active={false} onPress={inspection ? resume : restart}>
             {inspection ? flowWords.resume : flowWords.restart}
           </FlowControl>

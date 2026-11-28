@@ -9,7 +9,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Button;
 
@@ -107,7 +107,7 @@ describe("Button fallback and metadata", () => {
       weight: 1,
       tier: "phone",
       parts: ["root", "root_icon"],
-      states: ["filled"],
+      states: ["filled", "loading"],
       actions: { parts: { root: ["press"] } },
     });
     expect(meta.realPath).not.toBe("");
@@ -119,7 +119,7 @@ describe("Button fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Button")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Actions")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(5);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Button" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -149,6 +149,36 @@ describe("Button confirm", () => {
     expect(line).toContain("asks first");
     expect(line).not.toContain("Remove it?");
     expect(readComponent(components.Button, { label: "Remove" }, "b1").join(" ")).not.toContain("asks first");
+  });
+});
+
+describe("Button action states", () => {
+  it("keeps the primary task separate from a secondary link", () => {
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const primary = renderInstance("Button", { label: "Share playlist", goto: "share" }, "filled", theme);
+    const link = renderInstance(
+      "Button",
+      { label: "View saved tracks", emphasis: "quiet", goto: "saved_tracks" },
+      "filled",
+      theme,
+    );
+    expect(elementAt(primary, "home/c1/root").attributes).toContain('role="button"');
+    expect(elementAt(link, "home/c1/root").attributes).toContain('role="link"');
+    expect(styleAt(primary, "home/c1/root")).not.toBe(styleAt(link, "home/c1/root"));
+    expect(link).toContain('data-testid="home/c1/root_label"');
+  });
+
+  it("keeps the pending slot with visible loading copy but no action", () => {
+    const input = { label: "Log watering", icon: "drop" };
+    const html = renderInstance("Button", input, "loading", {
+      preset: "calm",
+      mode: "light",
+      accent: "moss",
+    });
+    expect(html).toContain('aria-busy="true"');
+    expect(html).toContain(">Loading</span>");
+    expect(html).not.toContain('role="button"');
+    expect(readComponent(components.Button, input, "c1", "loading").join()).not.toContain(" press");
   });
 });
 

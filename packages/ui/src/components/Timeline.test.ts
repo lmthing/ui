@@ -46,7 +46,6 @@ describe("Timeline schema", () => {
   });
   it.each([
     {},
-    { items: [] },
     { items: Array.from({ length: 7 }, () => item) },
     { items: [{ title: "Morning walk" }] },
     { items: [{ time: "09:00" }] },
@@ -56,6 +55,8 @@ describe("Timeline schema", () => {
     { items: [{ ...item, title: "a".repeat(33) }] },
     { items: [{ ...item, meta: "" }] },
     { items: [{ ...item, meta: "a".repeat(33) }] },
+    { items: [{ ...item, status: "a".repeat(27) }] },
+    { style: "hours", items: [{ ...item, end: "10:00", status: "Delayed" }] },
     { items: [{ ...item, done: "true" }] },
     { items: [{ ...item, id: "r1" }] },
     { items: [{ ...item, pixels: 4 }] },
@@ -123,12 +124,7 @@ describe("Timeline fallback and metadata", () => {
     });
     expect(fallback({ cast: casts[2]! }).items).toHaveLength(1);
     expect(fallback({ cast: casts[3]! }).items).toHaveLength(3);
-    expect(fallback({ cast: casts[0]! }).items.map((row) => row.title)).toEqual([
-      "Item one",
-      "Item two",
-      "Item three",
-    ]);
-    expect(props.parse(fallback({ cast: casts[0]! })).items.every((row) => !row.done)).toBe(true);
+    expect(fallback({ cast: casts[0]! }).items).toEqual([]);
   });
 });
 
@@ -140,8 +136,8 @@ describe("Timeline fallback and metadata", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "record", "reference", "state", "current"],
-      items: { key: "items", parts: ["root", "time", "title", "meta", "summary"] },
+      parts: ["root", "record", "reference", "state", "current", "status"],
+      items: { key: "items", parts: ["root", "time", "title", "meta", "summary", "status"] },
       states: ["filled", "empty", "loading"],
     });
     expect(meta.realPath).not.toBe("");
@@ -181,6 +177,26 @@ describe("Timeline fallback and metadata", () => {
     expect(meta.pick).toContain("List");
     expect(meta.pick).toContain("Checklist");
   });
+});
+
+it("pins a current status to its timestamp, even in brief, and distinguishes an empty history", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const input = {
+    detail: "brief",
+    items: [
+      { ...item, done: true },
+      { time: "10:00", title: "Clover’s park loop", meta: "Meet at gate", status: "Delayed by roadworks" },
+    ],
+  };
+  const read = readComponent(components.Timeline, input, "t1").join("\n");
+  const html = renderInstance("Timeline", input, "filled", theme);
+  expect(read).toContain("r1 Completed");
+  expect(read).toContain('r2 "10:00" · "Clover’s park loop" · "Delayed by roadworks"');
+  expect(html).toMatch(/data-testid="home\/c1\/r2\/status"[^>]+>Delayed by roadworks<\/span>/);
+  expect(html).not.toContain("Meet at gate");
+  const empty = { style: "history", items: [] };
+  expect(renderInstance("Timeline", empty, "filled", theme)).toContain("No updates yet");
+  expect(readComponent(components.Timeline, empty, "t1").join("\n")).toContain("No updates yet");
 });
 
 describe("Timeline fallback and metadata", () => {

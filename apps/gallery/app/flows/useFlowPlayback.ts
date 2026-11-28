@@ -1,10 +1,9 @@
 import { useState } from "react";
-import type { FlowState } from "@lmthing/ui/catalog";
+import type { FlowState, FlowTemplateSource } from "@lmthing/ui/catalog";
 import { useFlowRun, type FlowExample } from "./useFlowRun";
-import type { FlowTemplateSource } from "@lmthing/ui/catalog";
 
 export function useFlowPlayback(template: FlowTemplateSource, example: FlowExample) {
-  const [inspection, setInspection] = useState<{ index: number; state?: FlowState }>();
+  const [inspection, setInspection] = useState<{ index: number; state?: FlowState; incompleteCode?: true }>();
   const play = useFlowRun(template, example);
   const index = inspection?.index ?? play.index;
   return {
@@ -13,9 +12,15 @@ export function useFlowPlayback(template: FlowTemplateSource, example: FlowExamp
     index,
     state: inspection?.state,
     inspection: Boolean(inspection),
+    incompleteCode: inspection?.incompleteCode === true,
+    showCodeError: () => setInspection({ index, state: "error", incompleteCode: true }),
     inspect: (state: FlowState | undefined) => setInspection({ index, ...(state ? { state } : {}) }),
     openStep: (next: number) => setInspection({ index: next }),
     resume: () => setInspection(undefined),
+    restart: () => {
+      setInspection(undefined);
+      play.restart();
+    },
     validationError: !inspection && play.validationError,
   };
 }

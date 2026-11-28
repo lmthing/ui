@@ -1,6 +1,6 @@
-import { component, size, space, type ScreenLike } from "@lmthing/ui/catalog";
+import { component, size, space, type FlowFrame, type ScreenLike } from "@lmthing/ui/catalog";
 
-export function flowHeight(screen: ScreenLike) {
+export function flowHeight(screen: ScreenLike, frame: FlowFrame) {
   const hasFooter = screen.components.some(({ c }) => c === "Button");
   const hasStatus = screen.components.some(({ c }) => c === "Banner");
   const rows = screen.components.reduce((total, entry) => {
@@ -13,6 +13,10 @@ export function flowHeight(screen: ScreenLike) {
   if (screen.components.some(({ c }) => c === "Composer")) return baseline + 7 * space.lg;
   if (screen.components.some(({ c }) => c === "FilterBar")) return baseline + 5 * space.lg;
   if (screen.components.some(({ c }) => c === "HandoffReceipt")) return baseline + 9 * space.lg;
+  if (frame.demoInputs?.length) {
+    const extraRows = frame.demoInputs.length - 1 + (frame.choiceButtons ? frame.forward.length - 1 : 0);
+    return baseline + extraRows * (size.control.md + space.md);
+  }
   if (screen.components.some(({ c }) => c === "Waitlist")) return baseline + 3 * space.lg;
   if (textOnly) return baseline - (hasFooter ? 6 : 8) * space.lg;
   if (hasStatus) return baseline + rowGrowth - (rows < 3 ? 3 * space.lg : 0);

@@ -13,6 +13,14 @@ export const flowWords = {
   readOnly: "Inspect only",
   resume: "Return to playback",
   restart: "Play again",
+  codeLength: "Enter six sample digits.",
+  codeRetry: "Return to playback and enter six sample digits, or play again to request a new code.",
+  tiers: {
+    phone: "Works on the phone",
+    ok: "Needs your OK",
+    people: "Needs other people",
+    service: "Needs an outside service",
+  },
   figures: {
     slot: "Time",
     new_slot: "New time",

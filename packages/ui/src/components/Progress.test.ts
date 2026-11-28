@@ -90,7 +90,7 @@ describe("Progress fallback and metadata", () => {
       parts: ["root", "label", "amount", "deadline"],
       variants: { tone: ["warn", "good", "bad"] },
     });
-    expect(meta.states).toEqual(["filled", "empty", "loading"]);
+    expect(meta.states).toEqual(["filled", "empty", "loading", "error"]);
     const linked = props.parse({ bars: [{ ...bar, goto: "macros" }, bar] });
     expect(affordancesOf(meta, stampItemIds(meta, linked), "p1")).toEqual([
       { address: "p1/r1", part: "root", action: "press", detail: "→macros" },
@@ -158,7 +158,7 @@ describe("Progress ring", () => {
     }
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(brief)), "p1")).toEqual([]);
     expect(readComponent(components.Progress, brief, "p1")).toEqual([
-      `p1 Progress[ring] 8 of 5 — "${goal.label}"`,
+      `p1 Progress[ring] 8 of 5 — Over by 3 — "${goal.label}"`,
     ]);
   });
 
@@ -178,8 +178,29 @@ describe("Progress ring", () => {
   it("offers no linked bar in the empty state", () => {
     const input = { bars: [{ ...bar, goto: "details" }] };
     expect(renderInstance("Progress", input, "empty", theme)).not.toMatch(/role="link"/);
-    expect(readComponent(components.Progress, input, "p1", "empty")).toEqual(["p1 Progress (empty)"]);
+    expect(readComponent(components.Progress, input, "p1", "empty")).toEqual([
+      "p1 Progress (empty) No progress recorded",
+    ]);
   });
+});
+
+it.each(["bars", "ring"] as const)("distinguishes measured zero, missing data and failure in %s", (style) => {
+  const input = { style, bars: [{ label: "Meals packed", value: 0, of: 24, unit: "meals" }] };
+  const filled = renderInstance("Progress", input, "filled", theme);
+  expect(filled).toContain("of 24 meals");
+  expect(readComponent(components.Progress, input, "p1").join("\n")).toContain("0 of 24 meals");
+  for (const [state, source, message] of [
+    ["filled", { style, bars: [] }, "No progress recorded"],
+    ["empty", input, "No progress recorded"],
+    ["error", input, "Couldn’t load progress"],
+  ] as const) {
+    const html = renderInstance("Progress", source, state, theme);
+    expect(html.includes('data-testid="home/c1/status"')).toBe(true);
+    expect(html.includes(message)).toBe(true);
+    expect(html.includes("of 24 meals")).toBe(false);
+    expect(html.includes('role="alert"')).toBe(state === "error");
+    expect(readComponent(components.Progress, source, "p1", state).join("\n")).toContain(message);
+  }
 });
 
 it.each(["bars", "ring"])("renders and reads the supplied units, target, and deadline for %s", (style) => {
@@ -215,6 +236,7 @@ describe("Progress rendering", () => {
     const line = readComponent(components.Progress, raw, "p1").join(" ");
     expect(html).toContain("4.2K of 6K g");
     expect(line).toContain("4.2K of 6K g");
+    expect(line).toContain("4200 of 6000 g");
     expect(html).toContain('data-testid="home/c1/r1/amount"');
     expect(props.parse(raw).bars[0]).toMatchObject({ value: 4200, of: 6000 });
   });

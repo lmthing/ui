@@ -12,6 +12,7 @@ const cases = [
   ["check_in", "attendee/arrived"],
   ["pay_receipt", "payer/processing", "waiting"],
   ["signup_onboard", "member/first_task"],
+  ["login_recovery", "member/login"],
   ["class_waitlist", "member/offer"],
   ["assign_work_order", "dispatcher/verify"],
   ["lead_to_client", "prospect/review"],

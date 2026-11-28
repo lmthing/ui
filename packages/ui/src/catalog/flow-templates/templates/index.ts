@@ -14,6 +14,7 @@ import { editProfile } from "./edit_profile";
 import { completeForm } from "./complete_form";
 import { reviewNotification } from "./review_notification";
 import { cartToOrder } from "./cart_to_order";
+import { loginRecovery } from "./login_recovery";
 import { classWaitlist } from "../../../packs/booking/flow-templates";
 import { assignWorkOrder } from "../../../packs/requests/flow-templates";
 import { leadToClient } from "../../../packs/customers/flow-templates";
@@ -28,6 +29,7 @@ export const builtInFlowTemplates: readonly FlowTemplateSource[] = [
   checkIn,
   payReceipt,
   signupOnboard,
+  loginRecovery,
   classWaitlist,
   assignWorkOrder,
   leadToClient,

@@ -83,12 +83,14 @@ function inputOf(
     if (line.c === "Field" && ["date", "time"].includes(variant)) input.value = undefined;
     if (line.c === "Progress" && variant === "ring" && Array.isArray(input.bars))
       input.bars = input.bars.slice(0, 1);
-    if (line.c === "Timeline" && variant === "hours")
-      input.items = (input.items as { title: string }[]).map((item, index) => ({
+    if (line.c === "Timeline" && variant === "hours") {
+      const items = input.items as { title: string }[];
+      input.items = (items.length ? items : [{ title: placeholderTitle(0) }]).map((item, index) => ({
         title: item.title,
         time: `${String(9 + index * 2).padStart(2, "0")}:00`,
         end: `${String(10 + index * 2).padStart(2, "0")}:00`,
       }));
+    }
   }
   return input;
 }

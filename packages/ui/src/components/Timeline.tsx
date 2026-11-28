@@ -6,7 +6,6 @@ import {
   detailOf,
   itemsOf,
   itemVariantProps,
-  placeholderTitle,
   screenId,
   text,
   thingOf,
@@ -25,6 +24,10 @@ import {
   KitEmpty,
   KitHours,
   KitLayoutText,
+  KitIcon,
+  KitRow,
+  KitText,
+  KitTime,
   KitSkeleton,
   KitTrail,
   KitTrack,
@@ -51,20 +54,25 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   items: {
     key: "items",
-    parts: ["root", "time", "title", "meta", "summary"],
+    parts: ["root", "time", "title", "meta", "summary", "status"],
     variants: { tone: ["neutral", "good", "warn", "bad"] },
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
-  parts: ["root", "record", "reference", "state", "current"],
+  parts: ["root", "record", "reference", "state", "current", "status"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
+  readInState: (_input, state) => state === "empty",
   read: (input, state, lang): string[] => {
+    const { timeline } = wordsFor(lang);
+    if (state === "empty") return [timeline.empty];
     if (state !== "filled") return [];
     const { style, items } = input as z.output<typeof props>;
+    if (!items.length) return [timeline.empty];
     if (style === "hours") return items.map(({ time, end }) => `${time}–${end}`);
-    return style === "record"
-      ? items.flatMap(({ meta }) => (meta ? [wordsFor(lang).timeline.internal(meta)] : []))
-      : [];
+    if (style === "record") return items.flatMap(({ meta }) => (meta ? [timeline.internal(meta)] : []));
+    return items.flatMap(({ done, status }, index) =>
+      done && !status ? [`r${index + 1} ${timeline.completed}`] : [],
+    );
   },
 } as const satisfies Meta;
 
@@ -74,6 +82,7 @@ const event = z.strictObject({
   title: text(32),
   meta: text(32).optional(),
   summary: text(80).optional(),
+  status: text(26).optional(),
   done: z.boolean().default(false),
   end: clock.optional(),
   goto: screenId.optional(),
@@ -87,22 +96,28 @@ export const props = z
     reference: text(24).optional(),
     current: text(24).optional(),
     audience: z.enum(["summary", "detail"]).optional().meta({ read: false }),
-    items: z.array(event).min(1).max(8),
+    items: z.array(event).max(8),
   })
   .refine(
     ({ style, record, reference, current, audience, items }) =>
       style === "record"
-        ? Boolean(record && current)
+        ? Boolean(record && current && items.every((item) => item.status === undefined))
         : !record && !reference && !current && !audience && items.every((item) => item.summary === undefined),
     {
       path: ["style"],
-      message: "Only record history uses a record, current status, reference, audience or public summary",
+      message:
+        "Only record history uses record details or public summaries; only day and history use event statuses",
     },
   )
-  .refine(({ style, items }) => style === "hours" || items.length <= 6, {
-    path: ["items"],
-    message: "Day and history take up to six events",
-  })
+  .refine(
+    ({ style, items }) =>
+      style === "hours" ? items.length > 0 : items.length <= 6 && (style !== "record" || items.length > 0),
+    {
+      path: ["items"],
+      message:
+        "Hours takes one to eight activities; record takes one to six events; day and history take up to six events",
+    },
+  )
   .refine(
     ({ style, items }) =>
       items.every((item) =>
@@ -111,6 +126,7 @@ export const props = z
             item.end !== undefined &&
             item.time < item.end &&
             item.meta === undefined &&
+            item.status === undefined &&
             !item.done
           : item.end === undefined && item.goto === undefined,
       ),
@@ -132,19 +148,14 @@ export const props = z
         : value,
   );
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+export function fallback({ cast }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).flatMap((item) => {
     const title = titleOf(item, 32, thing),
       detail = detailOf(item, 32, thing);
     return title ? [{ time: "—", title, ...(detail ? { meta: detail } : {}) }] : [];
   });
-  return {
-    style: "day",
-    items: items.length
-      ? items
-      : [0, 1, 2].map((index) => ({ time: "—", title: placeholderTitle(index, lang) })),
-  };
+  return { style: "day", items };
 }
 
 const careHours = [
@@ -165,6 +176,20 @@ export const examples = [
   { style: "day", items: dayWalks },
   { style: "hours", items: careHours },
   { items: dayWalks },
+  {
+    style: "day",
+    items: [
+      { time: "09:15", title: "Clover’s key pickup", meta: "North gate lockbox", done: true },
+      {
+        time: "09:40",
+        title: "Clover’s park loop",
+        meta: "Riverside gate",
+        status: "Delayed by roadworks",
+        tone: "warn",
+      },
+    ],
+  },
+  { style: "history", items: [] },
   ...(["good", "warn", "bad"] as const).map((tone, status) => ({
     style: "hours" as const,
     items: careHours.map((item, index) =>
@@ -233,25 +258,19 @@ export const probes = [
 
 type TimelineProps = Props<typeof props, typeof meta>;
 
-function TimelineEvents({
-  items,
-  density,
-  record,
-}: Pick<TimelineProps, "items"> & { density: ThemeDensity; record: boolean }) {
+function RecordEvents({ items, density }: Pick<TimelineProps, "items"> & { density: ThemeDensity }) {
   const { timeline } = useWords().words;
   const group: TimelineFlowGroup = {
     rows: items.map((item) => ({
       kind: "event",
       item: item.id,
       tone: item.tone,
-      inlineTime: record,
+      inlineTime: true,
       slots: {
         title: { part: "title", text: item.title },
         time: { part: "time", text: item.time },
         ...(item.summary ? { summary: { part: "summary", text: item.summary } } : {}),
-        ...(item.meta
-          ? { detail: { part: "meta", text: record ? timeline.internal(item.meta) : item.meta } }
-          : {}),
+        ...(item.meta ? { detail: { part: "meta", text: timeline.internal(item.meta) } } : {}),
         done: item.done,
       },
     })),
@@ -259,10 +278,65 @@ function TimelineEvents({
   return <TimelineFlow groups={[group]} density={density} />;
 }
 
+function eventStatus(event: Pick<TimelineProps["items"][number], "status" | "done">, completed: string) {
+  return event.status ?? (event.done ? completed : undefined);
+}
+
+function TimelineEvent({ event, density }: { event: TimelineProps["items"][number]; density: ThemeDensity }) {
+  const status = eventStatus(event, useWords().words.timeline.completed);
+  return (
+    <KitRow
+      item={event.id}
+      label={event.title}
+      tone={event.tone}
+      density={density}
+      leading={<KitTime value={event.time} part="time" wrap />}
+      leadingAlign="start"
+      trailing={event.done && <KitIcon name="check" decorative />}
+    >
+      <KitText role="body" part="title" density={density} breakLongWords>
+        {event.title}
+      </KitText>
+      {status && (
+        <KitText role="caption" part="status" density={density} breakLongWords>
+          {status}
+        </KitText>
+      )}
+      {event.meta && (
+        <KitText role="caption" part="meta" tone="muted" density={density} breakLongWords>
+          {event.meta}
+        </KitText>
+      )}
+    </KitRow>
+  );
+}
+
+function RecordHeader({
+  record,
+  reference,
+  current,
+  density,
+}: Pick<TimelineProps, "record" | "reference" | "current"> & { density: ThemeDensity }) {
+  return (
+    <KitContent rhythm="flush" density={density}>
+      <KitLayoutText line={{ text: record, part: "record", strong: true }} />
+      <KitLayoutText line={{ text: reference, part: "reference", role: "meta", tone: "muted" }} />
+      {current && (
+        <KitTrack part="state">
+          <KitTrail part="current" kind="badge" value={current} inline />
+        </KitTrack>
+      )}
+    </KitContent>
+  );
+}
+
+// Event updates cut in place under the same row id and timestamp. The hours rail owns only its
+// cued day-unfold; the shared kit settles it in reduced motion. The event list has no focus or exit effect.
 export function Timeline({ style, items, record, reference, current }: TimelineProps) {
   const state = useComponentState();
   const density = useKit().density;
   const hours = style === "hours";
+  const { timeline } = useWords().words;
   const recordHistory = style === "record";
   return (
     <KitCard
@@ -271,21 +345,28 @@ export function Timeline({ style, items, record, reference, current }: TimelineP
       density={density}
       padded={state !== "empty" && (hours || recordHistory)}
     >
-      {recordHistory && state !== "empty" && (
-        <KitContent rhythm="flush" density={density}>
-          <KitLayoutText line={{ text: record, part: "record", strong: true }} />
-          <KitLayoutText line={{ text: reference, part: "reference", role: "meta", tone: "muted" }} />
-          {current && (
-            <KitTrack part="state">
-              <KitTrail part="current" kind="badge" value={current} inline />
-            </KitTrack>
-          )}
-        </KitContent>
-      )}
+      {recordHistory && state !== "empty" && <RecordHeader {...{ record, reference, current, density }} />}
       {state === "loading" ? (
-        <KitSkeleton rows={items.length} lead="time" items={items} density={density} />
-      ) : state === "empty" ? (
-        <KitEmpty part="title" />
+        <KitSkeleton
+          rows={Math.max(1, items.length)}
+          lead="time"
+          {...(items.length
+            ? {
+                items: items.map((event) => ({
+                  lines: [
+                    { text: event.title, role: "body" as const },
+                    ...[
+                      recordHistory ? event.summary : eventStatus(event, timeline.completed),
+                      event.meta,
+                    ].flatMap((text) => (text ? [{ text, role: "caption" as const }] : [])),
+                  ],
+                })),
+              }
+            : {})}
+          density={density}
+        />
+      ) : state === "empty" || !items.length ? (
+        <KitEmpty part="status" title={timeline.empty} icon="clock" prominence="body" decorativeIcon />
       ) : hours ? (
         <KitHours
           blocks={items.map(({ id, time, end, title, tone, goto }) => ({
@@ -297,8 +378,10 @@ export function Timeline({ style, items, record, reference, current }: TimelineP
             ...(goto ? { goto } : {}),
           }))}
         />
+      ) : recordHistory ? (
+        <RecordEvents {...{ items, density }} />
       ) : (
-        <TimelineEvents {...{ items, density }} record={recordHistory} />
+        items.map((event) => <TimelineEvent key={event.id} {...{ event, density }} />)
       )}
     </KitCard>
   );
