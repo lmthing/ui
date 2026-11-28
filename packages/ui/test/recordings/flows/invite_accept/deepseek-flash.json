@@ -508,5 +508,113 @@
       "{\"template\": \"signup_onboard\"}",
       "{\"template\": \"signup_onboard\"}"
     ]
+  },
+  "invite_accept%2Fpick_1/338bbb271a96dba4/2f97d9a9aae907a5": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nlogin_recovery: Log in to an existing account or recover access before returning to the member area. Choose for returning members who log in, verify access, or need a forgot-password path in the generated app. Not for first-time sign-up and onboarding, invitations, apps without accounts, or lmthing’s private keep link.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\ntransfer_acknowledge: Hand physical custody to a named receiver and record whether they took it. Choose when a sender transfers an item, batch or shift kit and a receiver opens it from their queue to acknowledge or decline custody. Not for approving a request, assigning work, tracking a customer order, or moving money.\nfind_and_filter: Find a record in a browsable collection without losing search or filter context. Choose when someone searches or narrows a collection, opens a matching record, and returns to the same results. Not for viewing one known record, using a search box by itself, or filtering slots to make a reservation.\nmessage_reply: Send a message in a conversation and receive the other person's reply. Choose for a two-way thread with a draft, send status, and a reply from the recipient. Not for inviting someone to join a space, broadcasting without replies, or transferring custody.\nchange_preference: Review a setting, change its effective value, and verify or undo the saved choice. Choose for editing a discrete app preference such as digest frequency, units, or a default view. Not for editing a public identity, reading notifications, setting up an account, or changing device permissions.\nedit_profile: Edit the profile people see without exposing private account details. Choose when someone wants to review, change and save their own public or team profile, with optional photo changes. Not for viewing someone else's profile, changing login details, or adjusting an app preference.\ncomplete_form: Complete a form in clear steps, review it, and keep proof of submission. Choose for a multi-step form that collects different groups of information and reviews them before one submission. Not for creating an account, editing a profile or one preference, reserving a slot, or making a payment.\nreview_notification: Find a new update, open its durable record, and return to the notification inbox. Choose for an in-app inbox of event notifications with unread or read status and a link to the affected record. Not for sending personal replies, configuring a preference, tracking all stages of an order, or requesting system notification permission.\ncart_to_order: Review a cart, select fulfillment, and place an order before collecting payment. Choose for editing quantities, reviewing price and availability, and selecting pickup or delivery before placing a goods order. Not for paying an existing balance or following an order that has already been placed.\nRequest: Let an organizer invite a colleague to join a shared space as a viewer, then show when they accept.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "login_recovery",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                "transfer_acknowledge",
+                "find_and_filter",
+                "message_reply",
+                "change_preference",
+                "edit_profile",
+                "complete_form",
+                "review_notification",
+                "cart_to_order",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\": \"invite_accept\"}",
+    "replies": [
+      "{\"template\": \"invite_accept\"}",
+      "{\"template\": \"invite_accept\"}",
+      "{\"template\":\"invite_accept\"}"
+    ]
+  },
+  "invite_accept%2Fpick_2/ee818614e14d9758/e85c8224eb9f29a7": {
+    "prompt": "Pick the single journey template that best fits the person's full job, not a step within it.\nUse null if no template fits. Return only JSON with a template field.\nbook_slot: Reserve an available time and manage the booking without losing its reference. Choose for reserving a specific available time with a confirmation and a way to change or cancel it. Not for checking in to an existing booking, paying a bill, or scheduling without a reservation.\ninvite_accept: Send an invitation with a defined role and confirm that the recipient joined. Choose when someone grants access by inviting another person who must explicitly accept. Not for account creation alone or for a person requesting approval for themselves.\nrequest_approve: Send a request to a decision maker and return the decision, including a rejection reason. Choose when a requester needs explicit approval from another role before going ahead. Not for inviting someone to join or resolving an issue by doing the work.\norder_track: Place an order, see delivery progress and know when it arrived. Choose for an order that moves through preparation, transit and delivery after confirmation. Not for paying an existing bill or receiving a payment receipt alone.\nreport_issue: Report a problem, follow the work, and confirm the resolution. Choose when a person reports a problem and another role investigates or fixes it. Not for granting permission, approving a request, or tracking a shipment.\ncheck_in: Match an arrival to a reservation and record attendance once. Choose when a participant already has a place and someone needs to record their arrival. Not for making a booking or inviting a person to a group.\npay_receipt: Pay a known amount and find a receipt only after payment succeeds. Choose for payment of a known charge, confirmation and durable proof of payment. Not for placing an order with delivery tracking or requesting permission to spend.\nsignup_onboard: Create an account, complete essential setup, and reach a first useful task. Choose for creating a new account and helping the new member do a first task. Not for signing in again, recovering access, or accepting an invitation to an existing space.\nlogin_recovery: Log in to an existing account or recover access before returning to the member area. Choose for returning members who log in, verify access, or need a forgot-password path in the generated app. Not for first-time sign-up and onboarding, invitations, apps without accounts, or lmthing’s private keep link.\nclass_waitlist: Reserve a group class directly or join a full class's waitlist and claim an offered spot. Choose for a class schedule where a full session needs a waitlist, a later reviewable spot offer, and an explicit booking result. Not for a one-to-one appointment with available slots, or attendance for people who already booked.\nassign_work_order: Assign a service request to a worker, verify the outcome, and show the requester what was done. Choose when a dispatcher assigns a request to a different worker, that worker reports the outcome, and the dispatcher closes it for the requester. Not for a simple issue resolved by its original recipient without a separate assignee, or a yes/no approval with no work to perform.\nlead_to_client: Turn an inquiry into a client after the prospect agrees to a proposal. Choose for qualifying incoming leads, offering a named scope and price, handing the same proposal to the prospect, and creating a client after acceptance. Not for paying an existing invoice, approving an internal request, or editing an existing client.\ntransfer_acknowledge: Hand physical custody to a named receiver and record whether they took it. Choose when a sender transfers an item, batch or shift kit and a receiver opens it from their queue to acknowledge or decline custody. Not for approving a request, assigning work, tracking a customer order, or moving money.\nfind_and_filter: Find a record in a browsable collection without losing search or filter context. Choose when someone searches or narrows a collection, opens a matching record, and returns to the same results. Not for viewing one known record, using a search box by itself, or filtering slots to make a reservation.\nmessage_reply: Send a message in a conversation and receive the other person's reply. Choose for a two-way thread with a draft, send status, and a reply from the recipient. Not for inviting someone to join a space, broadcasting without replies, or transferring custody.\nchange_preference: Review a setting, change its effective value, and verify or undo the saved choice. Choose for editing a discrete app preference such as digest frequency, units, or a default view. Not for editing a public identity, reading notifications, setting up an account, or changing device permissions.\nedit_profile: Edit the profile people see without exposing private account details. Choose when someone wants to review, change and save their own public or team profile, with optional photo changes. Not for viewing someone else's profile, changing login details, or adjusting an app preference.\ncomplete_form: Complete a form in clear steps, review it, and keep proof of submission. Choose for a multi-step form that collects different groups of information and reviews them before one submission. Not for creating an account, editing a profile or one preference, reserving a slot, or making a payment.\nreview_notification: Find a new update, open its durable record, and return to the notification inbox. Choose for an in-app inbox of event notifications with unread or read status and a link to the affected record. Not for sending personal replies, configuring a preference, tracking all stages of an order, or requesting system notification permission.\ncart_to_order: Review a cart, select fulfillment, and place an order before collecting payment. Choose for editing quantities, reviewing price and availability, and selecting pickup or delivery before placing a goods order. Not for paying an existing balance or following an order that has already been placed.\nRequest: Let new users create their own account and choose a first task.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "flow_pick",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "book_slot",
+                "invite_accept",
+                "request_approve",
+                "order_track",
+                "report_issue",
+                "check_in",
+                "pay_receipt",
+                "signup_onboard",
+                "login_recovery",
+                "class_waitlist",
+                "assign_work_order",
+                "lead_to_client",
+                "transfer_acknowledge",
+                "find_and_filter",
+                "message_reply",
+                "change_preference",
+                "edit_profile",
+                "complete_form",
+                "review_notification",
+                "cart_to_order",
+                null
+              ]
+            }
+          },
+          "required": [
+            "template"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"template\":\"signup_onboard\"}",
+    "replies": [
+      "{\"template\":\"signup_onboard\"}",
+      "{\"template\":\"signup_onboard\"}",
+      "{\"template\":\"signup_onboard\"}"
+    ]
   }
 }
