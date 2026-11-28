@@ -1,7 +1,8 @@
-import { XStack, YStack } from "tamagui";
+import { isWeb, XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { KitText } from "../text";
 import { useMotionValue, useReducedFade } from "../../motion";
+import { SkeletonText } from "../helpers";
 
 /**
  * One labelled bar toward a target: the label and the amount on a line, a track under them and a fill to
@@ -11,14 +12,18 @@ import { useMotionValue, useReducedFade } from "../../motion";
 export function KitMeter({
   label,
   amount,
+  exactAmount,
   ratio,
   tone = "accent",
   slim = false,
   addressed = true,
   fillFrom,
+  loading = false,
 }: {
   label: string;
   amount: string;
+  /** A precise reading when the visual amount uses compact notation. */
+  exactAmount?: string;
   ratio: number;
   tone?: "accent" | "good" | "warn" | "bad";
   slim?: boolean;
@@ -26,19 +31,16 @@ export function KitMeter({
   addressed?: boolean;
   /** Anchor a comparison fill to the logical end (right in LTR, left in RTL). */
   fillFrom?: "start" | "end";
+  loading?: boolean;
 }) {
   const target = Math.min(1, Math.max(0, ratio));
-  const fill = Math.min(1, Math.max(0, useMotionValue(target)));
-  const fade = useReducedFade(String(target));
+  const fill = Math.min(1, Math.max(0, useMotionValue(target, loading)));
+  const fade = useReducedFade(loading ? undefined : String(target));
   return (
     <YStack gap={space.xs} width="100%">
       <XStack justifyContent="space-between" alignItems="baseline" gap={space.sm}>
-        <KitText role={slim ? "label" : "body"} part={addressed ? "label" : null} lines={1}>
-          {label}
-        </KitText>
-        <KitText role="caption" tone="muted" tabular part={addressed ? "amount" : null}>
-          {amount}
-        </KitText>
+        <MeterLabel {...{ label, slim, addressed, loading }} />
+        <MeterAmount amount={amount} exact={exactAmount} addressed={addressed} loading={loading} />
       </XStack>
       <YStack
         height={slim ? component.base.meterSlim : component.base.meter}
@@ -47,14 +49,74 @@ export function KitMeter({
         overflow="hidden"
         aria-hidden
       >
-        <YStack
-          {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
-          {...fade}
-          width={`${fill * 100}%`}
-          height="100%"
-          backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}
-        />
+        {!loading && (
+          <YStack
+            {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
+            {...fade}
+            width={`${fill * 100}%`}
+            height="100%"
+            backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}
+          />
+        )}
       </YStack>
     </YStack>
+  );
+}
+
+function MeterLabel({
+  label,
+  slim,
+  addressed,
+  loading,
+}: {
+  label: string;
+  slim: boolean;
+  addressed: boolean;
+  loading: boolean;
+}) {
+  const role = slim ? "label" : "body";
+  return (
+    <YStack flexShrink={1} minWidth={component.base.none}>
+      {loading ? (
+        <SkeletonText text={label} role={role} baseline wrap />
+      ) : (
+        <KitText role={role} part={addressed ? "label" : null} breakLongWords>
+          {label}
+        </KitText>
+      )}
+    </YStack>
+  );
+}
+
+function MeterAmount({
+  amount,
+  exact,
+  addressed,
+  loading,
+}: {
+  amount: string;
+  exact?: string | undefined;
+  addressed: boolean;
+  loading: boolean;
+}) {
+  const labelled = exact && exact !== amount;
+  if (loading) return <SkeletonText text={amount} role="caption" tabular baseline wrap />;
+  const text = (
+    <KitText role="caption" tone="muted" tabular part={addressed ? "amount" : null}>
+      {amount}
+    </KitText>
+  );
+  return labelled ? (
+    <YStack
+      {...(!isWeb ? { accessible: true } : {})}
+      accessibilityRole={isWeb ? "group" : "text"}
+      accessibilityLabel={exact}
+    >
+      <YStack data-kit-visual-reading="" aria-hidden accessibilityElementsHidden>
+        {text}
+      </YStack>
+    </YStack>
+  ) : (
+    text
   );
 }

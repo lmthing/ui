@@ -22,6 +22,7 @@ import type { Confirmation, ControllerContext } from "./context";
 import type { PrivateMarks } from "../../../catalog/agent/private-controls";
 import { commandForConfirmation } from "./host";
 import { matchesMediaConfirmation } from "./media";
+import { matchesItemConfirmation } from "./item-confirmation";
 
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
@@ -45,7 +46,13 @@ export function visibleConfirmation(
     ? confirmation.source.slice(screen.id.length + 1)
     : confirmation.source;
   const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
-  const meta = entry && defs[entry.c]?.meta;
+  const def = entry && defs[entry.c];
+  if (
+    confirmation.itemIdentity !== undefined &&
+    (!entry || !def || !matchesItemConfirmation(def, entry, source, confirmation.itemIdentity))
+  )
+    return;
+  const meta = def?.meta;
   if (!meta) return confirmation.mediaBound ? undefined : confirmation;
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
@@ -53,6 +60,7 @@ export function visibleConfirmation(
   if (
     entry &&
     (bound ||
+      confirmation.itemIdentity !== undefined ||
       meta.deviceDataFlags ||
       meta.media ||
       meta.items?.media ||

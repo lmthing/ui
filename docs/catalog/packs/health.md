@@ -7,7 +7,7 @@ cycles. Not the mind (`mind`), not food (`kitchen`).
 
 The most-asked personal app family: logging workouts set by set, taking medication on time, watching a body
 measurement move toward a goal, keeping several healthy habits, tracking symptoms, vitals and a menstrual
-cycle. Everything stays on the phone; nothing here is medical advice, and "what's real?" says so.
+cycle. Everything stays on the phone; nothing here is medical advice.
 
 ## Apps it serves
 

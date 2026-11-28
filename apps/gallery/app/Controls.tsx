@@ -28,7 +28,35 @@ const tabs = [
   { icon: "message", label: "Inbox", goto: "inbox", count: 120 },
 ];
 const navigationTabBar = { id: "t1", c: "TabBar", tabs };
+const accessTabs = [
+  { icon: "home", label: "Daily care", goto: "care" },
+  { icon: "calendar", label: "Care visits", goto: "appointments" },
+  { icon: "message", label: "Inbox", goto: "inbox" },
+  { icon: "clock", label: "Reminders", goto: "reminders" },
+  { icon: "settings", label: "Settings", goto: "settings" },
+];
 const screens: Record<string, ScreenLike> = {
+  access: {
+    id: "controls",
+    components: [
+      { id: "h1", c: "Header", title: "Daily care" },
+      {
+        id: "meds",
+        c: "Medication",
+        doses: [
+          { name: "Vitamin D", dose: "1 tablet", time: "08:00", status: "due" },
+          { name: "Magnesium", dose: "1 capsule", time: "20:00", status: "due" },
+        ],
+      },
+      {
+        id: "list",
+        c: "List",
+        rows: [{ title: "Review your care reminders", tone: "warn", icon: "clock", goto: "reminders" }],
+      },
+      { id: "button", c: "Button", label: "Save changes and close", emphasis: "quiet" },
+      { id: "t1", c: "TabBar", tabs: accessTabs, at: 0 },
+    ],
+  },
   choice: { id: "controls", components: [header, { id: "c1", c: "Choice", options: choices }, note, button] },
   multi: {
     id: "controls",
@@ -102,7 +130,21 @@ const screens: Record<string, ScreenLike> = {
     components: [
       header,
       { id: "s1", c: "SwipeStack", cards: [{ title: "Fern" }, { title: "Basil" }, { title: "Monstera" }] },
-      note,
+    ],
+  },
+  carousel: {
+    id: "controls",
+    components: [
+      header,
+      {
+        id: "photos",
+        c: "Gallery",
+        style: "carousel",
+        photos: [
+          { photo: "lib:fern", caption: "Fern" },
+          { photo: "lib:basil", caption: "Basil" },
+        ],
+      },
     ],
   },
   photo: {

@@ -25,7 +25,7 @@ export const meta = {
     const copy = c.wordsFor(lang).handoffReceipt;
     return [
       copy.phases[phase],
-      ...(at ? [handoffTime(at, lang)] : []),
+      ...(at ? [handoffTime(at, copy.phaseTimes[phase], lang)] : []),
       `${copy.from}: ${JSON.stringify(fromRole)}`,
       `${copy.to}: ${JSON.stringify(toRole)}`,
       ...(goto ? [copy.open] : []),
@@ -120,8 +120,8 @@ export const probes = [
   read("Open the greenhouse key request from its hand-off receipt", { address: "h1/root", action: "press" }),
 ] satisfies c.Probe[];
 
-function handoffTime(at: string, lang?: string) {
-  return new Intl.DateTimeFormat(c.localeOf(lang), {
+function handoffTime(at: string, event: string, lang?: string) {
+  const value = new Intl.DateTimeFormat(c.localeOf(lang), {
     day: "numeric",
     month: "short",
     hour: "numeric",
@@ -129,6 +129,7 @@ function handoffTime(at: string, lang?: string) {
     timeZone: "UTC",
     timeZoneName: "short",
   }).format(new Date(at));
+  return `${event} · ${value}`;
 }
 
 const phaseTone = { waiting: "warn", received: "good", returned: "bad" } as const;
@@ -162,27 +163,29 @@ export function HandoffReceipt(input: c.Props<typeof props, typeof meta>) {
         <kit.KitText part="subject" role="heading" breakLongWords>
           {subject}
         </kit.KitText>
+        <kit.KitText part="phase" role="label" tone={phaseTone[phase]} live="polite">
+          {copy.phases[phase]}
+        </kit.KitText>
         <kit.KitText part="reference" role="caption" tone="muted" breakLongWords>
           {reference}
         </kit.KitText>
-        <kit.KitText part="phase" role="label" tone={phaseTone[phase]}>
-          {copy.phases[phase]}
-        </kit.KitText>
         {at && (
           <kit.KitText part="time" role="caption" tone="muted">
-            {handoffTime(at, lang)}
+            {handoffTime(at, copy.phaseTimes[phase], lang)}
           </kit.KitText>
         )}
       </kit.KitContent>
       <kit.KitContent group="response">
         <HandoffParty label={copy.from} name={fromRole} part="sender" />
         <HandoffParty label={copy.to} name={toRole} part="recipient" />
-        {summary && (
+      </kit.KitContent>
+      {summary && (
+        <kit.KitContent group="response">
           <kit.KitText part="summary" tone="muted" breakLongWords>
             {summary}
           </kit.KitText>
-        )}
-      </kit.KitContent>
+        </kit.KitContent>
+      )}
       {goto && (
         <kit.KitContent group="response">
           <kit.KitText part="open_label" role="label" tone="accent">

@@ -10,6 +10,7 @@ export type ScreenLayer = {
   label: string;
   kind: "sheet" | "modal";
   scripted?: boolean;
+  returnTo?: string;
   content: ReactNode;
   dismiss(): void;
 };
@@ -30,7 +31,11 @@ function Layer({ layer, exiting = false }: { layer: ScreenLayer; exiting?: boole
   if (layer.scripted) return <PaintedLayer {...layer} exiting={exiting} />;
   return (
     <YStack fullscreen zIndex={zIndex.overlay} data-screen-overlay={layer.kind}>
-      <KitOverlay label={layer.label} onDismiss={layer.dismiss}>
+      <KitOverlay
+        label={layer.label}
+        onDismiss={layer.dismiss}
+        {...(layer.returnTo ? { returnTo: layer.returnTo } : {})}
+      >
         {layer.content}
       </KitOverlay>
     </YStack>

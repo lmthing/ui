@@ -103,7 +103,13 @@ function activity(step: number, loading: boolean): ScreenLike["components"] {
 }
 
 function fern(phase: LabPhase): ScreenLike["components"] {
-  const state = phase === "working" ? "loading" : phase === "error" ? "error" : "filled";
+  const state = phase === "error" ? "error" : "filled";
+  const save: ScreenLike["components"][number] = {
+    id: "save",
+    c: "Button",
+    label: "Log watering",
+    state: phase === "working" ? "loading" : "filled",
+  };
   return [
     {
       id: "heading",
@@ -129,8 +135,10 @@ function fern(phase: LabPhase): ScreenLike["components"] {
     ...(phase === "saved"
       ? []
       : [
-          { id: "error", c: "Button", label: "Try an error", emphasis: "quiet" },
-          { id: "save", c: "Button", label: phase === "working" ? "Saving watering…" : "Log watering" },
+          ...(phase === "working"
+            ? []
+            : [{ id: "error", c: "Button", label: "Try an error", emphasis: "quiet" }]),
+          save,
         ]),
   ];
 }

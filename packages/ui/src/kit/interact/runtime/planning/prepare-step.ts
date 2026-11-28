@@ -19,6 +19,7 @@ import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import { actionFailure, type ActionContext, type ActionState } from "../../actions";
 import type { ControllerContext, MediaRuntime, ScreenComponent } from "../index";
 import { matchesMediaConfirmation, mediaActionContext } from "../media";
+import { matchesItemConfirmation } from "../item-confirmation";
 
 export type PreparedAction = {
   state: ActionState;
@@ -40,6 +41,11 @@ function confirmedValues(
   confirmed: NonNullable<ActionState["confirmation"]>,
   at: number,
 ) {
+  if (
+    confirmed.itemIdentity !== undefined &&
+    !matchesItemConfirmation(ctx.defs[entry.c]!, entry, selected.address, confirmed.itemIdentity)
+  )
+    return { error: actionFailure(at, "not_actionable", "The confirmed item changed") };
   if (!matchesMediaConfirmation(confirmed, plan.media?.[0]))
     return { error: actionFailure(at, "not_actionable", "The attachment changed") };
   if (confirmed.host && !plan.hostCommands?.length)

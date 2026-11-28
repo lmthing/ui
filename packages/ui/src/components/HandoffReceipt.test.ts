@@ -38,17 +38,22 @@ describe("HandoffReceipt contract", () => {
 });
 
 it.each([
-  ["waiting", "Awaiting receipt"],
-  ["received", "Received"],
-  ["returned", "Returned"],
-] as const)("draws and reads %s without implying the receiving work is complete", (phase, label) => {
+  ["waiting", "Awaiting receipt", "Sent"],
+  ["received", "Received", "Acknowledged"],
+  ["returned", "Returned", "Returned"],
+] as const)("draws and reads %s without implying the receiving work is complete", (phase, label, event) => {
   const input = { ...sample, phase };
   const parts = addressedElements(renderInstance("HandoffReceipt", input, "filled", theme));
   expect(parts.get("home/c1/phase")?.text).toEqual([label]);
+  expect(parts.get("home/c1/phase")?.attributes).toContain('aria-live="polite"');
+  expect([...parts.keys()].indexOf("home/c1/phase")).toBeLessThan(
+    [...parts.keys()].indexOf("home/c1/reference"),
+  );
   expect(parts.get("home/c1/reference")?.text).toEqual([sample.reference]);
   expect(parts.get("home/c1/sender")?.text).toEqual([sample.fromRole]);
   expect(parts.get("home/c1/recipient")?.text).toEqual([sample.toRole]);
   expect(parts.get("home/c1/time")?.text.join("")).toMatch(/9:30.*UTC/);
+  expect(parts.get("home/c1/time")?.text.join("")).toMatch(new RegExp(`^${event} · `));
   const read = readComponent(def, input, "receipt").join("\n");
   expect(read).toContain(label);
   expect(read).toContain(`From: "${sample.fromRole}"`);

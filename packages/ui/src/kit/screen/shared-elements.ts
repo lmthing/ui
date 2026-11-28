@@ -65,6 +65,8 @@ function fly(
   if (!origin.bounds.height || !dest.height || !dest.width) return;
   const x = (origin.bounds.x - dest.x) / scale - shift;
   const y = (origin.bounds.y - dest.y) / scale;
+  // Keep the real heading on its destination rail when the source title is in the body.
+  if (!stretch && Math.abs(y) > dest.height / scale) return;
   const sy = origin.bounds.height / dest.height;
   const sx = stretch ? origin.bounds.width / dest.width : sy;
   return node.animate(

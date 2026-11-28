@@ -1,13 +1,6 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { isWeb, type TamaguiElement } from "tamagui";
-import {
-  durations,
-  motion,
-  motionEase,
-  motionProfiles,
-  type ScreenLike,
-  type ThemeMotion,
-} from "../../catalog";
+import { durations, motionEase, motionProfiles, type ScreenLike, type ThemeMotion } from "../../catalog";
 import { captureShared, flyShared } from "./shared-elements";
 import { captureTab, fadeTab } from "./tab-ghost";
 import type { NativeTabShot } from "./NativeTabGhost";
@@ -15,17 +8,18 @@ import { animateNumber, expireRecordArrival } from "../motion";
 import { announceMotionSettled } from "../part";
 import {
   captureTransition,
+  matchesNavigation as matches,
   readTransition,
   takeTransition,
   type NavigationIntent as Intent,
-  type ReceivingRecord,
-  type ScreenReturnPoint,
   type ScreenTransition,
   type ScreenTransitionRequest,
 } from "./screen-navigation";
+import { useNavigationHistory } from "./use-navigation-history";
+import { arrivalAddress } from "./return-point";
+import type { NavigationFocus } from "./use-return-focus";
 type Pose = { x: number; opacity: number };
 type NativeFlight = { pose: Pose; ghost?: NativeTabShot };
-type Return = ScreenReturnPoint & { from: string };
 type CaptureOptions = {
   reduced: boolean;
   agent: boolean;
@@ -33,16 +27,11 @@ type CaptureOptions = {
   scrollTop(): number;
   captureNative(): NativeTabShot;
 };
-type NavigationOptions = CaptureOptions & { mode: ThemeMotion; transition: ScreenTransition | undefined };
-
-function matches(move: Intent | undefined, screen: string): move is Intent {
-  return Boolean(
-    move &&
-    move.from !== screen &&
-    (move.goto === screen || move.goto === "back") &&
-    Date.now() < move.expires,
-  );
-}
+type NavigationOptions = CaptureOptions & {
+  mode: ThemeMotion;
+  transition: ScreenTransition | undefined;
+  replacesRoute?: ((from: string, to: string) => boolean) | undefined;
+};
 
 function captureIntent(
   screen: ScreenLike,
@@ -71,7 +60,7 @@ function captureIntent(
 /** The link tells us why the host changed screens; stage jumps and unrelated updates don't fly. */
 export function useNavigationMotion(
   screen: ScreenLike,
-  { mode, reduced, agent, cut, scrollTop, captureNative, transition }: NavigationOptions,
+  { mode, reduced, agent, cut, scrollTop, captureNative, transition, replacesRoute }: NavigationOptions,
 ) {
   const ref = useRef<TamaguiElement>(null);
   const intent = useRef<Intent | undefined>(undefined);
@@ -87,12 +76,12 @@ export function useNavigationMotion(
     skipMotion,
     play,
   );
-  const history = useNavigationHistory(screen.id, scripted ?? intent.current);
+  const history = useNavigationHistory(screen.id, scripted ?? intent.current, replacesRoute);
   const returnTo = scripted?.restore ?? history.returnTo;
   useLayoutEffect(() => {
     if (scripted) {
       intent.current = undefined;
-      history.commit(scripted, agent || scripted.agent);
+      history.commit(scripted, agent || scripted.agent, true);
       const cue = scripted.record;
       // Exactly one commit can use this cue, even if no matching receipt was mounted.
       if (cue) expireRecordArrival(cue);
@@ -119,7 +108,7 @@ export function useNavigationMotion(
     nativeGhost: skipMotion ? undefined : native?.ghost,
     agentArrival: history.agentArrival,
     returnTo,
-    restoreFocus: Boolean(returnTo && !agent && !(scripted?.agent ?? history.skipFocus)),
+    focus: focusOf(screen, agent, scripted, intent.current, returnTo, history.scriptedFocus),
   };
 }
 
@@ -133,41 +122,24 @@ function moveFor(request: ScreenTransitionRequest, make: ReturnType<typeof useCa
   };
 }
 
-function useNavigationHistory(id: string, pending: Intent | undefined) {
-  const previous = useRef(id);
-  const arrivedByAgent = useRef<string | undefined>(undefined);
-  const origins = useRef(new Map<string, Return>());
-  const returned = useRef<ScreenReturnPoint | undefined>(undefined);
-  const skipFocus = useRef(false);
-  const record = useRef<ReceivingRecord | undefined>(undefined);
-  const navigating = matches(pending, id);
-  const back = navigating && pending.kind === "back" ? origins.current.get(pending.from) : undefined;
-  const returnTo = back?.from === id ? back : previous.current === id ? returned.current : undefined;
+function focusOf(
+  screen: ScreenLike,
+  agent: boolean,
+  scripted: Intent | undefined,
+  pending: Intent | undefined,
+  returnTo: ReturnType<typeof useNavigationHistory>["returnTo"],
+  settledScripted: boolean,
+): NavigationFocus | undefined {
+  if (agent || scripted?.agent) return;
+  if (scripted && scripted.kind !== "back") return;
+  if (scripted || (settledScripted && !pending))
+    return returnTo?.address ? { address: returnTo.address, defer: true, point: returnTo } : undefined;
+  if (!matches(pending, screen.id) || pending.agent) return;
   return {
-    changed: () => previous.current !== id,
-    agentArrival: (navigating && pending.agent) || arrivedByAgent.current === id,
-    skipFocus: navigating ? pending.agent : skipFocus.current,
-    returnTo,
-    record: previous.current === id ? record.current : undefined,
-    commit(move: Intent | undefined, skip = move?.agent ?? false) {
-      const requestedRestore = move?.restore;
-      previous.current = id;
-      skipFocus.current = skip;
-      record.current = skip ? undefined : move?.record;
-      if (!matches(move, id)) {
-        arrivedByAgent.current = undefined;
-        returned.current = requestedRestore;
-        origins.current.clear();
-        return;
-      }
-      arrivedByAgent.current = move.agent ? id : undefined;
-      returned.current = requestedRestore ?? returnTo;
-      if (move.kind === "push") {
-        const { from, address, scrollTop } = move;
-        origins.current.set(id, { from, address, scrollTop });
-      } else if (move.kind === "back") origins.current.delete(move.from);
-      else origins.current.clear();
-    },
+    address: pending.kind === "back" ? returnTo?.address : undefined,
+    fallback: arrivalAddress(screen),
+    tab: pending.kind === "tab",
+    point: returnTo,
   };
 }
 
@@ -238,20 +210,18 @@ function playNavigation(
   reduced: boolean,
   setNative: (flight: NativeFlight | undefined) => void,
 ) {
-  if (move.kind === "record") return;
-  reduced ||= move.reduced;
+  if (move.kind === "record" || reduced || move.reduced) return;
   const profile = motionProfiles[mode];
-  const fade = reduced || move.kind === "tab";
+  const fade = move.kind === "tab";
   const node = ref as HTMLElement | null;
   const sign = isWeb && node && getComputedStyle(node).direction === "rtl" ? -1 : 1;
   const shift = fade ? 0 : sign * profile.push * (move.kind === "back" ? -1 : 1);
   const options = {
-    duration: reduced ? durations.fast : profile.navigation,
+    duration: profile.navigation,
     easing: motionEase,
     fill: "backwards" as const,
   };
   if (!isWeb) {
-    const { reducedFadeStart } = motion;
     const stop = animateNumber(
       0,
       1,
@@ -259,9 +229,9 @@ function playNavigation(
         setNative({
           pose: {
             x: shift * (1 - progress),
-            opacity: reducedFadeStart + (1 - reducedFadeStart) * progress,
+            opacity: fade ? progress : 1,
           },
-          ...(!reduced && move.nativeGhost ? { ghost: move.nativeGhost } : {}),
+          ...(move.nativeGhost ? { ghost: move.nativeGhost } : {}),
         }),
       { duration: options.duration, done: () => setNative(undefined) },
     );
@@ -271,11 +241,11 @@ function playNavigation(
     };
   }
   if (!node?.animate) return;
-  if (move.ghost && !reduced) return fadeTab(node, move.ghost, options);
+  if (move.ghost) return fadeTab(node, move.ghost, options);
   const shared = fade ? [] : matchingFlight(node, screen, move, shift, options);
   const flight = node.animate(
     [
-      { opacity: motion.reducedFadeStart, transform: fade ? "none" : `translateX(${shift}px)` },
+      { opacity: 1, transform: fade ? "none" : `translateX(${shift}px)` },
       { opacity: 1, transform: "none" },
     ],
     options,

@@ -52,6 +52,16 @@ export const meta = {
     ],
   },
   confirmParts: ["decline", "reject"],
+  confirmItem: (row, part, lang) => {
+    const { title, from } = row;
+    if (part !== "decline" || typeof title !== "string" || typeof from !== "string") return;
+    const { decline, declineQuestion } = teamWordsFor(lang).approval;
+    return {
+      message: declineQuestion(title, from),
+      label: decline,
+      identity: approvalRevision(row),
+    };
+  },
   states: ["filled", "empty", "success"],
   recordRuntime: {
     kind: "approval_decision",
@@ -218,7 +228,7 @@ function approvalOutcome(requests: z.output<typeof props>["requests"], lang?: st
   const { statuses, review } = teamWordsFor(lang).approval;
   const settled = requests.find(({ status }) => !approvalOpen(status));
   if (settled && (settled.status === "approved" || settled.status === "declined"))
-    return `${settled.title}: ${statuses[settled.status]}`;
+    return teamWordsFor(lang).approval.outcome(settled.title, statuses[settled.status]);
   return review.unavailable;
 }
 
@@ -472,6 +482,12 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
       inline
       density={density}
       surface={surface}
+      outcome={{
+        message: approvalOpen(row.status)
+          ? undefined
+          : words.approval.outcome(row.title, words.approval.statuses[row.status]),
+        focusFrom: ["approve", "decline"],
+      }}
     >
       <kit.KitCard part="content" style="plain" padded density={density}>
         <ApprovalDetails {...{ row, lead, density }} />

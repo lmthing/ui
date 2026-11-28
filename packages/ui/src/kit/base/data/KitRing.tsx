@@ -44,17 +44,20 @@ export function KitRing({
       <YStack position="absolute" top={0} left={0} aria-hidden accessibilityElementsHidden>
         <Svg width={box} height={box}>
           <Circle cx={box / 2} cy={box / 2} r={r} stroke={theme.line?.val} strokeWidth={stroke} fill="none" />
-          <Circle
-            cx={box / 2}
-            cy={box / 2}
-            r={r}
-            stroke={theme.accent?.val}
-            strokeWidth={stroke}
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={`${length * share * progress} ${length}`}
-            transform={`rotate(-90 ${box / 2} ${box / 2})`}
-          />
+          {share > 0 && (
+            <Circle
+              cx={box / 2}
+              cy={box / 2}
+              r={r}
+              stroke={theme.accent?.val}
+              strokeWidth={stroke}
+              fill="none"
+              opacity={progress > 0 ? 1 : 0}
+              strokeLinecap="round"
+              strokeDasharray={`${length * share * progress} ${length}`}
+              transform={`rotate(-90 ${box / 2} ${box / 2})`}
+            />
+          )}
         </Svg>
       </YStack>
       {children}

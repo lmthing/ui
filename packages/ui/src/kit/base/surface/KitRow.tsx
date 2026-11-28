@@ -8,9 +8,9 @@ import {
   type AxisValue,
   type SurfaceFinish,
 } from "../../../catalog";
-import { useKit, useKitStyle, useVariantDensity } from "../../provider";
+import { useKit, useKitStyle, useVariantDensity, useWords } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { RowLabelContext } from "../../a11y";
+import { minimumTouchSize, RowLabelContext, webActivation } from "../../a11y";
 import {
   CardStyleContext,
   shifted,
@@ -21,9 +21,14 @@ import {
   type TextFinish,
   type TextTone,
 } from "../text";
-import { RowDecoration, RowGroupLead, RowStatusRule } from "../layout";
-const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
-const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
+import { KitStateMark, RowDecoration, RowGroupLead, RowStatusRule } from "../layout";
+import { RowOutcome, type RowOutcomeProps } from "./RowOutcome";
+const Frame = styled(XStack, { alignItems: "center", minHeight: minimumTouchSize });
+const Content = styled(XStack, {
+  flex: component.base.bodyFlex,
+  minWidth: component.base.none,
+  alignItems: "flex-start",
+});
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.
 // Taller items (a 44px touch target) overflow the line equally above and below.
 const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
@@ -91,7 +96,7 @@ function useRowPress(address: string, part: RowProps["part"], goto: RowProps["go
 }
 
 export function Row(props: RowProps) {
-  const { children, leading, trailing, goto, label, role, expanded, selected } = props;
+  const { goto, label, role, expanded, selected } = props;
   const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
   const { leadingAlign = "line", inline = false, addressed = true } = props;
   const groupLead = useContext(RowGroupLead);
@@ -108,7 +113,9 @@ export function Row(props: RowProps) {
   const id = useId();
   // Prefer the rendered text order for web actions; keep the caller's label as the fallback.
   const contentId = isWeb && actionRole ? id : undefined;
-  const press = useRowPress(address.testID, part, goto);
+  const warning = useWarning(semanticTone, id);
+  const dispatch = useRowPress(address.testID, part, goto);
+  const press = actionRole ? dispatch : undefined;
   return (
     <Frame
       {...(addressed && part !== null ? address : {})}
@@ -121,9 +128,12 @@ export function Row(props: RowProps) {
       data-kit-row={isWeb && actionRole ? "" : undefined}
       accessibilityLabel={actionRole || role === "group" ? label : undefined}
       aria-labelledby={contentId}
+      {...warning.accessibility}
       aria-current={selected || undefined}
       aria-expanded={expanded}
-      onPress={actionRole ? press : undefined}
+      onPress={press}
+      {...webActivation(press, actionRole !== "link")}
+      {...(press ? { pressStyle: { backgroundColor: "$raised" } } : {})}
     >
       {((status && surface === undefined) || dimmed) && <RowDecoration fade />}
       <Content
@@ -132,19 +142,52 @@ export function Row(props: RowProps) {
         gap={inline ? space.xs : space[spacing.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >
-        <RowLabelContext.Provider value={label}>
-          {(leading || groupLead) && <RowLeading {...{ leading, leadingAlign, leadingWidth, line }} />}
-          <RowGroupLead.Provider value={undefined}>
-            <YStack flex={component.base.bodyFlex}>{children}</YStack>
-            <RowTrailing line={line} align={props.trailingAlign} slot={trailing} />
-          </RowGroupLead.Provider>
-        </RowLabelContext.Provider>
+        <RowTextRail {...props} {...{ groupLead, leadingAlign, leadingWidth, line }} warningId={warning.id} />
       </Content>
       {status && <RowStatusRule tone={status} />}
       {(selected || mark === "highlight" || mark === "new") && (
         <RowDecoration fresh={!selected && mark === "new"} />
       )}
     </Frame>
+  );
+}
+
+function useWarning(tone: TextTone | undefined, id: string) {
+  const { warningLabel } = useWords().words;
+  if (tone !== "warn") return { id: undefined, accessibility: {} };
+  const warning = `${id}-warning`;
+  return {
+    id: isWeb ? warning : undefined,
+    accessibility: isWeb ? { "aria-describedby": warning } : { accessibilityHint: warningLabel },
+  };
+}
+
+function RowTextRail({
+  label,
+  leading,
+  leadingAlign = "line",
+  leadingWidth,
+  groupLead,
+  line,
+  children,
+  trailing,
+  trailingAlign,
+  selected,
+  rowTone,
+  warningId,
+}: RowProps & { line: number; groupLead: RowProps["leadingWidth"]; warningId: string | undefined }) {
+  return (
+    <RowLabelContext.Provider value={label}>
+      {(leading || groupLead) && <RowLeading {...{ leading, leadingAlign, leadingWidth, line }} />}
+      <RowGroupLead.Provider value={undefined}>
+        <YStack flex={component.base.bodyFlex} minWidth={component.base.none}>
+          {children}
+          {selected && <KitStateMark kind="selected" />}
+          {rowTone === "warn" && <KitStateMark kind="warning" id={warningId} />}
+        </YStack>
+        <RowTrailing line={line} align={trailingAlign} slot={trailing} />
+      </RowGroupLead.Provider>
+    </RowLabelContext.Provider>
   );
 }
 
@@ -188,14 +231,16 @@ function RowTrailing({
 type KitRowProps = Omit<RowProps, "addressed" | "rowTone" | "tone"> & {
   item?: string;
   tone?: RowProps["rowTone"];
+  outcome?: RowOutcomeProps;
 };
 
-export function KitRow({ item, tone, ...props }: KitRowProps) {
+export function KitRow({ item, tone, outcome, ...props }: KitRowProps) {
   const context = usePartContext();
   if (!item) return <Row addressed={props.part !== undefined} rowTone={tone} {...props} />;
+  const row = <Row role="group" rowTone={tone} {...props} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
-      <Row role="group" rowTone={tone} {...props} />
+      {outcome ? <RowOutcome {...outcome}>{row}</RowOutcome> : row}
     </PartContext.Provider>
   );
 }

@@ -54,7 +54,13 @@ export function Screen(props: ScreenProps) {
   if (!controller.admitted) return null;
   return (
     <RenderReportContext.Provider value={publish}>
-      <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
+      <YStack
+        data-kit-screen=""
+        flex={1}
+        position="relative"
+        minHeight="100%"
+        paddingBottom={environment.keyboardHeight}
+      >
         <ScreenContent
           key={visible.id}
           {...(initialBodyScroll !== undefined ? { initialBodyScroll } : {})}
@@ -103,6 +109,7 @@ function useLayer({
       key: `${screen.id}:confirm`,
       kind: "modal",
       label: confirmation.message,
+      returnTo: confirmation.source,
       dismiss,
       content: (
         <PartScope screen={screen.id} component="confirm" rev={1} state="filled">

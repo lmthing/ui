@@ -296,6 +296,10 @@ describe("Approval dispatch", () => {
     expect(runtime.confirmation).toBeUndefined();
     expect(runtime.press("a1/r2/decline").ok).toBe(true);
     expect(runtime.confirmation?.source).toBe("home/a1/r2/decline");
+    expect(runtime.confirmation).toMatchObject({
+      message: words.declineQuestion(full.requests[1]!.title, full.requests[1]!.from),
+      label: words.decline,
+    });
     expect(runtime.act({ address: "confirm/cancel", action: "dismiss" }).ok).toBe(true);
     expect(onAction.mock.calls).toEqual([[{ address: "home/a1/r1/approve", action: "press" }]]);
     expect(runtime.press("a1/r2/decline").ok).toBe(true);
@@ -306,6 +310,31 @@ describe("Approval dispatch", () => {
     runtime.dispose();
   });
 });
+
+it.each([{ title: "Replacement request" }, { status: "approved" }] as const)(
+  "dismisses pending confirmation when the current request changes to %j",
+  (change) => {
+    const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval" }] };
+    const original = createScreenController({ screen, defs: components });
+    expect(original.press("a1/r2/decline").ok).toBe(true);
+    const onAction = vi.fn();
+    const entry = {
+      ...screen.components[0]!,
+      requests: full.requests.map((request, i) => (i === 1 ? { ...request, ...change } : request)),
+    };
+    const current = createScreenController({
+      screen: { ...screen, components: [entry] },
+      store: original.store,
+      defs: components,
+      onAction,
+    });
+    expect(current.confirmation).toBeUndefined();
+    expect(current.press("confirm/confirm").ok).toBe(false);
+    expect(onAction).not.toHaveBeenCalled();
+    original.dispose();
+    current.dispose();
+  },
+);
 
 it("gates a supplied submission, allows retry after failure, and settles only on a matching host receipt", () => {
   let data: DeviceData;

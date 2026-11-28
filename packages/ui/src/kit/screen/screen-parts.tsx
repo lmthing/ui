@@ -10,7 +10,7 @@ import {
 import { isWeb, ScrollView, YStack } from "tamagui";
 import { KitMotion, KitRecordArrival, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
-import { useKit, useKitStyle } from "../provider";
+import { KitVisualOnly, useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import { KitCard, KitEmpty } from "../base";
 import {
@@ -183,6 +183,11 @@ function ScreenBodyScroll({
   const ref = scrollRef ?? local;
   const initial = useRef(initialScroll);
   useLayoutEffect(() => {
+    const node = isWeb ? ref.current?.getScrollableNode?.() : undefined;
+    node?.setAttribute("data-kit-screen-body", "");
+    return () => node?.removeAttribute("data-kit-screen-body");
+  }, [ref]);
+  useLayoutEffect(() => {
     // React Native Web does not consume contentOffset.
     if (isWeb && initial.current) ref.current?.scrollTo({ x: 0, y: initial.current, animated: false });
   }, []);
@@ -211,7 +216,9 @@ function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...prop
   return (
     <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false} appear={appear}>
       <YStack {...(sticky ? { paddingTop: marginTop, backgroundColor: "$bg" } : { marginTop })}>
-        <ScreenEntry {...props} />
+        <KitVisualOnly active={exiting ?? false}>
+          <ScreenEntry {...props} />
+        </KitVisualOnly>
       </YStack>
     </KitMotion>
   );

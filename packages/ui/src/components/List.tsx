@@ -350,7 +350,15 @@ function CardLeading({ row, lead, index, density, grid }: CardDetailProps) {
 
 function CardTrail({ row, density }: { row: ListRow; density: c.ThemeDensity }) {
   if (row.trail === "none" || row.trail === "chevron") return null;
-  return <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />;
+  return (
+    <kit.KitTrail
+      kind={row.trail ?? "none"}
+      value={row.value}
+      part="trail"
+      density={density}
+      tone={row.trail === "badge" && row.tone !== "neutral" ? row.tone : undefined}
+    />
+  );
 }
 
 function ListRow(row: ListRow, index: number, layout: ListRowLayout) {

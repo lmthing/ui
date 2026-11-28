@@ -68,6 +68,12 @@ export type Meta = {
   ) => boolean;
   dense?: true;
   confirmParts?: readonly string[];
+  /** Localized copy and record identity for an already-declared item confirmation. */
+  confirmItem?: (
+    item: Readonly<Record<string, unknown>>,
+    part: string,
+    lang?: string,
+  ) => { message: string; label: string; identity: string } | undefined;
   drives?: string | DriveBindings; // A component id preserves legacy item-root seek.
   variants?: Variants;
   variantParts?: VariantParts;

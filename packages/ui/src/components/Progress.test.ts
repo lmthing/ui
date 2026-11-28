@@ -188,6 +188,7 @@ it.each(["bars", "ring"] as const)("distinguishes measured zero, missing data an
   const input = { style, bars: [{ label: "Meals packed", value: 0, of: 24, unit: "meals" }] };
   const filled = renderInstance("Progress", input, "filled", theme);
   expect(filled).toContain("of 24 meals");
+  if (style === "ring") expect(filled.match(/<circle\b/g)).toHaveLength(1);
   expect(readComponent(components.Progress, input, "p1").join("\n")).toContain("0 of 24 meals");
   for (const [state, source, message] of [
     ["filled", { style, bars: [] }, "No progress recorded"],
@@ -235,6 +236,7 @@ describe("Progress rendering", () => {
     const html = renderInstance("Progress", raw, "filled", theme);
     const line = readComponent(components.Progress, raw, "p1").join(" ");
     expect(html).toContain("4.2K of 6K g");
+    expect(html).toContain("4200 of 6000 g");
     expect(line).toContain("4.2K of 6K g");
     expect(line).toContain("4200 of 6000 g");
     expect(html).toContain('data-testid="home/c1/r1/amount"');

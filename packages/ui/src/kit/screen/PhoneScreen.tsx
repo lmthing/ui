@@ -83,6 +83,8 @@ export type PhoneScreenProps = {
   parts?: PartRegistry | undefined;
   /** The host resolves destinations and history. The Header back control sends `"back"`. */
   onLink?: ((goto: string, address: string) => void) | undefined;
+  /** Whether a committed link replaces the current route instead of adding to host history. */
+  replacesRoute?: ((from: string, to: string) => boolean) | undefined;
   /** Capture a scripted transition before changing the screen prop on this mounted phone. */
   navigationRef?: Ref<ScreenNavigation> | undefined;
   /** A new capture animates only this destination; reuse, preference changes and remounts do not replay it. */
@@ -165,6 +167,7 @@ function usePhoneNavigation(
     scrollTop,
     captureNative: () => freezeNativeTab(props, controller, scrollTop()),
     transition: props.navigationTransition,
+    replacesRoute: props.replacesRoute,
   });
   useImperativeHandle(
     props.navigationRef,
@@ -239,11 +242,7 @@ function PhoneScreenFrame({
   navigation: ReturnType<typeof usePhoneNavigation>;
   controller: ScreenController;
 }) {
-  const register = useReturnFocus(
-    navigation.ref,
-    navigation.restoreFocus ? navigation.returnTo : undefined,
-    props.nativeHost,
-  );
+  const register = useReturnFocus(navigation.ref, navigation.focus, props.nativeHost);
   const navigationSheet =
     props.navigationOverlay &&
     props.screen.components.find(({ id, c }) => id === props.navigationOverlay?.id && c === "Sheet");

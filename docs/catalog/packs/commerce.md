@@ -167,7 +167,7 @@ A bakery taking next-day pre-orders. `shop/menu` lists loaves and pastries; a lo
 ## Tiers
 
 Card and wallet payments are `service` parts of `Checkout`. The seller's side works on the phone; the
-buyer's side needs a shared app, which "what's real?" says plainly.
+buyer's side needs a shared app.
 
 ## Build notes
 

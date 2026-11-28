@@ -63,6 +63,8 @@ type TextProps = {
   strike?: boolean;
   /** Keep an unbroken name or code inside its available width. */
   breakLongWords?: boolean;
+  /** Announce changes to this persistent text without moving focus. */
+  live?: "polite";
   /** A stable addressed text region for live status updates. */
   announce?: "status" | "alert";
   /** A programmatically focusable result, not another stop in the tab order. */
@@ -215,6 +217,15 @@ function figureScale(step: TextRole, compact: boolean) {
     : {};
 }
 
+function liveText({ announce, live }: TextProps, loading: boolean) {
+  if (loading) return {};
+  return {
+    "aria-live":
+      announce === "alert" ? ("assertive" as const) : announce === "status" ? ("polite" as const) : live,
+    ...(announce ? { accessibilityRole: announce } : {}),
+  };
+}
+
 function TextRun(props: TextProps & { figureProgress?: number }) {
   const { children, role = "body", tone = "text", part = "root", lines } = props;
   const { numberScale = "display", strike = false, emphasis, goto } = props;
@@ -238,10 +249,7 @@ function TextRun(props: TextProps & { figureProgress?: number }) {
   const text = (
     <Frame
       {...(!webLink ? target : {})}
-      {...(props.announce && {
-        "aria-live": props.announce === "alert" ? ("assertive" as const) : ("polite" as const),
-        accessibilityRole: props.announce,
-      })}
+      {...liveText(props, loading)}
       {...(figure < 1 ? { y: motion.figureRoll * (1 - figure) } : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}

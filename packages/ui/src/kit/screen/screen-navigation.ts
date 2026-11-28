@@ -3,6 +3,17 @@ import type { captureShared } from "./shared-elements";
 import type { captureTab } from "./tab-ghost";
 import type { ReceivingRecord } from "../motion";
 
+export function matchesNavigation(
+  move: NavigationIntent | undefined,
+  screen: string,
+): move is NavigationIntent {
+  return Boolean(
+    move &&
+    move.from !== screen &&
+    (move.goto === screen || move.goto === "back") &&
+    Date.now() < move.expires,
+  );
+}
 export type ScreenReturnPoint = { address?: string; scrollTop: number };
 export type ScreenOverlay = { kind: "sheet" | "modal"; id: string };
 export type { ReceivingRecord } from "../motion";

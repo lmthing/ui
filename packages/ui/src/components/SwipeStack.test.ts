@@ -104,6 +104,9 @@ describe("SwipeStack fallback", () => {
     expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty")).toEqual([
       "s1 SwipeStack (empty)",
     ]);
+    expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty", { "s1/$cursor": 1 })).toEqual(
+      ["s1 SwipeStack (empty)"],
+    );
     expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty", { "s1/$cursor": 2 })).toEqual(
       ["s1 SwipeStack (empty) No cards left to review"],
     );

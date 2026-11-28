@@ -133,6 +133,19 @@ function useHourScale(density: ThemeDensity) {
   };
 }
 
+function placedHours(blocks: readonly HourBlock[], first: number, hour: number, minimum: number) {
+  const minutesAt = (time: string) => ((minutes(time) - first * 60) / 60) * hour;
+  return blocks.map((block) => ({
+    block,
+    top: minutesAt(block.start) + space.sm,
+    height: Math.max(
+      minutesAt(block.end) - minutesAt(block.start),
+      minimum,
+      block.goto ? size.control.md : component.base.none,
+    ),
+  }));
+}
+
 /**
  * A day by the hour: an hour rail on the left (from the first block's hour to the last block's end) and
  * blocks placed and sized by their time, tinted by tone. Each block is one item with `title` and `time`
@@ -153,7 +166,7 @@ export function KitHours({
   const first = Math.floor(Math.min(...blocks.map((b) => minutes(b.start))) / 60);
   const last = Math.ceil(Math.max(...blocks.map((b) => minutes(b.end))) / 60);
   const hours = Array.from({ length: Math.max(last - first, 1) + 1 }, (_, i) => first + i);
-  const y = (hhmm: string) => ((minutes(hhmm) - first * 60) / 60) * hour;
+  const placed = placedHours(blocks, first, hour, minimum);
   return (
     <XStack gap={gap}>
       <HourTicks {...{ hours, hour, density }} />
@@ -162,30 +175,25 @@ export function KitHours({
         height={(hours.length - 1) * hour + space.lg}
         {...({ "data-look-timed": true } as object)}
       >
-        {hours.map((h, i) => (
-          <YStack
-            key={h}
-            position="absolute"
-            top={i * hour + space.sm}
-            left={0}
-            right={0}
-            height={component.base.borderWidth}
-            backgroundColor="$line"
-            aria-hidden
-          />
-        ))}
-        {blocks.map((block) => (
-          <PartContext.Provider key={block.id} value={{ ...context, item: block.id }}>
-            <Block
-              block={block}
-              density={density}
-              top={y(block.start) + space.sm}
-              height={Math.max(
-                y(block.end) - y(block.start),
-                minimum,
-                block.goto ? size.control.md : component.base.none,
-              )}
+        {hours.map((h, i) => {
+          const at = i * hour + space.sm;
+          if (placed.some(({ top, height }) => at >= top && at < top + height)) return null;
+          return (
+            <YStack
+              key={h}
+              position="absolute"
+              top={at}
+              left={0}
+              right={0}
+              height={component.base.borderWidth}
+              backgroundColor="$line"
+              aria-hidden
             />
+          );
+        })}
+        {placed.map(({ block, top, height }) => (
+          <PartContext.Provider key={block.id} value={{ ...context, item: block.id }}>
+            <Block {...{ block, density, top, height }} />
           </PartContext.Provider>
         ))}
       </YStack>

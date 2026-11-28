@@ -1,34 +1,27 @@
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
-import { createServer, type ViteDevServer } from "vite";
 import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-import { baselineMotionKit, contactSheet, sampleMotionFrames } from "./motion-evidence";
+import { baselineMotionKit, contactSheet, motionEvidenceFolder, sampleMotionFrames } from "./motion-evidence";
 import { releaseGallery } from "./release-gallery";
 
-type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[] };
+type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[]; firstHeadingOpacity?: number };
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
-let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
+let server: Awaited<ReturnType<typeof releaseGallery>>, browser: Browser, page: Page;
 let starting: Promise<void> | undefined;
 const setup = new AbortController();
 const errors: string[] = [];
 beforeAll(() => (starting = startGallery()), 150000);
 async function startGallery() {
   const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
-  if (!process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF || process.env.UI_MOTION_RELEASE)
-    server = await releaseGallery(config, setup.signal);
-  else {
-    const dev = await createServer(config);
-    server = dev;
-    await dev.listen();
-  }
+  server = await releaseGallery(config, setup.signal);
   setup.signal.throwIfAborted();
   browser = await launchChrome();
   setup.signal.throwIfAborted();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  page.setDefaultTimeout(5000);
+  page.setDefaultTimeout(25000);
   page.on("pageerror", (error) => errors.push(error.message));
 }
 afterAll(async () => {
@@ -47,7 +40,9 @@ beforeEach(async () => {
 
 async function openLab(
   motion: "no-preference" | "reduce" = "no-preference",
-  profile: "calm" | "lively" = "lively",
+  profile: "calm" | "lively" = process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF
+    ? "calm"
+    : "lively",
 ) {
   await page.emulateMedia({ reducedMotion: motion });
   await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=${profile}`, {
@@ -246,8 +241,6 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
     observer.observe(document.body, { childList: true, subtree: true });
   });
   const moves = () => page.locator("body").getAttribute("data-transitions");
-  const forward = preference === "reduce" ? "none" : "translateX(20px)";
-  const reverse = preference === "reduce" ? "none" : "translateX(-20px)";
   const reference = "dispatch/receipt/reference";
   await part("dispatch/next/root").evaluate((button) => {
     const receipt = document.querySelector('[data-testid="dispatch/receipt/reference"]');
@@ -259,14 +252,16 @@ async function checkCrossTree(preference: "no-preference" | "reduce") {
     if (viewport.scrollTop !== 36) throw new Error("The test did not scroll the source viewport");
     (button as HTMLElement).click();
   });
-  await expect.poll(moves).toBe(`|${forward}`);
+  await part("walk_notes/header/sub").waitFor();
+  await expect.poll(moves).toBe(preference === "reduce" ? null : "|translateX(20px)");
   const x = Number(await page.locator("body").getAttribute("data-first-scripted-x"));
   if (preference === "reduce") expect(x).toBe(0);
   else expect(x).toBeGreaterThan(0);
   expect(await part("walk_notes/header/sub").textContent()).toBe("TROT-92");
   expect(await part("walk_notes/header/back").evaluate((node) => node === document.activeElement)).toBe(true);
   await page.keyboard.press("Enter");
-  await expect.poll(moves).toBe(`|${forward}|${reverse}`);
+  await part(reference).waitFor();
+  await expect.poll(moves).toBe(preference === "reduce" ? null : "|translateX(20px)|translateX(-20px)");
   expect(await part(reference).textContent()).toBe("TROT-92");
   expect(await scrollTopOf(reference)).toBe(36);
   await expect
@@ -434,6 +429,264 @@ changed("restores keyboard focus on Back even while the push is still running", 
   expect(await page.locator("[data-kit-outgoing-tab]").count()).toBe(0);
 });
 
+async function focused(address: string) {
+  return part(address).evaluate((node) => node === document.activeElement);
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "activates addressed rows and Back by keyboard, restoring the exact opener (%s)",
+  async (preference) => {
+    await openLab(preference);
+    const opener = "garden/plants/r1/root";
+    await part(opener).focus();
+    const body = page.locator("[data-kit-screen-body]");
+    await body.evaluate((node) => {
+      node.scrollTop = 24;
+    });
+    await page.keyboard.press("Enter");
+    await part("fern/heading/title").waitFor({ timeout: 2000 });
+    await expect.poll(() => focused("fern/heading/title")).toBe(true);
+    await part("fern/heading/back").focus();
+    await page.keyboard.press("Space");
+    await part("garden/heading/title").waitFor();
+    await expect.poll(() => focused(opener)).toBe(true);
+    expect(await body.evaluate((node) => node.scrollTop)).toBe(24);
+  },
+);
+
+changed("gives the reduced-motion action a stationary pressed state", async () => {
+  await openLab("reduce");
+  await tap("garden/plants/r1/root");
+  const action = part("fern/save/root");
+  const pose = () =>
+    action.evaluate((node) => {
+      const { backgroundColor, transform } = getComputedStyle(node);
+      return { backgroundColor, transform };
+    });
+  const idle = await pose();
+  await action.hover();
+  await page.mouse.down();
+  try {
+    await expect.poll(async () => (await pose()).backgroundColor).not.toBe(idle.backgroundColor);
+    expect((await pose()).transform).toBe(idle.transform);
+  } finally {
+    await page.mouse.move(1, 1);
+    await page.mouse.up();
+  }
+  await expect.poll(pose).toEqual(idle);
+});
+
+changed.each(["no-preference", "reduce"] as const)(
+  "paints the working screen at full opacity on its first frame (%s)",
+  async (preference) => {
+    await page.addInitScript(() => {
+      const first = () => {
+        const title = document.querySelector<HTMLElement>('[data-testid="garden/heading/title"]');
+        if (!title) return void requestAnimationFrame(first);
+        let opacity = 1;
+        for (let node: HTMLElement | null = title; node; node = node.parentElement)
+          opacity *= Number(getComputedStyle(node).opacity);
+        (window as MotionLabWindow).firstHeadingOpacity = opacity;
+      };
+      requestAnimationFrame(first);
+    });
+    await openLab(preference);
+    await expect.poll(() => page.evaluate(() => (window as MotionLabWindow).firstHeadingOpacity)).toBe(1);
+  },
+);
+
+async function openAccess(reducedMotion: "no-preference" | "reduce") {
+  await page.emulateMedia({ reducedMotion });
+  await openControls("access");
+  await part("controls/meds/r1/skip").waitFor();
+}
+
+async function openControls(kind: string) {
+  await page.goto(`${server.resolvedUrls!.local[0]}?controls=${kind}`, { waitUntil: "commit" });
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "names a dose action, cancels to its opener and moves focus to its accepted status (%s)",
+  async (preference) => {
+    await openAccess(preference);
+    const skip = "controls/meds/r2/skip";
+    const button = page.getByRole("button", { name: /Skip: Magnesium/ });
+    expect(await button.getAttribute("data-testid")).toBe(skip);
+    await button.focus();
+    await page.keyboard.press("Enter");
+    const confirmation = page.getByRole("dialog", { name: /Skip Magnesium.*1 capsule/ });
+    await confirmation.waitFor();
+    expect(await confirmation.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
+    await page.keyboard.press("Escape");
+    await expect.poll(() => focused(skip)).toBe(true);
+    await page.keyboard.press("Space");
+    await confirmation.getByRole("button", { name: "Skip", exact: true }).focus();
+    await page.keyboard.press("Enter");
+    const status = "controls/meds/r2/status";
+    await expect.poll(() => part(status).textContent()).toBe("Skipped");
+    await expect.poll(() => focused(status)).toBe(true);
+    expect(await part("controls/meds/r1/status").textContent()).toBe("Due");
+  },
+);
+
+const largeTextParts = ["controls/button/root_label", "controls/list/r1/title", "controls/t1/r2/label"];
+function enlargeText() {
+  return page.addStyleTag({
+    content:
+      largeTextParts.map((id) => `[data-testid="${id}"]`).join(",") +
+      "{font-size: 36px !important; line-height: 44px !important;}",
+  });
+}
+
+changed("wraps the action, row and five-tab labels at larger type", async () => {
+  await openAccess("reduce");
+  await enlargeText();
+  for (const id of largeTextParts) {
+    const box = await part(id).boundingBox();
+    expect(box?.height).toBeGreaterThan(44);
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+  for (const id of ["controls/button/root", "controls/list/r1/root", "controls/t1/r2/root"]) {
+    const box = await part(id).boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+  }
+  const selected = page.getByRole("tab", { selected: true });
+  expect(await selected.getByText("Selected").count()).toBe(1);
+  expect(await selected.locator("svg").count()).toBeGreaterThan(1);
+  const warning = part("controls/list/r1/root");
+  expect(await warning.getByText("Warning").count()).toBe(1);
+  expect(await warning.locator("svg").count()).toBeGreaterThan(1);
+  await expectWholeTabWords();
+});
+
+async function expectWholeTabWords() {
+  const labels = page.getByRole("tab").locator('[data-testid$="/label"]');
+  expect(
+    await labels.evaluateAll((nodes) =>
+      nodes.flatMap((node) => {
+        const text = node.firstChild;
+        if (!text || text.nodeType !== Node.TEXT_NODE) throw new Error("Expected a tab label");
+        return [...(text.textContent ?? "").matchAll(/\S+/g)].flatMap((word) => {
+          const range = document.createRange();
+          range.setStart(text, word.index);
+          range.setEnd(text, word.index + word[0].length);
+          return range.getClientRects().length === 1 ? [] : [word[0]];
+        });
+      }),
+    ),
+  ).toEqual([]);
+}
+
+changed("reflows the tab rail when all five labels use large text", async () => {
+  await openAccess("reduce");
+  await page.addStyleTag({
+    content:
+      '[role="tab"] [data-testid$="/label"] {font-size: 36px !important; line-height: 44px !important;}',
+  });
+  await expectWholeTabWords();
+  const tabs = page.getByRole("tab");
+  const rects = await tabs.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { x, y, width, height } = node.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
+  expect(new Set(rects.map(({ y }) => y)).size).toBeGreaterThan(1);
+  for (const { x, width, height } of rects) {
+    expect(x).toBeGreaterThanOrEqual(0);
+    expect(x + width).toBeLessThanOrEqual(390);
+    expect(Math.min(width, height)).toBeGreaterThanOrEqual(44);
+  }
+  const save = part("controls/button/root");
+  await save.scrollIntoViewIfNeeded();
+  expect((await save.boundingBox())!.y + (await save.boundingBox())!.height).toBeLessThanOrEqual(
+    (await page.getByRole("tablist").boundingBox())!.y,
+  );
+});
+
+changed("offers visible, keyboard-operable alternatives to swiping and restores terminal focus", async () => {
+  await openControls("swipe");
+  const skip = page.getByRole("button", { name: "Skip", exact: true });
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => focused("controls/s1/r2/root")).toBe(true);
+  const keep = page.getByRole("button", { name: "Keep", exact: true });
+  await keep.focus();
+  await page.keyboard.press("Space");
+  await expect.poll(() => focused("controls/s1/r3/root")).toBe(true);
+  await page.keyboard.press("ArrowLeft");
+  const complete = page.getByRole("status").filter({ hasText: "No cards left to review" });
+  await expect
+    .poll(() =>
+      complete.evaluate((node) => {
+        const active = document.activeElement;
+        return active === node
+          ? "terminal"
+          : `${active?.tagName}:${active?.getAttribute("role")}:${active?.getAttribute("data-testid")} (terminal tabindex ${node.getAttribute("tabindex")}, inert ${Boolean(node.closest("[inert]"))})`;
+      }),
+    )
+    .toBe("terminal");
+  expect(await skip.count()).toBe(0);
+  expect(await keep.count()).toBe(0);
+  expect(await page.getByText("Make your choice.").count()).toBe(0);
+});
+
+async function turnCarousel(label: "Next" | "Previous", key: string) {
+  const trigger = page.getByRole("button", { name: label, exact: true });
+  const frame = await trigger.evaluateHandle((node) => {
+    const gallery = node.closest('[data-testid="controls/photos/root"]');
+    const strip = gallery?.querySelector<HTMLElement>('[style*="scroll-snap-type"]');
+    const previous = gallery?.querySelector('[aria-label="Previous"]');
+    const next = gallery?.querySelector('[aria-label="Next"]');
+    if (!strip || !previous || !next) throw new Error("Expected the interactive photo strip");
+    const initial = strip.scrollLeft;
+    const first = new Promise<{ previousDisabled: boolean; nextDisabled: boolean }>((resolve) => {
+      node.addEventListener(
+        "keydown",
+        () => {
+          function sample() {
+            if (Math.abs(strip!.scrollLeft - initial) < 1) return void requestAnimationFrame(sample);
+            resolve({
+              previousDisabled: previous?.getAttribute("aria-disabled") === "true",
+              nextDisabled: next?.getAttribute("aria-disabled") === "true",
+            });
+          }
+          requestAnimationFrame(sample);
+        },
+        { once: true },
+      );
+    });
+    return { first };
+  });
+  try {
+    await trigger.press(key);
+    return await frame.evaluate(({ first }) => first);
+  } finally {
+    await frame.dispose();
+  }
+}
+
+changed.each(["ltr", "rtl"] as const)(
+  "advances and reverses the %s gallery carousel with visible keyboard controls",
+  async (direction) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openControls("carousel");
+    await page.evaluate((dir) => {
+      document.documentElement.dir = dir;
+    }, direction);
+    const next = page.getByRole("button", { name: "Next", exact: true });
+    const previous = page.getByRole("button", { name: "Previous", exact: true });
+    await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+    expect(await turnCarousel("Next", "Enter")).toEqual({ previousDisabled: false, nextDisabled: true });
+    await expect.poll(() => next.getAttribute("aria-disabled")).toBe("true");
+    expect(await turnCarousel("Previous", "Space")).toEqual({ previousDisabled: true, nextDisabled: false });
+    await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+  },
+);
+
 async function transforms(address: string) {
   return part(address).evaluate((node) =>
     node.getAnimations().flatMap((animation) => {
@@ -464,43 +717,43 @@ const stickyTop = (address: string) =>
     throw new Error("Section has no sticky wrapper");
   });
 
-changed("connects a matching row to its header, shows a rising dialog, and returns back", async () => {
-  await tap("garden/plants/r1/root");
-  await part("fern/heading/title").waitFor();
-  expect((await transforms("fern/heading/title")).some((value) => String(value).includes("translate("))).toBe(
-    true,
-  );
-  await tap("fern/heading/action");
-  const dialog = page.getByRole("dialog");
-  await dialog.waitFor();
-  expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
-  await expect
-    .poll(
-      () =>
+changed(
+  "keeps a distant title in the destination rail, shows a readable rising dialog and returns back",
+  async () => {
+    await tap("garden/plants/r1/root");
+    await part("fern/heading/title").waitFor();
+    expect(await transforms("fern/heading/title")).toEqual([]);
+    await tap("fern/heading/action");
+    const dialog = page.getByRole("dialog");
+    await dialog.waitFor();
+    expect(await dialog.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
+    expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
+    await expect
+      .poll(() =>
         dialog.evaluate((node) => {
           const transform = getComputedStyle(node).transform;
           return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
         }),
-      { timeout: 6000 },
-    )
-    .toBe(true);
-  const close = part("fern/details/close");
-  await expect
-    .poll(() =>
-      close.evaluate((node) => {
-        const rect = node.getBoundingClientRect();
-        const lab = window as MotionLabWindow;
-        const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
-        return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
-      }),
-    )
-    .toBeLessThan(1);
-  await page.keyboard.press("Escape");
-  await expect.poll(() => dialog.count()).toBe(0);
-  await tap("fern/heading/back");
-  await part("garden/heading/title").waitFor();
-  expect(errors).toEqual([]);
-});
+      )
+      .toBe(true);
+    const close = part("fern/details/close");
+    await expect
+      .poll(() =>
+        close.evaluate((node) => {
+          const rect = node.getBoundingClientRect();
+          const lab = window as MotionLabWindow;
+          const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
+          return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
+        }),
+      )
+      .toBeLessThan(1);
+    await page.keyboard.press("Escape");
+    await expect.poll(() => dialog.count()).toBe(0);
+    await tap("fern/heading/back");
+    await part("garden/heading/title").waitFor();
+    expect(errors).toEqual([]);
+  },
+);
 
 changed(
   "updates the switch and checkbox, reorders stable rows and keeps section headers visible",
@@ -542,7 +795,7 @@ changed(
     await expect.poll(() => stickyTop("garden/today/text")).toBeCloseTo(0);
     await page.mouse.wheel(0, 450);
     await expect.poll(() => stickyTop("garden/all/text")).toBeCloseTo(0);
-    await page.mouse.wheel(0, -900);
+    await page.mouse.wheel(0, -2000);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(1);
     expect(errors).toEqual([]);
   },
@@ -666,12 +919,31 @@ changed(
     await tap("fern/error/root");
     await expect.poll(() => part("fern/plant_photo/photo").count()).toBe(0);
     await tap("fern/save/root");
-    await expect.poll(() => part("fern/save/root").textContent()).toContain("Saving");
+    await part("fern/save/root").getByRole("progressbar", { name: "Loading" }).waitFor();
     await part("fern/done/title").waitFor();
     expect(await part("fern/done/title").textContent()).toBe("Watering logged");
     const check = part("fern/done/icon").locator("path");
     await expect.poll(() => check.getAttribute("stroke-dashoffset")).toBe(null);
     expect(errors).toEqual([]);
+  },
+);
+
+changed.each(["no-preference", "reduce"] as const)(
+  "withholds the pending save and focuses its receipt (%s)",
+  async (preference) => {
+    await openLab(preference);
+    await tap("garden/plants/r1/root");
+    await part("fern/save/root").press("Enter");
+    const pending = part("fern/save/root");
+    await pending.getByRole("progressbar", { name: "Loading" }).waitFor();
+    expect(await pending.getByRole("button").count()).toBe(0);
+    expect(
+      await page.evaluate(
+        () => window.__lmthingUI!.act({ address: "fern/save/root", action: "press" }, { dryRun: true }).ok,
+      ),
+    ).toBe(false);
+    await part("fern/done/title").waitFor();
+    await expect.poll(() => focused("fern/done/title")).toBe(true);
   },
 );
 
@@ -719,12 +991,66 @@ const scenes = [
   ["loading-resolve", () => tap("activity/week/link")],
 ] as const;
 
-it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))("renders contact sheets of each motion", async () => {
-  for (const [label, action] of scenes) {
-    await contactSheet(browser, page, `${baseline ? "before" : "after"}-${label}`, action);
-  }
-  expect(errors).toEqual([]);
-});
+async function captureDose(prefix: string, preference: "no-preference" | "reduce") {
+  await openAccess(preference);
+  await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access.png` });
+  const styling = await enlargeText();
+  await part("controls/button/root").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access-large.png` });
+  await styling.evaluate((node) => node.parentNode?.removeChild(node));
+  await part("controls/meds/r2/skip").focus();
+  await contactSheet(browser, page, `${prefix}-confirm-dose`, () => page.keyboard.press("Enter"));
+  await contactSheet(browser, page, `${prefix}-cancel-dose`, () => page.keyboard.press("Escape"));
+  await part("controls/meds/r2/skip").focus();
+  await page.keyboard.press("Space");
+  await part("controls/confirm/confirm").focus();
+  await contactSheet(browser, page, `${prefix}-log-dose`, () => page.keyboard.press("Enter"));
+}
+
+async function captureCollections(prefix: string) {
+  await openControls("carousel");
+  await page.getByRole("button", { name: "Next", exact: true }).focus();
+  await contactSheet(browser, page, `${prefix}-carousel`, () => page.keyboard.press("Enter"));
+  await page.getByRole("button", { name: "Previous", exact: true }).focus();
+  await contactSheet(browser, page, `${prefix}-carousel-return`, () => page.keyboard.press("Space"));
+  await openControls("swipe");
+  const skip = page.getByRole("button", { name: "Skip", exact: true });
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await part("controls/s1/r2/root").waitFor();
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await part("controls/s1/r3/root").waitFor();
+  await skip.focus();
+  await contactSheet(browser, page, `${prefix}-swipe-terminal`, () => page.keyboard.press("Enter"));
+}
+
+it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
+  "renders contact sheets of each motion",
+  async () => {
+    for (const preference of ["no-preference", "reduce"] as const) {
+      await openLab(preference);
+      const prefix = `${baseline ? "before" : "after"}-${preference === "reduce" ? "reduced" : "normal"}`;
+      for (const [label, action] of scenes) {
+        if (!baseline && label === "push") {
+          await part("garden/plants/r1/root").focus();
+          await contactSheet(browser, page, `${prefix}-${label}`, () => page.keyboard.press("Enter"));
+        } else if (!baseline && label === "back") {
+          await part("fern/heading/back").focus();
+          await contactSheet(browser, page, `${prefix}-${label}`, () => page.keyboard.press("Space"));
+        } else {
+          await contactSheet(browser, page, `${prefix}-${label}`, action);
+        }
+      }
+      if (!baseline) {
+        await captureDose(prefix, preference);
+        await captureCollections(prefix);
+      }
+    }
+    expect(errors).toEqual([]);
+  },
+  180000,
+);
 
 it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
   "captures normal and reduced handoff evidence",

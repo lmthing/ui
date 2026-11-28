@@ -32,13 +32,13 @@ export function KitMotion({
     spring: profile.arrival,
     ...(delay === undefined ? {} : { delay }),
   });
-  const change = useChangeReveal(exiting ? undefined : cue);
+  const change = useChangeReveal(exiting || cue !== "error" ? undefined : cue, false);
   const exit = useMotionValue(exiting ? 0 : 1, still, "timed");
-  const effect = motion.reducedFadeStart + (1 - motion.reducedFadeStart) * change;
   const size = exiting && measured.current !== undefined ? measured.current * exit : undefined;
   return (
     <YStack
-      opacity={exiting ? exit * effect : Math.max(exit, motion.reducedFadeStart) * effect}
+      opacity={exiting ? exit : 1}
+      x={Math.sin(change * motion.errorTurns * Math.PI * 2) * (1 - change) * profile.error}
       y={still || exiting ? 0 : motion.arriveY * (1 - arrival)}
       {...(size === undefined ? {} : { height: size, overflow: "hidden" as const })}
       {...(exiting
