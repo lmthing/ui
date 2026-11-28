@@ -61,7 +61,9 @@ describe("Profile schema", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["name"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["meta"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<
+      string | { kind: "avatar" | "pet" | "plant"; subject: string } | undefined
+    >();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");

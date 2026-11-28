@@ -3,7 +3,7 @@ import {
   probesFor,
   detailOf,
   itemsOf,
-  photo,
+  photoOrImage,
   placeholderTitle,
   text,
   thingOf,
@@ -53,7 +53,7 @@ export const props = z
     ...variantProps(meta.variants),
     name: text(32),
     meta: text(48).optional(),
-    photo: photo.optional(),
+    photo: photoOrImage(["avatar", "pet", "plant"]).optional(),
   })
   .overwrite((value) => ({
     ...value,

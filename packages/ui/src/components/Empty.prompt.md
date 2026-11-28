@@ -12,3 +12,4 @@ Nothing added, no filter matches or all done. Not a headline (Hero), alert (Bann
 - Use kind "error" or "offline" only for a failed result or disconnected state; those provide a retry action.
 - For first use leave kind null and explain how records will get here. For no matches use kind "filtered" and name the filter or suggest changing it. For no remaining work use kind "complete" and name what is done. None of these provides retry.
 - For restricted access, use kind "none" and explain who can see the records. Only suggest a next step the person can actually take.
+- Use `photo` only for a dedicated empty or recovery moment: `empty_state` with `kind` `none`, or `error` with `kind` `error` or `offline`. Keep the explanation and recovery action in the component copy. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

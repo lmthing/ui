@@ -6,6 +6,7 @@ import {
   placeholderTitle,
   readComponent,
   type CastLike,
+  subjectKinds,
   type Props,
 } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../test/render";
@@ -56,7 +57,9 @@ describe("Photo schema", () => {
   });
   it("types view props without item ids or visual controls", () => {
     type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<string>();
+    expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<
+      string | { kind: (typeof subjectKinds)[number] | "cover" | "step_illustration"; subject: string }
+    >();
     expectTypeOf<ViewProps["caption"]>().toEqualTypeOf<string | undefined>();
     expectTypeOf<ViewProps["aspect"]>().toEqualTypeOf<"square" | "wide" | "tall">();
     expectTypeOf<ViewProps>().not.toBeAny();

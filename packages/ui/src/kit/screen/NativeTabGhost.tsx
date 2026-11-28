@@ -8,7 +8,7 @@ import type { PhoneScreenProps } from "./PhoneScreen";
 
 export type NativeTabShot = Pick<
   PhoneScreenProps,
-  "defs" | "renderers" | "theme" | "lang" | "resolvePhoto" | "deviceData"
+  "defs" | "renderers" | "theme" | "lang" | "resolvePhoto" | "resolveImage" | "deviceData"
 > & {
   screen: ScreenLike;
   values: Values;
@@ -41,6 +41,7 @@ export const NativeTabGhost = memo(function NativeTabGhost({ shot }: { shot: Nat
         theme={shot.theme}
         lang={shot.lang}
         {...(shot.resolvePhoto ? { resolvePhoto: shot.resolvePhoto } : {})}
+        resolveImage={shot.resolveImage}
         environment={{ ...environment, agentMode: true }}
         controller={controller}
       >

@@ -1,7 +1,7 @@
 import {
   detailOf,
   itemsOf,
-  photo,
+  photoOrImage,
   planAct,
   placeholderTitle,
   probesFor,
@@ -106,7 +106,7 @@ export const props = z
           question: text(120),
           answer: text(120),
           explain: text(160).optional(),
-          photo: photo.optional(),
+          photo: photoOrImage(["item", "plant", "pet", "place", "step_illustration"]).optional(),
           points: z.int().min(1).max(20).default(1),
           choices: z.array(text(120)).min(2).max(4).optional(),
         }),

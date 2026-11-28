@@ -39,7 +39,7 @@ export const props = z
         z.strictObject({
           title: c.text(32),
           by: c.text(24).optional(),
-          photo: c.photo,
+          photo: c.photoOrImage(["media_cover", "poster"]),
           progress: z.number().min(0).max(1).optional(),
           badge: c.text(8).optional(),
           status: z.enum(libraryStatuses).optional(),

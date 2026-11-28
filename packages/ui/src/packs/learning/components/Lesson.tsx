@@ -34,7 +34,7 @@ export const props = z
     title: c.text(40),
     text: c.text(400),
     example: c.text(160).optional(),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["step_illustration", "cover"]).optional(),
   })
   .overwrite((value) => (value.detail === "brief" ? { ...value, example: undefined } : value));
 

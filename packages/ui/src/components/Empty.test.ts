@@ -75,6 +75,21 @@ it("brief hides only the explanation and preserves the retry action and its addr
   expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual(["c1/retry"]);
 });
 
+it.each(["error", "offline"] as const)("shows artwork without losing the %s retry", (kind) => {
+  const input = { title: "Couldn't load", kind, photo: { kind: "error", subject: "empty pot" } };
+  const html = renderInstance("Empty", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('data-testid="home/c1/photo"');
+  expect(html).toContain('data-testid="home/c1/retry"');
+  expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual(["c1/retry"]);
+});
+
+it.each(["filtered", "complete"] as const)("rejects either artwork slot for %s", (kind) => {
+  for (const slot of ["empty_state", "error"])
+    expect(
+      props.safeParse({ title: "No walks", kind, photo: { kind: slot, subject: "empty pot" } }).success,
+    ).toBe(false);
+});
+
 describe("Empty fallback", () => {
   it("validates empty, matching, mixed and malformed casts", () => {
     const casts: CastLike[] = [
@@ -134,7 +149,7 @@ describe("Empty metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "retry"],
+      parts: ["root", "icon", "title", "sub", "retry", "photo"],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");

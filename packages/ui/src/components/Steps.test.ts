@@ -100,7 +100,7 @@ describe("Steps fallback", () => {
 describe("Steps metadata and probes", () => {
   it("has the required contract and well-formed choose and write probes", () => {
     expect(meta).toMatchObject({ id: "Steps", group: "structure", region: "top", weight: 1, tier: "phone" });
-    expect(meta.parts).toEqual(["root", "track", "label"]);
+    expect(meta.parts).toEqual(["root", "track", "label", "photo"]);
     expect(meta.states).toEqual(["filled"]);
     expect(meta).not.toHaveProperty("actions");
     expect(meta).not.toHaveProperty("items");

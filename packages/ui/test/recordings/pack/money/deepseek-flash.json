@@ -70750,5 +70750,1166 @@
       "{\"c\":\"Transactions\",\"lead\":\"none\",\"entries\":[{\"tone\":null,\"mark\":null,\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"status\":null,\"note\":\"opening groceries\",\"receipt\":null,\"goto\": \"groceries_open\"}]}",
       "{\"c\":\"Transactions\",\"lead\":\"none\",\"entries\":[{\"tone\":null,\"mark\":null,\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"status\":\"posted\",\"note\":\"Opening groceries\",\"receipt\":null,\"goto\":\"corner_shop_2026_11_19\"}]}"
     ]
+  },
+  "compose%2Fentry%2Fquick%2F/b9d190b0c9fe218f/f9ce29e13b2f9afd": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: entry/quick. Job: Log an expense or income.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"AmountPad\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Chips\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Field\"],\"min\":1,\"max\":1,\"variant\":\"date\"},{\"id\":\"slot_4\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nAmountPad: Enter a money amount quickly with a large keypad.\nprops: { detail?: full|brief=\"full\", label: text≤24, value?: num 0.., max?: num 0.., note: boolean }\nRule: value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief.\nexample: {\"c\":\"AmountPad\",\"label\":\"Ledge supplies\",\"value\":24.5,\"max\":500,\"note\":true}\nweight: 2\n\nChips: Narrow a list by toggling visible labels, or pick one value from a few choices.\nprops: { lead?: icon|none=\"icon\", style?: filter|choose=\"filter\", filter?: { list: id snake_case, field: category|badge }, items: [2..6 { label: text≤16, on?: boolean=false, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, view?: { panel?: id snake_case, match?: text≤24, empty: text≤64 } }] }\nRule: For text-only chips or a request to hide or turn off icons, set \"lead\":\"none\", not null. Keep the existing item icon references: lead controls whether they are drawn. Use lead:null for normal chips with no request to hide icons.\nRule: If the response is only one Chips component, use filter:null and view:null on every item. A standalone line cannot refer to sibling ids that aren't being written. Don't invent any ids.\nRule: When composing a list filter, give the sibling List an explicit id and set filter to {\"list\":\"list_id\",\"field\":\"category\"}. Tag each List row with its actual category and set each item's view.match to the exact value. Include view.empty for each item. In filter style use only real categories; no selected chips already means All. In choose style an item without match shows All.\nRule: To show named sibling content instead, set filter:null and give every item a view with panel (the sibling's explicit id), match:null and empty (its no-results message). An item without panel shows its empty message if no other selected item has results.\nexample: {\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"All rooms\",\"on\":true},{\"label\":\"Bathroom\"},{\"label\":\"Kitchen\"},{\"label\":\"Sun room\"},{\"label\":\"Balcony\"},{\"label\":\"Hallway shelves\"}]}\nweight: 1\n\nField: Enter or change one labelled piece of information on a form.\nprops: { detail?: full|brief=\"full\", kind?: text|number|date|time|choice|repeat|toggle|slider|photo|range|voice|email|password|code|phone=\"text\", label: text≤24, value?: text≤40, length?: int 4..8, repeat?: never|daily|weekdays|weekly|monthly|yearly, hint?: text≤60, options?: [2..4 text≤16], min?: int -1000000..1000000, max?: int -1000000..1000000, lower?: int -1000000..1000000, upper?: int -1000000..1000000 }\nRule: For a recurring schedule use kind: \"repeat\" and repeat: \"weekly\" (or another repeat enum). Omit value; never use kind: \"text\" with repeat.\nRule: Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.\nRule: For a two-ended numeric field use kind \"range\" with integers min, max, lower and upper, in that order (min <= lower <= upper <= max, min < max). For a microphone input use kind \"voice\"; omit value for either kind.\nRule: To hide an authored helper hint, keep its text in hint and set detail to \"brief\".\nRule: Use kind \"email\" for an email address and \"phone\" for a phone number, not \"text\", even on a general contact form.\nRule: Use \"password\" for a masked, revealable input and \"code\" for a numeric one-time code. Never prefill either. For \"code\" only, set length to the requested number of digits (4–8); omit it for six boxes.\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}\nweight: 1\n\nButton: A screen's main task action or a quiet secondary action.\nprops: { emphasis?: normal|quiet=\"normal\", media?: icon|none=\"icon\", label: text≤24, kind?: text≤?, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nRule: Set media to \"none\" only to hide an icon explicitly supplied and kept in icon. If no icon was requested, both icon and media are null. Hiding an icon does not change a filled Button's emphasis.\nRule: Use emphasis \"quiet\" for a secondary action or link in the scrolling content. Leave emphasis null for the screen's own main action. Use a row link to open its record and the Header back control to return.\nRule: For a link to a supplied screen id, copy the id to goto.\nRule: For a destructive action, set kind to \"danger\" and supply confirm. Otherwise leave kind null.\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"entry_quick\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"a1\",\"c\":\"AmountPad\",\"label\":\"Item one\",\"note\":false},{\"id\":\"c1\",\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"Item one\",\"on\":true},{\"label\":\"Item two\",\"on\":false}]},{\"id\":\"f1\",\"c\":\"Field\",\"kind\":\"date\",\"label\":\"Details\"},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "AmountPad",
+                        "enum": [
+                          "AmountPad"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "max": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "note": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "label",
+                      "value",
+                      "max",
+                      "note"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Chips",
+                        "enum": [
+                          "Chips"
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "filter",
+                              "choose"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "filter": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "list": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*$"
+                              },
+                              "field": {
+                                "type": "string",
+                                "enum": [
+                                  "category",
+                                  "badge"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "list",
+                              "field"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            },
+                            "on": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "view": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "panel": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_]*$"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "match": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 24
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "empty": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 64
+                                    }
+                                  },
+                                  "required": [
+                                    "panel",
+                                    "match",
+                                    "empty"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "on",
+                            "icon",
+                            "view"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "lead",
+                      "style",
+                      "filter",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Field",
+                        "enum": [
+                          "Field"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "number",
+                              "date",
+                              "time",
+                              "choice",
+                              "repeat",
+                              "toggle",
+                              "slider",
+                              "photo",
+                              "range",
+                              "voice",
+                              "email",
+                              "password",
+                              "code",
+                              "phone"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "length": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 4,
+                            "maximum": 8
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "repeat": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "never",
+                              "daily",
+                              "weekdays",
+                              "weekly",
+                              "monthly",
+                              "yearly"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "hint": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "options": {
+                        "anyOf": [
+                          {
+                            "minItems": 2,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "min": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -1000000,
+                            "maximum": 1000000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "max": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -1000000,
+                            "maximum": 1000000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lower": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -1000000,
+                            "maximum": 1000000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "upper": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": -1000000,
+                            "maximum": 1000000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "kind",
+                      "label",
+                      "value",
+                      "length",
+                      "repeat",
+                      "hint",
+                      "options",
+                      "min",
+                      "max",
+                      "lower",
+                      "upper"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "danger"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "media",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"entry_quick\",\n  \"title\": \"Quick entry\",\n  \"components\": [\n    {\n      \"id\": \"header_title\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Log entry\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"amount_input\",\n      \"c\": \"AmountPad\",\n      \"detail\": null,\n      \"label\": \"Amount\",\n      \"value\": null,\n      \"max\": null,\n      \"note\": false\n    },\n    {\n      \"id\": \"type_filter\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"choose\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"Expense\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Income\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"date_field\",\n      \"c\": \"Field\",\n      \"detail\": null,\n      \"kind\": \"date\",\n      \"label\": \"Date\",\n      \"value\": null,\n      \"length\": null,\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null,\n      \"min\": null,\n      \"max\": null,\n      \"lower\": null,\n      \"upper\": null\n    },\n    {\n      \"id\": \"save_button\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Save entry\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"entry_quick\",\n  \"title\": \"Quick entry\",\n  \"components\": [\n    {\n      \"id\": \"header_title\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Log entry\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"amount_input\",\n      \"c\": \"AmountPad\",\n      \"detail\": null,\n      \"label\": \"Amount\",\n      \"value\": null,\n      \"max\": null,\n      \"note\": false\n    },\n    {\n      \"id\": \"type_filter\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"choose\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"Expense\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Income\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"date_field\",\n      \"c\": \"Field\",\n      \"detail\": null,\n      \"kind\": \"date\",\n      \"label\": \"Date\",\n      \"value\": null,\n      \"length\": null,\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null,\n      \"min\": null,\n      \"max\": null,\n      \"lower\": null,\n      \"upper\": null\n    },\n    {\n      \"id\": \"save_button\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Save entry\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"entry_quick\",\n  \"title\": \"Log an expense or income\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Log transaction\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"amount_pad\",\n      \"c\": \"AmountPad\",\n      \"detail\": null,\n      \"label\": \"Amount\",\n      \"value\": null,\n      \"max\": null,\n      \"note\": false\n    },\n    {\n      \"id\": \"type_chips\",\n      \"c\": \"Chips\",\n      \"lead\": null,\n      \"style\": \"choose\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"Expense\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Income\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"date_field\",\n      \"c\": \"Field\",\n      \"detail\": null,\n      \"kind\": \"date\",\n      \"label\": \"Date\",\n      \"value\": null,\n      \"length\": null,\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null,\n      \"min\": null,\n      \"max\": null,\n      \"lower\": null,\n      \"upper\": null\n    },\n    {\n      \"id\": \"save_button\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Save\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"entry_quick\",\n  \"title\": \"Log an expense or income\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": \"normal\",\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Log an expense or income\",\n      \"sub\": \"Quickly add a transaction\",\n      \"action\": null\n    },\n    {\n      \"id\": \"amount_pad\",\n      \"c\": \"AmountPad\",\n      \"detail\": \"full\",\n      \"label\": \"Amount\",\n      \"value\": null,\n      \"max\": null,\n      \"note\": true\n    },\n    {\n      \"id\": \"category_chips\",\n      \"c\": \"Chips\",\n      \"lead\": \"none\",\n      \"style\": \"filter\",\n      \"filter\": null,\n      \"items\": [\n        {\n          \"label\": \"Expense\",\n          \"on\": true,\n          \"icon\": null,\n          \"view\": null\n        },\n        {\n          \"label\": \"Income\",\n          \"on\": false,\n          \"icon\": null,\n          \"view\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"date_field\",\n      \"c\": \"Field\",\n      \"detail\": \"full\",\n      \"kind\": \"date\",\n      \"label\": \"Date\",\n      \"value\": null,\n      \"length\": null,\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null,\n      \"min\": null,\n      \"max\": null,\n      \"lower\": null,\n      \"upper\": null\n    },\n    {\n      \"id\": \"save_button\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Save\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}"
+    ]
   }
 }

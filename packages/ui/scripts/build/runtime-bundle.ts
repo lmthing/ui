@@ -6,7 +6,7 @@ import { runtimeSource } from "./runtime-source";
 const mixedSource =
   /\/src\/(?:components\/.*\.tsx|surfaces\/.*\.tsx|packs\/[^/]+\/(?:components\/.*\.tsx|(?:index|pack|device-contract|device-fixtures)\.ts)|entry\/packs\/.*\.ts)$/;
 const modelSource =
-  /\/src\/(?:catalog\/(?:(?:prompt|probes)\/|meta\/pack-index[.-]|format\/writer-)|entry\/prompt-)/;
+  /\/src\/(?:catalog\/(?:(?:prompt|probes)\/|meta\/pack-index[.-]|format\/writer-|images\/(?:art-direction|build-image-prompt)\.ts)|entry\/(?:prompt-|image-templates\.generated))/;
 const iconImport = /import\s*\{([\s\w,]+)\}\s*from\s+["']@tamagui\/lucide-icons["'];/g;
 
 export function assertRuntimeBundle(meta: Metafile) {

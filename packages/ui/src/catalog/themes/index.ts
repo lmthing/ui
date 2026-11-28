@@ -59,6 +59,7 @@ export {
 export { themeName, type ThemeChoice } from "./theme-name";
 export { kitStyleOf, type KitStyle } from "./kit-style";
 export { themeRoles } from "./theme-roles";
+export { artStyle, artStyles, defaultArtStyle, type ArtStyle } from "./art-style";
 export {
   themePreferencesOf,
   type ThemeDensity,

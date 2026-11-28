@@ -1,8 +1,19 @@
-import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitIcon,
+  KitPhoto,
+  KitRow,
+  KitText,
+} from "../kit";
 import {
   wordsFor,
   probesFor,
   icon,
+  imageSlotFor,
   text,
   thingOf,
   titleOf,
@@ -28,7 +39,20 @@ export const meta = {
   realPath: "The result of an action that saved or changed an item in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "icon", "title", "sub", "owner", "next", "subject", "when", "receipt", "undo", "close"],
+  parts: [
+    "root",
+    "icon",
+    "title",
+    "sub",
+    "owner",
+    "next",
+    "subject",
+    "when",
+    "receipt",
+    "undo",
+    "close",
+    "photo",
+  ],
   states: ["filled"],
   // A toast can be swept away and may offer to take the action back.
   actions: {
@@ -48,6 +72,7 @@ export const props = z
     title: text(40),
     sub: text(100).optional(),
     icon: icon.default("circle_check"),
+    photo: imageSlotFor(["success"]).optional(),
     undo: z.boolean().default(false),
     outcome: z.enum(["pending", "confirmed", "done"]).optional(),
     owner: text(32).optional(),
@@ -66,6 +91,7 @@ export const props = z
     ...value,
     style: value.undo ? "toast" : value.style,
     sub: value.detail === "brief" ? undefined : value.sub,
+    photo: value.undo || value.style === "toast" ? undefined : value.photo,
     undoable: value.undo,
   }));
 
@@ -188,16 +214,28 @@ function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
 
 export function Success(input: SuccessProps) {
   if (input.style === "toast") return <SuccessToast {...input} />;
-  const { title, sub, icon } = input;
+  const { title, sub, icon, photo } = input;
   if (input.outcome) return <OutcomeReceipt {...input} />;
+  const artwork = photo && <KitPhoto photo={photo} part="photo" shape="avatar" decorative />;
   return (
     <KitCard style="plain" part="root">
-      <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} fill tone="good" />
+      <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} artwork={artwork} fill tone="good" />
     </KitCard>
   );
 }
 
-function OutcomeReceipt({ title, sub, outcome, subject, owner, next, when, receipt, icon }: SuccessProps) {
+function OutcomeReceipt({
+  title,
+  sub,
+  outcome,
+  subject,
+  owner,
+  next,
+  when,
+  receipt,
+  icon,
+  photo,
+}: SuccessProps) {
   const pending = outcome === "pending";
   return (
     <KitCard style="inset" part="root" padded>
@@ -230,6 +268,7 @@ function OutcomeReceipt({ title, sub, outcome, subject, owner, next, when, recei
           </KitText>
         )}
       </KitContent>
+      {photo && <KitPhoto photo={photo} part="photo" shape="avatar" decorative />}
     </KitCard>
   );
 }

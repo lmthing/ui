@@ -28,7 +28,10 @@ type KitProviderProps = {
   controller?: KitContextValue["controller"];
   onLink?: KitContextValue["onLink"];
   resolvePhoto?: KitContextValue["resolvePhoto"];
+  resolveImage?: KitContextValue["resolveImage"];
 };
+const presetFor = (id: ThemeChoice["preset"]) => presets.find((value) => value.id === id)!;
+
 export function KitProvider({
   children,
   theme,
@@ -40,12 +43,12 @@ export function KitProvider({
   controller,
   onLink,
   resolvePhoto,
+  resolveImage,
 }: KitProviderProps) {
   const root = useRef<TamaguiElement>(null);
-  const preset = presets.find((value) => value.id === theme.preset)!;
   const osReduced = useReducedMotion(!environment.agentMode && !environment.reduceMotion, nativeHost);
   const { density, motion } = themePreferencesOf(theme, environment.reduceMotion || osReduced);
-  const desired = useMemo(() => kitStyleOf(preset, density), [preset, density]);
+  const desired = useMemo(() => kitStyleOf(presetFor(theme.preset), density), [theme.preset, density]);
   const [style, onLayout] = useScreenGutter(desired, root);
   const value = useMemo(
     () => ({
@@ -61,6 +64,7 @@ export function KitProvider({
       ...(controller ? { controller } : {}),
       ...linkHandler(controller, onLink),
       ...(resolvePhoto ? { resolvePhoto } : {}),
+      resolveImage,
     }),
     [
       style,
@@ -75,6 +79,7 @@ export function KitProvider({
       controller,
       onLink,
       resolvePhoto,
+      resolveImage,
     ],
   );
   return (

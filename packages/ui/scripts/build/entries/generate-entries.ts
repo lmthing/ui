@@ -3,6 +3,7 @@ import { generateDoors } from "./generate-doors";
 import { publishEntries } from "./publish-entries";
 import { promptModule } from "./prompt-source";
 import { flowPrompts } from "./flow-prompts";
+import { imageTemplateEntry } from "./image-templates";
 import { iconTable } from "../../../src/catalog/icon-vocabulary";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
@@ -211,11 +212,13 @@ function generatePackEntries({ defs, packs }: Entries): Record<string, string[]>
 export async function generateEntries(root: string) {
   const entries = await scanEntries(root);
   const flows = await flowPrompts(root);
+  const images = await imageTemplateEntry(root);
   const icons = [...new Set(Object.values(iconTable))].sort().join(", ");
   const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
     ...flows,
+    ...(images.length ? { "image-templates.generated.ts": images } : {}),
     ...Object.fromEntries(
       entries.defs.flatMap(({ name, prompt }) =>
         prompt

@@ -95,6 +95,8 @@ export type PhoneScreenProps = {
   resolveClipboardText?: ClipboardText | undefined;
   writeClipboard?: ClipboardWriter | undefined;
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
+  /** Resolve a generated image for the current slot at its addressed part. */
+  resolveImage?: import("../../catalog").ImageResolver | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;
   micCapture?: MicCaptureAdapter | undefined;
@@ -122,7 +124,7 @@ export type PhoneScreenProps = {
   cue?: number | undefined;
 };
 function freezeNativeTab(
-  { defs, renderers, theme, lang, resolvePhoto, deviceData, screen }: PhoneScreenProps,
+  { defs, renderers, theme, lang, resolvePhoto, resolveImage, deviceData, screen }: PhoneScreenProps,
   controller: ScreenController,
   scrollTop: number,
 ): NativeTabShot {
@@ -132,6 +134,7 @@ function freezeNativeTab(
     theme,
     lang,
     resolvePhoto,
+    resolveImage,
     deviceData,
     screen: controller.snapshotScreen(),
     values: controller.store.snapshot(screen.id),
@@ -212,6 +215,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
       lang={props.lang}
       {...(props.parts ? { parts: props.parts } : {})}
       {...(props.resolvePhoto ? { resolvePhoto: props.resolvePhoto } : {})}
+      resolveImage={props.resolveImage}
       controller={controller}
       interactive={interactive}
       environment={

@@ -1,4 +1,4 @@
-import type { ActStep, Values } from "../../../catalog";
+import type { ActStep, PhotoInput, Values } from "../../../catalog";
 
 type Pair = { left: string; right: string };
 export const wordBankLimit = 8;
@@ -10,7 +10,7 @@ export type QuizItem = {
   words?: string[] | undefined;
   answer?: number | boolean | string | number[] | undefined;
   explain?: string | undefined;
-  photo?: string | undefined;
+  photo?: PhotoInput | undefined;
   media?: string | undefined;
 };
 

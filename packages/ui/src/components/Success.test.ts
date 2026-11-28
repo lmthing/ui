@@ -123,7 +123,20 @@ describe("Success metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "owner", "next", "subject", "when", "receipt", "undo", "close"],
+      parts: [
+        "root",
+        "icon",
+        "title",
+        "sub",
+        "owner",
+        "next",
+        "subject",
+        "when",
+        "receipt",
+        "undo",
+        "close",
+        "photo",
+      ],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");
@@ -171,4 +184,18 @@ it.each(["screen", "toast"] as const)("brief hides sub but preserves %s actions"
   expect(affordancesOf(meta, props.parse(brief), "s1")).toEqual(
     affordancesOf(meta, props.parse(input), "s1"),
   );
+});
+
+it("shows artwork with a structured receipt", () => {
+  const input = {
+    title: "Care notes saved",
+    outcome: "done",
+    receipt: "Record FN-104",
+    photo: { kind: "success", subject: "potted fern" },
+  };
+  const html = renderInstance("Success", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(html).toContain('data-testid="home/c1/photo"');
+  expect(html).toContain('data-testid="home/c1/icon"');
+  expect(html).toContain('data-testid="home/c1/receipt"');
+  expect(html).toContain(input.receipt);
 });

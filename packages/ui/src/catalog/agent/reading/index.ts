@@ -87,7 +87,13 @@ function textsOf(
     const v = value[key];
     if (secrets?.includes(key)) return typeof v === "string" ? [secretPlaceholder] : [];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
-    if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
+    if ((field.kind === "photo" || field.kind === "photo_or_image") && typeof v === "string")
+      return [`photo:${v.replace(/^lib:/, "")}`];
+    if ((field.kind === "image_slot" || field.kind === "photo_or_image") && v && typeof v === "object") {
+      const slot = v as { kind?: unknown; subject?: unknown };
+      if (typeof slot.kind === "string" && typeof slot.subject === "string")
+        return [`image:${slot.kind} ${JSON.stringify(slot.subject)}`];
+    }
     if (field.kind === "secret" && typeof v === "string") return [secretPlaceholder];
     if (field.type === "object" && v && typeof v === "object") return textsOf(field, v as Props);
     return [];

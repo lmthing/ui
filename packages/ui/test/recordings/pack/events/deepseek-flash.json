@@ -49240,5 +49240,1723 @@
       "{\"c\":\"Vendors\",\"detail\":\"brief\",\"vendors\":[{\"role\":\"food\",\"name\":\"Juniper Kitchen\",\"cost\":2400,\"paid\":1200,\"due\":\"2027-05-30\",\"booked\":true,\"phone\":null}]}",
       "{\"c\":\"Vendors\",\"detail\":\"brief\",\"vendors\":[{\"role\":\"food\",\"name\":\"Juniper Kitchen\",\"cost\":2400,\"paid\":1200,\"due\":\"2027-05-30\",\"booked\":true,\"phone\":null}]}"
     ]
+  },
+  "compose%2Fguests%2Freply%2FBegin%20with%20a%20wide%20cover%20photo%20lib%3Aitem_one%20and%20headline%20Ruth%20and%20Sam.%20Show%20label%2Fvalue%20facts%20Dress%20code%3A%20Garden%20party%20and%20Doors%3A%2017%3A00.%20Add%20a%20map%20with%20one%20pin%20Harbour%20Hall.%20Then%20let%20the%20guest%20reply%20to%20Ruth%20and%20Sam's%20wedding%20on%202027-06-12%2C%20no%20answer%20yet%2C%20up%20to%20one%20companion%20and%20one%20of%20two%20meals%3A%20Lemon%20chicken%20or%20Roast%20squash./a6b02044aa804332/60c7f0e4b2483ab0": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: guests/reply. Job: Track invitations, seat guests and collect replies.\n\nBrief: Begin with a wide cover photo lib:item_one and headline Ruth and Sam. Show label/value facts Dress code: Garden party and Doors: 17:00. Add a map with one pin Harbour Hall. Then let the guest reply to Ruth and Sam's wedding on 2027-06-12, no answer yet, up to one companion and one of two meals: Lemon chicken or Roast squash.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Hero\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"KeyValue\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"MapPins\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"RSVP\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Use Hero with media \"cover\" and a photo reference (not style \"photo\").\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHero: Give one important update, decision or measured number.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", media?: none|cover=\"none\", tone?: neutral|good|warn|bad=\"neutral\", style?: number, title: text≤40, sub?: text≤80, photo?: photo lib:<tag>|local:<n> or { kind: hero|cover|onboarding, subject: text≤80 } }\nRule: Use style number when the title is a headline number. Include its meaning in sub. For a requested wide photo, set media to cover and use the supplied photo reference. Leave emphasis and tone null unless explicitly requested.\nRule: Keep the page name in Header. Do not repeat it, the first list row or a progress value as the Hero.\nRule: Put visible subtitles in sub and keep detail null. Only an explicit request to hide the subtitle sets detail to \"brief\"; keep the subtitle in sub.\nRule: For the main image of an app or screen, use media `cover` with a `hero`, `cover` or `onboarding` slot in `photo`. Use onboarding only for a first-use scene. Leave photo absent if the headline carries the meaning alone. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Hero\",\"title\":\"Check the ferns first\",\"sub\":\"Water only if the topsoil is dry\",\"photo\":\"lib:plants\"}\nweight: 3\n\nKeyValue: Label and value details of one single thing, like its room or schedule.\nprops: { arrange?: rows|grid=\"rows\", lead?: icon|none=\"icon\", masked?: boolean, pairs: [1..6 { label: text≤20, value: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, status?: boolean, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted=\"none\" }] }\nRule: A request for a two-column grid sets arrange to \"grid\" only. Otherwise leave arrange null for rows. Leave lead null unless explicitly requested.\nRule: For ordinary facts, set both tone and mark to null on every pair, never \"neutral\" or \"none\". Use those axes only if a specific fact needs visual status or highlighting by request. Set lead to \"none\" only when specifically asked to hide icons.\nRule: If one fact is the record's primary state, put that pair first and set its status to true (for example, label \"Order status\" and value \"Ready for pickup\"). Leave status null on ordinary details and on masked pairs.\nRule: When writing a hidden entry code, set \"masked\":true at the component and \"status\":null on every pair. A code, password or token is never a status. Use only synthetic example values for private facts; never copy real credentials.\nexample: {\"c\":\"KeyValue\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}\nweight: 2\n\nMapPins: See where nearby places are and open a place.\nprops: { trail?: chevron|none=\"chevron\", userLocation?: boolean, selected?: int 0..4, pins: [1..5 { label: text≤24, goto?: id snake_case, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use null for unrequested MapPins and pin axes. If asked to hide the arrows on linked rows, use trail \"none\"; keep the links in goto. Pin tone and mark affect only the matching rows below the map.\nRule: Use userLocation only if asked to show one's own location. Highlighting a numbered pin on the map means set selected to its zero-based index (second pin → 1). Never substitute a row mark for map selection.\nexample: {\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\"}]}\nweight: 3\n\nRSVP: Reply to an event invitation with attendance, companions and a meal choice.\nprops: { detail?: full|brief=\"full\", event: text≤32, date: date YYYY-MM-DD, plusMax: int 0..4, meals: [0..4 text≤20], answer: none|yes|no }\nRule: Set detail to \"brief\" only for an invitation reply without a note field.\nexample: {\"c\":\"RSVP\",\"event\":\"Ruth and Sam's wedding\",\"date\":\"2027-06-12\",\"plusMax\":2,\"meals\":[\"Lemon chicken\",\"Roast squash\"],\"answer\":\"none\"}\nweight: 2\n\nA valid default for this layout: {\"id\":\"guests_reply\",\"components\":[{\"id\":\"h1\",\"c\":\"Hero\",\"title\":\"Item one\",\"sub\":\"Details\",\"media\":\"cover\",\"photo\":\"lib:item_one\"},{\"id\":\"k1\",\"c\":\"KeyValue\",\"pairs\":[{\"label\":\"Item one\",\"value\":\"0\"},{\"label\":\"Item two\",\"value\":\"0\"}]},{\"id\":\"m1\",\"c\":\"MapPins\",\"pins\":[{\"label\":\"Item one\"},{\"label\":\"Item two\"},{\"label\":\"Item three\"}]},{\"id\":\"r1\",\"c\":\"RSVP\",\"event\":\"Item one\",\"date\":\"2026-11-20\",\"plusMax\":0,\"meals\":[],\"answer\":\"none\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Hero",
+                        "enum": [
+                          "Hero"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "cover"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "tone": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "neutral",
+                              "good",
+                              "warn",
+                              "bad"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "number"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "photo": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "hero",
+                                      "cover",
+                                      "onboarding"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 80
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "subject"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "media",
+                      "tone",
+                      "style",
+                      "title",
+                      "sub",
+                      "photo"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "KeyValue",
+                        "enum": [
+                          "KeyValue"
+                        ]
+                      },
+                      "arrange": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "rows",
+                              "grid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "masked": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "pairs": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "value": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "status": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight",
+                                    "muted"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "value",
+                            "icon",
+                            "status",
+                            "tone",
+                            "mark"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "arrange",
+                      "lead",
+                      "masked",
+                      "pairs"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "MapPins",
+                        "enum": [
+                          "MapPins"
+                        ]
+                      },
+                      "trail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "chevron",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "userLocation": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "selected": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "pins": {
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight",
+                                    "muted",
+                                    "new"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "goto",
+                            "tone",
+                            "mark"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "trail",
+                      "userLocation",
+                      "selected",
+                      "pins"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "RSVP",
+                        "enum": [
+                          "RSVP"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "event": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "plusMax": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "meals": {
+                        "minItems": 0,
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        }
+                      },
+                      "answer": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "yes",
+                          "no"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "event",
+                      "date",
+                      "plusMax",
+                      "meals",
+                      "answer"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"guests_reply\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"hero_cover\",\n      \"c\": \"Hero\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"media\": \"cover\",\n      \"tone\": null,\n      \"style\": null,\n      \"title\": \"Ruth and Sam\",\n      \"sub\": null,\n      \"photo\": \"lib:item_one\"\n    },\n    {\n      \"id\": \"kv_facts\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Dress code\",\n          \"value\": \"Garden party\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Doors\",\n          \"value\": \"17:00\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"map_pins\",\n      \"c\": \"MapPins\",\n      \"trail\": null,\n      \"userLocation\": null,\n      \"selected\": null,\n      \"pins\": [\n        {\n          \"label\": \"Harbour Hall\",\n          \"goto\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"rsvp_reply\",\n      \"c\": \"RSVP\",\n      \"detail\": null,\n      \"event\": \"Ruth and Sam's wedding\",\n      \"date\": \"2027-06-12\",\n      \"plusMax\": 1,\n      \"meals\": [\"Lemon chicken\", \"Roast squash\"],\n      \"answer\": \"none\"\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"guests_reply\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"hero_cover\",\n      \"c\": \"Hero\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"media\": \"cover\",\n      \"tone\": null,\n      \"style\": null,\n      \"title\": \"Ruth and Sam\",\n      \"sub\": null,\n      \"photo\": \"lib:item_one\"\n    },\n    {\n      \"id\": \"kv_facts\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Dress code\",\n          \"value\": \"Garden party\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Doors\",\n          \"value\": \"17:00\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"map_pins\",\n      \"c\": \"MapPins\",\n      \"trail\": null,\n      \"userLocation\": null,\n      \"selected\": null,\n      \"pins\": [\n        {\n          \"label\": \"Harbour Hall\",\n          \"goto\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"rsvp_reply\",\n      \"c\": \"RSVP\",\n      \"detail\": null,\n      \"event\": \"Ruth and Sam's wedding\",\n      \"date\": \"2027-06-12\",\n      \"plusMax\": 1,\n      \"meals\": [\"Lemon chicken\", \"Roast squash\"],\n      \"answer\": \"none\"\n    }\n  ]\n}",
+      "{\n  \"id\": \"guests_reply\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"cover_hero\",\n      \"c\": \"Hero\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"media\": \"cover\",\n      \"tone\": null,\n      \"style\": null,\n      \"title\": \"Ruth and Sam\",\n      \"sub\": null,\n      \"photo\": \"lib:item_one\"\n    },\n    {\n      \"id\": \"event_facts\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Dress code\",\n          \"value\": \"Garden party\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Doors\",\n          \"value\": \"17:00\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"venue_map\",\n      \"c\": \"MapPins\",\n      \"trail\": null,\n      \"userLocation\": null,\n      \"selected\": null,\n      \"pins\": [\n        {\n          \"label\": \"Harbour Hall\",\n          \"goto\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"wedding_rsvp\",\n      \"c\": \"RSVP\",\n      \"detail\": null,\n      \"event\": \"Ruth and Sam's wedding\",\n      \"date\": \"2027-06-12\",\n      \"plusMax\": 1,\n      \"meals\": [\"Lemon chicken\", \"Roast squash\"],\n      \"answer\": \"none\"\n    }\n  ]\n}",
+      "{\n  \"id\": \"guests_reply\",\n  \"title\": \"Ruth and Sam’s Wedding\",\n  \"components\": [\n    {\n      \"id\": \"hero_cover\",\n      \"c\": \"Hero\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"media\": \"cover\",\n      \"tone\": null,\n      \"style\": null,\n      \"title\": \"Ruth and Sam\",\n      \"sub\": \"Save the date — 12 June 2027\",\n      \"photo\": \"lib:item_one\"\n    },\n    {\n      \"id\": \"key_facts\",\n      \"c\": \"KeyValue\",\n      \"arrange\": null,\n      \"lead\": null,\n      \"masked\": null,\n      \"pairs\": [\n        {\n          \"label\": \"Dress code\",\n          \"value\": \"Garden party\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        },\n        {\n          \"label\": \"Doors\",\n          \"value\": \"17:00\",\n          \"icon\": null,\n          \"status\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"map_pins\",\n      \"c\": \"MapPins\",\n      \"trail\": null,\n      \"userLocation\": null,\n      \"selected\": null,\n      \"pins\": [\n        {\n          \"label\": \"Harbour Hall\",\n          \"goto\": null,\n          \"tone\": null,\n          \"mark\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"rsvp_reply\",\n      \"c\": \"RSVP\",\n      \"detail\": null,\n      \"event\": \"Ruth and Sam's wedding\",\n      \"date\": \"2027-06-12\",\n      \"plusMax\": 1,\n      \"meals\": [\"Lemon chicken\", \"Roast squash\"],\n      \"answer\": \"none\"\n    }\n  ]\n}"
+    ]
+  },
+  "compose%2Fsuppliers%2Fgifts%2FTitle%20the%20screen%20Gifts.%20Under%20it%20put%20the%20note%20'Celebrating%20with%20you%20is%20enough.'%20Then%20show%20the%20shared%20gift%20list%20for%20guests%20with%20unclaimed%20Linen%20tablecloth%20at%20Loom%20House%20for%2045%2C%20image%20lib%3Alinen./cae9682fbc0fdd28/cfde3047c527c154": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: suppliers/gifts. Job: Track suppliers and share the gift list.\n\nBrief: Title the screen Gifts. Under it put the note 'Celebrating with you is enough.' Then show the shared gift list for guests with unclaimed Linen tablecloth at Loom House for 45, image lib:linen.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Note\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Registry\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nNote: One short sentence of supporting information.\nprops: { emphasis?: normal|quiet|hero=\"normal\", media?: icon|none=\"icon\", tone?: neutral|good|warn|bad=\"neutral\", text: text≤120, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }\nRule: An ordinary icon uses the icon field alone. To hide a supplied icon, keep the icon field and use media \"none\"; emphasis and tone remain null unless specifically requested.\nRule: A supporting line is a normal Note, not a request for quiet emphasis. Use \"quiet\" only for a smaller, muted treatment, or \"hero\" for an explicitly prominent quotation with the quote icon.\nexample: {\"c\":\"Note\",\"text\":\"Keep your fern in indirect light.\",\"icon\":\"sun\"}\nweight: 1\n\nRegistry: Share a gift list and keep guests from choosing the same gift.\nprops: { lead?: thumb|none=\"thumb\", gifts: [1..12 { title: text≤28, photo?: photo lib:<tag>|local:<n> or { kind: item|product, subject: text≤80 }, price?: num 0.., where?: text≤24, claimed: boolean, by?: text≤16 }], host: boolean }\nRule: Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.\nRule: If explicitly asked for rows without photos, set lead to \"none\" and retain any supplied photo references.\nRule: For a generated image, use `item` or `product` in `photo`. Use only for a representative image of a gift. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Registry\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false},{\"title\":\"Blue serving bowl\",\"photo\":\"lib:bowl\",\"price\":32,\"claimed\":true}],\"host\":false}\nweight: 3\n\nA valid default for this layout: {\"id\":\"suppliers_gifts\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"n1\",\"c\":\"Note\",\"text\":\"Details\"},{\"id\":\"r1\",\"c\":\"Registry\",\"gifts\":[{\"title\":\"Item one\",\"claimed\":false}],\"host\":false}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Note",
+                        "enum": [
+                          "Note"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet",
+                              "hero"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "tone": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "neutral",
+                              "good",
+                              "warn",
+                              "bad"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "media",
+                      "tone",
+                      "text",
+                      "icon"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Registry",
+                        "enum": [
+                          "Registry"
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "thumb",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "gifts": {
+                        "minItems": 1,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "enum": [
+                                            "item",
+                                            "product"
+                                          ]
+                                        },
+                                        "subject": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 80
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "subject"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "price": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "where": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "claimed": {
+                              "type": "boolean"
+                            },
+                            "by": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 16
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "photo",
+                            "price",
+                            "where",
+                            "claimed",
+                            "by"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "host": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "lead",
+                      "gifts",
+                      "host"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"suppliers_gifts\",\n  \"title\": \"Gifts\",\n  \"components\": [\n    {\n      \"id\": \"header_gifts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Gifts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"note_celebrating\",\n      \"c\": \"Note\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Celebrating with you is enough.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"registry_gift_list\",\n      \"c\": \"Registry\",\n      \"lead\": null,\n      \"gifts\": [\n        {\n          \"title\": \"Linen tablecloth\",\n          \"photo\": \"lib:linen\",\n          \"price\": 45,\n          \"where\": \"Loom House\",\n          \"claimed\": false,\n          \"by\": null\n        }\n      ],\n      \"host\": false\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"suppliers_gifts\",\n  \"title\": \"Gifts\",\n  \"components\": [\n    {\n      \"id\": \"header_gifts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Gifts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"note_celebrating\",\n      \"c\": \"Note\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Celebrating with you is enough.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"registry_gift_list\",\n      \"c\": \"Registry\",\n      \"lead\": null,\n      \"gifts\": [\n        {\n          \"title\": \"Linen tablecloth\",\n          \"photo\": \"lib:linen\",\n          \"price\": 45,\n          \"where\": \"Loom House\",\n          \"claimed\": false,\n          \"by\": null\n        }\n      ],\n      \"host\": false\n    }\n  ]\n}",
+      "{\n  \"id\": \"suppliers_gifts\",\n  \"title\": \"Gifts\",\n  \"components\": [\n    {\n      \"id\": \"header_gifts\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Gifts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"note_celebrating\",\n      \"c\": \"Note\",\n      \"emphasis\": null,\n      \"media\": \"icon\",\n      \"tone\": null,\n      \"text\": \"Celebrating with you is enough.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"registry_gifts\",\n      \"c\": \"Registry\",\n      \"lead\": \"thumb\",\n      \"gifts\": [\n        {\n          \"title\": \"Linen tablecloth\",\n          \"photo\": \"lib:linen\",\n          \"price\": 45,\n          \"where\": \"Loom House\",\n          \"claimed\": false,\n          \"by\": null\n        }\n      ],\n      \"host\": false\n    }\n  ]\n}",
+      "{\n  \"id\": \"suppliers_gifts\",\n  \"title\": \"suppliers/gifts\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Gifts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"note\",\n      \"c\": \"Note\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Celebrating with you is enough.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"registry\",\n      \"c\": \"Registry\",\n      \"lead\": null,\n      \"gifts\": [\n        {\n          \"title\": \"Linen tablecloth\",\n          \"photo\": \"lib:linen\",\n          \"price\": 45,\n          \"where\": \"Loom House\",\n          \"claimed\": false,\n          \"by\": null\n        }\n      ],\n      \"host\": false\n    }\n  ]\n}"
+    ]
+  },
+  "Registry%2Fchoose%2FLet%20wedding%20guests%20reserve%20gifts%20from%20our%20shared%20list%20so%20nobody%20buys%20the%20same%20gift%3B%20show%20hosts%20who%20reserved%20each%20one./b63f2a2fc884e079/55fee525fa6239a9": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: A screen's main task action or a quiet secondary action. Pick: One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value from a longer set. Prefer Segmented for a one-of-two or one-of-three choice. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount, email address, password, one-time code or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- HandoffReceipt: Know who received a shared record and whether the hand-off still needs attention. Pick: One record passed between roles, showing its subject, reference, sender, recipient and delivery outcome. Not a local action confirmation (Success), a conversation (Bubbles), or an audit of many changes (ActivityLog).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: Give one important update, decision or measured number. Pick: Use only for one lead statement, decision or measured headline number that adds to the Header. Skip it if the page title, media, list or progress already leads. Not a separate warning (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Prefer Segmented over Chips for a one-of-two or one-of-three choice. Not independently combinable filters (Chips) or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- SignInOptions: Choose a trusted way to log in or create an account. Pick: Offer account sign-in methods such as Apple, Google, email, or phone. Not ordinary screen shortcuts (Actions) or the main submit control for a completed form (Button).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Up to four available summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Let wedding guests reserve gifts from our shared list so nobody buys the same gift; show hosts who reserved each one.\"\nReply with only the component id, nothing else.",
+    "reply": "Registry",
+    "replies": [
+      "Registry",
+      "Registry",
+      "Registry"
+    ]
+  },
+  "Registry%2Fchoose%2FShow%20jobs%20I%20can%20tick%20off%20as%20I%20finish%20them%2C%20like%20posting%20invitations%20or%20ordering%20flowers.%20No%20gifts%2C%20prices%20or%20reservations./b1a0722bf62419f0/2a3a491394d03436": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: A screen's main task action or a quiet secondary action. Pick: One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value from a longer set. Prefer Segmented for a one-of-two or one-of-three choice. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount, email address, password, one-time code or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- HandoffReceipt: Know who received a shared record and whether the hand-off still needs attention. Pick: One record passed between roles, showing its subject, reference, sender, recipient and delivery outcome. Not a local action confirmation (Success), a conversation (Bubbles), or an audit of many changes (ActivityLog).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: Give one important update, decision or measured number. Pick: Use only for one lead statement, decision or measured headline number that adds to the Header. Skip it if the page title, media, list or progress already leads. Not a separate warning (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Prefer Segmented over Chips for a one-of-two or one-of-three choice. Not independently combinable filters (Chips) or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- SignInOptions: Choose a trusted way to log in or create an account. Pick: Offer account sign-in methods such as Apple, Google, email, or phone. Not ordinary screen shortcuts (Actions) or the main submit control for a completed form (Button).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Up to four available summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show jobs I can tick off as I finish them, like posting invitations or ordering flowers. No gifts, prices or reservations.\"\nReply with only the component id, nothing else.",
+    "reply": "Checklist",
+    "replies": [
+      "Checklist",
+      "Checklist",
+      "Checklist"
+    ]
+  },
+  "Registry%2Fread%2FReserve%20the%20linen%20tablecloth%20as%20my%20gift./b927843464f6e916/2799f2b8eab3b96b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Registry r1: Available · $45 · Claim — r2: Claimed · $32\n  r1 \"Linen tablecloth\" · photo:linen · \"Loom House\" [r1/r1/claim press !needs-people]\n  r2 \"Blue serving bowl\" · photo:bowl\n\nTask: Reserve the linen tablecloth as my gift.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1/claim\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/claim\", \"action\": \"press\"}"
+    ]
+  },
+  "Registry%2Fwrite%2FShow%20guests%20a%20wedding%20gift%20list%20with%20an%20unclaimed%20Linen%20tablecloth%2C%2045%20at%20Loom%20House%2C%20photo%20lib%3Alinen./bc3d88512fa1a536/2c8b892585ba7857": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRegistry: Share a gift list and keep guests from choosing the same gift.\nprops: { lead?: thumb|none=\"thumb\", gifts: [1..12 { title: text≤28, photo?: photo lib:<tag>|local:<n> or { kind: item|product, subject: text≤80 }, price?: num 0.., where?: text≤24, claimed: boolean, by?: text≤16 }], host: boolean }\nRule: Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.\nRule: If explicitly asked for rows without photos, set lead to \"none\" and retain any supplied photo references.\nRule: For a generated image, use `item` or `product` in `photo`. Use only for a representative image of a gift. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Registry\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false},{\"title\":\"Blue serving bowl\",\"photo\":\"lib:bowl\",\"price\":32,\"claimed\":true}],\"host\":false}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show guests a wedding gift list with an unclaimed Linen tablecloth, 45 at Loom House, photo lib:linen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Registry",
+              "enum": [
+                "Registry"
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gifts": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "item",
+                                  "product"
+                                ]
+                              },
+                              "subject": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 80
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "price": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "claimed": {
+                    "type": "boolean"
+                  },
+                  "by": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "photo",
+                  "price",
+                  "where",
+                  "claimed",
+                  "by"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "host": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "lead",
+            "gifts",
+            "host"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Registry\",\"lead\":\"thumb\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false,\"by\":null}],\"host\":false}",
+    "replies": [
+      "{\"c\":\"Registry\",\"lead\":\"thumb\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false,\"by\":null}],\"host\":false}",
+      "{\"c\":\"Registry\",\"lead\":\"thumb\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false,\"by\":null}],\"host\":false}",
+      "{\"c\":\"Registry\",\"lead\":null,\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false,\"by\":null}],\"host\":false}"
+    ]
+  },
+  "Registry%2Fwrite%2FShow%20guests%20the%20unclaimed%20linen%20tablecloth%2C%2045%2C%20with%20photo%20lib%3Alinen%20in%20the%20data%20but%20no%20photo%20thumbnails%20on%20the%20list./4a75ad6ed1d1dac9/1a235b1970d3ffe6": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRegistry: Share a gift list and keep guests from choosing the same gift.\nprops: { lead?: thumb|none=\"thumb\", gifts: [1..12 { title: text≤28, photo?: photo lib:<tag>|local:<n> or { kind: item|product, subject: text≤80 }, price?: num 0.., where?: text≤24, claimed: boolean, by?: text≤16 }], host: boolean }\nRule: Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.\nRule: If explicitly asked for rows without photos, set lead to \"none\" and retain any supplied photo references.\nRule: For a generated image, use `item` or `product` in `photo`. Use only for a representative image of a gift. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Registry\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false},{\"title\":\"Blue serving bowl\",\"photo\":\"lib:bowl\",\"price\":32,\"claimed\":true}],\"host\":false}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show guests the unclaimed linen tablecloth, 45, with photo lib:linen in the data but no photo thumbnails on the list.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Registry",
+              "enum": [
+                "Registry"
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gifts": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "item",
+                                  "product"
+                                ]
+                              },
+                              "subject": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 80
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "price": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "where": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "claimed": {
+                    "type": "boolean"
+                  },
+                  "by": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "photo",
+                  "price",
+                  "where",
+                  "claimed",
+                  "by"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "host": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "lead",
+            "gifts",
+            "host"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Registry\",\"lead\":\"none\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":null,\"claimed\":false,\"by\":null}],\"host\":false}",
+    "replies": [
+      "{\"c\":\"Registry\",\"lead\":\"none\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":null,\"claimed\":false,\"by\":null}],\"host\":false}",
+      "{\"c\":\"Registry\",\"lead\":\"none\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":null,\"claimed\":false,\"by\":null}],\"host\":false}",
+      "{\"c\":\"Registry\",\"lead\":\"none\",\"gifts\":[{\"title\":\"Linen tablecloth\",\"photo\":\"lib:linen\",\"price\":45,\"where\":\"Loom House\",\"claimed\":false,\"by\":null}],\"host\":false}"
+    ]
   }
 }

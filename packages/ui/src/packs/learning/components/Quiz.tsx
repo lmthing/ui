@@ -70,7 +70,7 @@ const orderAnswer = z.array(z.int().min(0).max(wordBankLimit - 1)).min(3).max(wo
 // prettier-ignore
 const question = z.strictObject({
   question: c.text(120), kind: z.enum(["choice", "truefalse", "type", "match", "order"]),
-  explain: c.text(200).optional(), photo: c.photo.optional(), media: learningAudio.optional(),
+  explain: c.text(200).optional(), photo: c.photoOrImage(["step_illustration","item","plant","pet","place"]).optional(), media: learningAudio.optional(),
   options: z.array(c.text(40)).min(2).max(5).optional(),
   words: z.array(c.text(20)).min(3).max(wordBankLimit).optional(),
   answer: z.union([optionIndex, z.boolean(), c.text(40), orderAnswer]).optional(),

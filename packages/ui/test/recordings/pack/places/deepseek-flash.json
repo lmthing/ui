@@ -47024,5 +47024,2090 @@
       "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
       "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}"
     ]
+  },
+  "compose%2Fplace%2Fvenue%2FMake%20the%20Juniper%20Caf%C3%A9%20venue%20page%3A%20a%20back%20heading%2C%20two%20photos%20to%20swipe%20one%20at%20a%20time%20(lib%3Apark_walk%20and%20lib%3Ariver_walk)%2C%20a%20venue%20summary%20with%20category%20Dog-friendly%20caf%C3%A9%2C%20rating%204.5%20and%20link%20juniper%2C%20opening%20hours%2009%3A00%E2%80%9316%3A00%20every%20day%2C%20no%20holiday%20notices%2C%20the%20address%208%20Linden%20Road%2C%20Bristol%20BS8%202BE%2C%20and%20a%20Show%20park%20walk%20button%20linked%20to%20park_walk.%20Do%20not%20duplicate%20the%20photos%20in%20the%20summary./55d27c85ffeacab8/3aecb127bb4f014e": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: place/venue. Job: Visit one place.\n\nBrief: Make the Juniper Café venue page: a back heading, two photos to swipe one at a time (lib:park_walk and lib:river_walk), a venue summary with category Dog-friendly café, rating 4.5 and link juniper, opening hours 09:00–16:00 every day, no holiday notices, the address 8 Linden Road, Bristol BS8 2BE, and a Show park walk button linked to park_walk. Do not duplicate the photos in the summary.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1,\"variant\":\"back\"},{\"id\":\"slot_1\",\"allow\":[\"Gallery\"],\"min\":1,\"max\":1,\"variant\":\"carousel\"},{\"id\":\"slot_2\",\"allow\":[\"PlaceCard\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Hours\"],\"min\":1,\"max\":1},{\"id\":\"slot_4\",\"allow\":[\"Address\"],\"min\":1,\"max\":1},{\"id\":\"slot_5\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Leave the venue card's photo null; the gallery already shows the venue.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: On a pushed screen use style \"back\" for the single return control; do not add a second return action. Leave style null on a root screen.\nRule: To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nGallery: Browse several pictures together, optionally opening one.\nprops: { arrange?: grid|strip=\"grid\", aspect?: auto|wide|tall=\"auto\", detail?: full|brief=\"full\", style?: text≤?, photos: [2..6 { photo: photo lib:<tag>|local:<n> or { kind: product|dish|plant|pet|place|room|item|media_cover|poster, subject: text≤80 }, caption?: text≤24, goto?: id snake_case }] }\nRule: Use distinct supplied photo references when available. Never invent a local reference or fill out a carousel with placeholder images. If the request names photos but no references are supplied, use descriptive library tags, never fake attached files.\nRule: Leave all axes null unless requested. For a sideways strip showing several pictures at once use arrange \"strip\"; for swiping one large picture at a time use style \"carousel\" and leave arrange null.\nRule: A sideways strip by itself changes only arrange. Set aspect \"tall\" for tall portrait crops or \"wide\" for wide crops. Write \"aspect\":null and \"detail\":null unless the request asks for a crop or hidden captions.\nRule: For a crop-only request, use \"arrange\":null, \"style\":null and \"detail\":null. Tall photos do not imply a sideways strip.\nRule: For a collection of representative images, give each `photos[].photo` its own accepted kind and distinct subject. Keep supplied references, and never invent documentary photos. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"Gallery\",\"photos\":[{\"photo\":\"lib:fern\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:monstera\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:basil\",\"caption\":\"Basil\"},{\"photo\":\"lib:aloe\",\"caption\":\"Aloe\"}]}\nweight: 3\n\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\nweight: 2\n\nHours: Check when a place is open today and through the week.\nprops: { detail?: full|brief=\"full\", days: [7..7 { day: mon|tue|wed|thu|fri|sat|sun, from: time HH:MM, to: time HH:MM, closed: boolean }], special: [0..3 { date: date YYYY-MM-DD, text: text≤24 }] }\nRule: Write each weekday exactly once in Monday–Sunday order. For a closed day use 00:00 for both times; opening and closing times must differ on open days. Do not write the computed open state. Use [] when there are no special dates.\nRule: Display supplied special dates by writing detail null. Only if explicitly asked to hide the notices, set detail \"brief\" and keep the dates in special.\nexample: {\"c\":\"Hours\",\"days\":[{\"day\":\"mon\",\"from\":\"09:00\",\"to\":\"18:00\",\"closed\":false},{\"day\":\"tue\",\"from\":\"09:00\",\"to\":\"18:00\",\"closed\":false},{\"day\":\"wed\",\"from\":\"09:00\",\"to\":\"18:00\",\"closed\":false},{\"day\":\"thu\",\"from\":\"09:00\",\"to\":\"18:00\",\"closed\":false},{\"day\":\"fri\",\"from\":\"09:00\",\"to\":\"20:00\",\"closed\":false},{\"day\":\"sat\",\"from\":\"09:00\",\"to\":\"18:00\",\"closed\":false},{\"day\":\"sun\",\"from\":\"10:00\",\"to\":\"16:00\",\"closed\":false}],\"special\":[{\"date\":\"2026-12-24\",\"text\":\"Closes at 14:00\"}]}\nweight: 2\n\nAddress: Find a venue, copy its address, or call it.\nprops: { detail?: full|brief=\"full\", lines: [1..3 text≤40], phone?: text≤20, note?: text≤80 }\nRule: To hide only the access note, set detail to brief and keep the supplied note text verbatim.\nexample: {\"c\":\"Address\",\"lines\":[\"14 Greenhouse Lane\",\"Bristol BS1 4DJ\"],\"phone\":\"0117 496 0124\",\"note\":\"Use the side gate by the shed.\"}\nweight: 2\n\nButton: A screen's main task action or a quiet secondary action.\nprops: { emphasis?: normal|quiet=\"normal\", media?: icon|none=\"icon\", label: text≤24, kind?: text≤?, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nRule: Set media to \"none\" only to hide an icon explicitly supplied and kept in icon. If no icon was requested, both icon and media are null. Hiding an icon does not change a filled Button's emphasis.\nRule: Use emphasis \"quiet\" for a secondary action or link in the scrolling content. Leave emphasis null for the screen's own main action. Use a row link to open its record and the Header back control to return.\nRule: For a link to a supplied screen id, copy the id to goto.\nRule: For a destructive action, set kind to \"danger\" and supply confirm. Otherwise leave kind null.\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"place_venue\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\",\"style\":\"back\"},{\"id\":\"g1\",\"c\":\"Gallery\",\"photos\":[{\"photo\":\"lib:item_one\",\"caption\":\"Item one\"},{\"photo\":\"lib:item_two\",\"caption\":\"Item two\"}],\"style\":\"carousel\"},{\"id\":\"p1\",\"c\":\"PlaceCard\",\"name\":\"Item one\",\"category\":\"Details\",\"goto\":\"details\"},{\"id\":\"h2\",\"c\":\"Hours\",\"days\":[{\"day\":\"mon\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"tue\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"wed\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"thu\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"fri\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"sat\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true},{\"day\":\"sun\",\"from\":\"00:00\",\"to\":\"00:00\",\"closed\":true}],\"special\":[]},{\"id\":\"a1\",\"c\":\"Address\",\"lines\":[\"Details\"]},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Gallery",
+                        "enum": [
+                          "Gallery"
+                        ]
+                      },
+                      "arrange": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "grid",
+                              "strip"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "aspect": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "auto",
+                              "wide",
+                              "tall"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "carousel"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "photos": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "product",
+                                        "dish",
+                                        "plant",
+                                        "pet",
+                                        "place",
+                                        "room",
+                                        "item",
+                                        "media_cover",
+                                        "poster"
+                                      ]
+                                    },
+                                    "subject": {
+                                      "type": "string",
+                                      "minLength": 2,
+                                      "maxLength": 80
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "subject"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "caption": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "photo",
+                            "caption",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "arrange",
+                      "aspect",
+                      "detail",
+                      "style",
+                      "photos"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "PlaceCard",
+                        "enum": [
+                          "PlaceCard"
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "cover",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "category": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      "photo": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "place",
+                                      "room"
+                                    ]
+                                  },
+                                  "subject": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 80
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "subject"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rating": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 5
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "priceLevel": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "opens": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "closes": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "badge": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 14
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "saved": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "km",
+                              "mi"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "media",
+                      "name",
+                      "category",
+                      "photo",
+                      "rating",
+                      "priceLevel",
+                      "opens",
+                      "closes",
+                      "goto",
+                      "badge",
+                      "saved",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Hours",
+                        "enum": [
+                          "Hours"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "days": {
+                        "minItems": 7,
+                        "maxItems": 7,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "day": {
+                              "type": "string",
+                              "enum": [
+                                "mon",
+                                "tue",
+                                "wed",
+                                "thu",
+                                "fri",
+                                "sat",
+                                "sun"
+                              ]
+                            },
+                            "from": {
+                              "type": "string",
+                              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "to": {
+                              "type": "string",
+                              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                            },
+                            "closed": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "day",
+                            "from",
+                            "to",
+                            "closed"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "special": {
+                        "minItems": 0,
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                            },
+                            "text": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            }
+                          },
+                          "required": [
+                            "date",
+                            "text"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "days",
+                      "special"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Address",
+                        "enum": [
+                          "Address"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lines": {
+                        "minItems": 1,
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      },
+                      "phone": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 20
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "note": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "lines",
+                      "phone",
+                      "note"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "danger"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "media",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"juniper_cafe_venue\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_back\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Juniper Café\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"gallery_photos\",\n      \"c\": \"Gallery\",\n      \"arrange\": null,\n      \"aspect\": null,\n      \"detail\": null,\n      \"style\": \"carousel\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:park_walk\",\n          \"caption\": null,\n          \"goto\": null\n        },\n        {\n          \"photo\": \"lib:river_walk\",\n          \"caption\": null,\n          \"goto\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"place_summary\",\n      \"c\": \"PlaceCard\",\n      \"media\": null,\n      \"name\": \"Juniper Café\",\n      \"category\": \"Dog-friendly café\",\n      \"photo\": null,\n      \"rating\": 4.5,\n      \"priceLevel\": null,\n      \"opens\": \"09:00\",\n      \"closes\": \"16:00\",\n      \"goto\": \"juniper\",\n      \"badge\": null,\n      \"saved\": null,\n      \"unit\": null\n    },\n    {\n      \"id\": \"hours_week\",\n      \"c\": \"Hours\",\n      \"detail\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"tue\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"wed\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"thu\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"fri\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sat\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sun\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        }\n      ],\n      \"special\": []\n    },\n    {\n      \"id\": \"address_location\",\n      \"c\": \"Address\",\n      \"detail\": null,\n      \"lines\": [\n        \"8 Linden Road\",\n        \"Bristol BS8 2BE\"\n      ],\n      \"phone\": null,\n      \"note\": null\n    },\n    {\n      \"id\": \"button_park_walk\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Show park walk\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"park_walk\",\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"juniper_cafe_venue\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_back\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"back\",\n      \"title\": \"Juniper Café\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"gallery_photos\",\n      \"c\": \"Gallery\",\n      \"arrange\": null,\n      \"aspect\": null,\n      \"detail\": null,\n      \"style\": \"carousel\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:park_walk\",\n          \"caption\": null,\n          \"goto\": null\n        },\n        {\n          \"photo\": \"lib:river_walk\",\n          \"caption\": null,\n          \"goto\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"place_summary\",\n      \"c\": \"PlaceCard\",\n      \"media\": null,\n      \"name\": \"Juniper Café\",\n      \"category\": \"Dog-friendly café\",\n      \"photo\": null,\n      \"rating\": 4.5,\n      \"priceLevel\": null,\n      \"opens\": \"09:00\",\n      \"closes\": \"16:00\",\n      \"goto\": \"juniper\",\n      \"badge\": null,\n      \"saved\": null,\n      \"unit\": null\n    },\n    {\n      \"id\": \"hours_week\",\n      \"c\": \"Hours\",\n      \"detail\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"tue\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"wed\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"thu\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"fri\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sat\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sun\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        }\n      ],\n      \"special\": []\n    },\n    {\n      \"id\": \"address_location\",\n      \"c\": \"Address\",\n      \"detail\": null,\n      \"lines\": [\n        \"8 Linden Road\",\n        \"Bristol BS8 2BE\"\n      ],\n      \"phone\": null,\n      \"note\": null\n    },\n    {\n      \"id\": \"button_park_walk\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Show park walk\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"park_walk\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"juniper_cafe_venue\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_back\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": \"back\",\n      \"title\": \"Juniper Café\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"gallery_carousel\",\n      \"c\": \"Gallery\",\n      \"arrange\": null,\n      \"aspect\": null,\n      \"detail\": null,\n      \"style\": \"carousel\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:park_walk\",\n          \"caption\": null,\n          \"goto\": null\n        },\n        {\n          \"photo\": \"lib:river_walk\",\n          \"caption\": null,\n          \"goto\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"place_card_summary\",\n      \"c\": \"PlaceCard\",\n      \"media\": null,\n      \"name\": \"Juniper Café\",\n      \"category\": \"Dog-friendly café\",\n      \"photo\": null,\n      \"rating\": 4.5,\n      \"priceLevel\": null,\n      \"opens\": \"09:00\",\n      \"closes\": \"16:00\",\n      \"goto\": \"juniper\",\n      \"badge\": null,\n      \"saved\": null,\n      \"unit\": null\n    },\n    {\n      \"id\": \"hours_week\",\n      \"c\": \"Hours\",\n      \"detail\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"tue\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"wed\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"thu\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"fri\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sat\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sun\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        }\n      ],\n      \"special\": []\n    },\n    {\n      \"id\": \"address_venue\",\n      \"c\": \"Address\",\n      \"detail\": null,\n      \"lines\": [\n        \"8 Linden Road\",\n        \"Bristol BS8 2BE\"\n      ],\n      \"phone\": null,\n      \"note\": null\n    },\n    {\n      \"id\": \"button_park_walk\",\n      \"c\": \"Button\",\n      \"emphasis\": null,\n      \"media\": null,\n      \"label\": \"Show park walk\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"park_walk\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"juniper_cafe_venue\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"venue_header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": \"back\",\n      \"title\": \"Juniper Café\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"venue_gallery\",\n      \"c\": \"Gallery\",\n      \"arrange\": null,\n      \"aspect\": null,\n      \"detail\": null,\n      \"style\": \"carousel\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:park_walk\",\n          \"caption\": \"Park walk\",\n          \"goto\": null\n        },\n        {\n          \"photo\": \"lib:river_walk\",\n          \"caption\": \"River walk\",\n          \"goto\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"venue_summary\",\n      \"c\": \"PlaceCard\",\n      \"media\": null,\n      \"name\": \"Juniper Café\",\n      \"category\": \"Dog-friendly café\",\n      \"photo\": null,\n      \"rating\": 4.5,\n      \"priceLevel\": null,\n      \"opens\": \"09:00\",\n      \"closes\": \"16:00\",\n      \"goto\": \"juniper\",\n      \"badge\": null,\n      \"saved\": null,\n      \"unit\": null\n    },\n    {\n      \"id\": \"venue_hours\",\n      \"c\": \"Hours\",\n      \"detail\": null,\n      \"days\": [\n        {\n          \"day\": \"mon\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"tue\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"wed\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"thu\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"fri\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sat\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        },\n        {\n          \"day\": \"sun\",\n          \"from\": \"09:00\",\n          \"to\": \"16:00\",\n          \"closed\": false\n        }\n      ],\n      \"special\": []\n    },\n    {\n      \"id\": \"venue_address\",\n      \"c\": \"Address\",\n      \"detail\": null,\n      \"lines\": [\n        \"8 Linden Road\",\n        \"Bristol BS8 2BE\"\n      ],\n      \"phone\": null,\n      \"note\": null\n    },\n    {\n      \"id\": \"park_walk_button\",\n      \"c\": \"Button\",\n      \"emphasis\": \"quiet\",\n      \"media\": null,\n      \"label\": \"Show park walk\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"park_walk\",\n      \"confirm\": null\n    }\n  ]\n}"
+    ]
+  },
+  "PlaceCard%2Fchoose%2FFeature%20one%20community%20announcement%20with%20a%20headline%20and%20short%20teaser.%20Tap%20the%20whole%20preview%20to%20open%20the%20full%20announcement.%20No%20photos%2C%20video%2C%20or%20audio./eaeae15b08bd81ef/5f6484eb13349e92": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: A screen's main task action or a quiet secondary action. Pick: One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value from a longer set. Prefer Segmented for a one-of-two or one-of-three choice. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount, email address, password, one-time code or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- HandoffReceipt: Know who received a shared record and whether the hand-off still needs attention. Pick: One record passed between roles, showing its subject, reference, sender, recipient and delivery outcome. Not a local action confirmation (Success), a conversation (Bubbles), or an audit of many changes (ActivityLog).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: Give one important update, decision or measured number. Pick: Use only for one lead statement, decision or measured headline number that adds to the Header. Skip it if the page title, media, list or progress already leads. Not a separate warning (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Prefer Segmented over Chips for a one-of-two or one-of-three choice. Not independently combinable filters (Chips) or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- SignInOptions: Choose a trusted way to log in or create an account. Pick: Offer account sign-in methods such as Apple, Google, email, or phone. Not ordinary screen shortcuts (Actions) or the main submit control for a completed form (Button).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Up to four available summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"Feature one community announcement with a headline and short teaser. Tap the whole preview to open the full announcement. No photos, video, or audio.\"\nReply with only the component id, nothing else.",
+    "reply": "Card",
+    "replies": [
+      "Card",
+      "Card",
+      "Card"
+    ]
+  },
+  "PlaceCard%2Fchoose%2FShow%20one%20caf%C3%A9%20to%20visit%20with%20its%20star%20rating%2C%20price%20level%2C%20distance%20and%20whether%20it's%20open%20now/fb79867afcd64371/46ef05c82443dd1b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: A screen's main task action or a quiet secondary action. Pick: One labelled action to press. Not two to four shortcuts (Actions), a tappable summary (Card), or a shortcut to one item in a list.\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value from a longer set. Prefer Segmented for a one-of-two or one-of-three choice. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount, email address, password, one-time code or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- HandoffReceipt: Know who received a shared record and whether the hand-off still needs attention. Pick: One record passed between roles, showing its subject, reference, sender, recipient and delivery outcome. Not a local action confirmation (Success), a conversation (Bubbles), or an audit of many changes (ActivityLog).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: Give one important update, decision or measured number. Pick: Use only for one lead statement, decision or measured headline number that adds to the Header. Skip it if the page title, media, list or progress already leads. Not a separate warning (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's collection in tappable rows, even if they will open only one of the records. Photos can support the rows. Not browsing the photos themselves (Gallery), a single already-chosen featured record (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Prefer Segmented over Chips for a one-of-two or one-of-three choice. Not independently combinable filters (Chips) or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- SignInOptions: Choose a trusted way to log in or create an account. Pick: Offer account sign-in methods such as Apple, Google, email, or phone. Not ordinary screen shortcuts (Actions) or the main submit control for a completed form (Button).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Up to four available summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"Show one café to visit with its star rating, price level, distance and whether it's open now\"\nReply with only the component id, nothing else.",
+    "reply": "PlaceCard",
+    "replies": [
+      "PlaceCard",
+      "PlaceCard",
+      "PlaceCard"
+    ]
+  },
+  "PlaceCard%2Fread%2FOpen%20Riverside%20Nursery/59d2b24c0bb25719/4144b24f125648b9": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 1.2 km away — Open now — \"Riverside Nursery\" — \"Garden centre\" — photo:plants [p1 press→nursery !needs-ok]\n\nTask: Open Riverside Nursery\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1\", \"action\": \"press\"}",
+      "{\"address\": \"p1\", \"action\": \"press\"}",
+      "{\"address\": \"p1\", \"action\": \"press\"}"
+    ]
+  },
+  "PlaceCard%2Fread%2FSave%20Riverside%20Nursery%20without%20opening%20it/0f0616c6d48c2834/1a077f5e23c16d9b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — Save place — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Save Riverside Nursery without opening it\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/save\", \"action\": \"toggle\"}",
+    "replies": [
+      "{\"address\": \"p1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"p1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"p1/save\", \"action\": \"toggle\"}"
+    ]
+  },
+  "PlaceCard%2Fread%2FSwitch%20the%20distance%20at%20Riverside%20Nursery%20to%20kilometres/ddf5eb72ef3c6890/fe863b2263129957": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — Save place — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Switch the distance at Riverside Nursery to kilometres\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/unit\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"p1/unit\", \"action\": \"select\"}",
+      "{\"address\": \"p1/unit\", \"action\": \"select\"}",
+      "{\"address\": \"p1/unit\", \"action\": \"select\"}"
+    ]
+  },
+  "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre.%20Open%20nursery%20on%20tap%20and%20add%20the%20badge%20Member%20deal./8abc668fc1aed7b2/b70113041a26c92c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Feature Riverside Nursery, a garden centre. Open nursery on tap and add the badge Member deal.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PlaceCard",
+              "enum": [
+                "PlaceCard"
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "place",
+                            "room"
+                          ]
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 80
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "subject"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priceLevel": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "opens": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "closes": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 14
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "km",
+                    "mi"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "media",
+            "name",
+            "category",
+            "photo",
+            "rating",
+            "priceLevel",
+            "opens",
+            "closes",
+            "goto",
+            "badge",
+            "saved",
+            "unit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
+    "replies": [
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}"
+    ]
+  },
+  "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre%20rated%204.7%20at%20price%20level%202%2C%20open%2009%3A00%20to%2018%3A00.%20Tap%20to%20open%20nursery./b5dbf7f356e01ba2/5e87cf334db12a0e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Feature Riverside Nursery, a garden centre rated 4.7 at price level 2, open 09:00 to 18:00. Tap to open nursery.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PlaceCard",
+              "enum": [
+                "PlaceCard"
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "place",
+                            "room"
+                          ]
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 80
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "subject"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priceLevel": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "opens": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "closes": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 14
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "km",
+                    "mi"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "media",
+            "name",
+            "category",
+            "photo",
+            "rating",
+            "priceLevel",
+            "opens",
+            "closes",
+            "goto",
+            "badge",
+            "saved",
+            "unit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+    "replies": [
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":null,\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}"
+    ]
+  },
+  "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre%20that%20opens%20nursery%20on%20tap.%20Let%20me%20switch%20distance%20units%20and%20start%20in%20miles./8b3db8535cb4d707/2abd83c7afb19088": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Feature Riverside Nursery, a garden centre that opens nursery on tap. Let me switch distance units and start in miles.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PlaceCard",
+              "enum": [
+                "PlaceCard"
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "place",
+                            "room"
+                          ]
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 80
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "subject"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priceLevel": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "opens": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "closes": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 14
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "km",
+                    "mi"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "media",
+            "name",
+            "category",
+            "photo",
+            "rating",
+            "priceLevel",
+            "opens",
+            "closes",
+            "goto",
+            "badge",
+            "saved",
+            "unit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":{\"kind\":\"place\",\"subject\":\"nursery\"},\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
+    "replies": [
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":{\"kind\":\"place\",\"subject\":\"nursery\"},\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":null,\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}"
+    ]
+  },
+  "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre%20that%20opens%20nursery%20on%20tap.%20Show%20a%20save%20button%2C%20but%20the%20venue%20is%20not%20saved%20yet./29d0f675e6f1fb96/88993b77ecd526ad": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Feature Riverside Nursery, a garden centre that opens nursery on tap. Show a save button, but the venue is not saved yet.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PlaceCard",
+              "enum": [
+                "PlaceCard"
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "place",
+                            "room"
+                          ]
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 80
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "subject"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priceLevel": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "opens": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "closes": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 14
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "km",
+                    "mi"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "media",
+            "name",
+            "category",
+            "photo",
+            "rating",
+            "priceLevel",
+            "opens",
+            "closes",
+            "goto",
+            "badge",
+            "saved",
+            "unit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
+    "replies": [
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}"
+    ]
+  },
+  "PlaceCard%2Fwrite%2FRiverside%20Nursery%20is%20a%20garden%20centre.%20Keep%20lib%3Aplants%20as%20its%20photo%20reference%2C%20but%20do%20not%20show%20the%20photo.%20Tap%20to%20open%20nursery./2f60b0021f7b2dda/253ab593fe93de50": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaceCard: See whether a venue is open and worth visiting.\nprops: { media?: cover|none=\"cover\", name: text≤32, category: text≤20, photo?: photo lib:<tag>|local:<n> or { kind: place|room, subject: text≤80 }, rating?: num 0..5, priceLevel?: int 1..4, opens?: time HH:MM, closes?: time HH:MM, goto: id snake_case, badge?: text≤14, saved?: boolean, unit?: km|mi }\nRule: Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.\nRule: Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.\nRule: To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.\nRule: For a generated image, use `place` or `room` in `photo`. Use only to illustrate a fictional or representative setting, not as documentation of an actual location. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.\nexample: {\"c\":\"PlaceCard\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Riverside Nursery is a garden centre. Keep lib:plants as its photo reference, but do not show the photo. Tap to open nursery.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PlaceCard",
+              "enum": [
+                "PlaceCard"
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "place",
+                            "room"
+                          ]
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 80
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "subject"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rating": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "priceLevel": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "opens": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "closes": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 14
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "km",
+                    "mi"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "media",
+            "name",
+            "category",
+            "photo",
+            "rating",
+            "priceLevel",
+            "opens",
+            "closes",
+            "goto",
+            "badge",
+            "saved",
+            "unit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PlaceCard\",\"media\":\"none\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+    "replies": [
+      "{\"c\":\"PlaceCard\",\"media\":\"none\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":\"none\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"media\":\"none\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}"
+    ]
   }
 }
