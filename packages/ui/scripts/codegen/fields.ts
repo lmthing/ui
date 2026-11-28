@@ -1,6 +1,7 @@
 import { quote, splitTop } from "./doc-section";
 import { arrayShape, count, indexShape, objectShape, requireUnique, type Field, type Shape } from "./shape";
 import { enumValues } from "./styles";
+import { imageField } from "./image-field";
 
 const bound = "-?\\d+(?:\\.\\d+)?";
 const range = new RegExp(`^(${bound})\\s*[–—-]\\s*(${bound})$`);
@@ -91,6 +92,8 @@ function scalar(name: string, type: string, styles: Record<string, string[]>): S
     return objectShape(readMembers(splitTop(inner, ",;")), "index");
   }
   const known = type.replaceAll("`", "").toLowerCase();
+  const image = imageField(known);
+  if (image) return image;
   if (known === "iso datetime with offset")
     return { schema: "z.iso.datetime({ offset: true })", seed: '"2000-01-01T00:00:00Z"' };
   if (known === "iso datetime") return { schema: "z.iso.datetime()", seed: '"2000-01-01T00:00:00Z"' };

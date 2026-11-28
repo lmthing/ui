@@ -61,7 +61,7 @@ const unit = z
     unitRef: ref.meta({ kind: "ref" }),
     title: c.text(32),
     address: c.text(36).optional(),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["room", "place"]).optional(),
     askingRent: z.number().nonnegative().optional(),
     askingPer: per.optional(),
     goto: c.screenId.optional(),

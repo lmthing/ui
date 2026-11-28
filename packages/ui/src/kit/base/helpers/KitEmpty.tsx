@@ -1,4 +1,5 @@
 import { useWords } from "../../provider";
+import type { ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
 import { component, emptyLine, size, space, type IconName, type ThemeDensity } from "../../../catalog";
 import { KitIcon, KitText } from "../text";
@@ -15,6 +16,7 @@ const Badge = styled(YStack, {
 
 type EmptyProps = {
   icon?: IconName;
+  artwork?: ReactNode;
   part?: string | null;
   /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
   title?: string;
@@ -59,6 +61,7 @@ function EmptyBadge({
 /** A centred state message with a soft icon badge and copy from the shared dictionary or caller. */
 export function KitEmpty({
   icon = "package",
+  artwork,
   part = "title",
   title,
   noun,
@@ -98,7 +101,7 @@ export function KitEmpty({
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
-      <EmptyBadge {...{ icon, tone }} decorative={decorativeIcon} />
+      {artwork ?? <EmptyBadge {...{ icon, tone }} decorative={decorativeIcon} />}
       <YStack gap={space.xs} alignItems="center" accessibilityRole={announce}>
         <KitText role={treatment} tone={textTone} align="center" {...{ part, density }}>
           {label}

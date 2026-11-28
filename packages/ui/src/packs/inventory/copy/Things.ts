@@ -1,4 +1,4 @@
-import { compactMoneyLine, emptyLine, numberLine } from "../../../catalog";
+import { compactMoneyLine, emptyLine, numberLine, type PhotoInput } from "../../../catalog";
 import { inventoryWordsFor } from "../lang";
 
 type Stock = { qty: number; min?: number | undefined };
@@ -38,7 +38,7 @@ export function thingCopy(record: RecordCopy, lang?: string) {
   };
 }
 
-type ThingReading = RecordCopy & ItemDetails & { where?: string | undefined; photo?: string | undefined };
+type ThingReading = RecordCopy & ItemDetails & { where?: string | undefined; photo?: PhotoInput | undefined };
 export function thingsReading(
   {
     items,

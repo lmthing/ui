@@ -13,3 +13,4 @@ A tenant directory of names and profile links is List, not Units. Choose Units o
 - Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb".
 - For a Vacancies view (vacant and notice-given units), set style to "vacancies". Otherwise set style to "register". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.
 - For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.
+- For a generated image, use `room` or `place` in `photo`. Use only for representative preview imagery, never as listing evidence or a depiction of an actual available unit. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

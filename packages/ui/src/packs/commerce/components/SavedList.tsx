@@ -39,7 +39,7 @@ export const meta = {
 
 // prettier-ignore
 const item = z.strictObject({
-  id: c.text(24).meta({ kind: undefined }), name: c.text(28), photo: c.photo.optional(),
+  id: c.text(24).meta({ kind: undefined }), name: c.text(28), photo: c.photoOrImage(["product","dish","item"]).optional(),
   price, savedPrice: price.optional(), targetPrice: price.optional(),
   stock: z.int().min(0).optional(), claimed: z.boolean().default(false), goto: c.screenId.optional(),
 });

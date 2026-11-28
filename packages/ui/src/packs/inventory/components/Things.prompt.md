@@ -14,3 +14,4 @@ Owned or stocked items with editable quantities, storage locations or a per-item
 - For rows without other styling requests, write arrange "rows". Leave arrange null unless a layout is requested.
 - For stocktake reconciliation use style "audit", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset.
 - To scan codes, set scan: {"goto":"scan_inventory"} with the requested Camera scan screen id.
+- For a generated image, use `item` or `product` in `photo`. Use only to help identify an item, never as an inventory evidence photo. Keep any supplied reference. In an image slot, use a short plain noun phrase from the app’s world for `subject`; no style, camera, palette or layout words.

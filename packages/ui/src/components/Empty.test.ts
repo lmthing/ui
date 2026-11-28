@@ -126,7 +126,7 @@ describe("Empty metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "retry"],
+      parts: ["root", "icon", "title", "sub", "retry", "photo"],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");

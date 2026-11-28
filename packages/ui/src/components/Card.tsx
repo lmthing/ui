@@ -42,7 +42,7 @@ export const props = z
     reward: catalog.text(12).optional(),
     duration: catalog.text(12).optional(),
     icon: catalog.icon.optional(),
-    photo: catalog.photo.optional(),
+    photo: catalog.photoOrImage([...catalog.subjectKinds, "cover"]).optional(),
     goto: catalog.screenId.optional(),
   })
   .refine((value) => !(value.icon && value.photo), { path: ["photo"] })
@@ -175,7 +175,7 @@ export function Card(input: CardProps) {
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();
   const cover = media === "cover";
-  const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
+  const coverPhoto = cover && catalog.photoVisible(photo, resolvePhoto) ? photo : undefined;
   const finish = { density, emphasis };
   const frame = { tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
   const thumbnail = !cover && photo;

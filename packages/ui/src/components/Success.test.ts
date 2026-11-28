@@ -123,7 +123,7 @@ describe("Success metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub", "undo", "close"],
+      parts: ["root", "icon", "title", "sub", "undo", "close", "photo"],
       states: ["filled"],
     });
     expect(meta).not.toHaveProperty("items");

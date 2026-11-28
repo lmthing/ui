@@ -17,6 +17,9 @@ import { z } from "zod";
 import {
   probesFor,
   photo,
+  photoOrImage,
+  photoVisible,
+  subjectKinds,
   placeholderTitle,
   screenId,
   text,
@@ -47,8 +50,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["caption"] } },
   states: ["filled", "empty", "loading", "error"],
   viewVisible: ({ photos }, resolvePhoto) =>
-    Array.isArray(photos) &&
-    photos.some((entry) => typeof entry?.photo === "string" && resolvePhoto?.(entry.photo)),
+    Array.isArray(photos) && photos.some((entry) => photoVisible(entry?.photo, resolvePhoto)),
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
 } as const satisfies Meta;
 
@@ -59,7 +61,7 @@ const frame = z.strictObject({
     .array(
       z
         .strictObject({
-          photo,
+          photo: photoOrImage(subjectKinds),
           caption: text(24).optional(),
           goto: screenId.optional(),
         })
@@ -213,7 +215,7 @@ export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, 
   }
   const available = photos
     .map((entry, index) => ({ entry, index }))
-    .filter(({ entry }) => state === "loading" || Boolean(resolvePhoto?.(entry.photo)));
+    .filter(({ entry }) => state === "loading" || photoVisible(entry.photo, resolvePhoto));
   if (!available.length) return null;
   const cells = available.map(({ entry, index }) =>
     state === "loading" ? (

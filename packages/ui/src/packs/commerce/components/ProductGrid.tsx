@@ -35,7 +35,7 @@ const itemProps = z.strictObject({
   name: c.text(28),
   price: z.number().min(0).multipleOf(0.01),
   was: z.number().min(0).multipleOf(0.01).optional(),
-  photo: c.photo,
+  photo: c.photoOrImage(["product", "dish"]),
   badge: c.text(12).optional(),
   sub: c.text(48).optional(),
   goto: c.screenId,

@@ -59,7 +59,7 @@ export const props = z
     ...c.variantProps(meta.variants),
     name: c.text(32),
     category: c.text(20),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["place", "room"]).optional(),
     rating: z.number().min(0).max(5).optional(),
     priceLevel: z.int().min(1).max(4).optional(),
     opens: c.clock.optional(),
@@ -189,7 +189,7 @@ function VenueDetail({
   input: PlaceCardProps;
   copy: PlaceCopy;
   density: Density;
-  thumb?: string | undefined;
+  thumb?: c.PhotoInput | undefined;
 }) {
   const { name, category, badge } = input;
   const lineRole = nameRole(density);
@@ -244,7 +244,7 @@ function VenueLoading({
   input: PlaceCardProps;
   copy: PlaceCopy;
   density: Density;
-  thumb?: string | undefined;
+  thumb?: c.PhotoInput | undefined;
 }) {
   const heading = (
     <kit.KitSkeleton
@@ -355,7 +355,7 @@ export function PlaceCard(input: PlaceCardProps) {
   const live = kit.useLiveControls(meta, input);
   const unit = live.distanceUnit === "mi" || live.distanceUnit === "km" ? live.distanceUnit : input.unit;
   const copy = placeCardCopy({ ...input, unit }, kit.useDeviceData(), lang);
-  const photo = media === "cover" && input.photo && resolvePhoto?.(input.photo) ? input.photo : undefined;
+  const photo = media === "cover" && c.photoVisible(input.photo, resolvePhoto) ? input.photo : undefined;
   const thumb = density === "compact" ? photo : undefined;
   const card = (
     <kit.KitCard part="root" padded density={density} {...(loading ? {} : { goto, label: name })}>

@@ -45,7 +45,7 @@ export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   style: z.enum(["srs", "binary"]).default("srs"),
   cards: z.array(z.strictObject({
-    front: c.text(80), back: c.text(160), hint: c.text(60).optional(), photo: c.photo.optional(), audio: learningAudio.optional(),
+    front: c.text(80), back: c.text(160), hint: c.text(60).optional(), photo: c.photoOrImage(["step_illustration","item","plant","pet","place"]).optional(), audio: learningAudio.optional(),
   })).min(2).max(6),
 });
 

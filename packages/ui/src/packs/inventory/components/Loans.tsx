@@ -50,7 +50,7 @@ export const meta = {
 const loan = z
   .strictObject({
     thing: c.text(28),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["item", "product"]).optional(),
     person: c.text(20),
     way: z.enum(["lent", "borrowed"]),
     since: c.isoDate,

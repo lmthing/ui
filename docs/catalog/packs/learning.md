@@ -28,7 +28,7 @@ The first plan's `Leaderboard` (then in `social`) is core `List` style `ranked`,
 ### `Lesson` · planned · content · phone
 One lesson step: a short explanation, an optional picture, an example in a tinted box, and continue.
 - Pick: teaching one idea before practising it. Not an article (media `Article`), not a question (`Quiz`).
-- Writes: `title` text(40), `text` text(400), `example` text(160) optional, `photo` optional. The step
+- Writes: `title` text(40), `text` text(400), `example` text(160) optional, `photo` photo-or-image[step_illustration|cover] optional. The step
   number is a `Steps` above it.
 - Parts → actions: `next press`. · States: filled.
 - Real path: lesson content stored with the app.

@@ -40,7 +40,7 @@ export const props = z
     ...c.variantProps(meta.variants),
     title: c.text(32),
     where: c.text(24),
-    photo: c.photo.optional(),
+    photo: c.photoOrImage(["item", "product"]).optional(),
     priority: z.enum(["low", "normal", "urgent"]),
     status: z.enum(statuses),
     who: c.text(20).optional(),

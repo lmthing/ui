@@ -17,7 +17,7 @@ import { z } from "zod";
 import {
   detailOf,
   itemsOf,
-  photo,
+  photoOrImage,
   placeholderTitle,
   probesFor,
   isoDate,
@@ -82,7 +82,7 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     name: text(28),
-    photo: photo.optional(),
+    photo: photoOrImage(["avatar"]).optional(),
     since: isoDate.optional(),
     next: text(36).optional(),
     tags: z.array(text(12)).min(0).max(3),

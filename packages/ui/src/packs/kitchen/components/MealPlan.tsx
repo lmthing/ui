@@ -46,7 +46,7 @@ export const props = z
     week: c.isoDate,
     meals: z.array(meal).min(1).max(4),
     cells: z.array(z.strictObject({
-      day: z.int().min(0).max(6), meal, title: c.text(24), photo: c.photo.optional(),
+      day: z.int().min(0).max(6), meal, title: c.text(24), photo: c.photoOrImage(["dish"]).optional(),
       goto: c.screenId, kcal: z.number().min(0).max(10000).optional(),
     })).min(0).max(28),
   })
