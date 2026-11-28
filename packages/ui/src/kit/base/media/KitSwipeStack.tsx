@@ -42,6 +42,7 @@ function Front({
       overflow="hidden"
       accessibilityRole="button"
       aria-roledescription={swipeCard}
+      {...(!isWeb && move ? { accessible: true } : {})}
       {...(move
         ? ({
             ...(isWeb ? { tabIndex: 0 } : {}),
@@ -160,6 +161,7 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
       accessibilityRole={finished ? "status" : undefined}
       aria-live={finished ? "polite" : undefined}
       {...(isWeb && finished ? { tabIndex: -1 } : {})}
+      {...(!isWeb && finished ? { accessible: true, accessibilityLabel: swipeComplete } : {})}
     >
       {front ? (
         <YStack paddingBottom={behind.length * peek} paddingTop={space.xs}>

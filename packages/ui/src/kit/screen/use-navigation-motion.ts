@@ -6,7 +6,13 @@ import { captureTab, fadeTab } from "./tab-ghost";
 import type { NativeTabShot } from "./NativeTabGhost";
 import { animateNumber } from "../motion";
 import { announceMotionSettled } from "../part";
-import { popReturnPoint, restoreWebArrival, returnIndex, type ReturnPoint } from "./return-point";
+import {
+  popReturnPoint,
+  rememberRoute,
+  restoreWebArrival,
+  returnIndex,
+  type ReturnPoint,
+} from "./return-point";
 
 type Intent = {
   from: string;
@@ -81,6 +87,17 @@ function focusArrival(
   } else if (move.kind !== "tab") restoreNative(returnPoint);
 }
 
+function trackArrival(
+  history: ReturnPoint[],
+  { kind, from, address, top }: Intent,
+  to: string,
+  replacesRoute: ((from: string, to: string) => boolean) | undefined,
+) {
+  if (kind === "back") return popReturnPoint(history, from, to);
+  if (kind === "tab") history.length = 0;
+  else rememberRoute(history, { from, to, address, top }, replacesRoute?.(from, to) ?? false);
+}
+
 /** The link tells us why the host changed screens; stage jumps and unrelated updates don't fly. */
 export function useNavigationMotion(
   screen: ScreenLike,
@@ -90,6 +107,7 @@ export function useNavigationMotion(
   captureNative: () => NativeTabShot,
   getScroll: () => number,
   restoreNative: (point: ReturnPoint | undefined) => void,
+  replacesRoute?: (from: string, to: string) => boolean,
 ) {
   const ref = useRef<TamaguiElement>(null);
   const previous = useRef(screen.id);
@@ -117,13 +135,8 @@ export function useNavigationMotion(
       if (!isWeb) setNative(undefined);
       return;
     }
-    if (move.kind === "tab") history.current.length = 0;
-    else if (move.kind === "push") {
-      history.current.push({ from: move.from, to: screen.id, address: move.address, top: move.top });
-    } else {
-      const point = popReturnPoint(history.current, move.from, screen.id);
-      if (point) returnTop.current = { id: screen.id, top: point.top };
-    }
+    const point = trackArrival(history.current, move, screen.id, replacesRoute);
+    if (point) returnTop.current = { id: screen.id, top: point.top };
     if (agent || move.agent) return;
     focusArrival(ref.current, screen, move, returnPoint, restoreNative);
     return playNavigation(ref.current, screen, move, mode, reduced, setNative);

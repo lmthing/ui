@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { arrivalAddress, popReturnPoint, returnIndex } from "./return-point";
+import { arrivalAddress, popReturnPoint, rememberRoute, returnIndex } from "./return-point";
 
 it("returns to the last matching origin and leaves its parent history intact", () => {
   const first = { from: "root", to: "list", address: "root/nav/section", top: 36 };
@@ -23,4 +23,15 @@ it("picks the destination's addressed heading rather than its Back action", () =
     "detail/heading/title",
   );
   expect(arrivalAddress({ id: "empty", components: [] })).toBeUndefined();
+});
+
+it("retargets a replacement without changing the previous route's opener or scroll", () => {
+  const history = [{ from: "list", to: "form", address: "list/log/root", top: 24 }];
+  rememberRoute(history, { from: "form", to: "receipt", address: "form/save/root", top: 80 }, true);
+  expect(popReturnPoint(history, "receipt", "list")).toEqual({
+    from: "list",
+    to: "receipt",
+    address: "list/log/root",
+    top: 24,
+  });
 });

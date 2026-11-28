@@ -7,6 +7,7 @@ import { config } from "../index";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const phoneWidth = 390;
+const replacesRoute = (from: string, to: string) => from === "log" && to === "saved";
 
 export function NavigationShell({ start }: { start: string }) {
   const [stack, setStack] = useState(() => navigationStart(start));
@@ -15,7 +16,7 @@ export function NavigationShell({ start }: { start: string }) {
     setStack((path) => {
       if (goto === "back") return path.length > 1 ? path.slice(0, -1) : path;
       if (!Object.hasOwn(navigationScreens, goto) || goto === path.at(-1)) return path;
-      if (goto === "saved" && path.at(-1) === "log") return [...path.slice(0, -1), goto];
+      if (replacesRoute(path.at(-1)!, goto)) return [...path.slice(0, -1), goto];
       return navigationRoots.includes(goto) ? [goto] : [...path, goto];
     });
   return (
@@ -32,6 +33,7 @@ export function NavigationShell({ start }: { start: string }) {
           screen={navigationScreens[current]!}
           theme={theme}
           onLink={onLink}
+          replacesRoute={replacesRoute}
           reduceMotion
         />
       </YStack>

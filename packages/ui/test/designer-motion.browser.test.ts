@@ -527,7 +527,7 @@ async function captureDose(prefix: string, preference: "no-preference" | "reduce
   await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access.png` });
   const styling = await enlargeText();
   await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access-large.png` });
-  await styling.evaluate((node) => node.remove());
+  await styling.evaluate((node) => node.parentNode?.removeChild(node));
   await part("controls/meds/r2/skip").focus();
   await contactSheet(browser, page, `${prefix}-confirm-dose`, () => page.keyboard.press("Enter"));
   await contactSheet(browser, page, `${prefix}-cancel-dose`, () => page.keyboard.press("Escape"));

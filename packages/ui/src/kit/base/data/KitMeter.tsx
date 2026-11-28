@@ -107,7 +107,11 @@ function MeterAmount({
     </KitText>
   );
   return labelled ? (
-    <YStack accessible accessibilityRole={isWeb ? "group" : "text"} accessibilityLabel={exact}>
+    <YStack
+      {...(!isWeb ? { accessible: true } : {})}
+      accessibilityRole={isWeb ? "group" : "text"}
+      accessibilityLabel={exact}
+    >
       <YStack aria-hidden accessibilityElementsHidden>
         {text}
       </YStack>

@@ -163,8 +163,16 @@ it("fits a wide badge beside the icon in a five-tab bar", async () => {
 
 it("keeps a pushed form's focused field and save action above the keyboard, then shows a quiet result", async () => {
   await open();
-  await button("Log watering").click();
+  const opener = button("Log watering");
+  const body = page.locator("[data-kit-screen-body]");
+  await body.evaluate((node) => {
+    node.scrollTop = 24;
+  });
+  await opener.click();
   await at("log");
+  await expect
+    .poll(() => part("log/h1/title").evaluate((node) => node === document.activeElement))
+    .toBe(true);
   await simulateInsets();
   const field = part("log/note/field");
   await field.focus();
@@ -187,6 +195,8 @@ it("keeps a pushed form's focused field and save action above the keyboard, then
   expect(await page.getByText("Fern watered").isVisible()).toBe(true);
   await back().click();
   await at("today");
+  expect(await opener.evaluate((node) => node === document.activeElement)).toBe(true);
+  expect(await body.evaluate((node) => node.scrollTop)).toBe(24);
   expect(errors).toEqual([]);
 });
 

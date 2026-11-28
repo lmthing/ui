@@ -2,6 +2,16 @@ import type { ScreenLike } from "../../catalog";
 
 export type ReturnPoint = { from: string; to: string; address: string; top: number };
 
+export function rememberRoute(history: ReturnPoint[], point: ReturnPoint, replace: boolean) {
+  if (!replace) {
+    history.push(point);
+    return;
+  }
+  const incoming = history.at(-1);
+  if (incoming?.to === point.from) incoming.to = point.to;
+  else history.length = 0;
+}
+
 export function returnIndex(history: readonly ReturnPoint[], from: string, to: string) {
   for (let index = history.length - 1; index >= 0; index--) {
     const point = history[index]!;

@@ -71,6 +71,8 @@ export type PhoneScreenProps = {
   parts?: PartRegistry | undefined;
   /** The host resolves destinations and history. The Header back control sends `"back"`. */
   onLink?: ((goto: string, address: string) => void) | undefined;
+  /** Whether a committed link replaces the current route instead of adding to host history. */
+  replacesRoute?: ((from: string, to: string) => boolean) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;
   privateValues?: PrivateValuesHost | undefined;
@@ -156,6 +158,7 @@ function usePhoneNavigation(
       const target = open?.current ?? (heading ? refs.get(heading)?.current : undefined);
       if (target) props.nativeHost?.focusAccessibility?.(target);
     },
+    props.replacesRoute,
   );
   useLayoutEffect(() => {
     observe.current = navigation.capture;
