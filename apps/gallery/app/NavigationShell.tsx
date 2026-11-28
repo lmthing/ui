@@ -28,7 +28,6 @@ export function NavigationShell({ start }: { start: string }) {
         data-navigation-shell={current}
       >
         <PhoneScreen
-          key={current}
           onReady={publishBrowserAgent}
           screen={navigationScreens[current]!}
           theme={theme}

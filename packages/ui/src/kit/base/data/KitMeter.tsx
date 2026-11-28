@@ -1,4 +1,4 @@
-import { isWeb, VisuallyHidden, XStack, YStack } from "tamagui";
+import { isWeb, XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { KitText } from "../text";
 import { useMotionValue, useReducedFade } from "../../motion";
@@ -107,11 +107,10 @@ function MeterAmount({
     </KitText>
   );
   return labelled ? (
-    <YStack {...(!isWeb ? { accessible: true, accessibilityLabel: exact } : {})}>
+    <YStack accessible accessibilityRole={isWeb ? "group" : "text"} accessibilityLabel={exact}>
       <YStack aria-hidden accessibilityElementsHidden>
         {text}
       </YStack>
-      {isWeb && <VisuallyHidden>{exact}</VisuallyHidden>}
     </YStack>
   ) : (
     text

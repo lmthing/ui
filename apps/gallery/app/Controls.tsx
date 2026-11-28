@@ -18,7 +18,7 @@ const tabs = [
 const navigationTabBar = { id: "t1", c: "TabBar", tabs };
 const accessTabs = [
   { icon: "home", label: "Daily care", goto: "care" },
-  { icon: "calendar", label: "Appointments", goto: "appointments" },
+  { icon: "calendar", label: "Care visits", goto: "appointments" },
   { icon: "message", label: "Inbox", goto: "inbox" },
   { icon: "clock", label: "Reminders", goto: "reminders" },
   { icon: "settings", label: "Settings", goto: "settings" },

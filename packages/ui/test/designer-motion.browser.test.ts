@@ -159,15 +159,19 @@ changed.each(["no-preference", "reduce"] as const)(
   },
 );
 
-changed("wraps the action, row and five-tab labels at larger type", async () => {
-  await openAccess("reduce");
-  const ids = ["controls/button/root_label", "controls/list/r1/title", "controls/t1/r2/label"];
-  await page.addStyleTag({
+const largeTextParts = ["controls/button/root_label", "controls/list/r1/title", "controls/t1/r2/label"];
+function enlargeText() {
+  return page.addStyleTag({
     content:
-      ids.map((id) => `[data-testid="${id}"]`).join(",") +
+      largeTextParts.map((id) => `[data-testid="${id}"]`).join(",") +
       "{font-size: 36px !important; line-height: 44px !important;}",
   });
-  for (const id of ids) {
+}
+
+changed("wraps the action, row and five-tab labels at larger type", async () => {
+  await openAccess("reduce");
+  await enlargeText();
+  for (const id of largeTextParts) {
     const box = await part(id).boundingBox();
     expect(box?.height).toBeGreaterThan(44);
     expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -198,24 +202,39 @@ changed("offers visible, keyboard-operable alternatives to swiping and restores 
   await expect.poll(() => focused("controls/s1/r3/root")).toBe(true);
   await page.keyboard.press("ArrowLeft");
   const complete = page.getByRole("status").filter({ hasText: "All cards reviewed" });
-  await expect.poll(() => complete.evaluate((node) => node === document.activeElement)).toBe(true);
+  await expect
+    .poll(() =>
+      complete.evaluate((node) => {
+        const active = document.activeElement;
+        return active === node
+          ? "terminal"
+          : `${active?.tagName}:${active?.getAttribute("role")}:${active?.getAttribute("data-testid")} (terminal tabindex ${node.getAttribute("tabindex")}, inert ${Boolean(node.closest("[inert]"))})`;
+      }),
+    )
+    .toBe("terminal");
   expect(await skip.count()).toBe(0);
   expect(await keep.count()).toBe(0);
 });
 
-changed("advances and reverses the gallery carousel with visible keyboard controls", async () => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await openControls("carousel");
-  const next = page.getByRole("button", { name: "Next", exact: true });
-  const previous = page.getByRole("button", { name: "Previous", exact: true });
-  await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
-  await next.focus();
-  await page.keyboard.press("Enter");
-  await expect.poll(() => next.getAttribute("aria-disabled")).toBe("true");
-  await previous.focus();
-  await page.keyboard.press("Space");
-  await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
-});
+changed.each(["ltr", "rtl"] as const)(
+  "advances and reverses the %s gallery carousel with visible keyboard controls",
+  async (direction) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openControls("carousel");
+    await page.evaluate((dir) => {
+      document.documentElement.dir = dir;
+    }, direction);
+    const next = page.getByRole("button", { name: "Next", exact: true });
+    const previous = page.getByRole("button", { name: "Previous", exact: true });
+    await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+    await next.focus();
+    await page.keyboard.press("Enter");
+    await expect.poll(() => next.getAttribute("aria-disabled")).toBe("true");
+    await previous.focus();
+    await page.keyboard.press("Space");
+    await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+  },
+);
 
 async function transforms(address: string) {
   return part(address).evaluate((node) =>
@@ -506,6 +525,9 @@ const scenes = [
 async function captureDose(prefix: string, preference: "no-preference" | "reduce") {
   await openAccess(preference);
   await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access.png` });
+  const styling = await enlargeText();
+  await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access-large.png` });
+  await styling.evaluate((node) => node.remove());
   await part("controls/meds/r2/skip").focus();
   await contactSheet(browser, page, `${prefix}-confirm-dose`, () => page.keyboard.press("Enter"));
   await contactSheet(browser, page, `${prefix}-cancel-dose`, () => page.keyboard.press("Escape"));
@@ -513,6 +535,24 @@ async function captureDose(prefix: string, preference: "no-preference" | "reduce
   await page.keyboard.press("Space");
   await part("controls/confirm/confirm").focus();
   await contactSheet(browser, page, `${prefix}-log-dose`, () => page.keyboard.press("Enter"));
+}
+
+async function captureCollections(prefix: string) {
+  await openControls("carousel");
+  await page.getByRole("button", { name: "Next", exact: true }).focus();
+  await contactSheet(browser, page, `${prefix}-carousel`, () => page.keyboard.press("Enter"));
+  await page.getByRole("button", { name: "Previous", exact: true }).focus();
+  await contactSheet(browser, page, `${prefix}-carousel-return`, () => page.keyboard.press("Space"));
+  await openControls("swipe");
+  const skip = page.getByRole("button", { name: "Skip", exact: true });
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await part("controls/s1/r2/root").waitFor();
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await part("controls/s1/r3/root").waitFor();
+  await skip.focus();
+  await contactSheet(browser, page, `${prefix}-swipe-terminal`, () => page.keyboard.press("Enter"));
 }
 
 it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
@@ -532,7 +572,10 @@ it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
           await contactSheet(browser, page, `${prefix}-${label}`, action);
         }
       }
-      if (!baseline) await captureDose(prefix, preference);
+      if (!baseline) {
+        await captureDose(prefix, preference);
+        await captureCollections(prefix);
+      }
     }
     expect(errors).toEqual([]);
   },

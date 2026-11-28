@@ -79,6 +79,24 @@ it("switches peer roots by keyboard and agent action, then uses one back per pus
   expect(errors).toEqual([]);
 });
 
+it("restores the same linked row and browser scroll position on keyboard Back", async () => {
+  await open();
+  const source = part("today/plants/r1/root");
+  await source.focus();
+  const body = page.locator("[data-kit-screen-body]");
+  await body.evaluate((node) => {
+    node.scrollTop = 24;
+  });
+  await page.keyboard.press("Enter");
+  await at("fern");
+  expect(await part("fern/h1/title").evaluate((node) => node === document.activeElement)).toBe(true);
+  await back().focus();
+  await page.keyboard.press("Space");
+  await at("today");
+  expect(await source.evaluate((node) => node === document.activeElement)).toBe(true);
+  expect(await body.evaluate((node) => node.scrollTop)).toBe(24);
+});
+
 async function simulateInsets() {
   await page.evaluate((insets) => {
     const getStyle = window.getComputedStyle.bind(window);

@@ -199,29 +199,30 @@ describe("Approval states and dispatch", () => {
   });
 });
 
-it("does not commit a confirmation to a replacement request at the same address", () => {
-  const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval" }] };
-  const original = createScreenController({ screen, defs: components });
-  expect(original.press("a1/r2/decline").ok).toBe(true);
-  const onAction = vi.fn();
-  const entry = {
-    ...screen.components[0]!,
-    requests: full.requests.map((request, i) =>
-      i === 1 ? { ...request, title: "Replacement request" } : request,
-    ),
-  };
-  const current = createScreenController({
-    screen: { ...screen, components: [entry] },
-    store: original.store,
-    defs: components,
-    onAction,
-  });
-  expect(current.confirmation).toBeUndefined();
-  expect(current.press("confirm/confirm").ok).toBe(false);
-  expect(onAction).not.toHaveBeenCalled();
-  original.dispose();
-  current.dispose();
-});
+it.each([{ title: "Replacement request" }, { status: "approved" }] as const)(
+  "dismisses pending confirmation when the current request changes to %j",
+  (change) => {
+    const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval" }] };
+    const original = createScreenController({ screen, defs: components });
+    expect(original.press("a1/r2/decline").ok).toBe(true);
+    const onAction = vi.fn();
+    const entry = {
+      ...screen.components[0]!,
+      requests: full.requests.map((request, i) => (i === 1 ? { ...request, ...change } : request)),
+    };
+    const current = createScreenController({
+      screen: { ...screen, components: [entry] },
+      store: original.store,
+      defs: components,
+      onAction,
+    });
+    expect(current.confirmation).toBeUndefined();
+    expect(current.press("confirm/confirm").ok).toBe(false);
+    expect(onAction).not.toHaveBeenCalled();
+    original.dispose();
+    current.dispose();
+  },
+);
 
 it("labels shift claims and leaves requester decisions read-only at their original addresses", () => {
   const own = examples[2]!;

@@ -3,7 +3,6 @@ import { badgeLine, component, radius, size, space, type IconName } from "../../
 import { useKit, useWords } from "../../provider";
 import { minimumTouchSize, webActivation } from "../../a11y";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitStateMark } from "../layout";
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 
@@ -46,7 +45,7 @@ function TabGlyph({ tab, on }: { tab: Tab; on: boolean }) {
 }
 
 function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
-  const { lang } = useWords();
+  const { lang, words } = useWords();
   const kit = useKit();
   const part = usePart();
   const onPress = kit.interactive && kit.onLink ? () => kit.onLink?.(tab.goto, part.testID) : undefined;
@@ -59,10 +58,9 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       minWidth={minimumTouchSize}
       minHeight={size.control.lg}
       alignItems="center"
-      justifyContent="center"
+      justifyContent="flex-start"
       gap={space.xs}
       paddingVertical={space.md}
-      paddingHorizontal={space.xs}
       backgroundColor="transparent"
       borderWidth={component.base.none}
       focusVisibleStyle={tabFocus}
@@ -76,7 +74,22 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       <KitText role="caption" tone={on ? "accent" : "muted"} part="label" align="center" breakLongWords>
         {tab.label}
       </KitText>
-      {on && <KitStateMark kind="selected" />}
+      {on && (
+        <XStack
+          alignSelf="stretch"
+          alignItems="center"
+          justifyContent="center"
+          flexWrap="wrap"
+          gap={space.xs}
+        >
+          <KitIcon name="check" scale="sm" tone="accent" decorative />
+          <YStack maxWidth="100%">
+            <KitText role="caption" part={null} align="center" breakLongWords>
+              {words.selectedLabel}
+            </KitText>
+          </YStack>
+        </XStack>
+      )}
     </YStack>
   );
 }

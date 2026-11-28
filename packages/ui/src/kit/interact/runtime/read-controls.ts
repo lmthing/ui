@@ -60,6 +60,7 @@ export function visibleConfirmation(
   if (
     entry &&
     (bound ||
+      confirmation.itemIdentity !== undefined ||
       meta.deviceDataFlags ||
       meta.media ||
       meta.items?.media ||

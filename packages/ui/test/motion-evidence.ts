@@ -120,13 +120,13 @@ async function drawContactSheet(browser: Browser, label: string, frames: Buffer[
       const time = times[index];
       const mark = time == null ? "Before input" : `Captured by +${time} ms`;
       const end = index === frames.length - 1 ? " · Settled" : "";
-      return `<figure><img src="data:image/png;base64,${png.toString("base64")}"><figcaption>${mark}${end}</figcaption></figure>`;
+      return `<figure><figcaption>${mark}${end}</figcaption><img src="data:image/png;base64,${png.toString("base64")}"></figure>`;
     });
     await sheet.setContent(`<style>
       body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:rgb(224 226 230);}
       header{grid-column:1/-1;padding:8px;font:14px sans-serif;}
-      figure{position:relative;margin:0;border:1px solid rgb(224 226 230);}
-      img{display:block;width:100%;}figcaption{position:absolute;top:4px;left:4px;background:rgb(33 35 42);color:white;padding:2px 6px;}
+      figure{margin:0;border:1px solid rgb(224 226 230);}
+      img{display:block;width:100%;}figcaption{background:rgb(33 35 42);color:white;padding:4px 6px;font:12px sans-serif;}
       </style><header>Motion Lab · calm / light / 390 · ${label}</header>${tiles.join("")}`);
     await sheet.screenshot({ path: `${folder}${label}.png`, fullPage: true });
   } finally {

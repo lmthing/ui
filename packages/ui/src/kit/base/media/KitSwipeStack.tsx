@@ -1,7 +1,7 @@
 import { useWords, useKit, useKitStyle } from "../../provider";
 import { useSwipe, useControlValue } from "../../interact";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { XStack, YStack, isWeb, type TamaguiElement } from "tamagui";
 import { component, formatAddress, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -14,16 +14,27 @@ function Front({
   label,
   children,
   move,
-}: Pick<Card, "label" | "children"> & { move?: ((direction: Direction) => void) | undefined }) {
+  target,
+}: Pick<Card, "label" | "children"> & {
+  move?: ((direction: Direction) => void) | undefined;
+  target: RefObject<TamaguiElement | null>;
+}) {
   const { swipeLabels, swipeCard } = useWords().words;
   const ks = useKitStyle();
   const address = usePart();
+  const attach = useCallback(
+    (node: TamaguiElement | null) => {
+      address.ref.current = target.current = node;
+    },
+    [address.ref, target],
+  );
   const swipe = useSwipe("horizontal", Boolean(move), (direction) => {
     if (direction !== "down") move?.(direction);
   });
   return (
     <YStack
       {...address}
+      ref={attach}
       {...(swipe.handlers as object)}
       x={swipe.offset}
       {...surfaceOf(ks.surface)}
@@ -33,7 +44,7 @@ function Front({
       aria-roledescription={swipeCard}
       {...(move
         ? ({
-            ...(isWeb ? { tabIndex: 0, "data-swipe-front": "" } : {}),
+            ...(isWeb ? { tabIndex: 0 } : {}),
             onKeyDown: (event: KeyboardEvent) => {
               if (["ArrowLeft", "ArrowRight", "Enter", " "].includes(event.key)) {
                 event.preventDefault();
@@ -86,6 +97,7 @@ function StackBackdrop({ cards }: { cards: readonly Card[] }) {
 function useSwipeFocus(cursor: number) {
   const { nativeHost } = useKit();
   const root = useRef<TamaguiElement>(null);
+  const first = useRef<TamaguiElement>(null);
   const terminal = useRef<TamaguiElement>(null);
   const restore = useRef(false);
   const request = () => {
@@ -98,15 +110,24 @@ function useSwipeFocus(cursor: number) {
   useLayoutEffect(() => {
     if (!restore.current) return;
     restore.current = false;
-    if (isWeb) {
-      const end = terminal.current as HTMLElement | null;
-      if (end) end.tabIndex = -1;
-      const target =
-        end ?? (root.current as HTMLElement | null)?.querySelector<HTMLElement>("[data-swipe-front]");
-      target?.focus({ preventScroll: true });
-    } else if (terminal.current) nativeHost?.focusAccessibility?.(terminal.current);
+    // Read the ref after the terminal content has committed.
+    const active = isWeb ? document.activeElement : undefined;
+    const frame = requestAnimationFrame(() => {
+      const target = terminal.current ?? first.current;
+      if (!target) return;
+      if (!isWeb) {
+        nativeHost?.focusAccessibility?.(target);
+        return;
+      }
+      const node = target as HTMLElement;
+      const focused = node.ownerDocument.activeElement;
+      if (!node.isConnected || (focused !== active && focused !== node.ownerDocument.body)) return;
+      if (target === terminal.current) node.tabIndex = -1;
+      node.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
   }, [cursor, nativeHost]);
-  return { root, terminal, request, cancel };
+  return { root, first, terminal, request, cancel };
 }
 
 /**
@@ -122,7 +143,7 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
   const visible = cards.slice(cursor);
   const behind = visible.slice(1, 3);
   const peek = component.base.stackPeek;
-  const { root, terminal, request, cancel } = useSwipeFocus(cursor);
+  const { root, first, terminal, request, cancel } = useSwipeFocus(cursor);
   const front = visible[0];
   if (!front || empty) {
     if (!cursor) return empty ?? null;
@@ -152,7 +173,7 @@ export function KitSwipeStack({ cards, empty }: { cards: readonly Card[]; empty?
       <YStack paddingBottom={behind.length * peek} paddingTop={space.xs}>
         <StackBackdrop cards={behind} />
         <PartContext.Provider value={{ ...context, item: front.id }}>
-          <Front key={front.id} label={front.label} move={move}>
+          <Front key={front.id} label={front.label} move={move} target={first}>
             {front.children}
           </Front>
         </PartContext.Provider>

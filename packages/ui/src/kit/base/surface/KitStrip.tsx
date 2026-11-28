@@ -60,11 +60,10 @@ function useStrip(share: number, gap: number, multiplePages: boolean) {
   const step = cell + pageGap;
   const go = (index: number) => {
     const scroller = ref.current as ScrollHandle | null;
-    scroller?.scrollTo?.({
-      x: index * step,
-      y: 0,
-      animated: !environment.reduceMotion && !environment.agentMode,
-    });
+    const animated = !environment.reduceMotion && !environment.agentMode;
+    const node = isWeb ? scroller?.getScrollableNode?.() : undefined;
+    const sign = node && getComputedStyle(node).direction === "rtl" ? -1 : 1;
+    scroller?.scrollTo?.({ x: sign * index * step, y: 0, animated });
   };
   return { ref, width, setWidth, at, setAt, cell, step, pageGap, go };
 }
@@ -143,7 +142,10 @@ export function KitStrip(props: StripProps) {
                 setAt(
                   Math.max(
                     0,
-                    Math.min(cells.length - 1, Math.round(event.nativeEvent.contentOffset.x / step)),
+                    Math.min(
+                      cells.length - 1,
+                      Math.round(Math.abs(event.nativeEvent.contentOffset.x) / step),
+                    ),
                   ),
                 ),
             }
