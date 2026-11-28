@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, type ReactNode } from "react";
 import { useKit } from "../../provider";
 import { RowLabelContext } from "../../a11y";
 import { useControlValue } from "../../interact";
@@ -6,7 +6,7 @@ import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
 import { component, motion, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
-import { KitText, type TextTone } from "../text";
+import { KitIcon, KitText, type TextTone } from "../text";
 import { useChangeReveal, useMotionValue, useReducedFade } from "../../motion";
 
 const Frame = styled(YStack, {
@@ -103,6 +103,17 @@ function badgeFill(tone?: TextTone) {
   return tone === "onAccent" ? "$accent" : "$accentSoft";
 }
 
+function BadgeText({ warning, children }: { warning: boolean; children: ReactNode }) {
+  return warning ? (
+    <XStack alignItems="center" gap={space.xs}>
+      <KitIcon name="alert" tone="warn" scale="sm" decorative />
+      {children}
+    </XStack>
+  ) : (
+    children
+  );
+}
+
 function ValueTrail({
   kind,
   value,
@@ -138,7 +149,7 @@ function ValueTrail({
       backgroundColor={loading ? "$line" : badgeFill(tone)}
       {...(environment.reduceMotion ? { opacity: pose } : { scale: pose })}
     >
-      {text}
+      <BadgeText warning={tone === "warn" && !loading}>{text}</BadgeText>
     </Badge>
   ) : (
     <YStack position="relative" borderRadius={radius.sm}>

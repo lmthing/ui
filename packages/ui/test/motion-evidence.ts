@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { relative } from "node:path";
 import { fileURLToPath, URL } from "node:url";
@@ -6,6 +6,7 @@ import type { Browser, Page } from "playwright-core";
 import { build, preview, type InlineConfig, type Plugin } from "vite";
 
 const folder = fileURLToPath(new URL("../shots/p5-designer-motion/", import.meta.url));
+export { folder as motionEvidenceFolder };
 const project = fileURLToPath(new URL("../../../", import.meta.url));
 
 /** Same gallery and actions, with only the changed kit sources loaded from main. */
@@ -30,35 +31,103 @@ export async function releaseGallery(config: InlineConfig, baseline: boolean) {
   return preview({ ...config, build: buildOptions, preview: { host: "127.0.0.1", port: 0 } });
 }
 
+async function startTrace(page: Page) {
+  return page.evaluateHandle(() => {
+    const events = ["pointerdown", "keydown", "wheel"] as const;
+    const sample = () => {
+      const focused = document.activeElement?.closest("[data-testid]");
+      return focused?.getAttribute("data-testid") ?? document.activeElement?.tagName ?? null;
+    };
+    const source = sample();
+    const focus: { ms: number; target: string | null }[] = [];
+    const poses: ReturnType<typeof pose>[] = [];
+    let trigger = 0;
+    let input = "";
+    let raf = 0;
+    const clock = () => (input ? Math.round(performance.now() - trigger) : null);
+    function pose() {
+      const screen = document.querySelector<HTMLElement>("[data-kit-screen]");
+      const dialog = screen?.querySelector<HTMLElement>('[role="dialog"]');
+      return {
+        ms: clock(),
+        x: screen?.getBoundingClientRect().x,
+        dialogY: dialog?.getBoundingClientRect().y,
+        dialogOpacity: dialog && getComputedStyle(dialog).opacity,
+      };
+    }
+    const paint = () => {
+      poses.push(pose());
+      raf = requestAnimationFrame(paint);
+    };
+    const begin = (event: Event) => {
+      if (input) return;
+      input = event instanceof KeyboardEvent ? `${event.type}:${event.key}` : event.type;
+      trigger = performance.now();
+      raf = requestAnimationFrame(paint);
+    };
+    const changed = () => {
+      if (input) focus.push({ ms: clock()!, target: sample() });
+    };
+    for (const event of events) document.addEventListener(event, begin, true);
+    document.addEventListener("focusin", changed, true);
+    return {
+      clock,
+      finish: () => {
+        cancelAnimationFrame(raf);
+        for (const event of events) document.removeEventListener(event, begin, true);
+        document.removeEventListener("focusin", changed, true);
+        return { input, source, focus, settled: sample(), poses };
+      },
+    };
+  });
+}
+
 export async function contactSheet(browser: Browser, page: Page, label: string, action: () => Promise<void>) {
-  if (!process.env.UI_MOTION_EVIDENCE) return action();
   await mkdir(folder, { recursive: true });
   const frames = [await page.screenshot({ scale: "css" })];
-  const inFlight = action();
-  for (let frame = 0; frame < 4; frame++) {
+  const trace = await startTrace(page);
+  const times: (number | null)[] = [null];
+  async function frame() {
     frames.push(await page.screenshot({ scale: "css" }));
+    times.push(await trace.evaluate(({ clock }) => clock()));
   }
-  await inFlight;
-  if (label.endsWith("submit-working-success")) {
+  try {
+    const inFlight = action();
+    for (let i = 0; i < 4; i++) await frame();
+    await inFlight;
+    if (label.endsWith("submit-working-success")) {
+      await page.waitForTimeout(700);
+      await frame();
+    }
     await page.waitForTimeout(700);
-    frames.push(await page.screenshot({ scale: "css" }));
-    await page.waitForTimeout(150);
-    frames.push(await page.screenshot({ scale: "css" }));
+    await frame();
+    const result = await trace.evaluate(({ finish }) => finish());
+    if (!result.input) throw new Error(`No interaction captured for ${label}`);
+    await Promise.all([
+      drawContactSheet(browser, label, frames, times),
+      writeFile(`${folder}${label}.json`, JSON.stringify({ ...result, frames: times }, null, 2)),
+    ]);
+  } finally {
+    await trace.evaluate(({ finish }) => finish()).catch(() => {});
+    await trace.dispose();
   }
-  // The last frame shows the settled layout, not a later interaction.
-  await page.waitForTimeout(700);
-  frames.push(await page.screenshot({ scale: "css" }));
+}
+
+async function drawContactSheet(browser: Browser, label: string, frames: Buffer[], times: (number | null)[]) {
   const sheet = await browser.newPage({ viewport: { width: 702, height: 1013 } });
   try {
-    const tiles = frames.map(
-      (png, index) =>
-        `<figure><img src="data:image/png;base64,${png.toString("base64")}"><figcaption>${index + 1}</figcaption></figure>`,
-    );
+    const tiles = frames.map((png, index) => {
+      const time = times[index];
+      const mark = time == null ? "Before input" : `Captured by +${time} ms`;
+      const end = index === frames.length - 1 ? " · Settled" : "";
+      return `<figure><img src="data:image/png;base64,${png.toString("base64")}"><figcaption>${mark}${end}</figcaption></figure>`;
+    });
     await sheet.setContent(`<style>
       body{display:grid;grid-template-columns:repeat(3,1fr);margin:0;background:rgb(224 226 230);}
+      header{grid-column:1/-1;padding:8px;font:14px sans-serif;}
       figure{position:relative;margin:0;border:1px solid rgb(224 226 230);}
       img{display:block;width:100%;}figcaption{position:absolute;top:4px;left:4px;background:rgb(33 35 42);color:white;padding:2px 6px;}
-      </style>${tiles.join("")}`);
+      </style><header>Motion Lab · calm / light / 390 · ${label}</header>${tiles.join("")}`);
     await sheet.screenshot({ path: `${folder}${label}.png`, fullPage: true });
   } finally {
     await sheet.close();

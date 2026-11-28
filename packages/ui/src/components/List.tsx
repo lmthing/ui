@@ -299,15 +299,7 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
         {!grid && !lead && row.photo && (
           <kit.KitPhoto photo={row.photo} aspect={aspect} part="icon" label={row.title} />
         )}
-        <kit.KitText
-          role="body"
-          part="title"
-          density={density}
-          tone={cardTitleTone(row, mark)}
-          breakLongWords
-        >
-          {row.title}
-        </kit.KitText>
+        <CardTitle {...{ row, mark, density }} chevron={Boolean(chevron && !sideTrail)} />
         {(["meta", "fact"] as const).map((part) => (
           <kit.KitLayoutText
             key={part}
@@ -336,6 +328,29 @@ function CardLeading({ row, lead, index, density, grid }: CardDetailProps) {
   if (lead === "thumb" && row.photo) return <kit.KitPhoto photo={row.photo} part="icon" />;
 }
 
+function CardTitle({
+  row,
+  mark,
+  density,
+  chevron,
+}: {
+  row: ListRow;
+  mark: ListRow["mark"];
+  density: c.ThemeDensity;
+  chevron: boolean;
+}) {
+  return (
+    <kit.KitContent
+      lead={chevron && <kit.KitIcon name="chevron_right" part="trail" scale="sm" />}
+      lineRole="body"
+    >
+      <kit.KitText role="body" part="title" density={density} tone={cardTitleTone(row, mark)} breakLongWords>
+        {row.title}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+}
+
 function CardTrail({
   row,
   sideTrail,
@@ -345,8 +360,16 @@ function CardTrail({
   sideTrail: boolean;
   density: c.ThemeDensity;
 }) {
-  if (sideTrail || row.trail === "none" || (row.trail === "chevron" && !row.goto)) return null;
-  return <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />;
+  if (sideTrail || row.trail === "none" || row.trail === "chevron") return null;
+  return (
+    <kit.KitTrail
+      kind={row.trail ?? "none"}
+      value={row.value}
+      part="trail"
+      density={density}
+      tone={row.trail === "badge" && row.tone !== "neutral" ? row.tone : undefined}
+    />
+  );
 }
 
 function ListRow(row: ListRow, index: number, layout: ListRowLayout) {

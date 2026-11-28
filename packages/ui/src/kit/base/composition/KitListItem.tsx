@@ -84,7 +84,7 @@ function ItemText(props: ItemProps) {
   );
 }
 function ShelfItem(props: ItemProps) {
-  const { row, density, lead, mark, surface } = props;
+  const { row, density, lead, mark, surface, tone } = props;
   const leading = lead === undefined ? undefined : itemLead(props);
   const cover = lead === undefined ? row.photo : undefined;
   const trailing = itemTrail(props);
@@ -93,6 +93,7 @@ function ShelfItem(props: ItemProps) {
       item={row.id}
       label={row.title}
       goto={row.goto}
+      tone={tone === "warn" && !row.badge ? tone : undefined}
       inset="none"
       leadingAlign={row.photo && (lead === "thumb" || lead === "avatar") ? "row" : "line"}
       trailing={cover ? undefined : trailing}
@@ -135,7 +136,7 @@ export function KitRecordLead({ title, photo }: Pick<ListItemRow, "title" | "pho
   const initial = title.match(/[\p{L}\p{N}]/u)?.[0] ?? Array.from(title)[0];
   return <KitPhoto photo={photo} initials={initial?.toUpperCase()} part="icon" decorative />;
 }
-function itemTrail({ row, style, trail, density }: ItemProps) {
+function itemTrail({ row, style, trail, density, tone }: ItemProps) {
   if (trail === undefined && (style === "expand" || style === "shelf")) return null;
   const kind =
     style === "ranked" && trail === undefined
@@ -144,12 +145,20 @@ function itemTrail({ row, style, trail, density }: ItemProps) {
         : "none"
       : (row.trail ?? trail ?? "none");
   if (kind === "none" || (kind === "chevron" && (style === "expand" || !row.goto))) return null;
-  return <KitTrail kind={kind} value={row.value} part="trail" density={density} />;
+  return (
+    <KitTrail
+      kind={kind}
+      value={row.value}
+      part="trail"
+      density={density}
+      tone={kind === "badge" && tone !== "neutral" ? tone : undefined}
+    />
+  );
 }
 
 /** A shelf, expandable or ranked row, retaining the same addresses and live controls. */
 export function KitListItem(props: ItemProps) {
-  const { row, style, density, lead, mark, surface, record } = props;
+  const { row, style, density, lead, mark, surface, record, tone } = props;
   const kit = useKit();
   const context = usePartContext();
   const open = useControlValue(`${context.screen}/${context.component}/${row.id}`, !kit.controller);
@@ -172,6 +181,7 @@ export function KitListItem(props: ItemProps) {
       item={row.id}
       label={row.title}
       goto={expand ? undefined : row.goto}
+      tone={tone === "warn" && !row.badge ? tone : undefined}
       {...(expand ? { role: "button" as const, expanded: open } : {})}
       leading={recordLead ? <KitRecordLead title={row.title} photo={row.photo} /> : itemLead(props)}
       trailing={trailing}

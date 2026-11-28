@@ -1,7 +1,9 @@
 import { XStack, YStack, isWeb } from "tamagui";
 import { badgeLine, component, radius, size, space, type IconName } from "../../../catalog";
 import { useKit, useWords } from "../../provider";
+import { minimumTouchSize, webActivation } from "../../a11y";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { KitStateMark } from "../layout";
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 
@@ -47,19 +49,20 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
   const { lang } = useWords();
   const kit = useKit();
   const part = usePart();
-  const onPress = kit.interactive ? () => kit.onLink?.(tab.goto, part.testID) : undefined;
+  const onPress = kit.interactive && kit.onLink ? () => kit.onLink?.(tab.goto, part.testID) : undefined;
   return (
     <YStack
       {...part}
       {...(isWeb && onPress ? webTab : {})}
       flex={1}
       flexBasis={component.base.none}
-      minWidth={component.base.none}
+      minWidth={minimumTouchSize}
       minHeight={size.control.lg}
       alignItems="center"
       justifyContent="center"
       gap={space.xs}
       paddingVertical={space.md}
+      paddingHorizontal={space.xs}
       backgroundColor="transparent"
       borderWidth={component.base.none}
       focusVisibleStyle={tabFocus}
@@ -67,18 +70,20 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       aria-selected={on}
       accessibilityLabel={tab.count ? `${tab.label}, ${badgeLine(tab.count, lang)}` : tab.label}
       {...(onPress ? { onPress } : {})}
+      {...webActivation(onPress)}
     >
       <TabGlyph {...{ tab, on }} />
-      <KitText role="caption" tone={on ? "accent" : "muted"} part="label" lines={1}>
+      <KitText role="caption" tone={on ? "accent" : "muted"} part="label" align="center" breakLongWords>
         {tab.label}
       </KitText>
+      {on && <KitStateMark kind="selected" />}
     </YStack>
   );
 }
 
 /**
  * The bottom navigation: 2 to 5 equal tabs on the surface under a top rule, icon over label, the
- * selected one (`at`) in accent and the rest muted. Each tab is an item (`root`, `icon`, `label`),
+ * selected one (`at`) with a check and caption. Each tab is an item (`root`, `icon`, `label`),
  * role tab, and goes to its `goto` when pressed.
  */
 export function KitTabBar({ tabs, at }: { tabs: readonly Tab[]; at: number }) {

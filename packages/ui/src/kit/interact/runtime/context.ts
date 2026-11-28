@@ -36,6 +36,8 @@ import { mediaHostGate, type AttachmentEntries } from "./media";
 import { createDisabledParts } from "./part-registration";
 export type Confirmation = {
   message: string;
+  label?: string;
+  itemIdentity?: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
   source: string;
   goto?: string;

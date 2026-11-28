@@ -1,8 +1,16 @@
-import { isValidElement, useContext, useRef, useState, type ComponentProps } from "react";
-import { ScrollView, YStack } from "tamagui";
+import {
+  isValidElement,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ElementRef,
+} from "react";
+import { isWeb, ScrollView, YStack } from "tamagui";
 import { KitMotion, ListProjectionKey, usePresence } from "../motion";
 import { PartScope } from "../part";
-import { useKit, useKitStyle } from "../provider";
+import { KitVisualOnly, useKit, useKitStyle } from "../provider";
 import { DeviceDataContext, type ScreenController } from "../interact";
 import { KitCard, KitEmpty } from "../base";
 import {
@@ -27,12 +35,24 @@ type RenderProps = {
   screen: ScreenLike;
   views?: ReturnType<typeof resolveDataViews>;
   compactTitle?: boolean;
-  navigationArrival?: boolean;
 };
 function listProjection(views: RenderProps["views"], id: string) {
   return JSON.stringify(
     views?.lists.get(id)?.map(({ filter, active }) => [filter.field, active.map(({ match }) => match)]),
   );
+}
+
+function useBodyMarker(scroll: boolean) {
+  const ref = useRef<ElementRef<typeof ScrollView>>(null);
+  useLayoutEffect(() => {
+    if (!isWeb || !scroll) return;
+    const view = ref.current as { getScrollableNode?: () => HTMLElement } | null;
+    const node = view?.getScrollableNode?.();
+    if (!node) return;
+    node.setAttribute("data-kit-screen-body", "");
+    return () => node.removeAttribute("data-kit-screen-body");
+  }, [scroll]);
+  return ref;
 }
 
 function ScreenEntry({
@@ -91,6 +111,7 @@ function ScreenRegion({
   scroll?: Omit<ComponentProps<typeof ScrollView>, "children">;
 }) {
   const { controller, screen, views, compactTitle } = props;
+  const scroller = useBodyMarker(Boolean(scroll));
   const components = controller.defs;
   const elsewhere = new Set(
     screen.components.filter((entry) => regionOf(entry, components) !== name).map(({ id }) => id),
@@ -109,7 +130,7 @@ function ScreenRegion({
           : entry
       }
       sticky={name === "body" && entry.c === "SectionTitle"}
-      appear={!props.navigationArrival || !initial.current.has(entry.id)}
+      appear={!initial.current.has(entry.id)}
       index={index}
       marginTop={
         name === "body" && components[entry.c]
@@ -129,7 +150,7 @@ function ScreenRegion({
   );
   return (
     <ScreenBottomSource>
-      <ScrollView {...scroll} stickyHeaderIndices={sticky}>
+      <ScrollView {...scroll} ref={scroller} stickyHeaderIndices={sticky}>
         {present}
       </ScrollView>
     </ScreenBottomSource>
@@ -148,7 +169,9 @@ function RegionEntry({ index, marginTop, exiting, sticky, appear = true, ...prop
   return (
     <KitMotion index={index} cue={props.entry.state ?? "filled"} exiting={exiting ?? false} appear={appear}>
       <YStack {...(sticky ? { paddingTop: marginTop, backgroundColor: "$bg" } : { marginTop })}>
-        <ScreenEntry {...props} />
+        <KitVisualOnly active={exiting ?? false}>
+          <ScreenEntry {...props} />
+        </KitVisualOnly>
       </YStack>
     </KitMotion>
   );

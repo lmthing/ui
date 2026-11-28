@@ -13,20 +13,38 @@ export type RendererMap = Record<string, (props: never) => React.ReactNode>;
 type ScreenProps = {
   controller: ScreenController;
   renderers: RendererMap;
-  navigationArrival?: boolean;
   initialBodyScroll?: number;
   onBodyScroll?: (top: number) => void;
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
-export function Screen({
-  controller,
-  renderers,
-  onReport,
-  navigationArrival,
-  initialBodyScroll,
-  onBodyScroll,
-}: ScreenProps) {
+function ConfirmationSheet({
+  screen,
+  confirmation,
+  dismiss,
+}: {
+  screen: string;
+  confirmation: NonNullable<ReturnType<ScreenController["confirmationFor"]>>;
+  dismiss(): void;
+}) {
   const { cancelLabel, confirmLabel } = useWords().words;
+  return (
+    <KitOverlay label={confirmation.message} returnTo={confirmation.source} onDismiss={dismiss}>
+      <PartScope screen={screen} component="confirm" rev={1} state="filled">
+        <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
+          <KitAction
+            label={confirmation.label ?? confirmLabel}
+            kind={confirmation.kind}
+            part="confirm"
+            full
+          />
+          <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
+        </KitSheet>
+      </PartScope>
+    </KitOverlay>
+  );
+}
+
+export function Screen({ controller, renderers, onReport, initialBodyScroll, onBodyScroll }: ScreenProps) {
   const components = controller.defs;
   const { environment, resolvePhoto, root } = useKit();
   const screen = controller.snapshotScreen();
@@ -46,10 +64,15 @@ export function Screen({
   if (!controller.admitted) return null;
   return (
     <RenderReportContext.Provider value={publish}>
-      <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
+      <YStack
+        data-kit-screen=""
+        flex={1}
+        position="relative"
+        minHeight="100%"
+        paddingBottom={environment.keyboardHeight}
+      >
         <ScreenContent
           key={visible.id}
-          {...(navigationArrival ? { navigationArrival } : {})}
           {...(initialBodyScroll !== undefined ? { initialBodyScroll } : {})}
           {...(onBodyScroll ? { onBodyScroll } : {})}
           controller={controller}
@@ -63,16 +86,7 @@ export function Screen({
             <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
           </KitOverlay>
         )}
-        {confirmation && (
-          <KitOverlay label={confirmation.message} onDismiss={dismiss}>
-            <PartScope screen={screen.id} component="confirm" rev={1} state="filled">
-              <KitSheet title={confirmation.message} closeLabel={cancelLabel}>
-                <KitAction label={confirmLabel} kind={confirmation.kind} part="confirm" full />
-                <KitAction label={cancelLabel} kind="quiet" part="cancel" action="dismiss" full />
-              </KitSheet>
-            </PartScope>
-          </KitOverlay>
-        )}
+        {confirmation && <ConfirmationSheet screen={screen.id} {...{ confirmation, dismiss }} />}
       </YStack>
     </RenderReportContext.Provider>
   );

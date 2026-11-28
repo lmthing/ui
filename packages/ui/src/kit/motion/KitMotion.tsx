@@ -17,7 +17,7 @@ export function KitMotion({
   index = 0,
   exiting = false,
   cue = "filled",
-  appear = true,
+  appear = false,
 }: MotionProps) {
   const { environment, motion: mode } = useKit();
   const [last, setLast] = useState({ cue, changed: false });
@@ -26,12 +26,11 @@ export function KitMotion({
   const error = cue === "error";
   const loading = cue === "loading";
   const profile = motionProfiles[mode];
-  const { height, measured, onLayout } = useMotionHeight(
-    exiting || environment.agentMode || environment.reduceMotion,
-  );
+  const still = environment.reduceMotion || environment.agentMode;
+  const { height, measured, onLayout } = useMotionHeight(exiting || still || stateChange || !appear);
   const progress = useReveal(
     `${cue}:${exiting}`,
-    !environment.agentMode && (exiting || (!loading && (appear || stateChange))),
+    !still && (exiting || (error ? stateChange : !loading && appear && !stateChange)),
     {
       ...(environment.reduceMotion || exiting || stateChange || error
         ? { duration: error && !environment.reduceMotion && !exiting ? profile.navigation : durations.fast }
@@ -39,11 +38,10 @@ export function KitMotion({
       delay: exiting || stateChange || error ? 0 : Math.min(index, motion.staggerLimit - 1) * motion.stagger,
     },
   );
-  const still = environment.reduceMotion || environment.agentMode;
   const shake = error && !exiting && !still;
   return (
     <YStack
-      opacity={exiting ? 1 - progress : shake ? 1 : progress}
+      opacity={exiting ? 1 - progress : 1}
       x={shake ? Math.sin(progress * motion.errorTurns * Math.PI * 2) * (1 - progress) * profile.error : 0}
       y={still || exiting || stateChange || error ? 0 : motion.arriveY * (1 - progress)}
       {...(exiting

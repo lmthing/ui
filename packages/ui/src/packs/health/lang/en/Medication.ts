@@ -10,6 +10,7 @@ export const words = {
     unavailable: "Dose logging unavailable. Check your dose log before trying again.",
   },
   medicationAction: (action: string, name: string, time: string) => `${action}: ${name}, ${time}`,
+  medicationSkipQuestion: (name: string, dose: string, time: string) => `Skip ${name} (${dose}) at ${time}?`,
   medicationStock: (count: string) => `${count} left`,
   medicationRefill: (names: readonly string[]) => `Low stock: ${names.join(", ")}`,
   medicationReading: (name: string, time: string, dose: string, status: string) =>

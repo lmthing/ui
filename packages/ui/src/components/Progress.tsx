@@ -245,11 +245,9 @@ type ViewProps = Props<typeof props, typeof meta>;
 function ProgressDeadline({ goal, align }: { goal: Goal; align: "start" | "center" }) {
   const { lang } = useWords();
   const line = deadlineLine(goal, lang);
-  return line ? (
-    <KitText role="caption" tone="muted" part="deadline" align={align}>
-      {line}
-    </KitText>
-  ) : null;
+  return (
+    <KitLayoutText line={{ text: line, role: "caption", tone: "muted", part: "deadline" }} align={align} />
+  );
 }
 
 function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
@@ -307,11 +305,12 @@ function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
 function ProgressExceeded({ goal, align }: { goal: Goal; align: "start" | "center" }) {
   const { lang } = useWords();
   const line = exceededLine(goal, lang);
-  return line ? (
-    <KitText role="caption" tone="muted" part={align === "center" ? "over_target" : null} align={align}>
-      {line}
-    </KitText>
-  ) : null;
+  return (
+    <KitLayoutText
+      line={{ text: line, role: "caption", tone: "muted", part: align === "center" ? "over_target" : null }}
+      align={align}
+    />
+  );
 }
 
 function GoalRing({ goal, scale, children }: { goal: Goal; scale: "md" | "lg"; children: React.ReactNode }) {
@@ -354,9 +353,8 @@ function ProgressStatus({ bars }: Pick<ViewProps, "bars">) {
 // Bars update inside their tracks. Empty, unavailable and exit cut, without a new focus target.
 // Subsequent updates supersede the prior cue; reduced motion uses the same exact values.
 export function Progress(input: ViewProps) {
-  const { bars, figures, style } = input;
+  const { bars, style } = input;
   const density = useKit().density;
-  const { lang } = useWords();
   const state = useComponentState();
   const unavailable = state === "empty" || (state === "filled" && !bars.length);
   return (
@@ -368,45 +366,52 @@ export function Progress(input: ViewProps) {
       ) : style === "ring" ? (
         <ProgressRing {...input} />
       ) : (
-        <KitState
-          density={density}
-          loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}
-        >
-          {bars.map((bar) => (
-            <KitRow
-              key={bar.id}
-              item={bar.id}
-              label={bar.label}
-              goto={bar.goto}
-              inset="none"
-              density={density}
-            >
-              <KitContent>
-                <KitMeter
-                  label={bar.label}
-                  amount={amountLine(bar, figures, lang)}
-                  ratio={bar.value / bar.of}
-                  tone={bar.value > bar.of ? bar.tone : "accent"}
-                  slim={density === "compact"}
-                />
-                <ProgressExceeded goal={bar} align="start" />
-                <ProgressDeadline goal={bar} align="start" />
-                {bar.goto && <ProgressDetails />}
-              </KitContent>
-            </KitRow>
-          ))}
+        <KitState density={density} loading={<ProgressMeters {...input} loading />}>
+          <ProgressMeters {...input} />
         </KitState>
       )}
     </KitCard>
   );
 }
 
-function ProgressDetails() {
+function ProgressMeters({ bars, figures, loading = false }: ViewProps & { loading?: boolean }) {
+  const density = useKit().density;
+  const { lang } = useWords();
+  return bars.map((bar) => (
+    <KitRow
+      key={bar.id}
+      item={bar.id}
+      label={bar.label}
+      goto={loading ? undefined : bar.goto}
+      inset="none"
+      density={density}
+      {...(loading ? { part: null } : {})}
+    >
+      <KitContent>
+        <KitMeter
+          label={bar.label}
+          amount={amountLine(bar, figures, lang)}
+          exactAmount={amountLine(bar, "exact", lang)}
+          ratio={bar.value / bar.of}
+          tone={bar.value > bar.of ? bar.tone : "accent"}
+          slim={density === "compact"}
+          loading={loading}
+        />
+        <ProgressExceeded goal={bar} align="start" />
+        <ProgressDeadline goal={bar} align="start" />
+        {bar.goto && <ProgressDetails loading={loading} />}
+      </KitContent>
+    </KitRow>
+  ));
+}
+
+function ProgressDetails({ loading }: { loading: boolean }) {
   return (
-    <KitContent lead={<KitIcon name="chevron_right" scale="sm" decorative />} lineRole="body">
-      <KitText role="body" tone="muted" part={null}>
-        {progressViewDetails}
-      </KitText>
+    <KitContent
+      lead={<KitIcon name="chevron_right" scale="sm" decorative loading={loading} />}
+      lineRole="body"
+    >
+      <KitLayoutText line={{ text: progressViewDetails, role: "body", tone: "muted" }} />
     </KitContent>
   );
 }

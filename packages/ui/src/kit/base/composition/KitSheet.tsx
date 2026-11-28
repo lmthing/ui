@@ -60,15 +60,17 @@ export function KitSheet({ title, sub, closeLabel, children }: SheetProps) {
       borderTopLeftRadius={shifted(ks.frame.corner, ks.radiusShift)}
       borderTopRightRadius={shifted(ks.frame.corner, ks.radiusShift)}
       paddingHorizontal={space.lg}
-      paddingTop={space.xl}
+      paddingTop={space.lg}
       paddingBottom={Math.max(space.xl, kit.environment.insets.bottom)}
       gap={space.md}
     >
       <Grabber handlers={swipe.handlers as object} />
       <XStack alignItems="center" justifyContent="space-between" gap={space.md}>
-        <KitText role="heading" part="title">
-          {title}
-        </KitText>
+        <YStack flex={component.base.bodyFlex} minWidth={component.base.none}>
+          <KitText role="heading" part="title" breakLongWords>
+            {title}
+          </KitText>
+        </YStack>
         <KitAction icon="close" a11y={closeLabel} kind="quiet" part="close" />
       </XStack>
       {sub && (

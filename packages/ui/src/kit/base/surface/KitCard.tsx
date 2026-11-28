@@ -12,6 +12,7 @@ import {
   type ContentBleed,
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
+import { webActivation } from "../../a11y";
 import { useComponentState, usePart } from "../../part";
 import { NativeClipFrames, useNativeClipFrame } from "../../report";
 import {
@@ -136,7 +137,8 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
 function useCardPress(address: string, goto: CardProps["goto"], loading: boolean) {
   const kit = useKit();
   if (!kit.interactive || loading || !goto) return {};
-  return { onPress: () => (kit.controller ? kit.controller.press(address) : kit.onLink?.(goto, address)) };
+  const onPress = () => (kit.controller ? kit.controller.press(address) : kit.onLink?.(goto, address));
+  return { onPress, ...webActivation(onPress, false) };
 }
 
 export function KitCard(props: CardProps) {

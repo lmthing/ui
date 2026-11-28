@@ -2,10 +2,12 @@ import { YStack, isWeb, styled } from "tamagui";
 import type { ReactNode } from "react";
 import { component, size, space, type IconName, type ThemeDensity } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
+import { webActivation } from "../../a11y";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 import { shifted } from "../text";
+import { KitStateMark } from "../layout";
 import { useTileBuzz } from "./tile-buzz";
 
 const Badge = styled(YStack, {
@@ -106,11 +108,12 @@ function TileContent({
             align={row ? "start" : "center"}
             tone={disabled ? "muted" : "text"}
             part={loading ? null : labelPart}
-            lines={2}
+            breakLongWords
           >
             {label}
           </KitText>
         </TileLine>
+        {distinctSelection && on && !loading && <KitStateMark kind="selected" />}
         {detail && <TileLine loading={loading}>{detail}</TileLine>}
       </YStack>
     </>
@@ -146,6 +149,7 @@ function Tile(props: Omit<TileProps, "item">) {
         : kit.controller.press(part.testID);
     if (goto && !action) kit.onLink?.(goto, part.testID);
   };
+  const available = !touchTarget && kit.interactive && !disabled && !loading && (kit.controller || goto);
   return (
     <YStack
       {...part}
@@ -167,15 +171,11 @@ function Tile(props: Omit<TileProps, "item">) {
         : touchTarget && isWeb && kit.interactive && kit.controller
           ? { tabIndex: 0 }
           : {})}
-      {...((!touchTarget && kit.interactive && !disabled && !loading && (kit.controller || goto)
+      {...((available
         ? {
             onPress: press,
-            onKeyDown: (event: { key: string; preventDefault(): void }) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                press();
-              }
-            },
+            ...webActivation(press, !goto || Boolean(action)),
+            pressStyle: { backgroundColor: "$raised" },
           }
         : {}) as object)}
       {...(timed as object)}

@@ -31,6 +31,15 @@ export const meta = {
     ],
   },
   confirmParts: ["decline"],
+  confirmItem: ({ title, from, dates, amount, kind, note }, part, lang) => {
+    if (part !== "decline" || typeof title !== "string" || typeof from !== "string") return;
+    const { decline, declineQuestion } = teamWordsFor(lang).approval;
+    return {
+      message: declineQuestion(title, from),
+      label: decline,
+      identity: JSON.stringify([title, from, dates, amount, kind, note]),
+    };
+  },
   states: ["filled", "empty", "success"],
   actions: {
     items: { approve: ["press"], decline: ["press"] },
@@ -179,7 +188,7 @@ type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
 
 function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
   const { words, lang } = kit.useWords(teamWordsFor);
-  const { approve, decline, kinds, statuses, awaitingDecision } = words.approval;
+  const { kinds, statuses } = words.approval;
   const amount = approvalAmount(row.amount, lang);
   const status = row.status ?? "pending";
   const portrait =
@@ -195,6 +204,10 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
       inline
       density={density}
       surface={surface}
+      outcome={{
+        message: status === "pending" ? undefined : words.approval.outcome(row.title, statuses[status]),
+        focusFrom: ["approve", "decline"],
+      }}
     >
       <kit.KitCard part="content" style="plain" padded density={density}>
         <kit.KitContent lead={portrait} leadingAlign="row" density={density}>
@@ -215,26 +228,39 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           ]}
           density={density}
         />
-        {style === "my_requests" || !row.open ? (
-          <kit.KitLayoutText
-            line={{
-              part: "status",
-              text: status === "pending" ? awaitingDecision : statuses[status],
-              role: "meta",
-              tone: status === "approved" ? "good" : status === "declined" ? "bad" : "muted",
-            }}
-            density={density}
-          />
-        ) : (
-          <kit.KitActionFooter density={density}>
-            <kit.KitGrid density={density}>
-              <kit.KitAction part="approve" label={approve} kind="secondary" full />
-              <kit.KitAction part="decline" label={decline} kind="quiet" tone="bad" full />
-            </kit.KitGrid>
-          </kit.KitActionFooter>
-        )}
+        <ApprovalDecision open={style === "queue" && row.open} {...{ status, density }} />
       </kit.KitCard>
     </kit.KitRow>
+  );
+}
+
+function ApprovalDecision({
+  open,
+  status,
+  density,
+}: {
+  open: boolean;
+  status: "pending" | "approved" | "declined";
+  density: c.ThemeDensity;
+}) {
+  const { approve, decline, statuses, awaitingDecision } = kit.useWords(teamWordsFor).words.approval;
+  return open ? (
+    <kit.KitActionFooter density={density}>
+      <kit.KitGrid density={density}>
+        <kit.KitAction part="approve" label={approve} kind="secondary" full />
+        <kit.KitAction part="decline" label={decline} kind="quiet" tone="bad" full />
+      </kit.KitGrid>
+    </kit.KitActionFooter>
+  ) : (
+    <kit.KitLayoutText
+      line={{
+        part: "status",
+        text: status === "pending" ? awaitingDecision : statuses[status],
+        role: "meta",
+        tone: status === "approved" ? "good" : status === "declined" ? "bad" : "muted",
+      }}
+      density={density}
+    />
   );
 }
 

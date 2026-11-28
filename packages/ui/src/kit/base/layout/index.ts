@@ -4,5 +4,6 @@ export { KitHeader } from "./KitHeader";
 export { KitFigure } from "./KitFigure";
 export { KitActionFooter } from "./KitActionFooter";
 export { KitState } from "./KitState";
+export { KitStateMark } from "./KitStateMark";
 export { KitRowGroup, RowGroupLead } from "./KitRowGroup";
 export { RowDecoration, RowStatusRule } from "./row-decoration";

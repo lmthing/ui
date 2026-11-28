@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { YStack } from "tamagui";
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { YStack, type TamaguiElement } from "tamagui";
 import { usePhoneController } from "./use-phone-controller";
 import {
   emptyDeviceData,
@@ -35,6 +35,8 @@ import { useNavigationMotion } from "./use-navigation-motion";
 import { NativeTabGhost, type NativeTabShot } from "./NativeTabGhost";
 import type { PhoneAgent } from "./agent-access";
 import { usePhoneAgent } from "./use-phone-agent";
+import { PartRefScope } from "../part";
+import { arrivalAddress, type ReturnPoint } from "./return-point";
 
 function usePhoneLifecycle(controller: ScreenController) {
   const lifecycle = useMemo(() => ({ mounted: false, started: false }), [controller]);
@@ -127,6 +129,19 @@ function usePhoneNavigation(
 ) {
   const { screen } = props;
   const bodyScroll = useRef({ id: screen.id, top: 0 });
+  const refs = useMemo(() => new Map<string, RefObject<TamaguiElement | null>>(), []);
+  const parent = useContext(PartRefScope);
+  const register = useMemo(
+    () => (address: string, ref: RefObject<TamaguiElement | null>) => {
+      refs.set(address, ref);
+      const unregister = parent?.(address, ref);
+      return () => {
+        if (refs.get(address) === ref) refs.delete(address);
+        unregister?.();
+      };
+    },
+    [refs, parent],
+  );
   const navigation = useNavigationMotion(
     screen,
     props.theme.motion ?? "calm",
@@ -134,12 +149,20 @@ function usePhoneNavigation(
     environment.agentMode,
     () =>
       freezeNativeTab(props, controller, bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
+    () => (bodyScroll.current.id === screen.id ? bodyScroll.current.top : 0),
+    (point: ReturnPoint | undefined) => {
+      const open = point && (refs.get(point.address) ?? refs.get(`${point.address}/root`));
+      const heading = arrivalAddress(screen);
+      const target = open?.current ?? (heading ? refs.get(heading)?.current : undefined);
+      if (target) props.nativeHost?.focusAccessibility?.(target);
+    },
   );
   useLayoutEffect(() => {
     observe.current = navigation.capture;
   }, [observe, navigation.capture]);
   return {
     ...navigation,
+    register,
     onBodyScroll: (top: number) => {
       bodyScroll.current = { id: screen.id, top };
     },
@@ -183,13 +206,15 @@ export function PhoneScreen(props: PhoneScreenProps) {
         <YStack flex={1} minHeight={0} position="relative">
           {navigation.nativeGhost && <NativeTabGhost shot={navigation.nativeGhost} />}
           <YStack ref={navigation.ref} flex={1} minHeight={0} backgroundColor="$bg" {...navigation.pose}>
-            <Screen
-              controller={controller}
-              renderers={props.renderers}
-              navigationArrival={navigation.navigationArrival}
-              onBodyScroll={navigation.onBodyScroll}
-              {...(props.onReport ? { onReport: props.onReport } : {})}
-            />
+            <PartRefScope.Provider value={navigation.register}>
+              <Screen
+                controller={controller}
+                renderers={props.renderers}
+                initialBodyScroll={navigation.initialBodyScroll}
+                onBodyScroll={navigation.onBodyScroll}
+                {...(props.onReport ? { onReport: props.onReport } : {})}
+              />
+            </PartRefScope.Provider>
           </YStack>
         </YStack>
       </DeviceDataContext.Provider>

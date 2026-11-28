@@ -1,6 +1,6 @@
-import { confirmLabel, type ActStep } from "../../../../catalog";
+import { wordsFor, type ActStep } from "../../../../catalog";
 import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
-import { allowsDestination, bindMediaConfirmation } from "../../runtime";
+import { allowsDestination, bindMediaConfirmation, itemConfirmation } from "../../runtime";
 type Confirmation = NonNullable<ActionState["confirmation"]>;
 export function showConfirmation(
   state: ActionState,
@@ -10,6 +10,7 @@ export function showConfirmation(
 ): ActionResult {
   const { input, entry, key } = ctx;
   const source = action.address === entry.id ? key(entry.id, "root") : `${ctx.screen.id}/${action.address}`;
+  const copy = itemConfirmation(ctx.defs[entry.c]!.meta, input, action.address, ctx.options.lang);
   const kind = ["primary", "secondary", "quiet", "danger"].includes(String(input.kind))
     ? (input.kind as NonNullable<ActionState["confirmation"]>["kind"])
     : "danger";
@@ -18,7 +19,8 @@ export function showConfirmation(
       ...state,
       confirmation: bindMediaConfirmation(
         {
-          message: String(input.confirm ?? confirmLabel),
+          message: copy?.message ?? String(input.confirm ?? wordsFor(ctx.options.lang).confirmLabel),
+          ...(copy ? { label: copy.label, itemIdentity: copy.identity } : {}),
           kind,
           source,
           ...(input.goto ? { goto: String(input.goto) } : {}),

@@ -13,6 +13,8 @@ export const words = {
     queueEmpty: "No requests awaiting a decision",
     approve: "Approve",
     decline: "Decline",
+    declineQuestion: (title: string, from: string) => `Decline ${title} for ${from}?`,
+    outcome: (title: string, status: string) => `${title}: ${status}`,
     success: "Decision recorded",
     detailSeparator: " · ",
   },

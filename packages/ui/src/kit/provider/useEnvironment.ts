@@ -42,7 +42,16 @@ export function useEnvironment(
     cue?: number | undefined;
   },
 ): Environment {
-  const [device, setDevice] = useState(() => nativeHost?.snapshot() ?? defaultEnvironment);
+  const [device, setDevice] = useState(
+    () =>
+      nativeHost?.snapshot() ??
+      (typeof window === "undefined"
+        ? defaultEnvironment
+        : {
+            ...defaultEnvironment,
+            reduceMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+          }),
+  );
   useEffect(() => {
     const update = () => {
       setDevice(nativeHost?.snapshot() ?? browserSnapshot());
@@ -67,7 +76,7 @@ export function useEnvironment(
   return useMemo(
     () => ({
       ...device,
-      reduceMotion: overrides.reduceMotion ?? device.reduceMotion,
+      reduceMotion: device.reduceMotion || overrides.reduceMotion === true,
       agentMode: overrides.agentMode ?? false,
       ...(overrides.signature ? { signature: overrides.signature } : {}),
       ...(overrides.cue === undefined ? {} : { cue: overrides.cue }),

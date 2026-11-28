@@ -21,7 +21,7 @@ export function useListReorder(order: string) {
     };
     const changed = last.current !== order;
     const next = changed || typeof ResizeObserver === "undefined" ? measure() : undefined;
-    const animations = next && changed && !agentMode ? playRows(old, next, motion, reduceMotion) : [];
+    const animations = next && changed && !agentMode && !reduceMotion ? playRows(old, next, motion) : [];
     last.current = order;
     if (next) save(next);
     // An exit can leave after its key changed. Keep the measured baseline current when it does.
@@ -33,7 +33,7 @@ export function useListReorder(order: string) {
           });
     observer?.observe(root);
     if (observer) select().forEach((row) => observer.observe(row));
-    if (animations.length && !reduceMotion)
+    if (animations.length)
       void Promise.allSettled(animations.map((flight) => flight.finished)).then(() =>
         announceMotionSettled(root),
       );
@@ -45,12 +45,7 @@ export function useListReorder(order: string) {
   return ref;
 }
 
-function playRows(
-  before: Map<string, number>,
-  after: Map<HTMLElement, number>,
-  mode: ThemeMotion,
-  reduced: boolean,
-) {
+function playRows(before: Map<string, number>, after: Map<HTMLElement, number>, mode: ThemeMotion) {
   const profile = motionProfiles[mode];
   const animations: Animation[] = [];
   for (const [row, top] of after) {
@@ -62,15 +57,12 @@ function playRows(
       );
     } else if (from === undefined) {
       animations.push(
-        row.animate(
-          [
-            { opacity: 0, transform: reduced ? "none" : `translateY(${tokens.arriveY}px)` },
-            { opacity: 1, transform: "none" },
-          ],
-          { duration: reduced ? durations.fast : profile.feedback, easing: motionEase },
-        ),
+        row.animate([{ transform: `translateY(${tokens.arriveY}px)` }, { transform: "none" }], {
+          duration: profile.feedback,
+          easing: motionEase,
+        }),
       );
-    } else if (from !== top && !reduced) {
+    } else if (from !== top) {
       animations.push(
         row.animate(rowFrames(from - top), { duration: profile.navigation, easing: motionEase }),
       );

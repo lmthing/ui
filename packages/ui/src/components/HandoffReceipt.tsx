@@ -162,27 +162,29 @@ export function HandoffReceipt(input: c.Props<typeof props, typeof meta>) {
         <kit.KitText part="subject" role="heading" breakLongWords>
           {subject}
         </kit.KitText>
+        <kit.KitText part="phase" role="label" tone={phaseTone[phase]} live="polite">
+          {copy.phases[phase]}
+        </kit.KitText>
         <kit.KitText part="reference" role="caption" tone="muted" breakLongWords>
           {reference}
         </kit.KitText>
-        <kit.KitText part="phase" role="label" tone={phaseTone[phase]}>
-          {copy.phases[phase]}
-        </kit.KitText>
         {at && (
           <kit.KitText part="time" role="caption" tone="muted">
-            {handoffTime(at, lang)}
+            {copy.phaseTimes[phase]} · {handoffTime(at, lang)}
           </kit.KitText>
         )}
       </kit.KitContent>
       <kit.KitContent group="response">
         <HandoffParty label={copy.from} name={fromRole} part="sender" />
         <HandoffParty label={copy.to} name={toRole} part="recipient" />
-        {summary && (
+      </kit.KitContent>
+      {summary && (
+        <kit.KitContent group="response">
           <kit.KitText part="summary" tone="muted" breakLongWords>
             {summary}
           </kit.KitText>
-        )}
-      </kit.KitContent>
+        </kit.KitContent>
+      )}
       {goto && (
         <kit.KitContent group="response">
           <kit.KitText part="open_label" role="label" tone="accent">

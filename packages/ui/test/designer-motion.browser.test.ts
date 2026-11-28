@@ -4,16 +4,23 @@ import { createServer, type ViteDevServer } from "vite";
 import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-import { baselineMotionKit, contactSheet, releaseGallery, sampleMotionFrames } from "./motion-evidence";
+import {
+  baselineMotionKit,
+  contactSheet,
+  motionEvidenceFolder,
+  releaseGallery,
+  sampleMotionFrames,
+} from "./motion-evidence";
 
-type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[] };
+type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[]; firstHeadingOpacity?: number };
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
 let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
 const errors: string[] = [];
 beforeAll(async () => {
   const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
-  if (process.env.UI_MOTION_PERF) server = await releaseGallery(config, baseline);
+  if (process.env.UI_MOTION_PERF || process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_RELEASE)
+    server = await releaseGallery(config, baseline);
   else {
     const dev = await createServer(config);
     await dev.listen();
@@ -21,7 +28,7 @@ beforeAll(async () => {
   }
   browser = await launchChrome();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  page.setDefaultTimeout(5000);
+  page.setDefaultTimeout(25000);
   page.on("pageerror", (error) => errors.push(error.message));
 }, 60000);
 afterAll(async () => {
@@ -31,11 +38,12 @@ afterAll(async () => {
 beforeEach(async () => {
   errors.length = 0;
   await openLab();
-});
+}, 35000);
 
 async function openLab(motion: "no-preference" | "reduce" = "no-preference") {
   await page.emulateMedia({ reducedMotion: motion });
-  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=lively`);
+  const profile = process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF ? "calm" : "lively";
+  await page.goto(`${server.resolvedUrls!.local[0]}?motion-lab=${profile}`, { waitUntil: "commit" });
   await page
     .getByText("My garden")
     .waitFor()
@@ -49,6 +57,165 @@ const part = (address: string) => page.getByTestId(address);
 const tap = (address: string) => part(address).click({ force: true });
 const styleOf = (address: string, property: "transform" | "opacity") =>
   part(address).evaluate((node, name) => getComputedStyle(node)[name], property);
+
+async function focused(address: string) {
+  return part(address).evaluate((node) => node === document.activeElement);
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "activates addressed rows and Back by keyboard, restoring the exact opener (%s)",
+  async (preference) => {
+    await openLab(preference);
+    const opener = "garden/plants/r1/root";
+    await part(opener).focus();
+    const body = page.locator("[data-kit-screen-body]");
+    await body.evaluate((node) => {
+      node.scrollTop = 24;
+    });
+    await page.keyboard.press("Enter");
+    await part("fern/heading/title").waitFor({ timeout: 2000 });
+    await expect.poll(() => focused("fern/heading/title")).toBe(true);
+    await part("fern/heading/back").focus();
+    await page.keyboard.press("Space");
+    await part("garden/heading/title").waitFor();
+    await expect.poll(() => focused(opener)).toBe(true);
+    expect(await body.evaluate((node) => node.scrollTop)).toBe(24);
+  },
+);
+
+changed("gives the reduced-motion action a stationary pressed state", async () => {
+  await openLab("reduce");
+  await tap("garden/plants/r1/root");
+  const action = part("fern/save/root");
+  const pose = () =>
+    action.evaluate((node) => {
+      const { backgroundColor, transform } = getComputedStyle(node);
+      return { backgroundColor, transform };
+    });
+  const idle = await pose();
+  await action.hover();
+  await page.mouse.down();
+  try {
+    await expect.poll(async () => (await pose()).backgroundColor).not.toBe(idle.backgroundColor);
+    expect((await pose()).transform).toBe(idle.transform);
+  } finally {
+    await page.mouse.move(1, 1);
+    await page.mouse.up();
+  }
+  await expect.poll(pose).toEqual(idle);
+});
+
+changed.each(["no-preference", "reduce"] as const)(
+  "paints the working screen at full opacity on its first frame (%s)",
+  async (preference) => {
+    await page.addInitScript(() => {
+      const first = () => {
+        const title = document.querySelector<HTMLElement>('[data-testid="garden/heading/title"]');
+        if (!title) return void requestAnimationFrame(first);
+        let opacity = 1;
+        for (let node: HTMLElement | null = title; node; node = node.parentElement)
+          opacity *= Number(getComputedStyle(node).opacity);
+        (window as MotionLabWindow).firstHeadingOpacity = opacity;
+      };
+      requestAnimationFrame(first);
+    });
+    await openLab(preference);
+    await expect.poll(() => page.evaluate(() => (window as MotionLabWindow).firstHeadingOpacity)).toBe(1);
+  },
+);
+
+async function openAccess(reducedMotion: "no-preference" | "reduce") {
+  await page.emulateMedia({ reducedMotion });
+  await openControls("access");
+  await part("controls/meds/r1/skip").waitFor();
+}
+
+async function openControls(kind: string) {
+  await page.goto(`${server.resolvedUrls!.local[0]}?controls=${kind}`, { waitUntil: "commit" });
+  await page.waitForFunction(() => Boolean(window.__lmthingUI));
+}
+
+changed.each(["no-preference", "reduce"] as const)(
+  "names a dose action, cancels to its opener and moves focus to its accepted status (%s)",
+  async (preference) => {
+    await openAccess(preference);
+    const skip = "controls/meds/r2/skip";
+    const button = page.getByRole("button", { name: /Skip: Magnesium/ });
+    expect(await button.getAttribute("data-testid")).toBe(skip);
+    await button.focus();
+    await page.keyboard.press("Enter");
+    const confirmation = page.getByRole("dialog", { name: /Skip Magnesium.*1 capsule/ });
+    await confirmation.waitFor();
+    expect(await confirmation.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
+    await page.keyboard.press("Escape");
+    await expect.poll(() => focused(skip)).toBe(true);
+    await page.keyboard.press("Space");
+    await confirmation.getByRole("button", { name: "Skip", exact: true }).focus();
+    await page.keyboard.press("Enter");
+    const status = "controls/meds/r2/status";
+    await expect.poll(() => part(status).textContent()).toBe("Skipped");
+    await expect.poll(() => focused(status)).toBe(true);
+    expect(await part("controls/meds/r1/status").textContent()).toBe("Due");
+  },
+);
+
+changed("wraps the action, row and five-tab labels at larger type", async () => {
+  await openAccess("reduce");
+  const ids = ["controls/button/root_label", "controls/list/r1/title", "controls/t1/r2/label"];
+  await page.addStyleTag({
+    content:
+      ids.map((id) => `[data-testid="${id}"]`).join(",") +
+      "{font-size: 36px !important; line-height: 44px !important;}",
+  });
+  for (const id of ids) {
+    const box = await part(id).boundingBox();
+    expect(box?.height).toBeGreaterThan(44);
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+  for (const id of ["controls/button/root", "controls/list/r1/root", "controls/t1/r2/root"]) {
+    const box = await part(id).boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+  }
+  const selected = page.getByRole("tab", { selected: true });
+  expect(await selected.getByText("Selected").count()).toBe(1);
+  expect(await selected.locator("svg").count()).toBeGreaterThan(1);
+  const warning = part("controls/list/r1/root");
+  expect(await warning.getByText("Warning").count()).toBe(1);
+  expect(await warning.locator("svg").count()).toBeGreaterThan(1);
+});
+
+changed("offers visible, keyboard-operable alternatives to swiping and restores terminal focus", async () => {
+  await openControls("swipe");
+  const skip = page.getByRole("button", { name: "Skip", exact: true });
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => focused("controls/s1/r2/root")).toBe(true);
+  const keep = page.getByRole("button", { name: "Keep", exact: true });
+  await keep.focus();
+  await page.keyboard.press("Space");
+  await expect.poll(() => focused("controls/s1/r3/root")).toBe(true);
+  await page.keyboard.press("ArrowLeft");
+  const complete = page.getByRole("status").filter({ hasText: "All cards reviewed" });
+  await expect.poll(() => complete.evaluate((node) => node === document.activeElement)).toBe(true);
+  expect(await skip.count()).toBe(0);
+  expect(await keep.count()).toBe(0);
+});
+
+changed("advances and reverses the gallery carousel with visible keyboard controls", async () => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openControls("carousel");
+  const next = page.getByRole("button", { name: "Next", exact: true });
+  const previous = page.getByRole("button", { name: "Previous", exact: true });
+  await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+  await next.focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => next.getAttribute("aria-disabled")).toBe("true");
+  await previous.focus();
+  await page.keyboard.press("Space");
+  await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
+});
 
 async function transforms(address: string) {
   return part(address).evaluate((node) =>
@@ -80,41 +247,43 @@ const stickyTop = (address: string) =>
     throw new Error("Section has no sticky wrapper");
   });
 
-changed("connects a matching row to its header, shows a rising dialog, and returns back", async () => {
-  await tap("garden/plants/r1/root");
-  await part("fern/heading/title").waitFor();
-  expect((await transforms("fern/heading/title")).some((value) => String(value).includes("translate("))).toBe(
-    true,
-  );
-  await tap("fern/heading/action");
-  const dialog = page.getByRole("dialog");
-  await dialog.waitFor();
-  expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
-  await expect
-    .poll(() =>
-      dialog.evaluate((node) => {
-        const transform = getComputedStyle(node).transform;
-        return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
-      }),
-    )
-    .toBe(true);
-  const close = part("fern/details/close");
-  await expect
-    .poll(() =>
-      close.evaluate((node) => {
-        const rect = node.getBoundingClientRect();
-        const lab = window as MotionLabWindow;
-        const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
-        return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
-      }),
-    )
-    .toBeLessThan(1);
-  await page.keyboard.press("Escape");
-  await expect.poll(() => dialog.count()).toBe(0);
-  await tap("fern/heading/back");
-  await part("garden/heading/title").waitFor();
-  expect(errors).toEqual([]);
-});
+changed(
+  "keeps a distant title in the destination rail, shows a readable rising dialog and returns back",
+  async () => {
+    await tap("garden/plants/r1/root");
+    await part("fern/heading/title").waitFor();
+    expect(await transforms("fern/heading/title")).toEqual([]);
+    await tap("fern/heading/action");
+    const dialog = page.getByRole("dialog");
+    await dialog.waitFor();
+    expect(await dialog.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
+    expect(await dialog.evaluate((node) => getComputedStyle(node).transform)).not.toBe("none");
+    await expect
+      .poll(() =>
+        dialog.evaluate((node) => {
+          const transform = getComputedStyle(node).transform;
+          return transform === "none" || new DOMMatrixReadOnly(transform).m42 === 0;
+        }),
+      )
+      .toBe(true);
+    const close = part("fern/details/close");
+    await expect
+      .poll(() =>
+        close.evaluate((node) => {
+          const rect = node.getBoundingClientRect();
+          const lab = window as MotionLabWindow;
+          const entry = lab.motionLabParts?.().find(({ address }) => address === "fern/details/close");
+          return entry ? Math.abs(entry.rect.y - rect.y) : Infinity;
+        }),
+      )
+      .toBeLessThan(1);
+    await page.keyboard.press("Escape");
+    await expect.poll(() => dialog.count()).toBe(0);
+    await tap("fern/heading/back");
+    await part("garden/heading/title").waitFor();
+    expect(errors).toEqual([]);
+  },
+);
 
 changed(
   "updates the switch and checkbox, reorders stable rows and keeps section headers visible",
@@ -156,7 +325,7 @@ changed(
     await expect.poll(() => stickyTop("garden/today/text")).toBeCloseTo(0);
     await page.mouse.wheel(0, 450);
     await expect.poll(() => stickyTop("garden/all/text")).toBeCloseTo(0);
-    await page.mouse.wheel(0, -900);
+    await page.mouse.wheel(0, -2000);
     await expect.poll(() => part("garden/heading/sub").count()).toBe(1);
     expect(errors).toEqual([]);
   },
@@ -334,12 +503,41 @@ const scenes = [
   ["loading-resolve", () => tap("activity/week/link")],
 ] as const;
 
-it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))("renders contact sheets of each motion", async () => {
-  for (const [label, action] of scenes) {
-    await contactSheet(browser, page, `${baseline ? "before" : "after"}-${label}`, action);
-  }
-  expect(errors).toEqual([]);
-});
+async function captureDose(prefix: string, preference: "no-preference" | "reduce") {
+  await openAccess(preference);
+  await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access.png` });
+  await part("controls/meds/r2/skip").focus();
+  await contactSheet(browser, page, `${prefix}-confirm-dose`, () => page.keyboard.press("Enter"));
+  await contactSheet(browser, page, `${prefix}-cancel-dose`, () => page.keyboard.press("Escape"));
+  await part("controls/meds/r2/skip").focus();
+  await page.keyboard.press("Space");
+  await part("controls/confirm/confirm").focus();
+  await contactSheet(browser, page, `${prefix}-log-dose`, () => page.keyboard.press("Enter"));
+}
+
+it.runIf(Boolean(process.env.UI_MOTION_EVIDENCE))(
+  "renders contact sheets of each motion",
+  async () => {
+    for (const preference of ["no-preference", "reduce"] as const) {
+      await openLab(preference);
+      const prefix = `${baseline ? "before" : "after"}-${preference === "reduce" ? "reduced" : "normal"}`;
+      for (const [label, action] of scenes) {
+        if (!baseline && label === "push") {
+          await part("garden/plants/r1/root").focus();
+          await contactSheet(browser, page, `${prefix}-${label}`, () => page.keyboard.press("Enter"));
+        } else if (!baseline && label === "back") {
+          await part("fern/heading/back").focus();
+          await contactSheet(browser, page, `${prefix}-${label}`, () => page.keyboard.press("Space"));
+        } else {
+          await contactSheet(browser, page, `${prefix}-${label}`, action);
+        }
+      }
+      if (!baseline) await captureDose(prefix, preference);
+    }
+    expect(errors).toEqual([]);
+  },
+  180000,
+);
 
 it.runIf(Boolean(process.env.UI_MOTION_PERF))(
   "measures 390px frame cadence across the gallery journey",

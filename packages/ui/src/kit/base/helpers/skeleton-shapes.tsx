@@ -94,20 +94,24 @@ export function SkeletonTrend() {
   );
 }
 
-export function SkeletonRing({ ring = "md" }: ShapeProps) {
+export function SkeletonRing({ ring = "md", inset }: ShapeProps) {
   const { loadingLabel } = useWords().words;
   const box = ring === "lg" ? component.base.ringLg : component.base.ringMd;
   return (
-    <YStack accessibilityLabel={loadingLabel} aria-busy alignItems="center" gap={space.sm} padding={space.md}>
+    <YStack accessibilityLabel={loadingLabel} aria-busy alignItems="center" padding={skeletonInset(inset)}>
       <YStack
         width={box}
         height={box}
         borderRadius={radius.pill}
         borderWidth={ring === "lg" ? space.md : space.sm + space.xs / 2}
         borderColor="$line"
-      />
-      <Bar height={space.md} width="40%" />
-      <Bar height={space.sm + space.xs / 2} width="28%" />
+        alignItems="center"
+        justifyContent="center"
+        gap={space.xs}
+      >
+        <Bar height={space.md} width="40%" />
+        <Bar height={space.sm + space.xs / 2} width="28%" />
+      </YStack>
     </YStack>
   );
 }
