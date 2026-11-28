@@ -52,11 +52,19 @@ async function startTrace(page: Page) {
     function pose() {
       const screen = document.querySelector<HTMLElement>("[data-kit-screen]");
       const dialog = screen?.querySelector<HTMLElement>('[role="dialog"]');
+      const carousel = screen?.querySelector<HTMLElement>('[style*="scroll-snap-type"]');
       return {
         ms: clock(),
         x: screen?.getBoundingClientRect().x,
         dialogY: dialog?.getBoundingClientRect().y,
         dialogOpacity: dialog && getComputedStyle(dialog).opacity,
+        pageOffset: carousel?.scrollLeft,
+        ...(carousel && {
+          previousDisabled:
+            screen?.querySelector('[aria-label="Previous"]')?.getAttribute("aria-disabled") === "true",
+          nextDisabled:
+            screen?.querySelector('[aria-label="Next"]')?.getAttribute("aria-disabled") === "true",
+        }),
       };
     }
     const paint = () => {

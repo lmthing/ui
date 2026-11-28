@@ -60,10 +60,12 @@ function useStrip(share: number, gap: number, multiplePages: boolean) {
   const step = cell + pageGap;
   const go = (index: number) => {
     const scroller = ref.current as ScrollHandle | null;
+    if (!cell || !scroller?.scrollTo) return;
     const animated = !environment.reduceMotion && !environment.agentMode;
     const node = isWeb ? scroller?.getScrollableNode?.() : undefined;
     const sign = node && getComputedStyle(node).direction === "rtl" ? -1 : 1;
-    scroller?.scrollTo?.({ x: sign * index * step, y: 0, animated });
+    scroller.scrollTo({ x: sign * index * step, y: 0, animated });
+    if (!animated) setAt(index);
   };
   return { ref, width, setWidth, at, setAt, cell, step, pageGap, go };
 }

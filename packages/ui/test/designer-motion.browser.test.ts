@@ -188,6 +188,52 @@ changed("wraps the action, row and five-tab labels at larger type", async () => 
   const warning = part("controls/list/r1/root");
   expect(await warning.getByText("Warning").count()).toBe(1);
   expect(await warning.locator("svg").count()).toBeGreaterThan(1);
+  await expectWholeTabWords();
+});
+
+async function expectWholeTabWords() {
+  const labels = page.getByRole("tab").locator('[data-testid$="/label"]');
+  expect(
+    await labels.evaluateAll((nodes) =>
+      nodes.flatMap((node) => {
+        const text = node.firstChild;
+        if (!text || text.nodeType !== Node.TEXT_NODE) throw new Error("Expected a tab label");
+        return [...(text.textContent ?? "").matchAll(/\S+/g)].flatMap((word) => {
+          const range = document.createRange();
+          range.setStart(text, word.index);
+          range.setEnd(text, word.index + word[0].length);
+          return range.getClientRects().length === 1 ? [] : [word[0]];
+        });
+      }),
+    ),
+  ).toEqual([]);
+}
+
+changed("reflows the tab rail when all five labels use large text", async () => {
+  await openAccess("reduce");
+  await page.addStyleTag({
+    content:
+      '[role="tab"] [data-testid$="/label"] {font-size: 36px !important; line-height: 44px !important;}',
+  });
+  await expectWholeTabWords();
+  const tabs = page.getByRole("tab");
+  const rects = await tabs.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { x, y, width, height } = node.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
+  expect(new Set(rects.map(({ y }) => y)).size).toBeGreaterThan(1);
+  for (const { x, width, height } of rects) {
+    expect(x).toBeGreaterThanOrEqual(0);
+    expect(x + width).toBeLessThanOrEqual(390);
+    expect(Math.min(width, height)).toBeGreaterThanOrEqual(44);
+  }
+  const save = part("controls/button/root");
+  await save.scrollIntoViewIfNeeded();
+  expect((await save.boundingBox())!.y + (await save.boundingBox())!.height).toBeLessThanOrEqual(
+    (await page.getByRole("tablist").boundingBox())!.y,
+  );
 });
 
 changed("offers visible, keyboard-operable alternatives to swiping and restores terminal focus", async () => {
@@ -214,7 +260,43 @@ changed("offers visible, keyboard-operable alternatives to swiping and restores 
     .toBe("terminal");
   expect(await skip.count()).toBe(0);
   expect(await keep.count()).toBe(0);
+  expect(await page.getByText("Make your choice.").count()).toBe(0);
 });
+
+async function turnCarousel(label: "Next" | "Previous", key: string) {
+  const trigger = page.getByRole("button", { name: label, exact: true });
+  const frame = await trigger.evaluateHandle((node) => {
+    const gallery = node.closest('[data-testid="controls/photos/root"]');
+    const strip = gallery?.querySelector<HTMLElement>('[style*="scroll-snap-type"]');
+    const previous = gallery?.querySelector('[aria-label="Previous"]');
+    const next = gallery?.querySelector('[aria-label="Next"]');
+    if (!strip || !previous || !next) throw new Error("Expected the interactive photo strip");
+    const initial = strip.scrollLeft;
+    const first = new Promise<{ previousDisabled: boolean; nextDisabled: boolean }>((resolve) => {
+      node.addEventListener(
+        "keydown",
+        () => {
+          function sample() {
+            if (Math.abs(strip!.scrollLeft - initial) < 1) return void requestAnimationFrame(sample);
+            resolve({
+              previousDisabled: previous?.getAttribute("aria-disabled") === "true",
+              nextDisabled: next?.getAttribute("aria-disabled") === "true",
+            });
+          }
+          requestAnimationFrame(sample);
+        },
+        { once: true },
+      );
+    });
+    return { first };
+  });
+  try {
+    await trigger.press(key);
+    return await frame.evaluate(({ first }) => first);
+  } finally {
+    await frame.dispose();
+  }
+}
 
 changed.each(["ltr", "rtl"] as const)(
   "advances and reverses the %s gallery carousel with visible keyboard controls",
@@ -227,11 +309,9 @@ changed.each(["ltr", "rtl"] as const)(
     const next = page.getByRole("button", { name: "Next", exact: true });
     const previous = page.getByRole("button", { name: "Previous", exact: true });
     await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
-    await next.focus();
-    await page.keyboard.press("Enter");
+    expect(await turnCarousel("Next", "Enter")).toEqual({ previousDisabled: false, nextDisabled: true });
     await expect.poll(() => next.getAttribute("aria-disabled")).toBe("true");
-    await previous.focus();
-    await page.keyboard.press("Space");
+    expect(await turnCarousel("Previous", "Space")).toEqual({ previousDisabled: true, nextDisabled: false });
     await expect.poll(() => previous.getAttribute("aria-disabled")).toBe("true");
   },
 );
@@ -469,12 +549,30 @@ changed(
     await tap("fern/error/root");
     await expect.poll(() => part("fern/plant_photo/photo").count()).toBe(0);
     await tap("fern/save/root");
-    await expect.poll(() => part("fern/save/root").textContent()).toContain("Saving");
+    await part("fern/save/root").getByRole("progressbar", { name: "Loading" }).waitFor();
     await part("fern/done/title").waitFor();
     expect(await part("fern/done/title").textContent()).toBe("Watering logged");
     const check = part("fern/done/icon").locator("path");
     await expect.poll(() => check.getAttribute("stroke-dashoffset")).toBe(null);
     expect(errors).toEqual([]);
+  },
+);
+
+changed.each(["no-preference", "reduce"] as const)(
+  "withholds the pending save and focuses its receipt (%s)",
+  async (preference) => {
+    await openLab(preference);
+    await tap("garden/plants/r1/root");
+    await part("fern/save/root").press("Enter");
+    const pending = part("fern/save/root");
+    await pending.getByRole("progressbar", { name: "Loading" }).waitFor();
+    expect(await pending.getByRole("button").count()).toBe(0);
+    expect(
+      await page.evaluate(
+        () => window.__lmthingUI!.act({ address: "fern/save/root", action: "press" }, { dryRun: true }).ok,
+      ),
+    ).toBe(false);
+    await expect.poll(() => focused("fern/done/title")).toBe(true);
   },
 );
 
@@ -526,6 +624,7 @@ async function captureDose(prefix: string, preference: "no-preference" | "reduce
   await openAccess(preference);
   await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access.png` });
   const styling = await enlargeText();
+  await part("controls/button/root").scrollIntoViewIfNeeded();
   await page.screenshot({ path: `${motionEvidenceFolder}/${prefix}-access-large.png` });
   await styling.evaluate((node) => node.parentNode?.removeChild(node));
   await part("controls/meds/r2/skip").focus();

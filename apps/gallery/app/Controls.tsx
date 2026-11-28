@@ -118,7 +118,6 @@ const screens: Record<string, ScreenLike> = {
     components: [
       header,
       { id: "s1", c: "SwipeStack", cards: [{ title: "Fern" }, { title: "Basil" }, { title: "Monstera" }] },
-      note,
     ],
   },
   carousel: {

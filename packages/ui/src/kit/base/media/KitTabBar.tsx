@@ -55,7 +55,8 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       {...(isWeb && onPress ? webTab : {})}
       flex={1}
       flexBasis={component.base.none}
-      minWidth={minimumTouchSize}
+      minWidth={isWeb ? "min-content" : minimumTouchSize}
+      maxWidth="100%"
       minHeight={size.control.lg}
       alignItems="center"
       justifyContent="flex-start"
@@ -70,10 +71,14 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       {...(onPress ? { onPress } : {})}
       {...webActivation(onPress)}
     >
-      <TabGlyph {...{ tab, on }} />
-      <KitText role="caption" tone={on ? "accent" : "muted"} part="label" align="center" breakLongWords>
-        {tab.label}
-      </KitText>
+      <YStack minWidth={minimumTouchSize} alignItems="center">
+        <TabGlyph {...{ tab, on }} />
+      </YStack>
+      <YStack maxWidth="100%" {...(isWeb ? { style: { overflowWrap: "break-word" } as never } : {})}>
+        <KitText role="caption" tone={on ? "accent" : "muted"} part="label" align="center">
+          {tab.label}
+        </KitText>
+      </YStack>
       {on && (
         <XStack
           alignSelf="stretch"
@@ -110,6 +115,7 @@ export function KitTabBar({ tabs, at }: { tabs: readonly Tab[]; at: number }) {
       borderTopWidth={component.base.borderWidth}
       borderTopColor="$line"
       paddingHorizontal={space.xs}
+      flexWrap="wrap"
       accessibilityRole="tablist"
     >
       {tabs.map((tab, index) => (
