@@ -4,31 +4,42 @@ import { createServer, type ViteDevServer } from "vite";
 import type { PartEntry } from "@lmthing/ui/kit";
 import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
-import { baselineMotionKit, contactSheet, releaseGallery, sampleMotionFrames } from "./motion-evidence";
+import { baselineMotionKit, contactSheet, sampleMotionFrames } from "./motion-evidence";
+import { releaseGallery } from "./release-gallery";
 
 type MotionLabWindow = Window & { motionLabParts?: () => PartEntry[] };
 const baseline = process.env.UI_MOTION_BASELINE === "1";
 const changed = it.runIf(!baseline && !process.env.UI_MOTION_EVIDENCE && !process.env.UI_MOTION_PERF);
 let server: Pick<ViteDevServer, "resolvedUrls" | "close">, browser: Browser, page: Page;
+let starting: Promise<void> | undefined;
+const setup = new AbortController();
 const errors: string[] = [];
-beforeAll(async () => {
+beforeAll(() => (starting = startGallery()), 150000);
+async function startGallery() {
   const config = { ...galleryConfig(0), plugins: baseline ? [baselineMotionKit()] : [] };
-  if (process.env.UI_MOTION_PERF || process.env.UI_MOTION_RELEASE)
-    server = await releaseGallery(config, baseline);
+  if (!process.env.UI_MOTION_EVIDENCE || process.env.UI_MOTION_PERF || process.env.UI_MOTION_RELEASE)
+    server = await releaseGallery(config, setup.signal);
   else {
     const dev = await createServer(config);
-    await dev.listen();
     server = dev;
+    await dev.listen();
   }
+  setup.signal.throwIfAborted();
   browser = await launchChrome();
+  setup.signal.throwIfAborted();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.setDefaultTimeout(5000);
   page.on("pageerror", (error) => errors.push(error.message));
-}, 150000);
+}
 afterAll(async () => {
-  await browser?.close();
-  await server?.close();
-});
+  setup.abort();
+  await starting?.catch(() => undefined); // The setup hook reports errors; wait for its cleanup.
+  try {
+    await browser?.close();
+  } finally {
+    await server?.close();
+  }
+}, 150000);
 beforeEach(async () => {
   errors.length = 0;
   await openLab();
