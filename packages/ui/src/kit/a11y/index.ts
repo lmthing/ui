@@ -16,7 +16,7 @@ type ActivationKey = {
   target?: unknown;
   currentTarget?: unknown;
   preventDefault(): void;
-  stopPropagation(): void;
+  stopPropagation?(): void;
 };
 
 /** Role-based controls need an explicit keyboard path on web; nested controls own their own keys. */
@@ -33,7 +33,7 @@ export function webActivation(
     onKeyDown: (event: ActivationKey) => {
       if (!ownKey(event) || event.altKey || event.ctrlKey || event.metaKey) return;
       event.preventDefault();
-      event.stopPropagation();
+      event.stopPropagation?.();
       if (!event.repeat) {
         feedback?.(true);
         press();

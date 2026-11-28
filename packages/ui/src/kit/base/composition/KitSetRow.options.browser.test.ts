@@ -36,7 +36,13 @@ const actions = [
 type Handler = {
   testID?: string;
   onPress?: (event?: object) => unknown;
-  onKeyDown?: (event: { key: string; preventDefault(): void }) => unknown;
+  onKeyDown?: (event: {
+    key: string;
+    target?: object;
+    currentTarget?: object;
+    preventDefault(): void;
+    stopPropagation?(): void;
+  }) => unknown;
 };
 async function capture(
   child: ReactNode,
@@ -135,8 +141,24 @@ describe("KitTile wave 2 selected, detail and declared root actions", () => {
     expect(root.attributes).toContain('aria-pressed="true"');
     expect(styleAt(result.html, root)).toContain("var(--accentSoft)");
     expect(result.html).toContain('data-testid="home/c1/r1/detail"');
-    result.targets.get("home/c1/r1/root")!.onKeyDown!({ key: "Enter", preventDefault: vi.fn() });
-    expect(result.act).toHaveBeenCalledWith({ address: "home/c1/r1/root", action });
+    const preventDefault = vi.fn();
+    result.targets.get("home/c1/r1/root")!.onKeyDown!({ key: "Enter", preventDefault });
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(result.act).toHaveBeenCalledExactlyOnceWith({ address: "home/c1/r1/root", action });
+  });
+  it("stops a handled key from bubbling but leaves nested controls alone", async () => {
+    const result = await capture(createElement(KitTile, { item: "r1", icon: "clock", label: "Timer" }));
+    const onKeyDown = result.targets.get("home/c1/r1/root")!.onKeyDown!;
+    const currentTarget = {};
+    const event = { key: " ", currentTarget, preventDefault: vi.fn(), stopPropagation: vi.fn() };
+    onKeyDown({ ...event, target: {} });
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(event.stopPropagation).not.toHaveBeenCalled();
+    expect(result.press).not.toHaveBeenCalled();
+    onKeyDown({ ...event, target: currentTarget });
+    expect(event.preventDefault).toHaveBeenCalledOnce();
+    expect(event.stopPropagation).toHaveBeenCalledOnce();
+    expect(result.press).toHaveBeenCalledExactlyOnceWith("home/c1/r1/root");
   });
   it("routes links through the controller and blocks disabled/loading tiles", async () => {
     const linked = await capture(
@@ -166,7 +188,15 @@ describe("KitTrail wave 2 pending switches and status tones", () => {
       const result = await capture(createElement(KitTrail, { kind: "badge", value: "Status", tone }));
       const badge = elementAt(result.html, "home/c1/trail").children[0]!;
       expect(styleAt(result.html, badge)).toContain(`var(--${tone}Soft)`);
-      expect(styleAt(result.html, badge.children[0]!.children[0]!)).toContain(`var(--${tone})`);
+      const content = badge.children[0]!;
+      const textFrame = tone === "warn" ? content.children[1]! : content;
+      expect(styleAt(result.html, textFrame.children[0]!)).toContain(`var(--${tone})`);
+      expect(result.html).toContain(">Status</");
+      if (tone === "warn") {
+        const icon = content.children[0]!;
+        expect(icon.attributes).toContain('aria-hidden="true"');
+        expect(icon.children[0]!.tag).toBe("svg");
+      }
     },
   );
   it("retains disabled switch state but offers no press", async () => {
