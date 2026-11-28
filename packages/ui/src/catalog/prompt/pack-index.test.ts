@@ -29,6 +29,16 @@ it("orders packs by id without changing the map", () => {
   expect(buildPackIndex({})).toBe("");
 });
 
+it("snapshots current health and money guidance with their service boundaries", () => {
+  const guidance = buildPackIndex({}, { includeDrafts: true });
+  expect(guidance.match(/^- (health|money): .*$/gm)).toMatchInlineSnapshot(`
+    [
+      "- health: The most-asked personal app family: logging workouts set by set, taking medication on time, watching a body measurement move toward a goal, keeping several healthy habits, tracking symptoms, vitals and a menstrual cycle. Everything stays on the phone; nothing here is medical advice. Pick: The body: workouts, medication, measurements, symptoms, cycles. Not the mind (mind), not food (kitchen)",
+      "- money: Personal and household money: what is in each account, where it went, what is due, who owes whom, how to clear debts, and how a holding is doing. It never moves money in a first showcase; bank links and payments are service. Pick: The person's own money: balances, budgets, bills, splitting costs, debts and repayment plans. Not a business's sales (commerce)",
+    ]
+  `);
+});
+
 it("lists only ready fixture packs unless drafts are requested", () => {
   const commerce = { ...booking, id: "commerce" as const };
   const packs = { commerce, booking };

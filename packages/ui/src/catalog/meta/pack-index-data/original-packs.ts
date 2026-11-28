@@ -22,7 +22,7 @@ export const originalPacks = [
     id: "money",
     name: "Money",
     purpose:
-      'Personal and household money: what is in each account, where it went, what is due, who owes whom, how to clear debts, and how a holding is doing. It never moves money in a first showcase; bank links and payments are service, and "what\'s real?" says so.',
+      "Personal and household money: what is in each account, where it went, what is due, who owes whom, how to clear debts, and how a holding is doing. It never moves money in a first showcase; bank links and payments are service.",
     pick: "The person's own money: balances, budgets, bills, splitting costs, debts and repayment plans. Not a business's sales (commerce)",
   },
   {
