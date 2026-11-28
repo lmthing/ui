@@ -112,7 +112,7 @@ function MeterAmount({
       accessibilityRole={isWeb ? "group" : "text"}
       accessibilityLabel={exact}
     >
-      <YStack aria-hidden accessibilityElementsHidden>
+      <YStack data-kit-visual-reading="" aria-hidden accessibilityElementsHidden>
         {text}
       </YStack>
     </YStack>

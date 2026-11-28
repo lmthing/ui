@@ -7,7 +7,7 @@ export const decode = (text: string) =>
 
 const voidTags = /^<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b/i;
 
-/** Text a person sees: everything outside <style> and outside decorative (aria-hidden) subtrees. */
+/** Visible data includes marked visual text with a separate equivalent screen-reader label. */
 export function visibleTexts(html: string): string[] {
   const body = html.replace(/<style[\s\S]*?<\/style>/g, "");
   const texts: string[] = [];
@@ -23,7 +23,13 @@ export function visibleTexts(html: string): string[] {
     const closing = token.startsWith("</");
     const selfClosing = token.endsWith("/>") || voidTags.test(token);
     if (hidden > 0) hidden += closing ? -1 : selfClosing ? 0 : 1;
-    else if (!closing && !selfClosing && /aria-hidden="true"/.test(token)) hidden = 1;
+    else if (
+      !closing &&
+      !selfClosing &&
+      /aria-hidden="true"/.test(token) &&
+      !/data-kit-visual-reading=/.test(token)
+    )
+      hidden = 1;
   }
   return texts;
 }

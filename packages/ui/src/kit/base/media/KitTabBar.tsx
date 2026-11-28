@@ -80,7 +80,9 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
           alignItems="center"
           justifyContent="center"
           flexWrap="wrap"
-          gap={space.xs}
+          gap={space.xs / 2}
+          aria-hidden
+          accessibilityElementsHidden
         >
           <KitIcon name="check" scale="sm" tone="accent" decorative />
           <YStack maxWidth="100%">

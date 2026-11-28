@@ -8,7 +8,7 @@ import {
   type AxisValue,
   type SurfaceFinish,
 } from "../../../catalog";
-import { useKit, useKitStyle, useVariantDensity } from "../../provider";
+import { useKit, useKitStyle, useVariantDensity, useWords } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { minimumTouchSize, RowLabelContext, webActivation } from "../../a11y";
 import {
@@ -112,6 +112,7 @@ export function Row(props: RowProps) {
   const id = useId();
   // Prefer the rendered text order for web actions; keep the caller's label as the fallback.
   const contentId = isWeb && actionRole ? id : undefined;
+  const warning = useWarning(semanticTone, id);
   const dispatch = useRowPress(address.testID, part, goto);
   const press = actionRole ? dispatch : undefined;
   return (
@@ -126,6 +127,7 @@ export function Row(props: RowProps) {
       data-kit-row={isWeb && actionRole ? "" : undefined}
       accessibilityLabel={actionRole || role === "group" ? label : undefined}
       aria-labelledby={contentId}
+      {...warning.accessibility}
       aria-current={selected || undefined}
       aria-expanded={expanded}
       onPress={press}
@@ -139,7 +141,7 @@ export function Row(props: RowProps) {
         gap={inline ? space.xs : space[spacing.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >
-        <RowTextRail {...props} {...{ groupLead, leadingAlign, leadingWidth, line }} />
+        <RowTextRail {...props} {...{ groupLead, leadingAlign, leadingWidth, line }} warningId={warning.id} />
       </Content>
       {status && <RowStatusRule tone={status} />}
       {(selected || mark === "highlight" || mark === "new") && (
@@ -147,6 +149,16 @@ export function Row(props: RowProps) {
       )}
     </Frame>
   );
+}
+
+function useWarning(tone: TextTone | undefined, id: string) {
+  const { warningLabel } = useWords().words;
+  if (tone !== "warn") return { id: undefined, accessibility: {} };
+  const warning = `${id}-warning`;
+  return {
+    id: isWeb ? warning : undefined,
+    accessibility: isWeb ? { "aria-describedby": warning } : { accessibilityHint: warningLabel },
+  };
 }
 
 function RowTextRail({
@@ -160,7 +172,8 @@ function RowTextRail({
   trailing,
   selected,
   rowTone,
-}: RowProps & { line: number; groupLead: RowProps["leadingWidth"] }) {
+  warningId,
+}: RowProps & { line: number; groupLead: RowProps["leadingWidth"]; warningId: string | undefined }) {
   return (
     <RowLabelContext.Provider value={label}>
       {(leading || groupLead) && <RowLeading {...{ leading, leadingAlign, leadingWidth, line }} />}
@@ -168,7 +181,7 @@ function RowTextRail({
         <YStack flex={component.base.bodyFlex} minWidth={component.base.none}>
           {children}
           {selected && <KitStateMark kind="selected" />}
-          {rowTone === "warn" && <KitStateMark kind="warning" />}
+          {rowTone === "warn" && <KitStateMark kind="warning" id={warningId} />}
         </YStack>
         {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
       </RowGroupLead.Provider>
