@@ -10,7 +10,7 @@ export function KitStateMark({ kind, id }: { kind: "selected" | "warning"; id?: 
   const tone = warning ? "warn" : "text";
   return (
     <XStack
-      id={id}
+      {...(id ? { id } : {})}
       aria-hidden
       accessibilityElementsHidden
       alignItems="center"
