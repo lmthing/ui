@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { relative } from "node:path";
@@ -20,6 +21,9 @@ export function baselineMotionKit(): Plugin {
     enforce: "pre",
     load(id) {
       const path = relative(project, id.split("?")[0]!);
+      // The workspace generator also exported the two new bases from the ignored top-level door.
+      if (path === "packages/ui/src/kit/base/index.ts")
+        return readFileSync(id.split("?")[0]!, "utf8").replace(/\bKit(?:StateMark|LocalAction),\s*/g, "");
       if (sources.has(path)) return git("show", `main:${path}`);
     },
   };
